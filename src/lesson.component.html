@@ -1,14 +1,12 @@
 <section>
-  <appbar title="Rangular Tutorial" titleAlign="center"></appbar>
-  <icon-button name="chevron-left" routerLink="/home"></icon-button>
+  <appbar [title]="barTitle" tone="gradient" pin back (back)="goHome()" [actionIcon]="lesson ? (bookmarked ? 'bookmark' : 'bookmark-outline') : ''" (action)="toggleBookmark()"></appbar>
   <card *ngIf="lesson">
     <label>Lesson {{ lesson.id }}</label>
     <h2>{{ lesson.title }}</h2>
     <p>{{ lesson.intro }}</p>
-    <button (click)="toggleBookmark()">{{ bookmarked ? 'Bookmarked: tap to remove' : 'Bookmark this lesson' }}</button>
   </card>
   <p *ngIf="!lesson">This lesson could not be found.</p>
-  <section *ngIf="lesson">
+  <section *ngIf="hasCode">
     <label>Code</label>
     <code>{{ lesson.code }}</code>
   </section>

@@ -18,6 +18,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export class BookmarksService {
   bookmarkIds: number[] = [];
   lastLessonId = 0;
+  howToSeen = false;
   storageKey = 'rangular-tutorial.progress.v1';
 
   constructor() {
@@ -26,6 +27,7 @@ export class BookmarksService {
         const saved = JSON.parse(raw);
         this.bookmarkIds = saved.bookmarkIds;
         this.lastLessonId = saved.lastLessonId;
+        this.howToSeen = saved.howToSeen === true;
       }
     });
   }
@@ -36,8 +38,14 @@ export class BookmarksService {
       JSON.stringify({
         bookmarkIds: this.bookmarkIds,
         lastLessonId: this.lastLessonId,
+        howToSeen: this.howToSeen,
       }),
     );
+  }
+
+  dismissHowTo() {
+    this.howToSeen = true;
+    this.save();
   }
 
   recordLast(id: number) {

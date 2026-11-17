@@ -13,12 +13,15 @@ type Lesson = {
 };
 
 /**
- * Home: the app bar with the menu, a search field over all
- * lessons, a continue row and a bookmarks group fed by the
- * bookmarks service, the lesson list in six groups (getting
+ * Home: the gradient app bar pinned above the scroll with the
+ * search pill inside it, a one time how to card the reader
+ * dismisses with Got it (the same guide stays in the drawer),
+ * a continue row and a bookmarks group fed by the bookmarks
+ * service, and the lesson list in six labelled groups (getting
  * started, components and templates, forms and interaction,
  * services, routing, and data, the Material pieces, then
- * beyond Angular), and the coming next card. The groups are
+ * beyond Angular). Every lesson row carries its number tile
+ * and its own bookmark button. The groups are
  * split from the one lessons array in ngOnInit, because a row
  * carries one structural directive and the split belongs in
  * the class. The search filter lives in the class for the
@@ -30,6 +33,8 @@ type Lesson = {
 })
 export class HomeComponent {
   menuOpen = false;
+  howToSeen = false;
+  howToOpen = false;
   query = '';
   searching = false;
   results: Lesson[] = [];
@@ -59,6 +64,30 @@ export class HomeComponent {
       this.continueLesson = found === undefined ? null : found;
     }
     this.bookmarkLessons = this.lessons.lessons.filter((l: Lesson) => this.bookmarks.isBookmarked(l.id));
+    this.howToSeen = this.bookmarks.howToSeen;
+  }
+
+  isSaved(id: number) {
+    return this.bookmarks.isBookmarked(id);
+  }
+
+  toggleBookmark(id: number) {
+    this.bookmarks.toggle(id);
+    this.bookmarkLessons = this.lessons.lessons.filter((l: Lesson) => this.bookmarks.isBookmarked(l.id));
+  }
+
+  dismissHowTo() {
+    this.bookmarks.dismissHowTo();
+    this.howToSeen = true;
+  }
+
+  openHowTo() {
+    this.menuOpen = false;
+    this.howToOpen = true;
+  }
+
+  closeHowTo() {
+    this.howToOpen = false;
   }
 
   onQuery(text: string) {

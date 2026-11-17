@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { LessonService } from './lesson.service';
 import { BookmarksService } from './bookmarks.service';
 import { HelloComponent } from './demos/hello.component';
@@ -114,9 +114,12 @@ export class LessonComponent {
   lesson: any = null;
   lessonId = 0;
   bookmarked = false;
+  barTitle = 'Rangular Tutorial';
+  hasCode = false;
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private lessonService: LessonService,
     private bookmarks: BookmarksService,
   ) {}
@@ -127,11 +130,19 @@ export class LessonComponent {
     if (this.lessonId > 0) {
       this.bookmarks.recordLast(this.lessonId);
       this.bookmarked = this.bookmarks.isBookmarked(this.lessonId);
+      this.barTitle = 'Lesson ' + this.lessonId;
+      this.hasCode = this.lesson.code !== '';
     }
   }
 
+  goHome() {
+    this.router.navigate(['/home']);
+  }
+
   toggleBookmark() {
-    this.bookmarks.toggle(this.lessonId);
-    this.bookmarked = this.bookmarks.isBookmarked(this.lessonId);
+    if (this.lessonId > 0) {
+      this.bookmarks.toggle(this.lessonId);
+      this.bookmarked = this.bookmarks.isBookmarked(this.lessonId);
+    }
   }
 }

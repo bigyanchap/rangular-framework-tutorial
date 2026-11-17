@@ -1,68 +1,83 @@
 <section>
-  <appbar title="Rangular Tutorial" titleAlign="center" menu (menu)="openMenu()"></appbar>
+  <appbar title="Rangular Tutorial" tone="gradient" pin menu (menu)="openMenu()" titleAlign="center">
+    <input variant="search" placeholder="Search lessons" [value]="query" (change)="onQuery($event)">
+  </appbar>
   <drawer [open]="menuOpen" (close)="closeMenu()">
-    <h3>Rangular Tutorial</h3>
+    <gradient>
+      <h3>Rangular Tutorial</h3>
+      <p>Write Angular. Run native.</p>
+    </gradient>
     <list>
       <row title="Home" subtitle="The lesson list" routerLink="/home"></row>
+      <row title="How to use this tutorial" subtitle="The one page guide" (click)="openHowTo()"></row>
       <row title="About" subtitle="What this app is and how it grows" routerLink="/about"></row>
     </list>
     <p>Rangular framework 0.1.2</p>
   </drawer>
+  <dialog [open]="howToOpen" (close)="closeHowTo()" title="How to use this tutorial">
+    <p>Start at Lesson 1 and go in order. Tap a lesson, read it, try its demo, then come back for the next one.</p>
+    <p>Use the search in the top bar to find one topic. Tap the bookmark icon on a lesson row, or on the lesson screen itself, to keep the lesson in your bookmarks on this screen. The continue row reopens the last lesson you read.</p>
+    <actions>
+      <button (click)="closeHowTo()">Got it</button>
+    </actions>
+  </dialog>
   <h1>Learn Rangular</h1>
-  <p>Short lessons, in order. Each lesson has a plain explanation, a Code block, and a live demo running on the same screen.</p>
-  <card>
+  <p>Short lessons, in order. Each lesson has a plain explanation, a Code block where the lesson has code, and a live demo running on the same screen.</p>
+  <card *ngIf="!howToSeen">
     <h3>How to use this tutorial</h3>
-    <p>Start at Lesson 1 and go in order. Tap a lesson, read it, try its demo, then come back for the next one. Looking for one topic? Type in the search field below and tap a result. On a lesson, the bookmark button keeps it in your bookmarks on this screen, and the continue row reopens the last lesson you read.</p>
+    <p>Start at Lesson 1 and go in order. Search from the top bar. Bookmark a lesson with its bookmark icon, and the continue row will reopen the last lesson you read.</p>
+    <button (click)="dismissHowTo()">Got it</button>
   </card>
-  <input label="Search lessons" placeholder="Try forms, pipes, or tables" [value]="query" (change)="onQuery($event)">
-  <button *ngIf="searching" variant="text" (click)="clearSearch()">Clear search</button>
   <section *ngIf="searching">
-    <label>Search results</label>
-    <list>
-      <row *ngFor="let l of results" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [routerLink]="['/lesson', l.id]"></row>
-    </list>
-    <p *ngIf="results.length === 0">No lesson matches that search. Try a shorter word.</p>
+    <section label="Search results" [meta]="results.length + ' found'">
+      <list>
+        <row *ngFor="let l of results" avatar [avatarText]="l.id" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
+      </list>
+      <p *ngIf="results.length === 0">No lesson matches that search. Try a shorter word.</p>
+    </section>
+    <button variant="text" (click)="clearSearch()">Clear search</button>
   </section>
   <section *ngIf="!searching">
-    <section *ngIf="continueLesson">
-      <label>Continue where you left off</label>
+    <section *ngIf="continueLesson" label="Continue where you left off">
       <list>
-        <row [title]="continueLesson.title" [subtitle]="continueLesson.subtitle" [time]="continueLesson.minutes" [routerLink]="['/lesson', continueLesson.id]"></row>
+        <row avatar [avatarText]="continueLesson.id" [title]="continueLesson.title" [subtitle]="continueLesson.subtitle" [time]="continueLesson.minutes" [actionIcon]="isSaved(continueLesson.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(continueLesson.id)" [routerLink]="['/lesson', continueLesson.id]"></row>
       </list>
     </section>
-    <section *ngIf="bookmarkLessons.length > 0">
-      <label>Your bookmarks</label>
+    <section *ngIf="bookmarkLessons.length > 0" label="Your bookmarks" [meta]="bookmarkLessons.length + ' saved'">
       <list>
-        <row *ngFor="let l of bookmarkLessons" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [routerLink]="['/lesson', l.id]"></row>
+        <row *ngFor="let l of bookmarkLessons" avatar [avatarText]="l.id" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
       </list>
     </section>
-    <label>Getting started: lessons 1 to 5</label>
-    <list>
-      <row *ngFor="let l of starterLessons" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [routerLink]="['/lesson', l.id]"></row>
-    </list>
-    <label>Components and templates: lessons 6 to 25</label>
-    <list>
-      <row *ngFor="let l of batchLessons" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [routerLink]="['/lesson', l.id]"></row>
-    </list>
-    <label>Forms and interaction: lessons 26 to 45</label>
-    <list>
-      <row *ngFor="let l of formsLessons" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [routerLink]="['/lesson', l.id]"></row>
-    </list>
-    <label>Services, routing, and data: lessons 46 to 65</label>
-    <list>
-      <row *ngFor="let l of dataLessons" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [routerLink]="['/lesson', l.id]"></row>
-    </list>
-    <label>The Material pieces: lessons 66 to 76</label>
-    <list>
-      <row *ngFor="let l of piecesLessons" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [routerLink]="['/lesson', l.id]"></row>
-    </list>
-    <label>Beyond Angular: lessons 77 to 95</label>
-    <list>
-      <row *ngFor="let l of beyondLessons" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [routerLink]="['/lesson', l.id]"></row>
-    </list>
-    <card>
-      <h3>Coming next</h3>
-      <p>The curriculum is complete and the app comforts are in: search across all 95 lessons, bookmarks, a continue row for your last lesson, and try it fields in the most hands on lessons. What remains is the store release. The icon, splash artwork, and store listing are prepared, and the accounts and submission are the last step.</p>
-    </card>
+    <section label="Getting started" meta="Lessons 1 to 5">
+      <list>
+        <row *ngFor="let l of starterLessons" avatar [avatarText]="l.id" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
+      </list>
+    </section>
+    <section label="Components and templates" meta="Lessons 6 to 25">
+      <list>
+        <row *ngFor="let l of batchLessons" avatar [avatarText]="l.id" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
+      </list>
+    </section>
+    <section label="Forms and interaction" meta="Lessons 26 to 45">
+      <list>
+        <row *ngFor="let l of formsLessons" avatar [avatarText]="l.id" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
+      </list>
+    </section>
+    <section label="Services, routing, and data" meta="Lessons 46 to 65">
+      <list>
+        <row *ngFor="let l of dataLessons" avatar [avatarText]="l.id" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
+      </list>
+    </section>
+    <section label="The Material pieces" meta="Lessons 66 to 76">
+      <list>
+        <row *ngFor="let l of piecesLessons" avatar [avatarText]="l.id" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
+      </list>
+    </section>
+    <section label="Beyond Angular" meta="Lessons 77 to 95">
+      <list>
+        <row *ngFor="let l of beyondLessons" avatar [avatarText]="l.id" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
+      </list>
+    </section>
+    <p>95 lessons, each with a live demo. Rangular framework 0.1.2.</p>
   </section>
 </section>

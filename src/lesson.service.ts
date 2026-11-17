@@ -9,7 +9,7 @@ export class LessonService {
       subtitle: 'What Rangular is, and what this app is',
       minutes: '3 min',
       intro: 'Rangular lets you write a mobile app the Angular way. You write components in TypeScript with HTML templates, and Rangular compiles them into React Native code that runs on iOS and Android. This app is the tutorial, and it is itself built with Rangular, so every screen you see is proof the compiler works.',
-      code: 'Write Angular. Run native.',
+      code: '',
       tip: 'Read each lesson, look at its code, then try the live demo on the same screen where the lesson has one. This app itself is the first demo: every screen is real Rangular code running, not a picture.',
     },
     {
@@ -188,7 +188,7 @@ export class LessonService {
       title: 'Cards, lists, and rows',
       subtitle: 'The layout blocks every screen is built from',
       minutes: '5 min',
-      intro: 'Three blocks build most screens. A card groups related content on one surface. A list stacks rows with an even rhythm. A row is one item of information: a title, an optional subtitle, and room for an avatar at the start and a time, a detail, or a badge at the end. A row can also carry children of its own, like the pill in the demo. The demo builds a small inbox corner from these three blocks, and its button clears the badge in both places at once, so tap it and watch the row and the button together.',
+      intro: 'Three blocks build most screens. A card groups related content on one surface. A list stacks rows with an even rhythm. A row is one item of information: a title, an optional subtitle, and room for an avatar at the start and a time, a detail, or a badge at the end. A row can also carry children of its own, like the pill in the demo. Two newer row pieces are at work on the Home screen of this app: avatarText puts text you pass, like a lesson number, in the avatar circle instead of the title\'s first letter, and actionIcon with (action) gives the row a trailing button of its own, the bookmark on every lesson row. The demo builds a small inbox corner from these three blocks, and its button clears the badge in both places at once, so tap it and watch the row and the button together.',
       code: '<row title="Inbox" subtitle="3 new messages" [badge]="3"></row>',
       tip: 'Compose screens from these blocks before reaching for custom layout: a card for a group, a list for repetition, a row for one item. Consistent blocks are what make an app feel like one app.',
     },
