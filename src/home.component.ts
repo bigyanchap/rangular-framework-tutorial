@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { LessonService } from './lesson.service';
 import { BookmarksService } from './bookmarks.service';
+import { ShellService } from './shell.service';
 
 type Lesson = {
   id: number;
@@ -13,66 +15,99 @@ type Lesson = {
 };
 
 /**
- * Home: the plain white app bar pinned above the scroll, its
- * whole face the search pill with the menu inside it, a one
- * time how to card the reader dismisses with Got it (the same
- * guide stays in the drawer),
- * a continue row and a bookmarks group fed by the bookmarks
- * service, and the lesson list in six labelled groups (getting
- * started, components and templates, forms and interaction,
- * services, routing, and data, the Material pieces, then
- * beyond Angular). Every lesson row carries its number tile
- * and its own bookmark button. The groups are
- * split from the one lessons array in ngOnInit, because a row
- * carries one structural directive and the split belongs in
- * the class. The search filter lives in the class for the
- * same reason.
+ * Home, the Learn tab: a flat tint app bar that blends into the
+ * status area, carrying a menu, a search action and a saved
+ * shortcut. Below it, the reader's path: how far they are, and
+ * the next lesson waiting. The lesson list follows in six
+ * labelled groups, each row a step on the path: a green check
+ * tile for a done lesson, a blue tile for the current one, a
+ * pastel number for the rest. The groups are split from the one
+ * lessons array in ngOnInit, because a row carries one
+ * structural directive and the split belongs in the class. The
+ * search filter lives in the class for the same reason.
  */
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styles: [`
-    .drawer-head { background-color: #e8f0fe; border-radius: 16px; padding: 16px; }
-    .drawer-mark { width: 48px; height: 48px; border-radius: 9999px; background-color: #0b57d0; align-items: center; justify-content: center; }
-    .howto-card { background-color: #e8f0fe; border-width: 0; }
-    .continue-card { background-color: #ffffff; border-radius: 16px; padding: 12px; border-width: 1px; border-color: #dadce0; }
-    .lead-bold { font-weight: 700; padding-right: 4px; }
+    .path-card { background-color: #e8f0fe; border-width: 0; border-radius: 16px; padding: 16px; }
   `],
 })
 export class HomeComponent {
-  menuOpen = false;
-  howToSeen = false;
-  howToOpen = false;
   query = '';
   searching = false;
+  searchOpen = false;
   results: Lesson[] = [];
   continueLesson: any = null;
-  bookmarkLessons: Lesson[] = [];
+  doneCount = 0;
+  doneMinutes = 0;
+  percent = 0;
+  allDone = false;
   starterLessons: Lesson[] = [];
   batchLessons: Lesson[] = [];
   formsLessons: Lesson[] = [];
   dataLessons: Lesson[] = [];
   piecesLessons: Lesson[] = [];
   beyondLessons: Lesson[] = [];
+  starterMeta = '';
+  batchMeta = '';
+  formsMeta = '';
+  dataMeta = '';
+  piecesMeta = '';
+  beyondMeta = '';
 
   constructor(
     private lessons: LessonService,
     private bookmarks: BookmarksService,
+    private shell: ShellService,
+    private router: Router,
   ) {}
 
   ngOnInit() {
+    this.shell.setPlace('learn');
     this.starterLessons = this.lessons.lessons.filter((l: Lesson) => l.id <= 5);
     this.batchLessons = this.lessons.lessons.filter((l: Lesson) => l.id >= 6 && l.id <= 25);
     this.formsLessons = this.lessons.lessons.filter((l: Lesson) => l.id >= 26 && l.id <= 45);
     this.dataLessons = this.lessons.lessons.filter((l: Lesson) => l.id >= 46 && l.id <= 65);
     this.piecesLessons = this.lessons.lessons.filter((l: Lesson) => l.id >= 66 && l.id <= 76);
     this.beyondLessons = this.lessons.lessons.filter((l: Lesson) => l.id >= 77);
-    if (this.bookmarks.lastLessonId > 0) {
-      const found = this.lessons.lessons.find((l: Lesson) => l.id === this.bookmarks.lastLessonId);
-      this.continueLesson = found === undefined ? null : found;
-    }
-    this.bookmarkLessons = this.lessons.lessons.filter((l: Lesson) => this.bookmarks.isBookmarked(l.id));
-    this.howToSeen = this.bookmarks.howToSeen;
+    this.refreshProgress();
+  }
+
+  refreshProgress() {
+    const done = this.lessons.lessons.filter((l: Lesson) => this.bookmarks.isDone(l.id));
+    this.doneCount = done.length;
+    this.doneMinutes = done.reduce((sum: number, l: Lesson) => sum + parseInt(l.minutes, 10), 0);
+    this.percent = Math.round((this.doneCount * 100) / 95);
+    this.allDone = this.doneCount >= 95;
+    const next = this.lessons.lessons.find((l: Lesson) => !this.bookmarks.isDone(l.id));
+    this.continueLesson = next === undefined ? null : next;
+    this.starterMeta = this.doneIn(1, 5);
+    this.batchMeta = this.doneIn(6, 25);
+    this.formsMeta = this.doneIn(26, 45);
+    this.dataMeta = this.doneIn(46, 65);
+    this.piecesMeta = this.doneIn(66, 76);
+    this.beyondMeta = this.doneIn(77, 95);
+  }
+
+  doneIn(from: number, to: number) {
+    const group = this.lessons.lessons.filter((l: Lesson) => l.id >= from && l.id <= to);
+    const n = group.filter((l: Lesson) => this.bookmarks.isDone(l.id)).length;
+    return n + ' of ' + group.length + ' done';
+  }
+
+  tileText(l: Lesson) {
+    return this.bookmarks.isDone(l.id) ? '✓' : String(l.id);
+  }
+
+  tileTone(l: Lesson) {
+    if (this.bookmarks.isDone(l.id)) return 'green';
+    if (this.continueLesson !== null && l.id === this.continueLesson.id) return 'blue';
+    return 'varied';
+  }
+
+  isCurrent(l: Lesson) {
+    return this.continueLesson !== null && l.id === this.continueLesson.id;
   }
 
   isSaved(id: number) {
@@ -81,21 +116,6 @@ export class HomeComponent {
 
   toggleBookmark(id: number) {
     this.bookmarks.toggle(id);
-    this.bookmarkLessons = this.lessons.lessons.filter((l: Lesson) => this.bookmarks.isBookmarked(l.id));
-  }
-
-  dismissHowTo() {
-    this.bookmarks.dismissHowTo();
-    this.howToSeen = true;
-  }
-
-  openHowTo() {
-    this.menuOpen = false;
-    this.howToOpen = true;
-  }
-
-  closeHowTo() {
-    this.howToOpen = false;
   }
 
   onQuery(text: string) {
@@ -118,11 +138,21 @@ export class HomeComponent {
     this.onQuery('');
   }
 
-  openMenu() {
-    this.menuOpen = true;
+  toggleSearch() {
+    this.searchOpen = !this.searchOpen;
   }
 
-  closeMenu() {
-    this.menuOpen = false;
+  openNav() {
+    this.shell.openDrawer();
+  }
+
+  goSaved() {
+    this.router.navigate(['/saved']);
+  }
+
+  pickTab(i: number) {
+    if (i === 1) this.router.navigate(['/saved']);
+    else if (i === 2) this.router.navigate(['/progress']);
+    else if (i === 3) this.router.navigate(['/about']);
   }
 }

@@ -1,3 +1,27 @@
-<screen>
+<screen fade>
+  <drawer [open]="shell.drawerOpen" (close)="closeDrawer()">
+    <section class="drawer-head">
+      <section class="drawer-mark">
+        <icon name="code" color="onPrimary" size="24"></icon>
+      </section>
+      <h3>Rangular Tutorial</h3>
+      <p>95 lessons · Learn by running code</p>
+    </section>
+    <list>
+      <row icon="home" title="Learn" [selected]="shell.place === 'learn'" (click)="goLearn()"></row>
+      <row icon="bookmark" title="Saved lessons" [selected]="shell.place === 'saved'" (click)="goSaved()"></row>
+      <row icon="chart" title="Your progress" [selected]="shell.place === 'progress'" (click)="goProgress()"></row>
+      <row icon="info" title="How to use this tutorial" (click)="openHowTo()"></row>
+      <row icon="info" title="About" [selected]="shell.place === 'about'" (click)="goAbout()"></row>
+    </list>
+    <p>Rangular framework 0.1.3</p>
+  </drawer>
+  <dialog [open]="shell.howToOpen" (close)="closeHowTo()" title="How to use this tutorial">
+    <p>Start at Lesson 1 and go in order. Tap a lesson, read it, try its demo, then mark it done and move to the next one.</p>
+    <p>Use the search on Home to find one topic. Tap the bookmark icon on a lesson row, or on the lesson screen itself, to save the lesson. Your saved lessons live on the Saved tab, and your path and minutes live on the Progress tab.</p>
+    <actions>
+      <button (click)="closeHowTo()">Got it</button>
+    </actions>
+  </dialog>
   <router-outlet></router-outlet>
 </screen>

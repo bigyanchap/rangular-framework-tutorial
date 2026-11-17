@@ -1,7 +1,7 @@
 <section>
-  <appbar [title]="barTitle" tone="plain" pin back (back)="goHome()" [actionIcon]="lesson ? (bookmarked ? 'bookmark' : 'bookmark-outline') : ''" (action)="toggleBookmark()"></appbar>
+  <appbar [title]="barTitle" tone="plain" pin back (back)="goHome()" [progress]="progressPct" [actionIcon]="lesson ? (bookmarked ? 'bookmark' : 'bookmark-outline') : ''" (action)="toggleBookmark()"></appbar>
   <card *ngIf="lesson">
-    <label>Lesson {{ lesson.id }}</label>
+    <p class="eyebrow">LESSON {{ lesson.id }} · {{ sectionName }}</p>
     <h2>{{ lesson.title }}</h2>
     <p>{{ lesson.intro }}</p>
   </card>
@@ -386,8 +386,12 @@
     <label>Live demo: the path to here</label>
     <app-breadcrumbs-demo></app-breadcrumbs-demo>
   </card>
-  <section *ngIf="lesson">
+  <card *ngIf="lesson" class="tip-card">
     <label>Best practice</label>
     <p>{{ lesson.tip }}</p>
-  </section>
+  </card>
+  <actions *ngIf="lesson">
+    <button variant="text" [disabled]="lessonId <= 1" (click)="prevLesson()">Previous</button>
+    <button (click)="markDoneNext()">{{ nextLabel }}</button>
+  </actions>
 </section>

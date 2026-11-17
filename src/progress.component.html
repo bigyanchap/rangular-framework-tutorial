@@ -1,0 +1,39 @@
+<section>
+  <appbar pin tone="tint" title="Your progress" menu (menu)="openNav()"></appbar>
+  <bottom-nav [index]="2" (change)="pickTab($event)">
+    <nav-item icon="home" label="Learn"></nav-item>
+    <nav-item icon="bookmark" label="Saved"></nav-item>
+    <nav-item icon="chart" label="Progress"></nav-item>
+    <nav-item icon="info" label="About"></nav-item>
+  </bottom-nav>
+  <card class="path-card">
+    <h2>{{ percent }}%</h2>
+    <p>{{ doneCount }} of 95 lessons · {{ doneMinutes }} minutes in</p>
+    <progress-bar [value]="percent"></progress-bar>
+    <p *ngIf="lastLesson">You are on Lesson {{ lastLesson.id }} · {{ lastLesson.title }}</p>
+  </card>
+  <section class="stat-row">
+    <card class="stat-tile">
+      <h3>{{ doneCount }}</h3>
+      <p>lessons done</p>
+    </card>
+    <card class="stat-tile">
+      <h3>{{ doneMinutes }}</h3>
+      <p>minutes in</p>
+    </card>
+    <card class="stat-tile">
+      <h3>{{ savedCount }}</h3>
+      <p>saved</p>
+    </card>
+  </section>
+  <section label="This week" plain>
+    <chart type="bar" [data]="weekData"></chart>
+    <p>Every lesson counts, on any day.</p>
+  </section>
+  <section label="By section" plain>
+    <section *ngFor="let g of groups">
+      <p>{{ g.label }} · {{ g.done }} of {{ g.total }} done</p>
+      <progress-bar [value]="g.pct"></progress-bar>
+    </section>
+  </section>
+</section>

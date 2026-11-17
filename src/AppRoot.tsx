@@ -5,6 +5,34 @@ import { ActivatedRouteContext, RgAccordion, RgActions, RgAppbar, RgAvatar, RgAv
 import { ActivatedRoute, Container, FormControl, FormGroup, HttpClient, ReactiveService, RgNavigator, Router, SnackBar, Validators, pipe, validateValue } from '@rangular/runtime';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+export class ShellService extends ReactiveService {
+  drawerOpen = false;
+  howToOpen = false;
+  place = 'learn';
+  openDrawer() {
+    this.drawerOpen = true;
+    this.__notify();
+  }
+  closeDrawer() {
+    this.drawerOpen = false;
+    this.__notify();
+  }
+  openHowTo() {
+    this.drawerOpen = false;
+    this.__notify();
+    this.howToOpen = true;
+    this.__notify();
+  }
+  closeHowTo() {
+    this.howToOpen = false;
+    this.__notify();
+  }
+  setPlace(place: string) {
+    this.place = place;
+    this.__notify();
+  }
+}
+
 export class LessonService extends ReactiveService {
   lessons = [
     {
@@ -871,6 +899,7 @@ export class LessonService extends ReactiveService {
 
 export class BookmarksService extends ReactiveService {
   bookmarkIds: number[] = [];
+  completions: { id: number; day: string }[] = [];
   lastLessonId = 0;
   howToSeen = false;
   storageKey = 'rangular-tutorial.progress.v1';
@@ -881,6 +910,8 @@ export class BookmarksService extends ReactiveService {
     const saved = JSON.parse(raw);
     this.bookmarkIds = saved.bookmarkIds;
     this.__notify();
+    this.completions = (saved.completions === undefined ? [] : saved.completions);
+    this.__notify();
     this.lastLessonId = saved.lastLessonId;
     this.__notify();
     this.howToSeen = saved.howToSeen === true;
@@ -889,7 +920,7 @@ export class BookmarksService extends ReactiveService {
 });
   }
   save() {
-    AsyncStorage.setItem(this.storageKey, JSON.stringify({ bookmarkIds: this.bookmarkIds, lastLessonId: this.lastLessonId, howToSeen: this.howToSeen }));
+    AsyncStorage.setItem(this.storageKey, JSON.stringify({ bookmarkIds: this.bookmarkIds, completions: this.completions, lastLessonId: this.lastLessonId, howToSeen: this.howToSeen }));
   }
   dismissHowTo() {
     this.howToSeen = true;
@@ -900,6 +931,39 @@ export class BookmarksService extends ReactiveService {
     this.lastLessonId = id;
     this.__notify();
     this.save();
+  }
+  isDone(id: number) {
+    return this.completions.some((c) => c.id === id);
+  }
+  markDone(id: number) {
+    if (!this.isDone(id)) {
+      const day = this.dayKey(0);
+      this.completions = [...this.completions, { id, day }];
+      this.__notify();
+      this.save();
+    }
+  }
+  dayNumber(offset: number) {
+    return Math.floor(Date.now() / 86400000) - offset;
+  }
+  pad2(n: number) {
+    return (n < 10 ? '0' + n : String(n));
+  }
+  dayKey(offset: number) {
+    const z = this.dayNumber(offset) + 719468;
+    const era = Math.floor(z / 146097);
+    const doe = z - era * 146097;
+    const yoe = Math.floor((doe - Math.floor(doe / 1460) + Math.floor(doe / 36524) - Math.floor(doe / 146096)) / 365);
+    const y = yoe + era * 400;
+    const doy = doe - (365 * yoe + Math.floor(yoe / 4) - Math.floor(yoe / 100));
+    const mp = Math.floor((5 * doy + 2) / 153);
+    const d = doy - Math.floor((153 * mp + 2) / 5) + 1;
+    const m = mp + ((mp < 10 ? 3 : -9));
+    const year = (m <= 2 ? y + 1 : y);
+    return year + '-' + this.pad2(m) + '-' + this.pad2(d);
+  }
+  weekdayLetter(offset: number) {
+    return 'SMTWTFS'.charAt((this.dayNumber(offset) + 4) % 7);
   }
   isBookmarked(id: number) {
     return this.bookmarkIds.indexOf(id) >= 0;
@@ -1094,6 +1158,7 @@ const __pipeDurationPipe = new DurationPipe();
 
 const __container = new Container();
 __container.register(HttpClient, new HttpClient());
+__container.register(ShellService, new ShellService());
 __container.register(LessonService, new LessonService());
 __container.register(BookmarksService, new BookmarksService());
 __container.register(LifecycleLogService, new LifecycleLogService());
@@ -1110,26 +1175,29 @@ __container.register(MinutesService, new MinutesService());
 __container.register(UserService, new UserService(__container.get<HttpClient>(HttpClient)));
 __container.register(PracticeLogService, new PracticeLogService());
 
-const __navigator = new RgNavigator([{"path":"","redirectTo":"splash"},{"path":"splash"},{"path":"home"},{"path":"lesson/:id"},{"path":"about"},{"path":"**"}]);
+const __navigator = new RgNavigator([{"path":"","redirectTo":"splash"},{"path":"splash"},{"path":"home"},{"path":"saved"},{"path":"progress"},{"path":"lesson/:id"},{"path":"about"},{"path":"**"}]);
 const __router = new Router(__navigator);
 
 const __snackBar = new SnackBar();
 
 export function Splash() {
+  const snippet = "@Component({\n  selector: 'app-home',\n  templateUrl: './home.html'\n})\nexport class HomeComponent {\n  title = 'My first app';\n}";
   return (
     <RgSection>
-      <RgText variant="display">Rangular</RgText>
-      <RgText variant="bodyLarge">Write Angular. Run native.</RgText>
-      <RgCard>
-        <RgText variant="title">What is Rangular?</RgText>
-        <RgText variant="bodyLarge">Rangular takes code written the Angular way, components in TypeScript with HTML templates, and compiles it into React Native. One codebase runs as a real app on iOS and Android.</RgText>
-      </RgCard>
-      <RgCard>
-        <RgText variant="title">What is this app?</RgText>
-        <RgText variant="bodyLarge">This is the Rangular tutorial. It teaches you Rangular lesson by lesson, the way W3Schools teaches the web, with a short explanation, a Code block, and a live demo you can tap on every screen.</RgText>
-        <RgText variant="bodyLarge">And it is built with Rangular itself. Every screen in this app, including this one, started as Angular code.</RgText>
-      </RgCard>
+      <RgSection style={styles.splashEntryMark}>
+        <RgIcon name="code" size={28} color="onPrimary" />
+      </RgSection>
+      <RgText variant="title">Rangular Tutorial</RgText>
+      <RgText variant="display">Write Angular. Ship real phone apps.</RgText>
+      <RgText variant="bodyLarge">Learn the Rangular framework lesson by lesson, with a live demo on every screen. This app is built with Rangular itself.</RgText>
+      <RgCode>{snippet}</RgCode>
+      <RgChips>
+        <RgChip>95 lessons</RgChip>
+        <RgChip>Live demos</RgChip>
+        <RgChip>Free</RgChip>
+      </RgChips>
       <RgButton onPress={() => __router.navigateByUrl("/home")}>Start learning</RgButton>
+      <RgText variant="bodyLarge" style={styles.splashEntryFoot}>Rangular framework 0.1.3 · No account needed</RgText>
     </RgSection>
   );
 }
@@ -1139,51 +1207,82 @@ export function Home() {
   useSyncExternalStore((cb) => lessons.__subscribe(cb), () => lessons.__getVersion());
   const bookmarks = __container.get<BookmarksService>(BookmarksService);
   useSyncExternalStore((cb) => bookmarks.__subscribe(cb), () => bookmarks.__getVersion());
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [howToSeen, setHowToSeen] = useState(false);
-  const [howToOpen, setHowToOpen] = useState(false);
+  const shell = __container.get<ShellService>(ShellService);
+  useSyncExternalStore((cb) => shell.__subscribe(cb), () => shell.__getVersion());
+  const router = __router;
   const [query, setQuery] = useState('');
   const [searching, setSearching] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [results, setResults] = useState([]);
   const [continueLesson, setContinueLesson] = useState(null);
-  const [bookmarkLessons, setBookmarkLessons] = useState([]);
+  const [doneCount, setDoneCount] = useState(0);
+  const [doneMinutes, setDoneMinutes] = useState(0);
+  const [percent, setPercent] = useState(0);
+  const [allDone, setAllDone] = useState(false);
   const [starterLessons, setStarterLessons] = useState([]);
   const [batchLessons, setBatchLessons] = useState([]);
   const [formsLessons, setFormsLessons] = useState([]);
   const [dataLessons, setDataLessons] = useState([]);
   const [piecesLessons, setPiecesLessons] = useState([]);
   const [beyondLessons, setBeyondLessons] = useState([]);
+  const [starterMeta, setStarterMeta] = useState('');
+  const [batchMeta, setBatchMeta] = useState('');
+  const [formsMeta, setFormsMeta] = useState('');
+  const [dataMeta, setDataMeta] = useState('');
+  const [piecesMeta, setPiecesMeta] = useState('');
+  const [beyondMeta, setBeyondMeta] = useState('');
   const ngOnInit = () => {
+    shell.setPlace('learn');
     setStarterLessons(lessons.lessons.filter((l: Lesson) => l.id <= 5));
     setBatchLessons(lessons.lessons.filter((l: Lesson) => l.id >= 6 && l.id <= 25));
     setFormsLessons(lessons.lessons.filter((l: Lesson) => l.id >= 26 && l.id <= 45));
     setDataLessons(lessons.lessons.filter((l: Lesson) => l.id >= 46 && l.id <= 65));
     setPiecesLessons(lessons.lessons.filter((l: Lesson) => l.id >= 66 && l.id <= 76));
     setBeyondLessons(lessons.lessons.filter((l: Lesson) => l.id >= 77));
-    if (bookmarks.lastLessonId > 0) {
-      const found = lessons.lessons.find((l: Lesson) => l.id === bookmarks.lastLessonId);
-      setContinueLesson((found === undefined ? null : found));
+    refreshProgress();
+  };
+  const refreshProgress = () => {
+    let __shadowDoneCount = doneCount;
+    const done = lessons.lessons.filter((l: Lesson) => bookmarks.isDone(l.id));
+    __shadowDoneCount = done.length;
+    setDoneCount(__shadowDoneCount);
+    setDoneMinutes(done.reduce((sum: number, l: Lesson) => sum + parseInt(l.minutes, 10), 0));
+    setPercent(Math.round((__shadowDoneCount * 100) / 95));
+    setAllDone(__shadowDoneCount >= 95);
+    const next = lessons.lessons.find((l: Lesson) => !bookmarks.isDone(l.id));
+    setContinueLesson((next === undefined ? null : next));
+    setStarterMeta(doneIn(1, 5));
+    setBatchMeta(doneIn(6, 25));
+    setFormsMeta(doneIn(26, 45));
+    setDataMeta(doneIn(46, 65));
+    setPiecesMeta(doneIn(66, 76));
+    setBeyondMeta(doneIn(77, 95));
+  };
+  const doneIn = (from: number, to: number) => {
+    const group = lessons.lessons.filter((l: Lesson) => l.id >= from && l.id <= to);
+    const n = group.filter((l: Lesson) => bookmarks.isDone(l.id)).length;
+    return n + ' of ' + group.length + ' done';
+  };
+  const tileText = (l: Lesson) => {
+    return (bookmarks.isDone(l.id) ? '✓' : String(l.id));
+  };
+  const tileTone = (l: Lesson) => {
+    if (bookmarks.isDone(l.id)) {
+      return 'green';
     }
-    setBookmarkLessons(lessons.lessons.filter((l: Lesson) => bookmarks.isBookmarked(l.id)));
-    setHowToSeen(bookmarks.howToSeen);
+    if (continueLesson !== null && l.id === continueLesson.id) {
+      return 'blue';
+    }
+    return 'varied';
+  };
+  const isCurrent = (l: Lesson) => {
+    return continueLesson !== null && l.id === continueLesson.id;
   };
   const isSaved = (id: number) => {
     return bookmarks.isBookmarked(id);
   };
   const toggleBookmark = (id: number) => {
     bookmarks.toggle(id);
-    setBookmarkLessons(lessons.lessons.filter((l: Lesson) => bookmarks.isBookmarked(l.id)));
-  };
-  const dismissHowTo = () => {
-    bookmarks.dismissHowTo();
-    setHowToSeen(true);
-  };
-  const openHowTo = () => {
-    setMenuOpen(false);
-    setHowToOpen(true);
-  };
-  const closeHowTo = () => {
-    setHowToOpen(false);
   };
   const onQuery = (text: string) => {
     let __shadowSearching = searching;
@@ -1200,135 +1299,308 @@ export function Home() {
   const clearSearch = () => {
     onQuery('');
   };
-  const openMenu = () => {
-    setMenuOpen(true);
+  const toggleSearch = () => {
+    setSearchOpen(!searchOpen);
   };
-  const closeMenu = () => {
-    setMenuOpen(false);
+  const openNav = () => {
+    shell.openDrawer();
+  };
+  const goSaved = () => {
+    router.navigate(['/saved']);
+  };
+  const pickTab = (i: number) => {
+    if (i === 1) {
+      router.navigate(['/saved']);
+    } else if (i === 2) {
+      router.navigate(['/progress']);
+    } else if (i === 3) {
+      router.navigate(['/about']);
+    }
   };
   useEffect(() => {
     ngOnInit();
   }, []);
   return (
     <RgSection>
-      <RgAppbar tone="plain" pin>
-        <RgInput variant="search" leadingIcon="menu" avatarText="R" placeholder="Search lessons" onChangeText={($event) => onQuery($event)} value={query} onLeading={() => openMenu()} />
-      </RgAppbar>
-      <RgDrawer open={menuOpen} onClose={() => closeMenu()}>
-        <RgSection style={styles.homeDrawerHead}>
-          <RgSection style={styles.homeDrawerMark}>
-            <RgIcon name="code" size={24} color="onPrimary" />
-          </RgSection>
-          <RgText variant="title">Rangular Tutorial</RgText>
-          <RgText variant="bodyLarge">95 lessons · Learn by running code</RgText>
-        </RgSection>
-        <RgList>
-          <RgRow icon="home" title="Home" onPress={() => __router.navigateByUrl("/home")} />
-          <RgRow icon="info" title="How to use this tutorial" onPress={() => openHowTo()} />
-          <RgRow icon="info" title="About" onPress={() => __router.navigateByUrl("/about")} />
-        </RgList>
-        <RgText variant="bodyLarge">Rangular framework 0.1.2</RgText>
-      </RgDrawer>
-      <RgDialog title="How to use this tutorial" open={howToOpen} onClose={() => closeHowTo()}>
-        <RgText variant="bodyLarge">Start at Lesson 1 and go in order. Tap a lesson, read it, try its demo, then come back for the next one.</RgText>
-        <RgText variant="bodyLarge">Use the search in the top bar to find one topic. Tap the bookmark icon on a lesson row, or on the lesson screen itself, to keep the lesson in your bookmarks on this screen. The continue row reopens the last lesson you read.</RgText>
-        <RgActions>
-          <RgButton onPress={() => closeHowTo()}>Got it</RgButton>
-        </RgActions>
-      </RgDialog>
-      <RgText variant="display">Learn Rangular</RgText>
-      <RgText variant="bodyLarge">95 short lessons, in order. Each one runs live on the screen.</RgText>
-      {!howToSeen && (
-        <RgCard style={styles.homeHowtoCard}>
-          <RgText variant="bodyLarge">
-            <Text style={styles.homeLeadBold}>New here?</Text>
-Start at Lesson 1 and go in order. Tap the bookmark icon on any lesson to save it here.
-          </RgText>
-          <RgActions>
-            <RgButton variant="text" onPress={() => dismissHowTo()}>Got it</RgButton>
-          </RgActions>
-        </RgCard>
-      )}
-      {searching && (
+      {/* (menu) has no standard RN prop, mapped to onMenu */}
+      {/* (action2) has no standard RN prop, mapped to onAction2 */}
+      <RgAppbar tone="tint" title="Rangular" actionIcon="search" actionIcon2="bookmark" pin menu onMenu={() => openNav()} onAction={() => toggleSearch()} onAction2={() => goSaved()} />
+      <RgBottomNav index={0} onChange={($event) => pickTab($event)}>
+        <RgNavItem icon="home" label="Learn" />
+        <RgNavItem icon="bookmark" label="Saved" />
+        <RgNavItem icon="chart" label="Progress" />
+        <RgNavItem icon="info" label="About" />
+      </RgBottomNav>
+      {searchOpen && (
         <RgSection>
+          <RgInput variant="search" placeholder="Search 95 lessons" onChangeText={($event) => onQuery($event)} value={query} />
           <RgSection label="Search results" plain meta={(results.length + ' found')}>
             <RgList>
               {results.map((l, index) => (
-                <RgRow key={l?.id ?? index} avatarTone="varied" avatar avatarText={l.id} title={l.title} subtitle={l.subtitle} time={l.minutes} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
               ))}
             </RgList>
-            {(results.length === 0) && (
+            {(query && (results.length === 0)) && (
               <RgText variant="bodyLarge">No lesson matches that search. Try a shorter word.</RgText>
             )}
           </RgSection>
-          <RgButton variant="text" onPress={() => clearSearch()}>Clear search</RgButton>
+          {!query && (
+            <RgText variant="bodyLarge">Type to search titles and text across all 95 lessons.</RgText>
+          )}
+          <RgButton variant="text" onPress={() => toggleSearch()}>Close search</RgButton>
         </RgSection>
       )}
-      {!searching && (
+      {!searchOpen && (
         <RgSection>
-          {continueLesson && (
-            <RgSection label="Continue where you left off" icon="play" meta={(('Lesson ' + continueLesson.id) + ' of 95')}>
-              <RgSection style={styles.homeContinueCard}>
+          <RgCard style={styles.homePathCard}>
+            <RgText variant="title">Your path</RgText>
+            <RgText variant="bodyLarge">{doneCount} of 95 lessons · {doneMinutes} minutes in</RgText>
+            <RgProgressBar value={percent} />
+            {allDone && (
+              <RgText variant="bodyLarge">You finished the whole path. Every lesson is still here when you want it again.</RgText>
+            )}
+            {continueLesson && (
+              <RgButton onPress={() => __router.navigate(['/lesson', continueLesson.id])}>Lesson {continueLesson.id} · {continueLesson.title}</RgButton>
+            )}
+          </RgCard>
+          <RgInput variant="search" placeholder="Search 95 lessons" onChangeText={($event) => onQuery($event)} value={query} />
+          {searching && (
+            <RgSection>
+              <RgSection label="Search results" plain meta={(results.length + ' found')}>
                 <RgList>
-                  <RgRow avatarTone="varied" avatar avatarText={continueLesson.id} title={continueLesson.title} subtitle={continueLesson.subtitle} time={continueLesson.minutes} actionIcon={(isSaved(continueLesson.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(continueLesson.id)} onPress={() => __router.navigate(['/lesson', continueLesson.id])} />
+                  {results.map((l, index) => (
+                    <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                  ))}
+                </RgList>
+                {(query && (results.length === 0)) && (
+                  <RgText variant="bodyLarge">No lesson matches that search. Try a shorter word.</RgText>
+                )}
+              </RgSection>
+              <RgButton variant="text" onPress={() => clearSearch()}>Clear search</RgButton>
+            </RgSection>
+          )}
+          {!searching && (
+            <RgSection>
+              <RgSection label="Getting started" plain meta={starterMeta}>
+                <RgList>
+                  {starterLessons.map((l, index) => (
+                    <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                  ))}
                 </RgList>
               </RgSection>
+              <RgSection label="Components and templates" plain meta={batchMeta}>
+                <RgList>
+                  {batchLessons.map((l, index) => (
+                    <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                  ))}
+                </RgList>
+              </RgSection>
+              <RgSection label="Forms and interaction" plain meta={formsMeta}>
+                <RgList>
+                  {formsLessons.map((l, index) => (
+                    <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                  ))}
+                </RgList>
+              </RgSection>
+              <RgSection label="Services, routing, and data" plain meta={dataMeta}>
+                <RgList>
+                  {dataLessons.map((l, index) => (
+                    <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                  ))}
+                </RgList>
+              </RgSection>
+              <RgSection label="The Material pieces" plain meta={piecesMeta}>
+                <RgList>
+                  {piecesLessons.map((l, index) => (
+                    <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                  ))}
+                </RgList>
+              </RgSection>
+              <RgSection label="Beyond Angular" plain meta={beyondMeta}>
+                <RgList>
+                  {beyondLessons.map((l, index) => (
+                    <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                  ))}
+                </RgList>
+              </RgSection>
+              <RgText variant="bodyLarge">95 lessons · Rangular framework 0.1.3</RgText>
             </RgSection>
           )}
-          {(bookmarkLessons.length > 0) && (
-            <RgSection label="Your bookmarks" icon="bookmark" meta={(bookmarkLessons.length + ' saved')}>
-              <RgList>
-                {bookmarkLessons.map((l, index) => (
-                  <RgRow key={l?.id ?? index} avatarTone="varied" avatar avatarText={l.id} title={l.title} subtitle={l.subtitle} time={l.minutes} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
-                ))}
-              </RgList>
-            </RgSection>
-          )}
-          <RgSection label="Getting started" meta="Lessons 1 to 5" plain>
-            <RgList>
-              {starterLessons.map((l, index) => (
-                <RgRow key={l?.id ?? index} avatarTone="varied" avatar avatarText={l.id} title={l.title} subtitle={l.subtitle} time={l.minutes} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
-              ))}
-            </RgList>
-          </RgSection>
-          <RgSection label="Components and templates" meta="Lessons 6 to 25" plain>
-            <RgList>
-              {batchLessons.map((l, index) => (
-                <RgRow key={l?.id ?? index} avatarTone="varied" avatar avatarText={l.id} title={l.title} subtitle={l.subtitle} time={l.minutes} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
-              ))}
-            </RgList>
-          </RgSection>
-          <RgSection label="Forms and interaction" meta="Lessons 26 to 45" plain>
-            <RgList>
-              {formsLessons.map((l, index) => (
-                <RgRow key={l?.id ?? index} avatarTone="varied" avatar avatarText={l.id} title={l.title} subtitle={l.subtitle} time={l.minutes} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
-              ))}
-            </RgList>
-          </RgSection>
-          <RgSection label="Services, routing, and data" meta="Lessons 46 to 65" plain>
-            <RgList>
-              {dataLessons.map((l, index) => (
-                <RgRow key={l?.id ?? index} avatarTone="varied" avatar avatarText={l.id} title={l.title} subtitle={l.subtitle} time={l.minutes} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
-              ))}
-            </RgList>
-          </RgSection>
-          <RgSection label="The Material pieces" meta="Lessons 66 to 76" plain>
-            <RgList>
-              {piecesLessons.map((l, index) => (
-                <RgRow key={l?.id ?? index} avatarTone="varied" avatar avatarText={l.id} title={l.title} subtitle={l.subtitle} time={l.minutes} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
-              ))}
-            </RgList>
-          </RgSection>
-          <RgSection label="Beyond Angular" meta="Lessons 77 to 95" plain>
-            <RgList>
-              {beyondLessons.map((l, index) => (
-                <RgRow key={l?.id ?? index} avatarTone="varied" avatar avatarText={l.id} title={l.title} subtitle={l.subtitle} time={l.minutes} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
-              ))}
-            </RgList>
-          </RgSection>
-          <RgText variant="bodyLarge">95 lessons · Rangular framework 0.1.2</RgText>
         </RgSection>
       )}
+    </RgSection>
+  );
+}
+
+export function Saved() {
+  const lessons = __container.get<LessonService>(LessonService);
+  useSyncExternalStore((cb) => lessons.__subscribe(cb), () => lessons.__getVersion());
+  const bookmarks = __container.get<BookmarksService>(BookmarksService);
+  useSyncExternalStore((cb) => bookmarks.__subscribe(cb), () => bookmarks.__getVersion());
+  const shell = __container.get<ShellService>(ShellService);
+  useSyncExternalStore((cb) => shell.__subscribe(cb), () => shell.__getVersion());
+  const router = __router;
+  const [savedLessons, setSavedLessons] = useState([]);
+  const ngOnInit = () => {
+    shell.setPlace('saved');
+    refresh();
+  };
+  const refresh = () => {
+    setSavedLessons(lessons.lessons.filter((l: Lesson) => bookmarks.isBookmarked(l.id)));
+  };
+  const isSaved = (id: number) => {
+    return bookmarks.isBookmarked(id);
+  };
+  const toggleBookmark = (id: number) => {
+    bookmarks.toggle(id);
+    refresh();
+  };
+  const openNav = () => {
+    shell.openDrawer();
+  };
+  const pickTab = (i: number) => {
+    if (i === 0) {
+      router.navigate(['/home']);
+    } else if (i === 2) {
+      router.navigate(['/progress']);
+    } else if (i === 3) {
+      router.navigate(['/about']);
+    }
+  };
+  useEffect(() => {
+    ngOnInit();
+  }, []);
+  return (
+    <RgSection>
+      {/* (menu) has no standard RN prop, mapped to onMenu */}
+      <RgAppbar tone="tint" title="Saved" pin menu onMenu={() => openNav()} />
+      <RgBottomNav index={1} onChange={($event) => pickTab($event)}>
+        <RgNavItem icon="home" label="Learn" />
+        <RgNavItem icon="bookmark" label="Saved" />
+        <RgNavItem icon="chart" label="Progress" />
+        <RgNavItem icon="info" label="About" />
+      </RgBottomNav>
+      <RgText variant="bodyLarge">Lessons you bookmarked, kept on this device.</RgText>
+      {(savedLessons.length > 0) && (
+        <RgList>
+          {savedLessons.map((l, index) => (
+            <RgRow key={l?.id ?? index} avatarTone="varied" avatar avatarText={l.id} title={l.title} subtitle={l.subtitle} time={l.minutes} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+          ))}
+        </RgList>
+      )}
+      {(savedLessons.length === 0) && (
+        <RgEmptyState icon="bookmark" title="No saved lessons yet" text="Tap the bookmark icon on any lesson and it will wait for you here." />
+      )}
+    </RgSection>
+  );
+}
+
+export function Progress() {
+  const lessons = __container.get<LessonService>(LessonService);
+  useSyncExternalStore((cb) => lessons.__subscribe(cb), () => lessons.__getVersion());
+  const bookmarks = __container.get<BookmarksService>(BookmarksService);
+  useSyncExternalStore((cb) => bookmarks.__subscribe(cb), () => bookmarks.__getVersion());
+  const shell = __container.get<ShellService>(ShellService);
+  useSyncExternalStore((cb) => shell.__subscribe(cb), () => shell.__getVersion());
+  const router = __router;
+  const [doneCount, setDoneCount] = useState(0);
+  const [doneMinutes, setDoneMinutes] = useState(0);
+  const [percent, setPercent] = useState(0);
+  const [savedCount, setSavedCount] = useState(0);
+  const [lastLesson, setLastLesson] = useState(null);
+  const [weekData, setWeekData] = useState([]);
+  const [groups, setGroups] = useState([]);
+  const ngOnInit = () => {
+    let __shadowDoneCount = doneCount;
+    shell.setPlace('progress');
+    const done = lessons.lessons.filter((l: Lesson) => bookmarks.isDone(l.id));
+    __shadowDoneCount = done.length;
+    setDoneCount(__shadowDoneCount);
+    setDoneMinutes(done.reduce((sum: number, l: Lesson) => sum + parseInt(l.minutes, 10), 0));
+    setPercent(Math.round((__shadowDoneCount * 100) / 95));
+    setSavedCount(bookmarks.bookmarkIds.length);
+    if (bookmarks.lastLessonId > 0) {
+      const found = lessons.lessons.find((l: Lesson) => l.id === bookmarks.lastLessonId);
+      setLastLesson((found === undefined ? null : found));
+    }
+    setWeekData([6, 5, 4, 3, 2, 1, 0].map((off: number) => ({ label: dayLabel(off), value: dayMinutes(off) })));
+    setGroups([groupStat('Getting started', 1, 5), groupStat('Components and templates', 6, 25), groupStat('Forms and interaction', 26, 45), groupStat('Services, routing, and data', 46, 65), groupStat('The Material pieces', 66, 76), groupStat('Beyond Angular', 77, 95)]);
+  };
+  const minutesOf = (id: number) => {
+    const found = lessons.lessons.find((l: Lesson) => l.id === id);
+    return (found === undefined ? 0 : parseInt(found.minutes, 10));
+  };
+  const dayLabel = (offset: number) => {
+    return bookmarks.weekdayLetter(offset);
+  };
+  const dayMinutes = (offset: number) => {
+    const day = bookmarks.dayKey(offset);
+    return bookmarks.completions.filter((c) => c.day === day).reduce((sum: number, c) => sum + minutesOf(c.id), 0);
+  };
+  const groupStat = (label: string, from: number, to: number) => {
+    const inGroup = lessons.lessons.filter((l: Lesson) => l.id >= from && l.id <= to);
+    const done = inGroup.filter((l: Lesson) => bookmarks.isDone(l.id)).length;
+    return { label, done, total: inGroup.length, pct: (inGroup.length === 0 ? 0 : Math.round((done * 100) / inGroup.length)) };
+  };
+  const openNav = () => {
+    shell.openDrawer();
+  };
+  const pickTab = (i: number) => {
+    if (i === 0) {
+      router.navigate(['/home']);
+    } else if (i === 1) {
+      router.navigate(['/saved']);
+    } else if (i === 3) {
+      router.navigate(['/about']);
+    }
+  };
+  useEffect(() => {
+    ngOnInit();
+  }, []);
+  return (
+    <RgSection>
+      {/* (menu) has no standard RN prop, mapped to onMenu */}
+      <RgAppbar tone="tint" title="Your progress" pin menu onMenu={() => openNav()} />
+      <RgBottomNav index={2} onChange={($event) => pickTab($event)}>
+        <RgNavItem icon="home" label="Learn" />
+        <RgNavItem icon="bookmark" label="Saved" />
+        <RgNavItem icon="chart" label="Progress" />
+        <RgNavItem icon="info" label="About" />
+      </RgBottomNav>
+      <RgCard style={styles.progressPathCard}>
+        <RgText variant="heading">{percent}%</RgText>
+        <RgText variant="bodyLarge">{doneCount} of 95 lessons · {doneMinutes} minutes in</RgText>
+        <RgProgressBar value={percent} />
+        {lastLesson && (
+          <RgText variant="bodyLarge">You are on Lesson {lastLesson.id} · {lastLesson.title}</RgText>
+        )}
+      </RgCard>
+      <RgSection style={styles.progressStatRow}>
+        <RgCard style={styles.progressStatTile}>
+          <RgText variant="title">{doneCount}</RgText>
+          <RgText variant="bodyLarge">lessons done</RgText>
+        </RgCard>
+        <RgCard style={styles.progressStatTile}>
+          <RgText variant="title">{doneMinutes}</RgText>
+          <RgText variant="bodyLarge">minutes in</RgText>
+        </RgCard>
+        <RgCard style={styles.progressStatTile}>
+          <RgText variant="title">{savedCount}</RgText>
+          <RgText variant="bodyLarge">saved</RgText>
+        </RgCard>
+      </RgSection>
+      <RgSection label="This week" plain>
+        <RgChart type="bar" data={weekData} />
+        <RgText variant="bodyLarge">Every lesson counts, on any day.</RgText>
+      </RgSection>
+      <RgSection label="By section" plain>
+        {groups.map((g, index) => (
+          <RgSection key={g?.id ?? index}>
+            <RgText variant="bodyLarge">{g.label} · {g.done} of {g.total} done</RgText>
+            <RgProgressBar value={g.pct} />
+          </RgSection>
+        ))}
+      </RgSection>
     </RgSection>
   );
 }
@@ -1345,6 +1617,10 @@ export function Lesson() {
   const [bookmarked, setBookmarked] = useState(false);
   const [barTitle, setBarTitle] = useState('Rangular Tutorial');
   const [hasCode, setHasCode] = useState(false);
+  const [progressPct, setProgressPct] = useState(0);
+  const [sectionName, setSectionName] = useState('');
+  const [done, setDone] = useState(false);
+  const [nextLabel, setNextLabel] = useState('');
   const ngOnInit = () => {
     let __shadowLesson = lesson;
     let __shadowLessonId = lessonId;
@@ -1357,6 +1633,49 @@ export function Lesson() {
       setBookmarked(bookmarks.isBookmarked(__shadowLessonId));
       setBarTitle('Lesson ' + __shadowLessonId);
       setHasCode(__shadowLesson.code !== '');
+      setDone(bookmarks.isDone(__shadowLessonId));
+      setProgressPct(Math.round((__shadowLessonId * 100) / 95));
+      setSectionName(nameFor(__shadowLessonId));
+      setNextLabel(labelFor(__shadowLessonId));
+    }
+  };
+  const nameFor = (id: number) => {
+    if (id <= 5) {
+      return 'GETTING STARTED';
+    }
+    if (id <= 25) {
+      return 'COMPONENTS AND TEMPLATES';
+    }
+    if (id <= 45) {
+      return 'FORMS AND INTERACTION';
+    }
+    if (id <= 65) {
+      return 'SERVICES, ROUTING, AND DATA';
+    }
+    if (id <= 76) {
+      return 'THE MATERIAL PIECES';
+    }
+    return 'BEYOND ANGULAR';
+  };
+  const labelFor = (id: number) => {
+    if (id >= 95) {
+      return (done ? 'Done · Back home' : 'Mark done · Finish');
+    }
+    return (done ? 'Done · Next lesson' : 'Mark done · Next lesson');
+  };
+  const prevLesson = () => {
+    if (lessonId > 1) {
+      router.navigate(['/lesson', lessonId - 1]);
+    }
+  };
+  const markDoneNext = () => {
+    if (lessonId > 0) {
+      bookmarks.markDone(lessonId);
+      if (lessonId >= 95) {
+        router.navigate(['/home']);
+      } else {
+        router.navigate(['/lesson', lessonId + 1]);
+      }
     }
   };
   const goHome = () => {
@@ -1373,10 +1692,10 @@ export function Lesson() {
   }, []);
   return (
     <RgSection>
-      <RgAppbar tone="plain" pin back title={barTitle} actionIcon={(lesson ? (bookmarked ? 'bookmark' : 'bookmark-outline') : '')} onBack={() => goHome()} onAction={() => toggleBookmark()} />
+      <RgAppbar tone="plain" pin back title={barTitle} progress={progressPct} actionIcon={(lesson ? (bookmarked ? 'bookmark' : 'bookmark-outline') : '')} onBack={() => goHome()} onAction={() => toggleBookmark()} />
       {lesson && (
         <RgCard>
-          <RgText variant="label">Lesson {lesson.id}</RgText>
+          <RgText variant="bodyLarge" style={styles.lessonEyebrow}>LESSON {lesson.id} · {sectionName}</RgText>
           <RgText variant="heading">{lesson.title}</RgText>
           <RgText variant="bodyLarge">{lesson.intro}</RgText>
         </RgCard>
@@ -1955,10 +2274,16 @@ export function Lesson() {
         </RgCard>
       )}
       {lesson && (
-        <RgSection>
+        <RgCard style={styles.lessonTipCard}>
           <RgText variant="label">Best practice</RgText>
           <RgText variant="bodyLarge">{lesson.tip}</RgText>
-        </RgSection>
+        </RgCard>
+      )}
+      {lesson && (
+        <RgActions>
+          <RgButton variant="text" disabled={(lessonId <= 1)} onPress={() => prevLesson()}>Previous</RgButton>
+          <RgButton onPress={() => markDoneNext()}>{nextLabel}</RgButton>
+        </RgActions>
       )}
     </RgSection>
   );
@@ -4805,31 +5130,71 @@ export function BreadcrumbsDemo() {
 }
 
 export function About() {
+  const shell = __container.get<ShellService>(ShellService);
+  useSyncExternalStore((cb) => shell.__subscribe(cb), () => shell.__getVersion());
   const router = __router;
-  const goHome = () => {
-    router.navigate(['/home']);
+  const ngOnInit = () => {
+    shell.setPlace('about');
   };
+  const openNav = () => {
+    shell.openDrawer();
+  };
+  const pickTab = (i: number) => {
+    if (i === 0) {
+      router.navigate(['/home']);
+    } else if (i === 1) {
+      router.navigate(['/saved']);
+    } else if (i === 2) {
+      router.navigate(['/progress']);
+    }
+  };
+  useEffect(() => {
+    ngOnInit();
+  }, []);
   return (
     <RgSection>
-      <RgAppbar title="About" tone="plain" pin back onBack={() => goHome()} />
-      <RgText variant="display">About</RgText>
-      <RgCard>
-        <RgText variant="title">Rangular Tutorial</RgText>
-        <RgText variant="bodyLarge">Version 1.0.0. A step by step tutorial app that teaches Rangular: writing iOS and Android apps the Angular way.</RgText>
-        <RgText variant="bodyLarge">Every screen is written in Angular style source and compiled by Rangular into React Native. If a lesson teaches it, this app uses it.</RgText>
+      {/* (menu) has no standard RN prop, mapped to onMenu */}
+      <RgAppbar tone="tint" title="About" pin menu onMenu={() => openNav()} />
+      <RgBottomNav index={3} onChange={($event) => pickTab($event)}>
+        <RgNavItem icon="home" label="Learn" />
+        <RgNavItem icon="bookmark" label="Saved" />
+        <RgNavItem icon="chart" label="Progress" />
+        <RgNavItem icon="info" label="About" />
+      </RgBottomNav>
+      <RgCard style={styles.aboutHero}>
+        <RgSection style={styles.aboutHeroMark}>
+          <RgIcon name="code" size={24} color="primary" />
+        </RgSection>
+        <RgText variant="heading" style={styles.aboutHeroTitle}>Rangular Tutorial</RgText>
+        <RgText variant="bodyLarge" style={styles.aboutHeroText}>Version 1.0.0 · 95 lessons</RgText>
+        <RgText variant="bodyLarge" style={styles.aboutHeroText}>A step by step tutorial that teaches the Rangular framework: writing iOS and Android apps the Angular way. Every screen in this app, including this one, started as Angular code and was compiled by Rangular into React Native.</RgText>
       </RgCard>
       <RgCard>
-        <RgText variant="title">How the tutorial grows</RgText>
-        <RgText variant="bodyLarge">Lessons follow the official Angular documentation, topic by topic. Each topic gets its Rangular equivalent: a short explanation, a Code block, a live demo, and a best practice. Lessons are added in batches of about twenty, and each batch is checked on a real phone before the next one starts.</RgText>
+        <RgSection icon="code" label="How the tutorial grows">
+          <RgText variant="bodyLarge">Lessons follow the official Angular documentation, topic by topic. Each topic gets its Rangular equivalent: a short explanation, a Code block, a live demo, and a best practice.</RgText>
+        </RgSection>
       </RgCard>
       <RgCard>
-        <RgText variant="title">Bookmarks and your place</RgText>
-        <RgText variant="bodyLarge">Your bookmarks and the continue row on Home are saved on this device only. Nothing is sent anywhere. They keep across restarts, so the lesson you were reading is still your place when you come back.</RgText>
+        <RgSection icon="bookmark" label="Bookmarks and your place">
+          <RgText variant="bodyLarge">Your saved lessons, your path, and your minutes are kept on this device only. Nothing is sent anywhere. They keep across restarts, so the lesson you were reading is still your place when you come back.</RgText>
+        </RgSection>
       </RgCard>
       <RgCard>
-        <RgText variant="title">Made for the stores</RgText>
-        <RgText variant="bodyLarge">This app is being prepared for release on the App Store and Google Play. All 95 lessons are complete, and the icon, splash artwork, and store listing are prepared. The store accounts and the submission itself are the remaining steps.</RgText>
+        <RgSection icon="check" label="Private by design">
+          <RgText variant="bodyLarge">There is no account and no sign in. The app asks for nothing about you, and there is nothing to leak.</RgText>
+        </RgSection>
       </RgCard>
+      <RgCard>
+        <RgSection icon="home" label="Built with Rangular">
+          <RgText variant="bodyLarge">The Rangular framework is open source under the Apache 2.0 license. This app is its tutorial and its test at the same time: if a lesson teaches it, this app uses it.</RgText>
+        </RgSection>
+      </RgCard>
+      <RgCard>
+        <RgSection icon="star" label="Made for the stores">
+          <RgText variant="bodyLarge">This app is being prepared for release on the App Store and Google Play. All 95 lessons are complete, and the icon, splash artwork, and store listing are prepared. The store accounts and the submission itself are the remaining steps.</RgText>
+        </RgSection>
+      </RgCard>
+      <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.1.3</RgText>
     </RgSection>
   );
 }
@@ -4845,13 +5210,65 @@ export function NotFound() {
 }
 
 export default function App() {
+  const shell = __container.get<ShellService>(ShellService);
+  useSyncExternalStore((cb) => shell.__subscribe(cb), () => shell.__getVersion());
+  const router = __router;
   const [__route, __setRoute] = useState(__navigator.current);
   useEffect(() => __navigator.subscribe(() => __setRoute(__navigator.current)), []);
   const [__snack, __setSnack] = useState(__snackBar.current);
   useEffect(() => __snackBar.subscribe(() => __setSnack(__snackBar.current)), []);
+  const closeDrawer = () => {
+    shell.closeDrawer();
+  };
+  const openHowTo = () => {
+    shell.openHowTo();
+  };
+  const closeHowTo = () => {
+    shell.closeHowTo();
+  };
+  const goLearn = () => {
+    shell.closeDrawer();
+    router.navigate(['/home']);
+  };
+  const goSaved = () => {
+    shell.closeDrawer();
+    router.navigate(['/saved']);
+  };
+  const goProgress = () => {
+    shell.closeDrawer();
+    router.navigate(['/progress']);
+  };
+  const goAbout = () => {
+    shell.closeDrawer();
+    router.navigate(['/about']);
+  };
   return (
     <>
-      <RgScreen key={__route.path}>
+      <RgScreen key={__route.path} fade>
+        <RgDrawer open={shell.drawerOpen} onClose={() => closeDrawer()}>
+          <RgSection style={styles.drawerHead}>
+            <RgSection style={styles.drawerMark}>
+              <RgIcon name="code" size={24} color="onPrimary" />
+            </RgSection>
+            <RgText variant="title">Rangular Tutorial</RgText>
+            <RgText variant="bodyLarge">95 lessons · Learn by running code</RgText>
+          </RgSection>
+          <RgList>
+            <RgRow icon="home" title="Learn" selected={(shell.place === 'learn')} onPress={() => goLearn()} />
+            <RgRow icon="bookmark" title="Saved lessons" selected={(shell.place === 'saved')} onPress={() => goSaved()} />
+            <RgRow icon="chart" title="Your progress" selected={(shell.place === 'progress')} onPress={() => goProgress()} />
+            <RgRow icon="info" title="How to use this tutorial" onPress={() => openHowTo()} />
+            <RgRow icon="info" title="About" selected={(shell.place === 'about')} onPress={() => goAbout()} />
+          </RgList>
+          <RgText variant="bodyLarge">Rangular framework 0.1.3</RgText>
+        </RgDrawer>
+        <RgDialog title="How to use this tutorial" open={shell.howToOpen} onClose={() => closeHowTo()}>
+          <RgText variant="bodyLarge">Start at Lesson 1 and go in order. Tap a lesson, read it, try its demo, then mark it done and move to the next one.</RgText>
+          <RgText variant="bodyLarge">Use the search on Home to find one topic. Tap the bookmark icon on a lesson row, or on the lesson screen itself, to save the lesson. Your saved lessons live on the Saved tab, and your path and minutes live on the Progress tab.</RgText>
+          <RgActions>
+            <RgButton onPress={() => closeHowTo()}>Got it</RgButton>
+          </RgActions>
+        </RgDialog>
         <RgOutlet>
           {__route.routePath === "splash" && (
             <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
@@ -4861,6 +5278,16 @@ export default function App() {
           {__route.routePath === "home" && (
             <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
               <Home key={__route.path} />
+            </ActivatedRouteContext.Provider>
+          )}
+          {__route.routePath === "saved" && (
+            <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
+              <Saved key={__route.path} />
+            </ActivatedRouteContext.Provider>
+          )}
+          {__route.routePath === "progress" && (
+            <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
+              <Progress key={__route.path} />
             </ActivatedRouteContext.Provider>
           )}
           {__route.routePath === "lesson/:id" && (
@@ -4886,11 +5313,14 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  homeDrawerHead: {"backgroundColor":"#e8f0fe","borderRadius":16,"padding":16},
-  homeDrawerMark: {"width":48,"height":48,"borderRadius":9999,"backgroundColor":"#0b57d0","alignItems":"center","justifyContent":"center"},
-  homeHowtoCard: {"backgroundColor":"#e8f0fe","borderWidth":0},
-  homeContinueCard: {"backgroundColor":"#ffffff","borderRadius":16,"padding":12,"borderWidth":1,"borderColor":"#dadce0"},
-  homeLeadBold: {"fontWeight":700,"paddingRight":4},
+  splashEntryMark: {"width":64,"height":64,"borderRadius":16,"backgroundColor":"#0b57d0","alignItems":"center","justifyContent":"center"},
+  splashEntryFoot: {"color":"#5f6368"},
+  homePathCard: {"backgroundColor":"#e8f0fe","borderWidth":0,"borderRadius":16,"padding":16},
+  progressPathCard: {"backgroundColor":"#e8f0fe","borderWidth":0,"borderRadius":16,"padding":16},
+  progressStatRow: {"flexDirection":"row","gap":12},
+  progressStatTile: {"flex":1},
+  lessonEyebrow: {"color":"#5f6368","fontWeight":700},
+  lessonTipCard: {"backgroundColor":"#e8f0fe","borderWidth":0},
   classStyleDemoLookCalm: {"color":"#5f6368"},
   classStyleDemoLookAlert: {"color":"#b3261e","fontWeight":700},
   classStyleDemoLookBig: {"fontSize":20,"fontWeight":600},
@@ -4902,4 +5332,10 @@ const styles = StyleSheet.create({
   iconsDemoIconLine: {"flexDirection":"row","alignItems":"center","gap":12,"padding":8},
   layoutDemoPill: {"backgroundColor":"#c2e7ff","color":"#001d35","borderRadius":9999,"paddingTop":4,"paddingBottom":4,"paddingLeft":12,"paddingRight":12,"fontSize":12,"fontWeight":700},
   errorDisplayDemoReady: {"color":"#137333","fontWeight":700},
+  aboutHero: {"backgroundColor":"#0b57d0","borderWidth":0,"borderRadius":16,"padding":16},
+  aboutHeroMark: {"width":48,"height":48,"borderRadius":9999,"backgroundColor":"#ffffff","alignItems":"center","justifyContent":"center"},
+  aboutHeroTitle: {"color":"#ffffff"},
+  aboutHeroText: {"color":"#d3e3fd"},
+  drawerHead: {"padding":16},
+  drawerMark: {"width":48,"height":48,"borderRadius":9999,"backgroundColor":"#0b57d0","alignItems":"center","justifyContent":"center"},
 });

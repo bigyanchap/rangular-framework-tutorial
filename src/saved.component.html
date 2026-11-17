@@ -1,0 +1,14 @@
+<section>
+  <appbar pin tone="tint" title="Saved" menu (menu)="openNav()"></appbar>
+  <bottom-nav [index]="1" (change)="pickTab($event)">
+    <nav-item icon="home" label="Learn"></nav-item>
+    <nav-item icon="bookmark" label="Saved"></nav-item>
+    <nav-item icon="chart" label="Progress"></nav-item>
+    <nav-item icon="info" label="About"></nav-item>
+  </bottom-nav>
+  <p>Lessons you bookmarked, kept on this device.</p>
+  <list *ngIf="savedLessons.length > 0">
+    <row *ngFor="let l of savedLessons" avatar avatarTone="varied" [avatarText]="l.id" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
+  </list>
+  <empty-state *ngIf="savedLessons.length === 0" icon="bookmark" title="No saved lessons yet" text="Tap the bookmark icon on any lesson and it will wait for you here."></empty-state>
+</section>

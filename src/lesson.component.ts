@@ -109,6 +109,10 @@ import { BreadcrumbsDemoComponent } from './demos/breadcrumbs.component';
 @Component({
   selector: 'app-lesson',
   templateUrl: './lesson.component.html',
+  styles: [`
+    .eyebrow { color: #5f6368; font-weight: 700; }
+    .tip-card { background-color: #e8f0fe; border-width: 0; }
+  `],
 })
 export class LessonComponent {
   lesson: any = null;
@@ -116,6 +120,10 @@ export class LessonComponent {
   bookmarked = false;
   barTitle = 'Rangular Tutorial';
   hasCode = false;
+  progressPct = 0;
+  sectionName = '';
+  done = false;
+  nextLabel = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -132,6 +140,41 @@ export class LessonComponent {
       this.bookmarked = this.bookmarks.isBookmarked(this.lessonId);
       this.barTitle = 'Lesson ' + this.lessonId;
       this.hasCode = this.lesson.code !== '';
+      this.done = this.bookmarks.isDone(this.lessonId);
+      this.progressPct = Math.round((this.lessonId * 100) / 95);
+      this.sectionName = this.nameFor(this.lessonId);
+      this.nextLabel = this.labelFor(this.lessonId);
+    }
+  }
+
+  nameFor(id: number) {
+    if (id <= 5) return 'GETTING STARTED';
+    if (id <= 25) return 'COMPONENTS AND TEMPLATES';
+    if (id <= 45) return 'FORMS AND INTERACTION';
+    if (id <= 65) return 'SERVICES, ROUTING, AND DATA';
+    if (id <= 76) return 'THE MATERIAL PIECES';
+    return 'BEYOND ANGULAR';
+  }
+
+  labelFor(id: number) {
+    if (id >= 95) return this.done ? 'Done · Back home' : 'Mark done · Finish';
+    return this.done ? 'Done · Next lesson' : 'Mark done · Next lesson';
+  }
+
+  prevLesson() {
+    if (this.lessonId > 1) {
+      this.router.navigate(['/lesson', this.lessonId - 1]);
+    }
+  }
+
+  markDoneNext() {
+    if (this.lessonId > 0) {
+      this.bookmarks.markDone(this.lessonId);
+      if (this.lessonId >= 95) {
+        this.router.navigate(['/home']);
+      } else {
+        this.router.navigate(['/lesson', this.lessonId + 1]);
+      }
     }
   }
 
