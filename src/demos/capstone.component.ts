@@ -24,7 +24,7 @@ export class CapstoneDemoComponent {
     private snack: SnackBar,
   ) {}
 
-  setMinutes(value: number) {
+  pickMinutes(value: number) {
     this.minutes = value;
   }
 

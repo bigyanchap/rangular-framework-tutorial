@@ -1085,6 +1085,7 @@ export class DurationPipe {
 const __pipeDurationPipe = new DurationPipe();
 
 const __container = new Container();
+__container.register(HttpClient, new HttpClient());
 __container.register(LessonService, new LessonService());
 __container.register(BookmarksService, new BookmarksService());
 __container.register(LifecycleLogService, new LifecycleLogService());
@@ -1100,7 +1101,6 @@ __container.register(FavouritesService, new FavouritesService());
 __container.register(MinutesService, new MinutesService());
 __container.register(UserService, new UserService(__container.get<HttpClient>(HttpClient)));
 __container.register(PracticeLogService, new PracticeLogService());
-__container.register(HttpClient, new HttpClient());
 
 const __navigator = new RgNavigator([{"path":"","redirectTo":"splash"},{"path":"splash"},{"path":"home"},{"path":"lesson/:id"},{"path":"about"},{"path":"**"}]);
 const __router = new Router(__navigator);
@@ -1157,10 +1157,12 @@ export function Home() {
     setBookmarkLessons(lessons.lessons.filter((l: Lesson) => bookmarks.isBookmarked(l.id)));
   };
   const onQuery = (text: string) => {
+    let __shadowSearching = searching;
     setQuery(text);
     const q = text.trim().toLowerCase();
-    setSearching(q.length > 0);
-    if (searching) {
+    __shadowSearching = q.length > 0;
+    setSearching(__shadowSearching);
+    if (__shadowSearching) {
       setResults(lessons.lessons.filter((l: Lesson) => l.title.toLowerCase().includes(q) || l.subtitle.toLowerCase().includes(q) || l.intro.toLowerCase().includes(q)));
     } else {
       setResults([]);
@@ -1289,11 +1291,15 @@ export function Lesson({ __rgRoute }: { __rgRoute?: any }) {
   const [lessonId, setLessonId] = useState(0);
   const [bookmarked, setBookmarked] = useState(false);
   const ngOnInit = () => {
-    setLesson(lessonService.getById(route.snapshot.params.id));
-    setLessonId((lesson === null ? 0 : lesson.id));
-    if (lessonId > 0) {
-      bookmarks.recordLast(lessonId);
-      setBookmarked(bookmarks.isBookmarked(lessonId));
+    let __shadowLesson = lesson;
+    let __shadowLessonId = lessonId;
+    __shadowLesson = lessonService.getById(route.snapshot.params.id);
+    setLesson(__shadowLesson);
+    __shadowLessonId = (__shadowLesson === null ? 0 : __shadowLesson.id);
+    setLessonId(__shadowLessonId);
+    if (__shadowLessonId > 0) {
+      bookmarks.recordLast(__shadowLessonId);
+      setBookmarked(bookmarks.isBookmarked(__shadowLessonId));
     }
   };
   const toggleBookmark = () => {
@@ -2089,9 +2095,11 @@ export function InputsDemo() {
   const [teacherName, setTeacherName] = useState('Acharya Rajan');
   const [teacherRole, setTeacherRole] = useState('Yoga');
   const cycle = () => {
-    setIndex((index + 1) % teachers.length);
-    setTeacherName(teachers[index].name);
-    setTeacherRole(teachers[index].role);
+    let __shadowIndex = index;
+    __shadowIndex = (__shadowIndex + 1) % teachers.length;
+    setIndex(__shadowIndex);
+    setTeacherName(teachers[__shadowIndex].name);
+    setTeacherRole(teachers[__shadowIndex].role);
   };
   return (
     <>
@@ -3839,7 +3847,7 @@ export function CapstoneDemo() {
   const snack = __snackBar;
   const [name, setName] = useState('');
   const [minutes, setMinutes] = useState(0);
-  const setMinutes = (value: number) => {
+  const pickMinutes = (value: number) => {
     setMinutes(value);
   };
   const add = () => {
@@ -3855,10 +3863,10 @@ export function CapstoneDemo() {
     <>
       <RgInput label="Practice" placeholder="e.g. Yoga" value={name} onChangeText={($event) => setName($event)} />
       <RgText variant="bodyLarge">Minutes: {((minutes === 0) ? 'not picked yet' : minutes)}</RgText>
-      <RgButton onPress={() => setMinutes(10)}>10 min</RgButton>
-      <RgButton onPress={() => setMinutes(15)}>15 min</RgButton>
-      <RgButton onPress={() => setMinutes(20)}>20 min</RgButton>
-      <RgButton onPress={() => setMinutes(30)}>30 min</RgButton>
+      <RgButton onPress={() => pickMinutes(10)}>10 min</RgButton>
+      <RgButton onPress={() => pickMinutes(15)}>15 min</RgButton>
+      <RgButton onPress={() => pickMinutes(20)}>20 min</RgButton>
+      <RgButton onPress={() => pickMinutes(30)}>30 min</RgButton>
       <RgButton disabled={((name === '') || (minutes === 0))} onPress={() => add()}>Add to the log</RgButton>
       {(log.entries.length === 0) && (
         <RgText variant="bodyLarge">The log is empty. Add your first practice above.</RgText>
@@ -4259,9 +4267,11 @@ export function RefreshDemo() {
     { id: 3, title: 'Walk', detail: 'The river road, there and back' },
   ]);
   const reload = () => {
+    let __shadowRefreshCount = refreshCount;
     setRefreshing(true);
-    setRefreshCount(refreshCount + 1);
-    setNotes([{ id: 100 + refreshCount, title: 'Fresh note ' + refreshCount, detail: 'Pulled in by your refresh' }].concat(notes));
+    __shadowRefreshCount = __shadowRefreshCount + 1;
+    setRefreshCount(__shadowRefreshCount);
+    setNotes([{ id: 100 + __shadowRefreshCount, title: 'Fresh note ' + __shadowRefreshCount, detail: 'Pulled in by your refresh' }].concat(notes));
     setRefreshing(false);
   };
   return (
@@ -4310,9 +4320,11 @@ export function InfiniteScrollDemo() {
   const [page, setPage] = useState(0);
   const [done, setDone] = useState(false);
   const loadMore = () => {
-    setItems(items.concat(morePages[page] || []));
-    setPage(page + 1);
-    setDone(page >= morePages.length);
+    let __shadowPage = page;
+    setItems(items.concat(morePages[__shadowPage] || []));
+    __shadowPage = __shadowPage + 1;
+    setPage(__shadowPage);
+    setDone(__shadowPage >= morePages.length);
   };
   const reset = () => {
     setItems([...firstPage]);
