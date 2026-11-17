@@ -1,18 +1,28 @@
 import { Injectable } from '@angular/core';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SQLite from 'expo-sqlite';
+import { Platform } from 'react-native';
 
 /**
- * Bookmarks and resume state: one root instance for the whole
- * app. The lesson screen records the last opened lesson here
- * and toggles bookmarks here; Home reads both to draw its
- * continue row and its bookmarks group.
+ * Bookmarks, completions and resume state: one root instance
+ * for the whole app. The lesson screen records the last opened
+ * lesson here and toggles bookmarks here; Home reads both to
+ * draw its path, and the Progress tab reads the completions as
+ * the learning history.
  *
- * The state is saved on the device with AsyncStorage, so
- * bookmarks and the last lesson keep across restarts. The
- * load runs when the service is made: it reads the saved
- * value and assigns both fields when it arrives. Every
- * change saves again, by assignment, in the same call.
- * Nothing leaves the device.
+ * On a phone the state lives in a SQLite database on the device
+ * (rangular-tutorial.db, installed by expo-sqlite): a bookmarks
+ * table, a completions table holding the day each lesson was
+ * finished, and a settings table for the last lesson and the
+ * How-to flag. This service is the one owner of that database,
+ * the same pattern the framework blesses in its sqlite-notes
+ * example. On web the database does not run, so the same fields
+ * are kept in AsyncStorage under the old key instead.
+ *
+ * The first phone launch with empty tables imports the old
+ * AsyncStorage save once, so progress made before the move is
+ * kept. Every change saves again, by assignment, in the same
+ * call. Nothing leaves the device.
  */
 @Injectable({ providedIn: 'root' })
 export class BookmarksService {
@@ -21,8 +31,63 @@ export class BookmarksService {
   lastLessonId = 0;
   howToSeen = false;
   storageKey = 'rangular-tutorial.progress.v1';
+  db: any = null;
+  useSqlite = false;
 
   constructor() {
+    this.useSqlite = Platform.OS !== 'web';
+    if (this.useSqlite) {
+      SQLite.openDatabaseAsync('rangular-tutorial.db').then((db) => {
+        this.db = db;
+        this.db.execAsync(
+          'CREATE TABLE IF NOT EXISTS bookmarks (lesson_id INTEGER PRIMARY KEY); ' +
+          'CREATE TABLE IF NOT EXISTS completions (lesson_id INTEGER PRIMARY KEY, day TEXT NOT NULL); ' +
+          'CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)',
+        ).then(() => {
+          this.loadFromDb();
+        });
+      });
+    } else {
+      AsyncStorage.getItem(this.storageKey).then((raw) => {
+        if (raw) {
+          const saved = JSON.parse(raw);
+          this.bookmarkIds = saved.bookmarkIds;
+          this.completions = saved.completions === undefined ? [] : saved.completions;
+          this.lastLessonId = saved.lastLessonId;
+          this.howToSeen = saved.howToSeen === true;
+        }
+      });
+    }
+  }
+
+  loadFromDb() {
+    this.db.getAllAsync('SELECT lesson_id FROM bookmarks ORDER BY lesson_id').then((rows: any) => {
+      this.db.getAllAsync('SELECT lesson_id, day FROM completions ORDER BY lesson_id').then((crows: any) => {
+        this.db.getAllAsync('SELECT key, value FROM settings').then((srows: any) => {
+          if (rows.length === 0 && crows.length === 0 && srows.length === 0) {
+            this.importOldSave();
+          } else {
+            this.applyRows(rows, crows, srows);
+          }
+        });
+      });
+    });
+  }
+
+  applyRows(rows: any, crows: any, srows: any) {
+    this.bookmarkIds = rows.map((r: any) => r.lesson_id);
+    this.completions = crows.map((r: any) => ({ id: r.lesson_id, day: r.day }));
+    srows.forEach((r: any) => {
+      if (r.key === 'lastLessonId') {
+        this.lastLessonId = Number(r.value);
+      }
+      if (r.key === 'howToSeen') {
+        this.howToSeen = r.value === 'true';
+      }
+    });
+  }
+
+  importOldSave() {
     AsyncStorage.getItem(this.storageKey).then((raw) => {
       if (raw) {
         const saved = JSON.parse(raw);
@@ -30,20 +95,36 @@ export class BookmarksService {
         this.completions = saved.completions === undefined ? [] : saved.completions;
         this.lastLessonId = saved.lastLessonId;
         this.howToSeen = saved.howToSeen === true;
+        this.save();
       }
     });
   }
 
   save() {
-    AsyncStorage.setItem(
-      this.storageKey,
-      JSON.stringify({
-        bookmarkIds: this.bookmarkIds,
-        completions: this.completions,
-        lastLessonId: this.lastLessonId,
-        howToSeen: this.howToSeen,
-      }),
-    );
+    if (this.useSqlite) {
+      if (this.db) {
+        this.db.execAsync('DELETE FROM bookmarks; DELETE FROM completions; DELETE FROM settings').then(() => {
+          this.bookmarkIds.forEach((id) => {
+            this.db.runAsync('INSERT INTO bookmarks (lesson_id) VALUES (?)', id).then(() => {});
+          });
+          this.completions.forEach((c) => {
+            this.db.runAsync('INSERT INTO completions (lesson_id, day) VALUES (?, ?)', c.id, c.day).then(() => {});
+          });
+          this.db.runAsync('INSERT INTO settings (key, value) VALUES (?, ?)', 'lastLessonId', String(this.lastLessonId)).then(() => {});
+          this.db.runAsync('INSERT INTO settings (key, value) VALUES (?, ?)', 'howToSeen', String(this.howToSeen)).then(() => {});
+        });
+      }
+    } else {
+      AsyncStorage.setItem(
+        this.storageKey,
+        JSON.stringify({
+          bookmarkIds: this.bookmarkIds,
+          completions: this.completions,
+          lastLessonId: this.lastLessonId,
+          howToSeen: this.howToSeen,
+        }),
+      );
+    }
   }
 
   dismissHowTo() {

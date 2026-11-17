@@ -6,4 +6,8 @@ const { getDefaultConfig } = require('expo/metro-config');
 // them like any other project file.
 const config = getDefaultConfig(__dirname);
 
+// expo-sqlite ships a WebAssembly build for web; Metro must treat
+// .wasm files as assets or the web bundle cannot resolve them.
+config.resolver.assetExts.push('wasm');
+
 module.exports = config;

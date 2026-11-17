@@ -4,6 +4,8 @@ import { Text, StyleSheet } from 'react-native';
 import { ActivatedRouteContext, RgAccordion, RgActions, RgAppbar, RgAvatar, RgAvatarGroup, RgBottomNav, RgBreadcrumbs, RgButton, RgCalendar, RgCard, RgCarousel, RgChart, RgCheckbox, RgChip, RgChips, RgCode, RgColorPicker, RgColumn, RgCrumb, RgDateTimePicker, RgDialog, RgDivider, RgDrawer, RgEditor, RgEmptyState, RgFilePicker, RgGridList, RgGridTile, RgIcon, RgIconButton, RgImage, RgInput, RgLightbox, RgList, RgMenu, RgMenuItem, RgNavItem, RgOption, RgOtp, RgOutlet, RgPanel, RgProgressBar, RgRadio, RgRadioGroup, RgRating, RgRow, RgRowAction, RgScreen, RgSection, RgSelect, RgSheet, RgSkeleton, RgSlider, RgSnackbar, RgSpinner, RgStep, RgStepper, RgSwitch, RgSwitcher, RgTab, RgTable, RgTabs, RgText, RgTimeline, RgTimelineItem, RgTree, RgTreeNode } from '@rangular/ui';
 import { ActivatedRoute, Container, FormControl, FormGroup, HttpClient, ReactiveService, RgNavigator, Router, SnackBar, Validators, pipe, validateValue } from '@rangular/runtime';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SQLite from 'expo-sqlite';
+import { Platform } from 'react-native';
 
 export class ShellService extends ReactiveService {
   drawerOpen = false;
@@ -903,9 +905,22 @@ export class BookmarksService extends ReactiveService {
   lastLessonId = 0;
   howToSeen = false;
   storageKey = 'rangular-tutorial.progress.v1';
+  db: any = null;
+  useSqlite = false;
   constructor() {
     super();
-    AsyncStorage.getItem(this.storageKey).then((raw) => {
+    this.useSqlite = Platform.OS !== 'web';
+    this.__notify();
+    if (this.useSqlite) {
+      SQLite.openDatabaseAsync('rangular-tutorial.db').then((db) => {
+  this.db = db;
+  this.__notify();
+  this.db.execAsync('CREATE TABLE IF NOT EXISTS bookmarks (lesson_id INTEGER PRIMARY KEY); ' + 'CREATE TABLE IF NOT EXISTS completions (lesson_id INTEGER PRIMARY KEY, day TEXT NOT NULL); ' + 'CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)').then(() => {
+  this.loadFromDb();
+});
+});
+    } else {
+      AsyncStorage.getItem(this.storageKey).then((raw) => {
   if (raw) {
     const saved = JSON.parse(raw);
     this.bookmarkIds = saved.bookmarkIds;
@@ -918,9 +933,78 @@ export class BookmarksService extends ReactiveService {
     this.__notify();
   }
 });
+    }
+  }
+  loadFromDb() {
+    this.db.getAllAsync('SELECT lesson_id FROM bookmarks ORDER BY lesson_id').then((rows: any) => {
+  this.db.getAllAsync('SELECT lesson_id, day FROM completions ORDER BY lesson_id').then((crows: any) => {
+  this.db.getAllAsync('SELECT key, value FROM settings').then((srows: any) => {
+  if (rows.length === 0 && crows.length === 0 && srows.length === 0) {
+    this.importOldSave();
+  } else {
+    this.applyRows(rows, crows, srows);
+  }
+});
+});
+});
+  }
+  applyRows(rows: any, crows: any, srows: any) {
+    this.bookmarkIds = rows.map((r: any) => r.lesson_id);
+    this.__notify();
+    this.completions = crows.map((r: any) => ({ id: r.lesson_id, day: r.day }));
+    this.__notify();
+    srows.forEach((r: any) => {
+  if (r.key === 'lastLessonId') {
+    this.lastLessonId = Number(r.value);
+    this.__notify();
+  }
+  if (r.key === 'howToSeen') {
+    this.howToSeen = r.value === 'true';
+    this.__notify();
+  }
+});
+  }
+  importOldSave() {
+    AsyncStorage.getItem(this.storageKey).then((raw) => {
+  if (raw) {
+    const saved = JSON.parse(raw);
+    this.bookmarkIds = saved.bookmarkIds;
+    this.__notify();
+    this.completions = (saved.completions === undefined ? [] : saved.completions);
+    this.__notify();
+    this.lastLessonId = saved.lastLessonId;
+    this.__notify();
+    this.howToSeen = saved.howToSeen === true;
+    this.__notify();
+    this.save();
+  }
+});
   }
   save() {
-    AsyncStorage.setItem(this.storageKey, JSON.stringify({ bookmarkIds: this.bookmarkIds, completions: this.completions, lastLessonId: this.lastLessonId, howToSeen: this.howToSeen }));
+    if (this.useSqlite) {
+      if (this.db) {
+        this.db.execAsync('DELETE FROM bookmarks; DELETE FROM completions; DELETE FROM settings').then(() => {
+  this.bookmarkIds.forEach((id) => {
+  this.db.runAsync('INSERT INTO bookmarks (lesson_id) VALUES (?)', id).then(() => {
+
+});
+});
+  this.completions.forEach((c) => {
+  this.db.runAsync('INSERT INTO completions (lesson_id, day) VALUES (?, ?)', c.id, c.day).then(() => {
+
+});
+});
+  this.db.runAsync('INSERT INTO settings (key, value) VALUES (?, ?)', 'lastLessonId', String(this.lastLessonId)).then(() => {
+
+});
+  this.db.runAsync('INSERT INTO settings (key, value) VALUES (?, ?)', 'howToSeen', String(this.howToSeen)).then(() => {
+
+});
+});
+      }
+    } else {
+      AsyncStorage.setItem(this.storageKey, JSON.stringify({ bookmarkIds: this.bookmarkIds, completions: this.completions, lastLessonId: this.lastLessonId, howToSeen: this.howToSeen }));
+    }
   }
   dismissHowTo() {
     this.howToSeen = true;
@@ -1197,7 +1281,7 @@ export function Splash() {
         <RgChip>Free</RgChip>
       </RgChips>
       <RgButton onPress={() => __router.navigateByUrl("/home")}>Start learning</RgButton>
-      <RgText variant="bodyLarge" style={styles.splashEntryFoot}>Rangular framework 0.1.3 · No account needed</RgText>
+      <RgText variant="bodyLarge" style={styles.splashEntryFoot}>Rangular framework 0.1.4 · No account needed</RgText>
     </RgSection>
   );
 }
@@ -1423,7 +1507,7 @@ export function Home() {
                   ))}
                 </RgList>
               </RgSection>
-              <RgText variant="bodyLarge">95 lessons · Rangular framework 0.1.3</RgText>
+              <RgText variant="bodyLarge">95 lessons · Rangular framework 0.1.4</RgText>
             </RgSection>
           )}
         </RgSection>
@@ -5194,7 +5278,7 @@ export function About() {
           <RgText variant="bodyLarge">This app is being prepared for release on the App Store and Google Play. All 95 lessons are complete, and the icon, splash artwork, and store listing are prepared. The store accounts and the submission itself are the remaining steps.</RgText>
         </RgSection>
       </RgCard>
-      <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.1.3</RgText>
+      <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.1.4</RgText>
     </RgSection>
   );
 }
@@ -5260,7 +5344,7 @@ export default function App() {
             <RgRow icon="info" title="How to use this tutorial" onPress={() => openHowTo()} />
             <RgRow icon="info" title="About" selected={(shell.place === 'about')} onPress={() => goAbout()} />
           </RgList>
-          <RgText variant="bodyLarge">Rangular framework 0.1.3</RgText>
+          <RgText variant="bodyLarge">Rangular framework 0.1.4</RgText>
         </RgDrawer>
         <RgDialog title="How to use this tutorial" open={shell.howToOpen} onClose={() => closeHowTo()}>
           <RgText variant="bodyLarge">Start at Lesson 1 and go in order. Tap a lesson, read it, try its demo, then mark it done and move to the next one.</RgText>
