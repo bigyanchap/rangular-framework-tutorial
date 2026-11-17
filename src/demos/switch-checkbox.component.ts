@@ -14,6 +14,8 @@ export class SwitchCheckboxDemoComponent {
   wifiOn = true;
   notifications = false;
   sounds = true;
+  hapticOn = true;
+  silentOn = false;
 
   onWifi(value: boolean) {
     this.wifiOn = value;
@@ -25,6 +27,14 @@ export class SwitchCheckboxDemoComponent {
 
   onSounds(value: boolean) {
     this.sounds = value;
+  }
+
+  onHaptic(value: boolean) {
+    this.hapticOn = value;
+  }
+
+  onSilent(value: boolean) {
+    this.silentOn = value;
   }
 
   onCount() {

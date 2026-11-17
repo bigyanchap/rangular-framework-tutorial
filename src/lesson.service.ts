@@ -161,9 +161,9 @@ export class LessonService {
       title: 'Switch and checkbox controls',
       subtitle: 'Two on-off controls with the change contract',
       minutes: '4 min',
-      intro: 'The switch and the checkbox are the two on-off controls. Both follow the contract you will see on every Rangular control: the value goes in with [checked], and changes come out through (change), with the new value in $event. Your handler stores the value, and the control renders from the field. The demo is a small settings panel: a switch for Wi-Fi, checkboxes for notifications and sounds, and a summary line that counts what is on.',
-      code: '<switch [checked]="wifiOn" (change)="onWifi($event)">Wi-Fi</switch>',
-      tip: 'A switch means a setting that takes effect at once. A checkbox means a choice in a list, often one of several. Pick by meaning, and let the (change) handler do nothing but store the value and let the bindings react.',
+      intro: 'The switch and the checkbox are the two on-off controls. Both follow the contract you will see on every Rangular control: the value goes in with [checked], and changes come out through (change), with the new value in $event. Your handler stores the value, and the control renders from the field. The demo is a small settings panel: a switch for Wi-Fi, checkboxes for notifications and sounds, and a summary line that counts what is on. The demo ends with one switch twice: with the haptic attribute a toggle answers with a light tap you can feel, and without it the same switch stays silent.',
+      code: '<switch [checked]="wifiOn" (change)="onWifi($event)">Wi-Fi</switch>\n<switch haptic [checked]="feelOn" (change)="onFeel($event)">With haptic</switch>',
+      tip: 'A switch means a setting that takes effect at once. A checkbox means a choice in a list, often one of several. Pick by meaning, and let the (change) handler do nothing but store the value and let the bindings react. Add haptic to a switch when the toggle should be felt as well as seen; leave it off for quiet forms.',
     },
     {
       id: 19,

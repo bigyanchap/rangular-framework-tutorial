@@ -5,3 +5,6 @@
 <checkbox [checked]="sounds" (change)="onSounds($event)">Sounds</checkbox>
 <p>Sounds are {{ sounds ? 'on' : 'off' }}</p>
 <p>{{ onCount() }} of the 3 settings are on.</p>
+<p>One switch, two feels. The first switch carries the haptic attribute, so a toggle answers with a light tap you can feel. The second is the same switch without it, and stays silent.</p>
+<switch haptic [checked]="hapticOn" (change)="onHaptic($event)">With haptic</switch>
+<switch [checked]="silentOn" (change)="onSilent($event)">Without haptic</switch>

@@ -1,5 +1,5 @@
 <section>
-  <appbar [title]="barTitle" tone="gradient" pin back (back)="goHome()" [actionIcon]="lesson ? (bookmarked ? 'bookmark' : 'bookmark-outline') : ''" (action)="toggleBookmark()"></appbar>
+  <appbar [title]="barTitle" tone="plain" pin back (back)="goHome()" [actionIcon]="lesson ? (bookmarked ? 'bookmark' : 'bookmark-outline') : ''" (action)="toggleBookmark()"></appbar>
   <card *ngIf="lesson">
     <label>Lesson {{ lesson.id }}</label>
     <h2>{{ lesson.title }}</h2>

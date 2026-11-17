@@ -13,9 +13,10 @@ type Lesson = {
 };
 
 /**
- * Home: the gradient app bar pinned above the scroll with the
- * search pill inside it, a one time how to card the reader
- * dismisses with Got it (the same guide stays in the drawer),
+ * Home: the plain white app bar pinned above the scroll, its
+ * whole face the search pill with the menu inside it, a one
+ * time how to card the reader dismisses with Got it (the same
+ * guide stays in the drawer),
  * a continue row and a bookmarks group fed by the bookmarks
  * service, and the lesson list in six labelled groups (getting
  * started, components and templates, forms and interaction,
@@ -30,6 +31,13 @@ type Lesson = {
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
+  styles: [`
+    .drawer-head { background-color: #e8f0fe; border-radius: 16px; padding: 16px; }
+    .drawer-mark { width: 48px; height: 48px; border-radius: 9999px; background-color: #0b57d0; align-items: center; justify-content: center; }
+    .howto-card { background-color: #e8f0fe; border-width: 0; }
+    .continue-card { background-color: #ffffff; border-radius: 16px; padding: 12px; border-width: 1px; border-color: #dadce0; }
+    .lead-bold { font-weight: 700; padding-right: 4px; }
+  `],
 })
 export class HomeComponent {
   menuOpen = false;
