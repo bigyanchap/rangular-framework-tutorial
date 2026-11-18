@@ -7,12 +7,12 @@
     <nav-item icon="info" label="About"></nav-item>
   </bottom-nav>
   <section>
-    <card class="path-card">
+    <card class="path-card" (click)="goContinue()">
       <h3>Your path</h3>
       <p>{{ doneCount }} of 95 lessons · {{ doneMinutes }} minutes in</p>
       <progress-bar [value]="percent"></progress-bar>
       <p *ngIf="allDone">You finished the whole path. Every lesson is still here when you want it again.</p>
-      <button *ngIf="continueLesson" [routerLink]="['/lesson', continueLesson.id]">Lesson {{ continueLesson.id }} · {{ continueLesson.title }}</button>
+      <p *ngIf="continueLesson" class="path-continue">Lesson {{ continueLesson.id }} · {{ continueLesson.title }}</p>
     </card>
     <input variant="search" placeholder="Search 95 lessons" [value]="query" (change)="onQuery($event)">
     <section *ngIf="searching">
@@ -22,7 +22,6 @@
       </list>
       <p *ngIf="query && results.length === 0">No lesson matches that search. Try a shorter word.</p>
     </section>
-    <button variant="text" (click)="clearSearch()">Clear search</button>
     </section>
     <section *ngIf="!searching">
     <section label="Getting started" plain [meta]="starterMeta">

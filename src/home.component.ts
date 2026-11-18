@@ -31,6 +31,7 @@ type Lesson = {
   templateUrl: './home.component.html',
   styles: [`
     .path-card { background-color: #e8f0fe; border-width: 0; border-radius: 16px; padding: 16px; }
+    .path-continue { color: #0b57d0; font-weight: 600; }
   `],
 })
 export class HomeComponent {
@@ -128,8 +129,8 @@ export class HomeComponent {
     }
   }
 
-  clearSearch() {
-    this.onQuery('');
+  goContinue() {
+    if (this.continueLesson) this.router.navigate(['/lesson', this.continueLesson.id]);
   }
 
   openNav() {

@@ -1317,13 +1317,9 @@ export function Splash() {
       <RgText variant="display">Write Angular. Ship real phone apps.</RgText>
       <RgText variant="bodyLarge">Learn the Rangular framework lesson by lesson, with a live demo on every screen. This app is built with Rangular itself.</RgText>
       <RgCode>{snippet}</RgCode>
-      <RgChips>
-        <RgChip>95 lessons</RgChip>
-        <RgChip>Live demos</RgChip>
-        <RgChip>Free</RgChip>
-      </RgChips>
+      <RgText variant="bodyLarge" style={styles.splashEntryStats}>95 lessons · Live demos · Free</RgText>
       <RgButton onPress={() => __router.navigateByUrl("/home")}>Start learning</RgButton>
-      <RgText variant="bodyLarge" style={styles.splashEntryFoot}>Rangular framework 0.1.8 · No account needed</RgText>
+      <RgText variant="bodyLarge" style={styles.splashEntryFoot}>Rangular framework 0.1.9 · No account needed</RgText>
     </RgSection>
   );
 }
@@ -1415,8 +1411,10 @@ export function Home() {
       setResults([]);
     }
   };
-  const clearSearch = () => {
-    onQuery('');
+  const goContinue = () => {
+    if (continueLesson) {
+      router.navigate(['/lesson', continueLesson.id]);
+    }
   };
   const openNav = () => {
     shell.openDrawer();
@@ -1444,7 +1442,7 @@ export function Home() {
         <RgNavItem icon="info" label="About" />
       </RgBottomNav>
       <RgSection>
-        <RgCard style={styles.homePathCard}>
+        <RgCard onPress={() => goContinue()} style={styles.homePathCard}>
           <RgText variant="title">Your path</RgText>
           <RgText variant="bodyLarge">{doneCount} of 95 lessons · {doneMinutes} minutes in</RgText>
           <RgProgressBar value={percent} />
@@ -1452,7 +1450,7 @@ export function Home() {
             <RgText variant="bodyLarge">You finished the whole path. Every lesson is still here when you want it again.</RgText>
           )}
           {continueLesson && (
-            <RgButton onPress={() => __router.navigate(['/lesson', continueLesson.id])}>Lesson {continueLesson.id} · {continueLesson.title}</RgButton>
+            <RgText variant="bodyLarge" style={styles.homePathContinue}>Lesson {continueLesson.id} · {continueLesson.title}</RgText>
           )}
         </RgCard>
         <RgInput variant="search" placeholder="Search 95 lessons" onChangeText={($event) => onQuery($event)} value={query} />
@@ -1468,7 +1466,6 @@ export function Home() {
                 <RgText variant="bodyLarge">No lesson matches that search. Try a shorter word.</RgText>
               )}
             </RgSection>
-            <RgButton variant="text" onPress={() => clearSearch()}>Clear search</RgButton>
           </RgSection>
         )}
         {!searching && (
@@ -1783,7 +1780,7 @@ export function Lesson() {
   }, []);
   return (
     <RgSection>
-      <RgAppbar tone="plain" pin back title={barTitle} progress={progressPct} actionIcon={(lesson ? (bookmarked ? 'bookmark' : 'bookmark-outline') : '')} onBack={() => goHome()} onAction={() => toggleBookmark()} />
+      <RgAppbar tone="tint" pin back title={barTitle} progress={progressPct} actionIcon={(lesson ? (bookmarked ? 'bookmark' : 'bookmark-outline') : '')} onBack={() => goHome()} onAction={() => toggleBookmark()} />
       {lesson && (
         <RgSection>
           <RgText variant="bodyLarge" style={styles.lessonEyebrow}>LESSON {lesson.id} · {sectionName}</RgText>
@@ -5285,7 +5282,7 @@ export function About() {
           <RgText variant="bodyLarge">This app is being prepared for release on the App Store and Google Play. All 95 lessons are complete, and the icon, splash artwork, and store listing are prepared. The store accounts and the submission itself are the remaining steps.</RgText>
         </RgSection>
       </RgCard>
-      <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.1.8</RgText>
+      <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.1.9</RgText>
     </RgSection>
   );
 }
@@ -5295,7 +5292,7 @@ export function NotFound() {
     <RgSection>
       <RgText variant="title">Page not found</RgText>
       <RgText variant="bodyLarge">The page you asked for does not exist in this tutorial.</RgText>
-      <RgButton onPress={() => __router.navigateByUrl("/home")}>Go to the lessons</RgButton>
+      <RgButton variant="text" onPress={() => __router.navigateByUrl("/home")}>Go to the lessons</RgButton>
     </RgSection>
   );
 }
@@ -5357,7 +5354,7 @@ export default function App() {
           <RgText variant="bodyLarge">Start at Lesson 1 and go in order. Tap a lesson, read it, try its demo, then mark it done and move to the next one.</RgText>
           <RgText variant="bodyLarge">Use the search on Home to find one topic. Tap the bookmark icon on a lesson row, or on the lesson screen itself, to save the lesson. Your saved lessons live on the Saved tab, and your path and minutes live on the Progress tab.</RgText>
           <RgActions>
-            <RgButton onPress={() => closeHowTo()}>Got it</RgButton>
+            <RgButton variant="text" onPress={() => closeHowTo()}>Got it</RgButton>
           </RgActions>
         </RgDialog>
         <RgOutlet>
@@ -5406,7 +5403,9 @@ export default function App() {
 const styles = StyleSheet.create({
   splashEntryMark: {"width":64,"height":64,"borderRadius":16,"backgroundColor":"#0b57d0","alignItems":"center","justifyContent":"center"},
   splashEntryFoot: {"color":"#5f6368"},
+  splashEntryStats: {"color":"#5f6368"},
   homePathCard: {"backgroundColor":"#e8f0fe","borderWidth":0,"borderRadius":16,"padding":16},
+  homePathContinue: {"color":"#0b57d0","fontWeight":600},
   progressPathCard: {"backgroundColor":"#e8f0fe","borderWidth":0,"borderRadius":16,"padding":16},
   progressStatRow: {"flexDirection":"row","gap":12},
   progressStatTile: {"flex":1},
