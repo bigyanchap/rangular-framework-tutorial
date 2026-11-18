@@ -4,7 +4,7 @@ import { LogListComponent } from './log-list.component';
 
 /**
  * Lesson 64's live demo: capstone part 1. A quick add writes
- * into the PracticeLogService; the list reads from it. The
+ * into the ActivityLogService; the list reads from it. The
  * two components share nothing but the service, which is the
  * whole design.
  */

@@ -11,5 +11,5 @@ import { Component } from '@angular/core';
   templateUrl: './interpolation.component.html',
 })
 export class InterpolationDemoComponent {
-  name = 'Bigyan';
+  name = 'Alex';
 }

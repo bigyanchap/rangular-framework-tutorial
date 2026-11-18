@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 
 /**
  * Lesson 61's live demo: HttpClient. The button makes a real
- * GET request to a public practice API and shows the user it
+ * GET request to a public test API and shows the user it
  * returns. The first arrow assigns the fields on success;
  * the second arrow carries the failure. In the browser
  * preview the client is a stub that never answers, so the

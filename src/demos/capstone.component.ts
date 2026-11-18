@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
 import { SnackBar } from '@angular/material/snack-bar';
-import { PracticeLogService } from './practice-log.service';
+import { ActivityLogService } from './activity-log.service';
 
 /**
- * Lesson 65's live demo: capstone part 2, the practice log
+ * Lesson 65's live demo: capstone part 2, the activity log
  * whole. A name from an input, minutes from choice buttons
  * (an input hands you text, and the total needs a number),
- * a gated Add, the shared PracticeLogService underneath, a
+ * a gated Add, the shared ActivityLogService underneath, a
  * Remove on every entry, the running total, and a toast when
- * a practice is logged. Entries added in lesson 64 are still
+ * an activity is logged. Entries added in lesson 64 are still
  * here, because the service outlives the screen.
  */
 @Component({
@@ -20,7 +20,7 @@ export class CapstoneDemoComponent {
   minutes = 0;
 
   constructor(
-    private log: PracticeLogService,
+    private log: ActivityLogService,
     private snack: SnackBar,
   ) {}
 
@@ -30,7 +30,7 @@ export class CapstoneDemoComponent {
 
   add() {
     this.log.add(this.name, this.minutes);
-    this.snack.open('Practice logged');
+    this.snack.open('Activity logged');
     this.name = '';
     this.minutes = 0;
   }

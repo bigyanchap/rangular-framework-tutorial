@@ -13,13 +13,13 @@ import { GreetingCardComponent } from './greeting-card.component';
 })
 export class InputsDemoComponent {
   private teachers = [
-    { name: 'Acharya Rajan', role: 'Yoga' },
-    { name: 'Pankaj Shukla', role: 'AI and agents' },
-    { name: 'Monika Sogam', role: 'Guided meditation voice' },
+    { name: 'David Lee', role: 'Mathematics' },
+    { name: 'Sofia Garcia', role: 'History' },
+    { name: 'James Carter', role: 'Science' },
   ];
   private index = 0;
-  teacherName = 'Acharya Rajan';
-  teacherRole = 'Yoga';
+  teacherName = 'David Lee';
+  teacherRole = 'Mathematics';
 
   cycle() {
     this.index = (this.index + 1) % this.teachers.length;

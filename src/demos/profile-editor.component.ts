@@ -12,17 +12,17 @@ import { ProfileService } from './profile.service';
 })
 export class ProfileEditorComponent {
   nameDraft = '';
-  practiceDraft = '';
+  focusDraft = '';
 
   constructor(private profile: ProfileService) {}
 
   ngOnInit() {
     this.nameDraft = this.profile.name;
-    this.practiceDraft = this.profile.practice;
+    this.focusDraft = this.profile.focus;
   }
 
   save() {
     this.profile.setName(this.nameDraft);
-    this.profile.setPractice(this.practiceDraft);
+    this.profile.setFocus(this.focusDraft);
   }
 }

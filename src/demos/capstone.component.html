@@ -1,11 +1,11 @@
-<input label="Practice" placeholder="e.g. Yoga" [(ngModel)]="name">
+<input label="Activity" placeholder="e.g. Reading" [(ngModel)]="name">
 <p>Minutes: {{ minutes === 0 ? 'not picked yet' : minutes }}</p>
 <button (click)="pickMinutes(10)">10 min</button>
 <button (click)="pickMinutes(15)">15 min</button>
 <button (click)="pickMinutes(20)">20 min</button>
 <button (click)="pickMinutes(30)">30 min</button>
 <button (click)="add()" [disabled]="name === '' || minutes === 0">Add to the log</button>
-<p *ngIf="log.entries.length === 0">The log is empty. Add your first practice above.</p>
+<p *ngIf="log.entries.length === 0">The log is empty. Add your first activity above.</p>
 <section *ngFor="let e of log.entries">
   <row [title]="e.name" [subtitle]="e.minutes + ' min'"></row>
   <button (click)="remove(e)">Remove</button>

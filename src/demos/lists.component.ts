@@ -11,8 +11,8 @@ import { Component } from '@angular/core';
   templateUrl: './lists.component.html',
 })
 export class ListsDemoComponent {
-  items = ['Morning yoga', 'Puja', 'Deep work'];
-  private pool = ['Evening walk', 'Reading', 'Trikala Sandhya', 'Completion process'];
+  items = ['Morning run', 'Team standup', 'Deep work'];
+  private pool = ['Evening walk', 'Reading', 'Write the report', 'Water the plants'];
   private next = 0;
 
   add() {

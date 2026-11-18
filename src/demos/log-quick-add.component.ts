@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { PracticeLogService } from './practice-log.service';
+import { ActivityLogService } from './activity-log.service';
 
 /**
  * Capstone part 1's quick add: three honest buttons, each
@@ -11,17 +11,17 @@ import { PracticeLogService } from './practice-log.service';
   templateUrl: './log-quick-add.component.html',
 })
 export class LogQuickAddComponent {
-  constructor(private log: PracticeLogService) {}
-
-  yoga() {
-    this.log.add('Yoga', 20);
-  }
-
-  puja() {
-    this.log.add('Puja', 15);
-  }
+  constructor(private log: ActivityLogService) {}
 
   reading() {
-    this.log.add('Reading', 10);
+    this.log.add('Reading', 20);
+  }
+
+  coding() {
+    this.log.add('Coding', 30);
+  }
+
+  walking() {
+    this.log.add('Walking', 15);
   }
 }

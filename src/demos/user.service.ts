@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
  * component. The service owns the URL, the loading and error
  * state, and the loaded fields; components call load and
  * render what the service holds. The requests are real, to
- * the same public practice API as lessons 61 and 62.
+ * the same public test API as lessons 61 and 62.
  */
 @Injectable({ providedIn: 'root' })
 export class UserService {
