@@ -87,7 +87,7 @@ export class LessonService extends ReactiveService {
       title: 'ngFor and lists',
       subtitle: 'Repeat a block for every item',
       minutes: '4 min',
-      intro: 'ngFor repeats a block once for every item in a list. You write the block once, name a loop variable with let, and Rangular renders it for each item in the array. Add let i = index when you need the position. Try it in the demo: the list starts with three practices, the buttons add and remove items, and the rows follow the array every time it changes. Notice how the list changes: always by assignment, building a new array, never by editing the old one in place.',
+      intro: 'ngFor repeats a block once for every item in a list. You write the block once, name a loop variable with let, and Rangular renders it for each item in the array. Add let i = index when you need the position. Try it in the demo: the list starts with three tasks, the buttons add and remove items, and the rows follow the array every time it changes. Notice how the list changes: always by assignment, building a new array, never by editing the old one in place.',
       code: '<row *ngFor="let item of items" [title]="item"></row>',
       tip: 'Change lists by assignment, never by editing in place. this.items = [...this.items, next] to add, and this.items = this.items.filter(...) to remove. A new array is what tells Rangular to render the list again.',
     },
@@ -114,8 +114,8 @@ export class LessonService extends ReactiveService {
       title: 'Child components',
       subtitle: 'Compose a screen from small pieces',
       minutes: '4 min',
-      intro: 'A screen is rarely one component. You compose it from child components, each with its own class, template, and state. The parent writes the child tag where the piece belongs, and each place the tag appears is a separate instance with separate state. The demo renders the same practice tile three times. Tap the button inside one tile: only that tile counts. The other two do not move, because each instance keeps its own fields.',
-      code: '<app-practice-tile></app-practice-tile>',
+      intro: 'A screen is rarely one component. You compose it from child components, each with its own class, template, and state. The parent writes the child tag where the piece belongs, and each place the tag appears is a separate instance with separate state. The demo renders the same task tile three times. Tap the button inside one tile: only that tile counts. The other two do not move, because each instance keeps its own fields.',
+      code: '<app-task-tile></app-task-tile>',
       tip: 'Reach for a child component when a piece appears more than once, or when a screen grows hard to read. If a piece appears once and is simple, it can stay in the parent template.',
     },
     {
@@ -483,7 +483,7 @@ export class LessonService extends ReactiveService {
       title: 'Sharing state between components',
       subtitle: 'Siblings talk through a service, not through each other',
       minutes: '5 min',
-      intro: 'Inputs and outputs connect a parent and its child. Two components side by side, with no parent between them, have no such wire. The pattern that connects them is a shared service: one writes, the other reads, and the singleton keeps them in step. The demo keeps a profile in a ProfileService. The editor saves a name and a practice into the service; the greeter below it, a separate component that receives no inputs at all, greets by that name at once. When you find yourself passing a value down three levels of children just so a distant cousin can read it, that value belongs in a service.',
+      intro: 'Inputs and outputs connect a parent and its child. Two components side by side, with no parent between them, have no such wire. The pattern that connects them is a shared service: one writes, the other reads, and the singleton keeps them in step. The demo keeps a profile in a ProfileService. The editor saves a name and a focus into the service; the greeter below it, a separate component that receives no inputs at all, greets by that name at once. When you find yourself passing a value down three levels of children just so a distant cousin can read it, that value belongs in a service.',
       code: 'this.profile.setName(this.nameDraft);',
       tip: 'Share through a service when the readers and writers are not parent and child. Keep parent to child data on inputs: it is visible in the template, and visible wiring beats invisible wiring when both can do the job.',
     },
@@ -582,7 +582,7 @@ export class LessonService extends ReactiveService {
       title: 'HttpClient: asking the network',
       subtitle: 'A real GET over fetch, answered as JSON',
       minutes: '5 min',
-      intro: "HttpClient is a built in service, injected like any other, that performs real requests with fetch and hands back parsed JSON. get(url) returns a small observable: subscribe with a block bodied arrow that assigns your fields, and add a second arrow for the error, because networks fail. There are no operators, no pipe, no retry: the subscribe is the whole tool, and lesson 62 builds the states around it. The demo makes a real call to JSONPlaceholder, a public practice API kept for exactly this purpose, and shows the user it returns: sample data, fetched by a genuine request. Two honest notes: the call needs the phone online, and in this app's browser preview HttpClient is a stub that never answers, so the demo waits at Loading there. On the phone, nothing is faked.",
+      intro: "HttpClient is a built in service, injected like any other, that performs real requests with fetch and hands back parsed JSON. get(url) returns a small observable: subscribe with a block bodied arrow that assigns your fields, and add a second arrow for the error, because networks fail. There are no operators, no pipe, no retry: the subscribe is the whole tool, and lesson 62 builds the states around it. The demo makes a real call to JSONPlaceholder, a public test API kept for exactly this purpose, and shows the user it returns: sample data, fetched by a genuine request. Two honest notes: the call needs the phone online, and in this app's browser preview HttpClient is a stub that never answers, so the demo waits at Loading there. On the phone, nothing is faked.",
       code: 'this.http.get(url).subscribe((data) => { this.name = data.name; });',
       tip: 'Keep the URL in one place, a constant or a service, never scattered through components. And always write the error arrow: a request without an error path is a screen that hangs silently one day.',
     },
@@ -600,25 +600,25 @@ export class LessonService extends ReactiveService {
       title: 'Data services: HTTP behind a service',
       subtitle: 'Components render; the service fetches and holds',
       minutes: '5 min',
-      intro: 'Two lessons of raw HttpClient in components is enough to see the smell: URLs in screens, loading flags copied per component, the same error line written five times. The Angular pattern moves the request into a service. The service owns the URL, the loading and error state, and the loaded fields; the component injects it, calls load, and renders the fields the service holds in its template, the same reading you have done since lesson 46. The demo below pages through three practice users with Previous and Next: every tap asks the UserService for another id, and the screen only reads. If the API changes tomorrow, one file changes.',
+      intro: 'Two lessons of raw HttpClient in components is enough to see the smell: URLs in screens, loading flags copied per component, the same error line written five times. The Angular pattern moves the request into a service. The service owns the URL, the loading and error state, and the loaded fields; the component injects it, calls load, and renders the fields the service holds in its template, the same reading you have done since lesson 46. The demo below pages through three sample users with Previous and Next: every tap asks the UserService for another id, and the screen only reads. If the API changes tomorrow, one file changes.',
       code: 'load(id: number) { this.http.get(url + id).subscribe((data) => { this.name = data.name; }); }',
       tip: 'Keep one data service per kind of data: users, lessons, orders. Components should be able to say what they show without knowing where it came from; the day the API moves, you will be glad they cannot.',
     },
     {
       id: 64,
-      title: 'Capstone, part 1: the practice log service',
+      title: 'Capstone, part 1: the activity log service',
       subtitle: 'Build a small real app: first the data layer',
       minutes: '5 min',
-      intro: 'The last two lessons build one small real app, a practice log, from the pieces of this batch. Part 1 is the data layer and nothing else: a PracticeLogService holding the entries and a running total, with add and remove as the only doors, every change by assignment so every screen stays live. Under it sit two components: a quick add with three honest buttons, and the list that reads the service, total and all. No form yet, no polish. A real app starts as a service that tells the truth, and screens that read it.',
+      intro: 'The last two lessons build one small real app, an activity log, from the pieces of this batch. Part 1 is the data layer and nothing else: an ActivityLogService holding the entries and a running total, with add and remove as the only doors, every change by assignment so every screen stays live. Under it sit two components: a quick add with three honest buttons, and the list that reads the service, total and all. No form yet, no polish. A real app starts as a service that tells the truth, and screens that read it.',
       code: 'this.entries = [...this.entries, { name: name, minutes: minutes }];',
       tip: 'Build the data layer first and make it boring: fields, add, remove, a total that is always right. Screens are easy to change; a service every screen trusts is the app.',
     },
     {
       id: 65,
-      title: 'Capstone, part 2: the practice log, whole',
+      title: 'Capstone, part 2: the activity log, whole',
       subtitle: 'Form, list, totals, and a toast: the batch in one screen',
       minutes: '6 min',
-      intro: 'Part 2 finishes the practice log on the same service. A name from an input; the minutes from choice buttons, because an input hands you text and the total needs a real number; an Add button that stays disabled until both are set; the entries with a Remove on each; the running total; an empty state that invites the first entry; and a toast when a practice is logged. One honest detail proves the whole batch: if you added entries in lesson 64, they are still here. The service outlives the screen, because it was never the screen\'s to keep. Nothing in this demo is new, and that is the point of a capstone: the app is the lessons, assembled.',
+      intro: 'Part 2 finishes the activity log on the same service. A name from an input; the minutes from choice buttons, because an input hands you text and the total needs a real number; an Add button that stays disabled until both are set; the entries with a Remove on each; the running total; an empty state that invites the first entry; and a toast when an activity is logged. One honest detail proves the whole batch: if you added entries in lesson 64, they are still here. The service outlives the screen, because it was never the screen\'s to keep. Nothing in this demo is new, and that is the point of a capstone: the app is the lessons, assembled.',
       code: 'this.log.add(this.name, this.minutes);',
       tip: 'When you build your own app, assemble it in this order: service, screens that read it, form, feedback. And when something shows wrong, ask first which layer lied: the service, the binding, or the state change that never assigned.',
     },
@@ -647,7 +647,7 @@ export class LessonService extends ReactiveService {
       minutes: '5 min',
       intro: 'A select lets the user pick one value from a list of named choices. In Angular Material it is MatSelect. Here the select is a control with the usual contract: [value] carries the current value in, and (change) carries the picked option value out as $event. The choices are option declarations, each with a value and a label: the field shows the chosen option label, or the placeholder before any choice. Tapping the field opens a bottom sheet listing the options, with a check on the current one. Two honest limits: the options are static declarations written in the template, not bound from an array, and ngModel does not bind a select. ngModel binds text inputs only, so a select always speaks through [value] and (change).',
       code: '<select label="City" [value]="city" (change)="onCity($event)">',
-      tip: 'Let the option value be the stable code (ktm) and the label be the words a person reads (Kathmandu). Store the code, show the label, and your saved data stays clean when the wording changes.',
+      tip: 'Let the option value be the stable code (nyc) and the label be the words a person reads (New York). Store the code, show the label, and your saved data stays clean when the wording changes.',
     },
     {
       id: 69,
@@ -663,7 +663,7 @@ export class LessonService extends ReactiveService {
       title: 'Stepper: a task in steps',
       subtitle: 'A wizard with the tabs contract, MatStepper',
       minutes: '5 min',
-      intro: 'A stepper walks the user through a task in ordered steps: cart, address, done. In Angular Material it is MatStepper. Here it follows the tabs contract: [index] carries the current step in, (change) carries a new index out as $event, and each step child owns its page under a label. Steps before the current one carry a check in the header. Because the position is a field of yours, class code can move it too: the demo picks a practice in step one and lands on step two, and its Continue and Back buttons move the same field the header taps update. One honest limit: there is no linear mode in this version. Any header can be tapped at any time, so if a step must come first, gate it in your own code, as the second step of the demo does when no practice is picked.',
+      intro: 'A stepper walks the user through a task in ordered steps: cart, address, done. In Angular Material it is MatStepper. Here it follows the tabs contract: [index] carries the current step in, (change) carries a new index out as $event, and each step child owns its page under a label. Steps before the current one carry a check in the header. Because the position is a field of yours, class code can move it too: the demo picks an activity in step one and lands on step two, and its Continue and Back buttons move the same field the header taps update. One honest limit: there is no linear mode in this version. Any header can be tapped at any time, so if a step must come first, gate it in your own code, as the second step of the demo does when no activity is picked.',
       code: '<stepper [index]="stepIndex" (change)="onStep($event)">',
       tip: 'Keep one index field as the only source of the position. Header taps, Continue buttons, and code after a save all write that field, and the stepper simply follows.',
     },
@@ -674,7 +674,7 @@ export class LessonService extends ReactiveService {
       minutes: '4 min',
       intro: 'A grid list lays its tiles out in columns, each tile taking an equal share of the width. In Angular Material it is MatGridList. Here the grid-list takes a cols attribute, 2 by default, and holds only grid-tile children: a tile is a padded surface cell that can hold any content, headings, text, images. The list itself only arranges. The demo runs the same idea twice: four place tiles in two columns, then three short tiles in three columns, so the share each tile takes is easy to see.',
       code: '<grid-list cols="2">',
-      tip: 'Reach for a grid when the items are peers of the same weight, like places or practices. When one item matters more than the rest, a list of rows leads the eye better than equal tiles do.',
+      tip: 'Reach for a grid when the items are peers of the same weight, like places or products. When one item matters more than the rest, a list of rows leads the eye better than equal tiles do.',
     },
     {
       id: 72,
@@ -789,7 +789,7 @@ export class LessonService extends ReactiveService {
       title: 'Rating: stars on the contract',
       subtitle: 'One number in, one number out, no half stars',
       minutes: '4 min',
-      intro: 'A rating asks for one number with stars. It follows the same controls contract as the slider and the switcher: [value] carries the current rating in, and (change) carries the tapped star\'s number out as $event, from 1 to max, which defaults to 5. The stars are the icon set\'s star, filled in the primary colour up to the value. One honest limit: there are no half stars in this version, so a rating is a whole number or nothing. The demo rates a practice session: tap the stars, and the line below names the number and a verdict word the class reads from a small table, so the handler holds no branches.',
+      intro: 'A rating asks for one number with stars. It follows the same controls contract as the slider and the switcher: [value] carries the current rating in, and (change) carries the tapped star\'s number out as $event, from 1 to max, which defaults to 5. The stars are the icon set\'s star, filled in the primary colour up to the value. One honest limit: there are no half stars in this version, so a rating is a whole number or nothing. The demo rates a movie: tap the stars, and the line below names the number and a verdict word the class reads from a small table, so the handler holds no branches.',
       code: '<rating [value]="score" (change)="onScore($event)"></rating>',
       tip: 'Ask for the rating at the moment the thing ends, not later from a list. A number given in context is honest; a number given from memory is a guess wearing a number\'s clothes.',
     },
@@ -852,7 +852,7 @@ export class LessonService extends ReactiveService {
       title: 'Charts: one data shape, three drawings',
       subtitle: 'Bar, line, and pie over label and value pairs',
       minutes: '6 min',
-      intro: 'Charts take one data shape and refuse the rest. The [data] binding is an array of pairs, each with a label and a value; a point may also carry its own color. The type attribute picks the drawing: bar, the default, line, or pie, and any other type is a compile error, GEN_CHART_TYPE. One small geometry engine draws in the app and in both previews, so the three renderings agree. The scope, stated plainly: one series, no axes, no gridlines, no animation, and no interaction; the chart shows numbers, it does not answer taps. Bar and pie treat a negative value as zero. Rows from a table need mapping into the pair shape before a chart will take them. The demo draws one week of practice minutes three ways over a single array, and its buttons change that array by assignment, so all three charts move together.',
+      intro: 'Charts take one data shape and refuse the rest. The [data] binding is an array of pairs, each with a label and a value; a point may also carry its own color. The type attribute picks the drawing: bar, the default, line, or pie, and any other type is a compile error, GEN_CHART_TYPE. One small geometry engine draws in the app and in both previews, so the three renderings agree. The scope, stated plainly: one series, no axes, no gridlines, no animation, and no interaction; the chart shows numbers, it does not answer taps. Bar and pie treat a negative value as zero. Rows from a table need mapping into the pair shape before a chart will take them. The demo draws one week of reading minutes three ways over a single array, and its buttons change that array by assignment, so all three charts move together.',
       code: '<chart type="bar" [data]="week"></chart>',
       tip: 'Keep one array as every chart\'s only source, and change it by assignment, as with every list. Three charts fed from three copies of the same numbers will disagree by Friday, and nobody will know which one lied.',
     },
@@ -1175,19 +1175,19 @@ export class CounterService extends ReactiveService {
 
 export class ProfileService extends ReactiveService {
   name = 'friend';
-  practice = 'yoga';
+  focus = 'writing';
   setName(name: string) {
     this.name = name;
     this.__notify();
   }
-  setPractice(practice: string) {
-    this.practice = practice;
+  setFocus(focus: string) {
+    this.focus = focus;
     this.__notify();
   }
 }
 
 export class ShelfService extends ReactiveService {
-  items = ['Yoga mat'];
+  items = ['Notebook'];
   addQuietly(name: string) {
     this.items.push(name);
   }
@@ -1256,7 +1256,7 @@ export class UserService extends ReactiveService {
   }
 }
 
-export class PracticeLogService extends ReactiveService {
+export class ActivityLogService extends ReactiveService {
   entries: any[] = [];
   total = 0;
   add(name: string, minutes: number) {
@@ -1299,7 +1299,7 @@ __container.register(ShelfService, new ShelfService());
 __container.register(FavouritesService, new FavouritesService());
 __container.register(MinutesService, new MinutesService());
 __container.register(UserService, new UserService(__container.get<HttpClient>(HttpClient)));
-__container.register(PracticeLogService, new PracticeLogService());
+__container.register(ActivityLogService, new ActivityLogService());
 
 const __navigator = new RgNavigator([{"path":"","redirectTo":"splash"},{"path":"splash"},{"path":"home"},{"path":"saved"},{"path":"progress"},{"path":"lesson/:id"},{"path":"about"},{"path":"**"}]);
 const __router = new Router(__navigator);
@@ -2174,13 +2174,13 @@ export function Lesson() {
       )}
       {(lessonId === 64) && (
         <RgCard style={styles.lessonDemoCard}>
-          <RgText variant="label">Live demo: the practice log, data layer</RgText>
+          <RgText variant="label">Live demo: the activity log, data layer</RgText>
           <CapstoneDataDemo />
         </RgCard>
       )}
       {(lessonId === 65) && (
         <RgCard style={styles.lessonDemoCard}>
-          <RgText variant="label">Live demo: the practice log, whole</RgText>
+          <RgText variant="label">Live demo: the activity log, whole</RgText>
           <CapstoneDemo />
         </RgCard>
       )}
@@ -2390,7 +2390,7 @@ export function Hello() {
 }
 
 export function InterpolationDemo() {
-  const [name, setName] = useState('Bigyan');
+  const [name, setName] = useState('Alex');
   return (
     <>
       <RgInput label="Try it: type your name" placeholder="Your name" value={name} onChangeText={($event) => setName($event)} />
@@ -2446,8 +2446,8 @@ export function BindingsDemo() {
 }
 
 export function ListsDemo() {
-  const [items, setItems] = useState(['Morning yoga', 'Puja', 'Deep work']);
-  const pool = ['Evening walk', 'Reading', 'Trikala Sandhya', 'Completion process'];
+  const [items, setItems] = useState(['Morning run', 'Team standup', 'Deep work']);
+  const pool = ['Evening walk', 'Reading', 'Write the report', 'Water the plants'];
   const [next, setNext] = useState(0);
   const add = () => {
     const item = pool[next % pool.length];
@@ -2540,36 +2540,36 @@ export function ClassStyleDemo() {
 export function ChildDemo() {
   return (
     <>
-      <PracticeTile />
-      <PracticeTile />
-      <PracticeTile />
+      <TaskTile />
+      <TaskTile />
+      <TaskTile />
     </>
   );
 }
 
-export function PracticeTile() {
+export function TaskTile() {
   const [count, setCount] = useState(0);
   const practise = () => {
     setCount(count + 1);
   };
   return (
     <>
-      <RgText variant="title">Practice tile</RgText>
-      <RgText variant="bodyLarge">Practised {count} times</RgText>
-      <RgButton onPress={() => practise()}>Practise</RgButton>
+      <RgText variant="title">Task tile</RgText>
+      <RgText variant="bodyLarge">Done {count} times</RgText>
+      <RgButton onPress={() => practise()}>Mark done</RgButton>
     </>
   );
 }
 
 export function InputsDemo() {
   const teachers = [
-    { name: 'Acharya Rajan', role: 'Yoga' },
-    { name: 'Pankaj Shukla', role: 'AI and agents' },
-    { name: 'Monika Sogam', role: 'Guided meditation voice' },
+    { name: 'David Lee', role: 'Mathematics' },
+    { name: 'Sofia Garcia', role: 'History' },
+    { name: 'James Carter', role: 'Science' },
   ];
   const [index, setIndex] = useState(0);
-  const [teacherName, setTeacherName] = useState('Acharya Rajan');
-  const [teacherRole, setTeacherRole] = useState('Yoga');
+  const [teacherName, setTeacherName] = useState('David Lee');
+  const [teacherRole, setTeacherRole] = useState('Mathematics');
   const cycle = () => {
     let __shadowIndex = index;
     __shadowIndex = (__shadowIndex + 1) % teachers.length;
@@ -2855,7 +2855,7 @@ export function RadioSwitcherDemo() {
       </RgSwitcher>
       {(view === 'list') && (
         <RgSection>
-          <RgText variant="bodyLarge">List view: Morning Yoga, Puja, Deep Work.</RgText>
+          <RgText variant="bodyLarge">List view: Morning run, Team standup, Deep work.</RgText>
         </RgSection>
       )}
       {(view === 'stats') && (
@@ -2937,7 +2937,7 @@ export function LayoutDemo() {
         <RgButton badge={unread} onPress={() => markAllRead()}>Mark all read</RgButton>
       </RgCard>
       <RgList>
-        <RgRow title="Sarju" subtitle="Photos from the weekend" time="9:12" avatar />
+        <RgRow title="Emma" subtitle="Photos from the weekend" time="9:12" avatar />
         <RgRow title="Inbox" subtitle="Your mail at a glance" badge={unread} />
         <RgRow title="Reading" subtitle="This week in your library" detail="2 min" />
         <RgRow title="System" subtitle="Theme tokens">
@@ -2951,11 +2951,11 @@ export function LayoutDemo() {
 export function TabsDemo() {
   const [tabIndex, setTabIndex] = useState(0);
   const inboxMails = [
-    { from: 'Sarju', subject: 'Train tickets for Friday' },
+    { from: 'Emma', subject: 'Train tickets for Friday' },
     { from: 'Medium', subject: 'Your weekly reading list' },
   ];
   const starredMails = [
-    { from: 'Awaken Me', subject: 'Launch checklist' },
+    { from: 'Design Team', subject: 'Launch checklist' },
   ];
   const onTab = (index: number) => {
     setTabIndex(index);
@@ -3107,7 +3107,7 @@ export function NgmodelDemo() {
   return (
     <>
       <RgInput label="Your name" placeholder="e.g. Maya" value={name} onChangeText={($event) => setName($event)} />
-      <RgInput label="Your city" placeholder="e.g. Pokhara" value={city} onChangeText={($event) => setCity($event)} />
+      <RgInput label="Your city" placeholder="e.g. London" value={city} onChangeText={($event) => setCity($event)} />
       <RgText variant="bodyLarge">Name field: {name}</RgText>
       <RgText variant="bodyLarge">City field: {city}</RgText>
       <RgButton disabled={(!name || !city)} onPress={() => greet()}>Say hello</RgButton>
@@ -3303,7 +3303,7 @@ export function FormControlDemo() {
     return () => { subs.forEach((sub) => sub.unsubscribe()); };
   }, []);
   const useSample = () => {
-    inviteFormRef.current.get('code').setValue('YOGA10');
+    inviteFormRef.current.get('code').setValue('WELCOME10');
   };
   const clear = () => {
     inviteFormRef.current.get('code').setValue('');
@@ -3431,7 +3431,7 @@ export function SetValueDemo() {
   };
   const fillSample = () => {
     profileFormRef.current.get('name').setValue('Maya');
-    profileFormRef.current.get('city').setValue('Pokhara');
+    profileFormRef.current.get('city').setValue('London');
   };
   const clearAll = () => {
     profileFormRef.current.get('name').setValue('');
@@ -3538,7 +3538,7 @@ export function DialogDemo() {
   return (
     <>
       {!noteDeleted && (
-        <RgText variant="bodyLarge">Note: Book the yoga hall for Saturday.</RgText>
+        <RgText variant="bodyLarge">Note: Book the meeting room for Saturday.</RgText>
       )}
       {noteDeleted && (
         <RgText variant="bodyLarge">The note was deleted.</RgText>
@@ -3845,22 +3845,22 @@ export function ProfileEditor() {
   const profile = __container.get<ProfileService>(ProfileService);
   useSyncExternalStore((cb) => profile.__subscribe(cb), () => profile.__getVersion());
   const [nameDraft, setNameDraft] = useState('');
-  const [practiceDraft, setPracticeDraft] = useState('');
+  const [focusDraft, setFocusDraft] = useState('');
   const ngOnInit = () => {
     setNameDraft(profile.name);
-    setPracticeDraft(profile.practice);
+    setFocusDraft(profile.focus);
   };
   const save = () => {
     profile.setName(nameDraft);
-    profile.setPractice(practiceDraft);
+    profile.setFocus(focusDraft);
   };
   useEffect(() => {
     ngOnInit();
   }, []);
   return (
     <>
-      <RgInput label="Your name" placeholder="e.g. Bigyan" value={nameDraft} onChangeText={($event) => setNameDraft($event)} />
-      <RgInput label="Today's practice" placeholder="e.g. Yoga" value={practiceDraft} onChangeText={($event) => setPracticeDraft($event)} />
+      <RgInput label="Your name" placeholder="e.g. Alex" value={nameDraft} onChangeText={($event) => setNameDraft($event)} />
+      <RgInput label="Today's focus" placeholder="e.g. Finish the report" value={focusDraft} onChangeText={($event) => setFocusDraft($event)} />
       <RgButton onPress={() => save()}>Save to the profile</RgButton>
     </>
   );
@@ -3873,7 +3873,7 @@ export function ProfileGreeter() {
     <>
       <RgText variant="label">The greeter, a separate component with no inputs</RgText>
       <RgText variant="bodyLarge">Hello, {profile.name}.</RgText>
-      <RgText variant="bodyLarge">Today is for {profile.practice}.</RgText>
+      <RgText variant="bodyLarge">Today is for {profile.focus}.</RgText>
     </>
   );
 }
@@ -4291,28 +4291,28 @@ export function CapstoneDataDemo() {
 }
 
 export function LogQuickAdd() {
-  const log = __container.get<PracticeLogService>(PracticeLogService);
+  const log = __container.get<ActivityLogService>(ActivityLogService);
   useSyncExternalStore((cb) => log.__subscribe(cb), () => log.__getVersion());
-  const yoga = () => {
-    log.add('Yoga', 20);
-  };
-  const puja = () => {
-    log.add('Puja', 15);
-  };
   const reading = () => {
-    log.add('Reading', 10);
+    log.add('Reading', 20);
+  };
+  const coding = () => {
+    log.add('Coding', 30);
+  };
+  const walking = () => {
+    log.add('Walking', 15);
   };
   return (
     <>
-      <RgButton onPress={() => yoga()}>Log Yoga, 20 min</RgButton>
-      <RgButton onPress={() => puja()}>Log Puja, 15 min</RgButton>
-      <RgButton onPress={() => reading()}>Log Reading, 10 min</RgButton>
+      <RgButton onPress={() => reading()}>Log Reading, 20 min</RgButton>
+      <RgButton onPress={() => coding()}>Log Coding, 30 min</RgButton>
+      <RgButton onPress={() => walking()}>Log Walking, 15 min</RgButton>
     </>
   );
 }
 
 export function LogList() {
-  const log = __container.get<PracticeLogService>(PracticeLogService);
+  const log = __container.get<ActivityLogService>(ActivityLogService);
   useSyncExternalStore((cb) => log.__subscribe(cb), () => log.__getVersion());
   return (
     <>
@@ -4329,7 +4329,7 @@ export function LogList() {
 }
 
 export function CapstoneDemo() {
-  const log = __container.get<PracticeLogService>(PracticeLogService);
+  const log = __container.get<ActivityLogService>(ActivityLogService);
   useSyncExternalStore((cb) => log.__subscribe(cb), () => log.__getVersion());
   const snack = __snackBar;
   const [name, setName] = useState('');
@@ -4339,7 +4339,7 @@ export function CapstoneDemo() {
   };
   const add = () => {
     log.add(name, minutes);
-    snack.open('Practice logged');
+    snack.open('Activity logged');
     setName('');
     setMinutes(0);
   };
@@ -4348,7 +4348,7 @@ export function CapstoneDemo() {
   };
   return (
     <>
-      <RgInput label="Practice" placeholder="e.g. Yoga" value={name} onChangeText={($event) => setName($event)} />
+      <RgInput label="Activity" placeholder="e.g. Reading" value={name} onChangeText={($event) => setName($event)} />
       <RgText variant="bodyLarge">Minutes: {((minutes === 0) ? 'not picked yet' : minutes)}</RgText>
       <RgButton onPress={() => pickMinutes(10)}>10 min</RgButton>
       <RgButton onPress={() => pickMinutes(15)}>15 min</RgButton>
@@ -4356,7 +4356,7 @@ export function CapstoneDemo() {
       <RgButton onPress={() => pickMinutes(30)}>30 min</RgButton>
       <RgButton disabled={((name === '') || (minutes === 0))} onPress={() => add()}>Add to the log</RgButton>
       {(log.entries.length === 0) && (
-        <RgText variant="bodyLarge">The log is empty. Add your first practice above.</RgText>
+        <RgText variant="bodyLarge">The log is empty. Add your first activity above.</RgText>
       )}
       {log.entries.map((e, index) => (
         <RgSection key={e?.id ?? index}>
@@ -4440,9 +4440,9 @@ export function SelectDemo() {
   return (
     <>
       <RgSelect label="City" placeholder="Pick a city" value={city} onChange={($event) => onCity($event)}>
-        <RgOption value="ktm">Kathmandu</RgOption>
-        <RgOption value="pkr">Pokhara</RgOption>
-        <RgOption value="bkt">Bhaktapur</RgOption>
+        <RgOption value="nyc">New York</RgOption>
+        <RgOption value="ldn">London</RgOption>
+        <RgOption value="syd">Sydney</RgOption>
       </RgSelect>
       {city && (
         <RgText variant="bodyLarge">Selected city code: {city}</RgText>
@@ -4476,9 +4476,9 @@ export function SelectFormDemo() {
       <RgSection>
         <RgInput label="Your name" placeholder="Type your name" value={name} onChangeText={($event) => setName($event)} />
         <RgSelect label="City to visit" placeholder="Pick a city" value={city} onChange={($event) => onCity($event)}>
-          <RgOption value="Kathmandu">Kathmandu</RgOption>
-          <RgOption value="Pokhara">Pokhara</RgOption>
-          <RgOption value="Bhaktapur">Bhaktapur</RgOption>
+          <RgOption value="New York">New York</RgOption>
+          <RgOption value="London">London</RgOption>
+          <RgOption value="Sydney">Sydney</RgOption>
         </RgSelect>
         <RgSwitch checked={guided} onChange={($event) => onGuided($event)}>Guided tour</RgSwitch>
         <RgButton disabled={(!name || !city)} onPress={() => save()}>Save the visit</RgButton>
@@ -4495,7 +4495,7 @@ export function SelectFormDemo() {
 
 export function StepperDemo() {
   const [stepIndex, setStepIndex] = useState(0);
-  const [practice, setPractice] = useState('');
+  const [activity, setActivity] = useState('');
   const onStep = (i: number) => {
     setStepIndex(i);
   };
@@ -4506,32 +4506,32 @@ export function StepperDemo() {
     setStepIndex(stepIndex - 1);
   };
   const pick = (name: string) => {
-    setPractice(name);
+    setActivity(name);
     setStepIndex(1);
   };
   return (
     <RgStepper index={stepIndex} onChange={($event) => onStep($event)}>
-      <RgStep label="Practice">
-        <RgText variant="bodyLarge">Pick the practice you want to schedule.</RgText>
-        <RgButton onPress={() => pick('Morning yoga')}>Morning yoga</RgButton>
-        <RgButton onPress={() => pick('Evening meditation')}>Evening meditation</RgButton>
+      <RgStep label="Activity">
+        <RgText variant="bodyLarge">Pick the activity you want to schedule.</RgText>
+        <RgButton onPress={() => pick('Morning run')}>Morning run</RgButton>
+        <RgButton onPress={() => pick('Evening walk')}>Evening walk</RgButton>
       </RgStep>
       <RgStep label="Time">
-        {practice && (
-          <RgText variant="bodyLarge">Practice: {practice}. It sits at sunrise, before the day starts.</RgText>
+        {activity && (
+          <RgText variant="bodyLarge">Activity: {activity}. It sits at 7 am, before the day starts.</RgText>
         )}
-        {!practice && (
-          <RgText variant="bodyLarge">No practice picked yet. Go back one step and pick one.</RgText>
+        {!activity && (
+          <RgText variant="bodyLarge">No activity picked yet. Go back one step and pick one.</RgText>
         )}
         <RgButton variant="text" onPress={() => back()}>Back</RgButton>
         <RgButton onPress={() => next()}>Continue</RgButton>
       </RgStep>
       <RgStep label="Done">
-        {practice && (
-          <RgText variant="bodyLarge">All set: {practice} is scheduled at sunrise.</RgText>
+        {activity && (
+          <RgText variant="bodyLarge">All set: {activity} is scheduled at 7 am.</RgText>
         )}
-        {!practice && (
-          <RgText variant="bodyLarge">Nothing is scheduled. Pick a practice in the first step.</RgText>
+        {!activity && (
+          <RgText variant="bodyLarge">Nothing is scheduled. Pick an activity in the first step.</RgText>
         )}
         <RgButton variant="text" onPress={() => back()}>Back</RgButton>
       </RgStep>
@@ -4545,29 +4545,29 @@ export function GridDemo() {
       <RgText variant="label">Places, two to a row</RgText>
       <RgGridList cols="2">
         <RgGridTile>
-          <RgText variant="title">Swayambhu</RgText>
-          <RgText variant="bodyLarge">The monkey temple hill</RgText>
+          <RgText variant="title">London</RgText>
+          <RgText variant="bodyLarge">Tower Bridge and the river</RgText>
         </RgGridTile>
         <RgGridTile>
-          <RgText variant="title">Boudha</RgText>
-          <RgText variant="bodyLarge">The great stupa</RgText>
+          <RgText variant="title">Paris</RgText>
+          <RgText variant="bodyLarge">The Eiffel Tower</RgText>
         </RgGridTile>
         <RgGridTile>
-          <RgText variant="title">Patan</RgText>
-          <RgText variant="bodyLarge">Durbar square and workshops</RgText>
+          <RgText variant="title">New York</RgText>
+          <RgText variant="bodyLarge">Central Park</RgText>
         </RgGridTile>
         <RgGridTile>
-          <RgText variant="title">Thamel</RgText>
-          <RgText variant="bodyLarge">Bookshops and cafes</RgText>
+          <RgText variant="title">Sydney</RgText>
+          <RgText variant="bodyLarge">The harbour bridge</RgText>
         </RgGridTile>
       </RgGridList>
       <RgText variant="label">The same tiles idea, three to a row</RgText>
       <RgGridList cols="3">
         <RgGridTile>
-          <RgText variant="bodyLarge">Yoga</RgText>
+          <RgText variant="bodyLarge">Running</RgText>
         </RgGridTile>
         <RgGridTile>
-          <RgText variant="bodyLarge">Puja</RgText>
+          <RgText variant="bodyLarge">Cooking</RgText>
         </RgGridTile>
         <RgGridTile>
           <RgText variant="bodyLarge">Reading</RgText>
@@ -4582,7 +4582,7 @@ export function MasonryDemo() {
     <RgGridList cols="2" mode="masonry">
       <RgGridTile>
         <RgText variant="title">Morning</RgText>
-        <RgText variant="bodyLarge">Wake in Brahmamuhurta. Yoga, puja, and a quiet sit before the day asks anything of you.</RgText>
+        <RgText variant="bodyLarge">Wake up early. A run, a shower, and a quiet coffee before the day asks anything of you.</RgText>
       </RgGridTile>
       <RgGridTile>
         <RgText variant="title">Meals</RgText>
@@ -4598,7 +4598,7 @@ export function MasonryDemo() {
       </RgGridTile>
       <RgGridTile>
         <RgText variant="title">Evening</RgText>
-        <RgText variant="bodyLarge">Sandhya, a light dinner, and the completion process before sleep, so the day closes clean.</RgText>
+        <RgText variant="bodyLarge">A light dinner, a short walk, and notes for tomorrow before sleep, so the day closes clean.</RgText>
       </RgGridTile>
       <RgGridTile>
         <RgText variant="title">Sleep</RgText>
@@ -4654,11 +4654,11 @@ export function TooltipDemo() {
 export function DividerDemo() {
   return (
     <>
-      <RgText variant="title">The morning, in three groups</RgText>
-      <RgText variant="bodyLarge">Yoga and puja</RgText>
-      <RgText variant="bodyLarge">Trikala Sandhya</RgText>
-      <RgDivider />
+      <RgText variant="title">The day, in three groups</RgText>
+      <RgText variant="bodyLarge">A run and a shower</RgText>
       <RgText variant="bodyLarge">Breakfast</RgText>
+      <RgDivider />
+      <RgText variant="bodyLarge">Team standup</RgText>
       <RgText variant="bodyLarge">The first deep work block</RgText>
       <RgDivider />
       <RgText variant="bodyLarge">A walk in the sun</RgText>
@@ -4669,13 +4669,13 @@ export function DividerDemo() {
 
 export function TablesDepthDemo() {
   const [people, setPeople] = useState([
-    { name: 'Mina', age: 31, city: 'Kathmandu' },
-    { name: 'Arun', age: 25, city: 'Pokhara' },
-    { name: 'Sita', age: 40, city: 'Bhaktapur' },
-    { name: 'Bikash', age: 25, city: 'Kathmandu' },
-    { name: 'Anita', age: 36, city: 'Patan' },
-    { name: 'Kiran', age: 29, city: 'Pokhara' },
-    { name: 'Rita', age: 33, city: 'Bhaktapur' },
+    { name: 'Emma', age: 31, city: 'London' },
+    { name: 'Liam', age: 25, city: 'Toronto' },
+    { name: 'Sofia', age: 40, city: 'Sydney' },
+    { name: 'Noah', age: 25, city: 'London' },
+    { name: 'Ava', age: 36, city: 'Berlin' },
+    { name: 'Lucas', age: 29, city: 'Toronto' },
+    { name: 'Mia', age: 33, city: 'Sydney' },
   ]);
   const extras = [
     { name: 'Hari', age: 27, city: 'Dharan' },
@@ -4721,7 +4721,7 @@ export function BottomNavDemo() {
       {(tab === 0) && (
         <RgSection>
           <RgText variant="title">Today</RgText>
-          <RgText variant="bodyLarge">The day screen: practice first, then the reading. This panel shows while the first item is picked.</RgText>
+          <RgText variant="bodyLarge">The day screen: the run first, then the reading. This panel shows while the first item is picked.</RgText>
         </RgSection>
       )}
       {(tab === 1) && (
@@ -4749,8 +4749,8 @@ export function RefreshDemo() {
   const [refreshing, setRefreshing] = useState(false);
   const [refreshCount, setRefreshCount] = useState(0);
   const [notes, setNotes] = useState([
-    { id: 1, title: 'Morning practice', detail: 'Sunrise session, 25 minutes' },
-    { id: 2, title: 'Reading', detail: 'Part 23 of the series' },
+    { id: 1, title: 'Morning run', detail: 'Park loop, 25 minutes' },
+    { id: 2, title: 'Reading', detail: 'Chapter 12 of the novel' },
     { id: 3, title: 'Walk', detail: 'The river road, there and back' },
   ]);
   const reload = () => {
@@ -4853,9 +4853,9 @@ export function SkeletonDemo() {
       )}
       {!loading && (
         <RgCard>
-          <RgAvatar text="Sarju Chapagain" size="48" />
-          <RgText variant="title">Sarju Chapagain</RgText>
-          <RgText variant="bodyLarge">Practice partner. Sunrise sessions, most days.</RgText>
+          <RgAvatar text="Emma Wilson" size="48" />
+          <RgText variant="title">Emma Wilson</RgText>
+          <RgText variant="bodyLarge">Design partner. Weekend hikes, most weeks.</RgText>
           <RgText variant="bodyLarge">Last session: this morning, 25 minutes.</RgText>
         </RgCard>
       )}
@@ -4868,7 +4868,7 @@ export function SkeletonDemo() {
 export function RowActionsDemo() {
   const [lastAction, setLastAction] = useState('');
   const [mails, setMails] = useState([
-    { id: 1, from: 'Sarju', subject: 'Photos from the weekend' },
+    { id: 1, from: 'Emma', subject: 'Photos from the weekend' },
     { id: 2, from: 'Medium', subject: 'Your weekly reading list' },
     { id: 3, from: 'Field Notes', subject: 'Transformer testing, day one' },
     { id: 4, from: 'Google', subject: 'Security alert' },
@@ -4964,7 +4964,7 @@ export function RatingDemo() {
   };
   return (
     <>
-      <RgText variant="label">How was this morning's session?</RgText>
+      <RgText variant="label">How was the movie?</RgText>
       <RgRating value={score} onChange={($event) => onScore($event)} />
       {score && (
         <RgText variant="bodyLarge">You rated it {score} of 5: {verdict}.</RgText>
@@ -5010,16 +5010,16 @@ export function CarouselDemo() {
     <>
       <RgCarousel index={page} onChange={($event) => onPage($event)}>
         <RgCard>
-          <RgText variant="title">Breathe</RgText>
-          <RgText variant="bodyLarge">Four counts in, six counts out. The breath sets the pace for everything after it.</RgText>
+          <RgText variant="title">Plan</RgText>
+          <RgText variant="bodyLarge">Pick the place and the time before you go. A little planning saves the whole shoot.</RgText>
         </RgCard>
         <RgCard>
-          <RgText variant="title">Sit</RgText>
-          <RgText variant="bodyLarge">Spine easy, shoulders down. Sitting well is a skill, and it is most of the practice.</RgText>
+          <RgText variant="title">Shoot</RgText>
+          <RgText variant="bodyLarge">Take more frames than you think you need. The best shot is rarely the first one.</RgText>
         </RgCard>
         <RgCard>
-          <RgText variant="title">Return</RgText>
-          <RgText variant="bodyLarge">When the mind wanders, return without scolding it. The return is the repetition that counts.</RgText>
+          <RgText variant="title">Review</RgText>
+          <RgText variant="bodyLarge">Look at the results the same day, and note what worked while it is still fresh.</RgText>
         </RgCard>
       </RgCarousel>
       <RgText variant="bodyLarge">Page {(page + 1)} of 3. Swipe on the phone; in the preview, the dots and chevrons do the paging.</RgText>
@@ -5030,11 +5030,11 @@ export function CarouselDemo() {
 export function TimelineDemo() {
   return (
     <RgTimeline>
-      <RgTimelineItem title="Brahmamuhurta" time="4:40 am">
-        <RgText variant="bodyLarge">The day began before sunrise, with water and a few minutes of sitting.</RgText>
+      <RgTimelineItem title="Early start" time="6:00 am">
+        <RgText variant="bodyLarge">The day began with a glass of water and a short walk.</RgText>
       </RgTimelineItem>
-      <RgTimelineItem title="Morning practice" time="5:15 am">
-        <RgText variant="bodyLarge">Yoga, then puja. The body woke up in that order.</RgText>
+      <RgTimelineItem title="Exercise" time="6:30 am">
+        <RgText variant="bodyLarge">A run in the park, then a shower. The body woke up in that order.</RgText>
       </RgTimelineItem>
       <RgTimelineItem title="Deep work" time="7:00 am">
         <RgText variant="bodyLarge">Two hours at the desk before the first message was opened.</RgText>
@@ -5065,15 +5065,15 @@ export function AvatarsDemo() {
     <>
       <RgText variant="label">Your people, folded at three</RgText>
       <RgAvatarGroup max="3">
-        <RgAvatar text="Sarju Chapagain" />
-        <RgAvatar text="Bigyan Chapagain" />
-        <RgAvatar text="Monika Sogam" />
-        <RgAvatar text="Acharya Rajan" />
+        <RgAvatar text="Emma Wilson" />
+        <RgAvatar text="Alex Carter" />
+        <RgAvatar text="Sofia Garcia" />
+        <RgAvatar text="David Lee" />
         <RgAvatar text="Maya Dev" />
       </RgAvatarGroup>
       <RgText variant="bodyLarge">Five people, three circles, and a +2 fold. The group overlaps the circles itself.</RgText>
       <RgText variant="label">One person, standing alone</RgText>
-      <RgAvatar text="Sarju Chapagain" size="56" />
+      <RgAvatar text="Emma Wilson" size="56" />
       <RgText variant="bodyLarge">Initials from the first two words of the name, at size 56.</RgText>
       <RgAvatar src="https://picsum.photos/id/64/200/200" size="56" />
       <RgText variant="bodyLarge">The same circle with a photo instead of initials. This one needs the phone online to load.</RgText>
@@ -5084,7 +5084,7 @@ export function AvatarsDemo() {
 export function EmptyStateDemo() {
   const [messages, setMessages] = useState([]);
   const load = () => {
-    setMessages([{ id: 1, from: 'Sarju', subject: 'Photos from the weekend' }, { id: 2, from: 'Medium', subject: 'Your weekly reading list' }]);
+    setMessages([{ id: 1, from: 'Emma', subject: 'Photos from the weekend' }, { id: 2, from: 'Medium', subject: 'Your weekly reading list' }]);
   };
   const clear = () => {
     setMessages([]);
@@ -5150,7 +5150,7 @@ export function ChartsDemo() {
 }
 
 export function EditorDemo() {
-  const [notes, setNotes] = useState('Saw the **sunrise** again, and sat in *silence*.\n- Walked the river road\n- Meditated');
+  const [notes, setNotes] = useState('Saw the **sunrise** again, and the air was *clear*.\n- Walked the river road\n- Took photos');
   const onNotes = (v: string) => {
     setNotes(v);
   };
