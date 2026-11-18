@@ -1323,7 +1323,7 @@ export function Splash() {
         <RgChip>Free</RgChip>
       </RgChips>
       <RgButton onPress={() => __router.navigateByUrl("/home")}>Start learning</RgButton>
-      <RgText variant="bodyLarge" style={styles.splashEntryFoot}>Rangular framework 0.1.5 · No account needed</RgText>
+      <RgText variant="bodyLarge" style={styles.splashEntryFoot}>Rangular framework 0.1.6 · No account needed</RgText>
     </RgSection>
   );
 }
@@ -1338,7 +1338,6 @@ export function Home() {
   const router = __router;
   const [query, setQuery] = useState('');
   const [searching, setSearching] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
   const [results, setResults] = useState([]);
   const [continueLesson, setContinueLesson] = useState(null);
   const [doneCount, setDoneCount] = useState(0);
@@ -1425,14 +1424,8 @@ export function Home() {
   const clearSearch = () => {
     onQuery('');
   };
-  const toggleSearch = () => {
-    setSearchOpen(!searchOpen);
-  };
   const openNav = () => {
     shell.openDrawer();
-  };
-  const goSaved = () => {
-    router.navigate(['/saved']);
   };
   const pickTab = (i: number) => {
     if (i === 1) {
@@ -1449,111 +1442,89 @@ export function Home() {
   return (
     <RgSection>
       {/* (menu) has no standard RN prop, mapped to onMenu */}
-      {/* (action2) has no standard RN prop, mapped to onAction2 */}
-      <RgAppbar tone="tint" title="Rangular" actionIcon="search" actionIcon2="bookmark" pin menu onMenu={() => openNav()} onAction={() => toggleSearch()} onAction2={() => goSaved()} />
+      <RgAppbar tone="tint" title="Rangular" pin menu onMenu={() => openNav()} />
       <RgBottomNav index={0} onChange={($event) => pickTab($event)}>
         <RgNavItem icon="home" label="Learn" />
         <RgNavItem icon="bookmark" label="Saved" />
         <RgNavItem icon="chart" label="Progress" />
         <RgNavItem icon="info" label="About" />
       </RgBottomNav>
-      {searchOpen && (
-        <RgSection>
-          <RgInput variant="search" placeholder="Search 95 lessons" onChangeText={($event) => onQuery($event)} value={query} />
-          <RgSection label="Search results" plain meta={(results.length + ' found')}>
-            <RgList>
-              {results.map((l, index) => (
-                <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
-              ))}
-            </RgList>
-            {(query && (results.length === 0)) && (
-              <RgText variant="bodyLarge">No lesson matches that search. Try a shorter word.</RgText>
-            )}
+      <RgSection>
+        <RgCard style={styles.homePathCard}>
+          <RgText variant="title">Your path</RgText>
+          <RgText variant="bodyLarge">{doneCount} of 95 lessons · {doneMinutes} minutes in</RgText>
+          <RgProgressBar value={percent} />
+          {allDone && (
+            <RgText variant="bodyLarge">You finished the whole path. Every lesson is still here when you want it again.</RgText>
+          )}
+          {continueLesson && (
+            <RgButton onPress={() => __router.navigate(['/lesson', continueLesson.id])}>Lesson {continueLesson.id} · {continueLesson.title}</RgButton>
+          )}
+        </RgCard>
+        <RgInput variant="search" placeholder="Search 95 lessons" onChangeText={($event) => onQuery($event)} value={query} />
+        {searching && (
+          <RgSection>
+            <RgSection label="Search results" plain meta={(results.length + ' found')}>
+              <RgList>
+                {results.map((l, index) => (
+                  <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                ))}
+              </RgList>
+              {(query && (results.length === 0)) && (
+                <RgText variant="bodyLarge">No lesson matches that search. Try a shorter word.</RgText>
+              )}
+            </RgSection>
+            <RgButton variant="text" onPress={() => clearSearch()}>Clear search</RgButton>
           </RgSection>
-          {!query && (
-            <RgText variant="bodyLarge">Type to search titles and text across all 95 lessons.</RgText>
-          )}
-          <RgButton variant="text" onPress={() => toggleSearch()}>Close search</RgButton>
-        </RgSection>
-      )}
-      {!searchOpen && (
-        <RgSection>
-          <RgCard style={styles.homePathCard}>
-            <RgText variant="title">Your path</RgText>
-            <RgText variant="bodyLarge">{doneCount} of 95 lessons · {doneMinutes} minutes in</RgText>
-            <RgProgressBar value={percent} />
-            {allDone && (
-              <RgText variant="bodyLarge">You finished the whole path. Every lesson is still here when you want it again.</RgText>
-            )}
-            {continueLesson && (
-              <RgButton onPress={() => __router.navigate(['/lesson', continueLesson.id])}>Lesson {continueLesson.id} · {continueLesson.title}</RgButton>
-            )}
-          </RgCard>
-          <RgInput variant="search" placeholder="Search 95 lessons" onChangeText={($event) => onQuery($event)} value={query} />
-          {searching && (
-            <RgSection>
-              <RgSection label="Search results" plain meta={(results.length + ' found')}>
-                <RgList>
-                  {results.map((l, index) => (
-                    <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
-                  ))}
-                </RgList>
-                {(query && (results.length === 0)) && (
-                  <RgText variant="bodyLarge">No lesson matches that search. Try a shorter word.</RgText>
-                )}
-              </RgSection>
-              <RgButton variant="text" onPress={() => clearSearch()}>Clear search</RgButton>
+        )}
+        {!searching && (
+          <RgSection>
+            <RgSection label="Getting started" plain meta={starterMeta}>
+              <RgList>
+                {starterLessons.map((l, index) => (
+                  <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                ))}
+              </RgList>
             </RgSection>
-          )}
-          {!searching && (
-            <RgSection>
-              <RgSection label="Getting started" plain meta={starterMeta}>
-                <RgList>
-                  {starterLessons.map((l, index) => (
-                    <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
-                  ))}
-                </RgList>
-              </RgSection>
-              <RgSection label="Components and templates" plain meta={batchMeta}>
-                <RgList>
-                  {batchLessons.map((l, index) => (
-                    <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
-                  ))}
-                </RgList>
-              </RgSection>
-              <RgSection label="Forms and interaction" plain meta={formsMeta}>
-                <RgList>
-                  {formsLessons.map((l, index) => (
-                    <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
-                  ))}
-                </RgList>
-              </RgSection>
-              <RgSection label="Services, routing, and data" plain meta={dataMeta}>
-                <RgList>
-                  {dataLessons.map((l, index) => (
-                    <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
-                  ))}
-                </RgList>
-              </RgSection>
-              <RgSection label="The Material pieces" plain meta={piecesMeta}>
-                <RgList>
-                  {piecesLessons.map((l, index) => (
-                    <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
-                  ))}
-                </RgList>
-              </RgSection>
-              <RgSection label="Beyond Angular" plain meta={beyondMeta}>
-                <RgList>
-                  {beyondLessons.map((l, index) => (
-                    <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
-                  ))}
-                </RgList>
-              </RgSection>
-              <RgText variant="bodyLarge">95 lessons · Rangular framework 0.1.5</RgText>
+            <RgSection label="Components and templates" plain meta={batchMeta}>
+              <RgList>
+                {batchLessons.map((l, index) => (
+                  <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                ))}
+              </RgList>
             </RgSection>
-          )}
-        </RgSection>
-      )}
+            <RgSection label="Forms and interaction" plain meta={formsMeta}>
+              <RgList>
+                {formsLessons.map((l, index) => (
+                  <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                ))}
+              </RgList>
+            </RgSection>
+            <RgSection label="Services, routing, and data" plain meta={dataMeta}>
+              <RgList>
+                {dataLessons.map((l, index) => (
+                  <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                ))}
+              </RgList>
+            </RgSection>
+            <RgSection label="The Material pieces" plain meta={piecesMeta}>
+              <RgList>
+                {piecesLessons.map((l, index) => (
+                  <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                ))}
+              </RgList>
+            </RgSection>
+            <RgSection label="Beyond Angular" plain meta={beyondMeta}>
+              <RgList>
+                {beyondLessons.map((l, index) => (
+                  <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                ))}
+              </RgList>
+            </RgSection>
+            <RgText variant="bodyLarge">95 lessons · Rangular framework 0.1.6</RgText>
+          </RgSection>
+        )}
+      </RgSection>
     </RgSection>
   );
 }
@@ -5320,7 +5291,7 @@ export function About() {
           <RgText variant="bodyLarge">This app is being prepared for release on the App Store and Google Play. All 95 lessons are complete, and the icon, splash artwork, and store listing are prepared. The store accounts and the submission itself are the remaining steps.</RgText>
         </RgSection>
       </RgCard>
-      <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.1.5</RgText>
+      <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.1.6</RgText>
     </RgSection>
   );
 }
@@ -5386,7 +5357,7 @@ export default function App() {
             <RgRow icon="info" title="How to use this tutorial" onPress={() => openHowTo()} />
             <RgRow icon="info" title="About" selected={(shell.place === 'about')} onPress={() => goAbout()} />
           </RgList>
-          <RgText variant="bodyLarge">Rangular framework 0.1.5</RgText>
+          <RgText variant="bodyLarge">Rangular framework 0.1.6</RgText>
         </RgDrawer>
         <RgDialog title="How to use this tutorial" open={shell.howToOpen} onClose={() => closeHowTo()}>
           <RgText variant="bodyLarge">Start at Lesson 1 and go in order. Tap a lesson, read it, try its demo, then mark it done and move to the next one.</RgText>

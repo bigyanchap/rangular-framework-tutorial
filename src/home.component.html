@@ -1,23 +1,12 @@
 <section>
-  <appbar pin tone="tint" title="Rangular" menu (menu)="openNav()" actionIcon="search" (action)="toggleSearch()" actionIcon2="bookmark" (action2)="goSaved()"></appbar>
+  <appbar pin tone="tint" title="Rangular" menu (menu)="openNav()"></appbar>
   <bottom-nav [index]="0" (change)="pickTab($event)">
     <nav-item icon="home" label="Learn"></nav-item>
     <nav-item icon="bookmark" label="Saved"></nav-item>
     <nav-item icon="chart" label="Progress"></nav-item>
     <nav-item icon="info" label="About"></nav-item>
   </bottom-nav>
-  <section *ngIf="searchOpen">
-    <input variant="search" placeholder="Search 95 lessons" [value]="query" (change)="onQuery($event)">
-    <section label="Search results" plain [meta]="results.length + ' found'">
-      <list>
-        <row *ngFor="let l of results" avatar [avatarTone]="tileTone(l)" [avatarText]="tileText(l)" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [selected]="isCurrent(l)" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
-      </list>
-      <p *ngIf="query && results.length === 0">No lesson matches that search. Try a shorter word.</p>
-    </section>
-    <p *ngIf="!query">Type to search titles and text across all 95 lessons.</p>
-    <button variant="text" (click)="toggleSearch()">Close search</button>
-  </section>
-  <section *ngIf="!searchOpen">
+  <section>
     <card class="path-card">
       <h3>Your path</h3>
       <p>{{ doneCount }} of 95 lessons · {{ doneMinutes }} minutes in</p>
@@ -66,7 +55,7 @@
         <row *ngFor="let l of beyondLessons" avatar [avatarTone]="tileTone(l)" [avatarText]="tileText(l)" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [selected]="isCurrent(l)" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
       </list>
     </section>
-    <p>95 lessons · Rangular framework 0.1.5</p>
+    <p>95 lessons · Rangular framework 0.1.6</p>
     </section>
   </section>
 </section>

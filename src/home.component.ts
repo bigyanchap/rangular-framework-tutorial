@@ -36,7 +36,6 @@ type Lesson = {
 export class HomeComponent {
   query = '';
   searching = false;
-  searchOpen = false;
   results: Lesson[] = [];
   continueLesson: any = null;
   doneCount = 0;
@@ -138,16 +137,8 @@ export class HomeComponent {
     this.onQuery('');
   }
 
-  toggleSearch() {
-    this.searchOpen = !this.searchOpen;
-  }
-
   openNav() {
     this.shell.openDrawer();
-  }
-
-  goSaved() {
-    this.router.navigate(['/saved']);
   }
 
   pickTab(i: number) {
