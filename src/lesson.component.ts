@@ -112,6 +112,7 @@ import { BreadcrumbsDemoComponent } from './demos/breadcrumbs.component';
   styles: [`
     .eyebrow { color: #5f6368; font-weight: 700; }
     .tip-card { background-color: #e8f0fe; border-width: 0; }
+    .demo-card { background-color: transparent; border-width: 0; padding: 0; }
   `],
 })
 export class LessonComponent {

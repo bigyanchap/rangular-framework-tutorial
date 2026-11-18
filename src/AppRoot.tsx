@@ -1323,7 +1323,7 @@ export function Splash() {
         <RgChip>Free</RgChip>
       </RgChips>
       <RgButton onPress={() => __router.navigateByUrl("/home")}>Start learning</RgButton>
-      <RgText variant="bodyLarge" style={styles.splashEntryFoot}>Rangular framework 0.1.6 · No account needed</RgText>
+      <RgText variant="bodyLarge" style={styles.splashEntryFoot}>Rangular framework 0.1.8 · No account needed</RgText>
     </RgSection>
   );
 }
@@ -1395,13 +1395,7 @@ export function Home() {
     if (bookmarks.isDone(l.id)) {
       return 'green';
     }
-    if (continueLesson !== null && l.id === continueLesson.id) {
-      return 'blue';
-    }
     return 'varied';
-  };
-  const isCurrent = (l: Lesson) => {
-    return continueLesson !== null && l.id === continueLesson.id;
   };
   const isSaved = (id: number) => {
     return bookmarks.isBookmarked(id);
@@ -1443,7 +1437,7 @@ export function Home() {
     <RgSection>
       {/* (menu) has no standard RN prop, mapped to onMenu */}
       <RgAppbar tone="tint" title="Rangular" pin menu onMenu={() => openNav()} />
-      <RgBottomNav index={0} onChange={($event) => pickTab($event)}>
+      <RgBottomNav haptic index={0} onChange={($event) => pickTab($event)}>
         <RgNavItem icon="home" label="Learn" />
         <RgNavItem icon="bookmark" label="Saved" />
         <RgNavItem icon="chart" label="Progress" />
@@ -1467,7 +1461,7 @@ export function Home() {
             <RgSection label="Search results" plain meta={(results.length + ' found')}>
               <RgList>
                 {results.map((l, index) => (
-                  <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                  <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
                 ))}
               </RgList>
               {(query && (results.length === 0)) && (
@@ -1482,46 +1476,46 @@ export function Home() {
             <RgSection label="Getting started" plain meta={starterMeta}>
               <RgList>
                 {starterLessons.map((l, index) => (
-                  <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                  <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
                 ))}
               </RgList>
             </RgSection>
             <RgSection label="Components and templates" plain meta={batchMeta}>
               <RgList>
                 {batchLessons.map((l, index) => (
-                  <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                  <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
                 ))}
               </RgList>
             </RgSection>
             <RgSection label="Forms and interaction" plain meta={formsMeta}>
               <RgList>
                 {formsLessons.map((l, index) => (
-                  <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                  <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
                 ))}
               </RgList>
             </RgSection>
             <RgSection label="Services, routing, and data" plain meta={dataMeta}>
               <RgList>
                 {dataLessons.map((l, index) => (
-                  <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                  <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
                 ))}
               </RgList>
             </RgSection>
             <RgSection label="The Material pieces" plain meta={piecesMeta}>
               <RgList>
                 {piecesLessons.map((l, index) => (
-                  <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                  <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
                 ))}
               </RgList>
             </RgSection>
             <RgSection label="Beyond Angular" plain meta={beyondMeta}>
               <RgList>
                 {beyondLessons.map((l, index) => (
-                  <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} selected={isCurrent(l)} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
+                  <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
                 ))}
               </RgList>
             </RgSection>
-            <RgText variant="bodyLarge">95 lessons · Rangular framework 0.1.6</RgText>
+            <RgText variant="bodyLarge">95 lessons · Rangular framework 0.1.8</RgText>
           </RgSection>
         )}
       </RgSection>
@@ -1571,7 +1565,7 @@ export function Saved() {
     <RgSection>
       {/* (menu) has no standard RN prop, mapped to onMenu */}
       <RgAppbar tone="tint" title="Saved" pin menu onMenu={() => openNav()} />
-      <RgBottomNav index={1} onChange={($event) => pickTab($event)}>
+      <RgBottomNav haptic index={1} onChange={($event) => pickTab($event)}>
         <RgNavItem icon="home" label="Learn" />
         <RgNavItem icon="bookmark" label="Saved" />
         <RgNavItem icon="chart" label="Progress" />
@@ -1658,7 +1652,7 @@ export function Progress() {
     <RgSection>
       {/* (menu) has no standard RN prop, mapped to onMenu */}
       <RgAppbar tone="tint" title="Your progress" pin menu onMenu={() => openNav()} />
-      <RgBottomNav index={2} onChange={($event) => pickTab($event)}>
+      <RgBottomNav haptic index={2} onChange={($event) => pickTab($event)}>
         <RgNavItem icon="home" label="Learn" />
         <RgNavItem icon="bookmark" label="Saved" />
         <RgNavItem icon="chart" label="Progress" />
@@ -1791,11 +1785,11 @@ export function Lesson() {
     <RgSection>
       <RgAppbar tone="plain" pin back title={barTitle} progress={progressPct} actionIcon={(lesson ? (bookmarked ? 'bookmark' : 'bookmark-outline') : '')} onBack={() => goHome()} onAction={() => toggleBookmark()} />
       {lesson && (
-        <RgCard>
+        <RgSection>
           <RgText variant="bodyLarge" style={styles.lessonEyebrow}>LESSON {lesson.id} · {sectionName}</RgText>
           <RgText variant="heading">{lesson.title}</RgText>
           <RgText variant="bodyLarge">{lesson.intro}</RgText>
-        </RgCard>
+        </RgSection>
       )}
       {!lesson && (
         <RgText variant="bodyLarge">This lesson could not be found.</RgText>
@@ -1807,565 +1801,565 @@ export function Lesson() {
         </RgSection>
       )}
       {(lessonId === 2) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: your first component</RgText>
           <Hello />
         </RgCard>
       )}
       {(lessonId === 3) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: interpolation</RgText>
           <InterpolationDemo />
         </RgCard>
       )}
       {(lessonId === 4) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: event binding</RgText>
           <EventsDemo />
         </RgCard>
       )}
       {(lessonId === 5) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: property binding and ngIf</RgText>
           <BindingsDemo />
         </RgCard>
       )}
       {(lessonId === 6) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: ngFor and lists</RgText>
           <ListsDemo />
         </RgCard>
       )}
       {(lessonId === 7) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: ngIf in depth</RgText>
           <NgifDemo />
         </RgCard>
       )}
       {(lessonId === 8) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: class and style bindings</RgText>
           <ClassStyleDemo />
         </RgCard>
       )}
       {(lessonId === 9) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: child components</RgText>
           <ChildDemo />
         </RgCard>
       )}
       {(lessonId === 10) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: inputs</RgText>
           <InputsDemo />
         </RgCard>
       )}
       {(lessonId === 11) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: outputs and EventEmitter</RgText>
           <OutputsDemo />
         </RgCard>
       )}
       {(lessonId === 12) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: component lifecycle</RgText>
           <LifecycleDemo />
         </RgCard>
       )}
       {(lessonId === 13) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: content projection</RgText>
           <ProjectionDemo />
         </RgCard>
       )}
       {(lessonId === 14) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: template reference variables</RgText>
           <RefsDemo />
         </RgCard>
       )}
       {(lessonId === 15) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: built in pipes</RgText>
           <PipesDemo />
         </RgCard>
       )}
       {(lessonId === 16) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: custom pipes</RgText>
           <CustomPipesDemo />
         </RgCard>
       )}
       {(lessonId === 17) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: attribute directives</RgText>
           <DirectivesDemo />
         </RgCard>
       )}
       {(lessonId === 18) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: switch and checkbox</RgText>
           <SwitchCheckboxDemo />
         </RgCard>
       )}
       {(lessonId === 19) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: radio groups and switchers</RgText>
           <RadioSwitcherDemo />
         </RgCard>
       )}
       {(lessonId === 20) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: icons</RgText>
           <IconsDemo />
         </RgCard>
       )}
       {(lessonId === 21) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: cards, lists, and rows</RgText>
           <LayoutDemo />
         </RgCard>
       )}
       {(lessonId === 22) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: tabs and accordion</RgText>
           <TabsDemo />
         </RgCard>
       )}
       {(lessonId === 23) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: tables and data display</RgText>
           <TablesDemo />
         </RgCard>
       )}
       {(lessonId === 24) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: chips, badges, and progress</RgText>
           <ChipsDemo />
         </RgCard>
       )}
       {(lessonId === 25) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: theming with design tokens</RgText>
           <ThemingDemo />
         </RgCard>
       )}
       {(lessonId === 26) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: template driven forms with ngModel</RgText>
           <NgmodelDemo />
         </RgCard>
       )}
       {(lessonId === 27) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the input block</RgText>
           <InputTypesDemo />
         </RgCard>
       )}
       {(lessonId === 28) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: required, minlength, maxlength</RgText>
           <ValidatorsBasicDemo />
         </RgCard>
       )}
       {(lessonId === 29) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: email and pattern validators</RgText>
           <ValidatorsShapeDemo />
         </RgCard>
       )}
       {(lessonId === 30) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: form state</RgText>
           <FormStateDemo />
         </RgCard>
       )}
       {(lessonId === 31) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: showing errors well</RgText>
           <ErrorDisplayDemo />
         </RgCard>
       )}
       {(lessonId === 32) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: submitting a form</RgText>
           <SubmitDemo />
         </RgCard>
       )}
       {(lessonId === 33) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: FormControl</RgText>
           <FormControlDemo />
         </RgCard>
       )}
       {(lessonId === 34) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: FormGroup</RgText>
           <FormGroupDemo />
         </RgCard>
       )}
       {(lessonId === 35) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: reactive validators and group state</RgText>
           <ReactiveStateDemo />
         </RgCard>
       )}
       {(lessonId === 36) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: setting values from code</RgText>
           <SetValueDemo />
         </RgCard>
       )}
       {(lessonId === 37) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: date pickers</RgText>
           <DatePickerDemo />
         </RgCard>
       )}
       {(lessonId === 38) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: time and datetime pickers</RgText>
           <TimePickerDemo />
         </RgCard>
       )}
       {(lessonId === 39) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: bottom sheets</RgText>
           <SheetDemo />
         </RgCard>
       )}
       {(lessonId === 40) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: dialogs</RgText>
           <DialogDemo />
         </RgCard>
       )}
       {(lessonId === 41) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: SnackBar messages with actions</RgText>
           <SnackbarDemo />
         </RgCard>
       )}
       {(lessonId === 42) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: autocomplete inputs</RgText>
           <AutocompleteDemo />
         </RgCard>
       )}
       {(lessonId === 43) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: sliders</RgText>
           <SliderDemo />
         </RgCard>
       )}
       {(lessonId === 44) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: choice controls in a form</RgText>
           <ChoiceFormDemo />
         </RgCard>
       )}
       {(lessonId === 45) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a complete form, sign up</RgText>
           <SignupDemo />
         </RgCard>
       )}
       {(lessonId === 46) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a first service</RgText>
           <ServiceBasicsDemo />
         </RgCard>
       )}
       {(lessonId === 47) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: constructor injection</RgText>
           <InjectionDemo />
         </RgCard>
       )}
       {(lessonId === 48) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: one shared instance</RgText>
           <SingletonDemo />
         </RgCard>
       )}
       {(lessonId === 49) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: services using services</RgText>
           <ContainerDemo />
         </RgCard>
       )}
       {(lessonId === 50) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: sharing state between siblings</RgText>
           <SharingDemo />
         </RgCard>
       )}
       {(lessonId === 51) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: assign, do not mutate</RgText>
           <ReactivityDemo />
         </RgCard>
       )}
       {(lessonId === 52) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a service as the store</RgText>
           <StoreDemo />
         </RgCard>
       )}
       {(lessonId === 53) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: fields and derived values</RgText>
           <SignalsDemo />
         </RgCard>
       )}
       {(lessonId === 54) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: this app's route table</RgText>
           <RoutesTableDemo />
         </RgCard>
       )}
       {(lessonId === 55) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: routerLink, string and array</RgText>
           <RouterLinkDemo />
         </RgCard>
       )}
       {(lessonId === 56) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: links with parameters</RgText>
           <RouteParamsDemo />
         </RgCard>
       )}
       {(lessonId === 57) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: reading this lesson's route</RgText>
           <ActivatedRouteDemo />
         </RgCard>
       )}
       {(lessonId === 58) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: navigate from code</RgText>
           <ProgrammaticNavDemo />
         </RgCard>
       )}
       {(lessonId === 59) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the edges of the route table</RgText>
           <RedirectsDemo />
         </RgCard>
       )}
       {(lessonId === 60) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the check before you navigate</RgText>
           <RouteGateDemo />
         </RgCard>
       )}
       {(lessonId === 61) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a real GET request</RgText>
           <HttpBasicsDemo />
         </RgCard>
       )}
       {(lessonId === 62) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: loading, error, and data</RgText>
           <HttpStatesDemo />
         </RgCard>
       )}
       {(lessonId === 63) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: HTTP behind a service</RgText>
           <DataServiceDemo />
         </RgCard>
       )}
       {(lessonId === 64) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the practice log, data layer</RgText>
           <CapstoneDataDemo />
         </RgCard>
       )}
       {(lessonId === 65) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the practice log, whole</RgText>
           <CapstoneDemo />
         </RgCard>
       )}
       {(lessonId === 66) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a menu of actions</RgText>
           <MenuDemo />
         </RgCard>
       )}
       {(lessonId === 67) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a drawer with destinations</RgText>
           <DrawerDemo />
         </RgCard>
       )}
       {(lessonId === 68) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: picking a city</RgText>
           <SelectDemo />
         </RgCard>
       )}
       {(lessonId === 69) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a select inside a form</RgText>
           <SelectFormDemo />
         </RgCard>
       )}
       {(lessonId === 70) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: scheduling in three steps</RgText>
           <StepperDemo />
         </RgCard>
       )}
       {(lessonId === 71) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: tiles in two and three columns</RgText>
           <GridDemo />
         </RgCard>
       )}
       {(lessonId === 72) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: uneven tiles, staggered</RgText>
           <MasonryDemo />
         </RgCard>
       )}
       {(lessonId === 73) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a folder tree</RgText>
           <TreeDemo />
         </RgCard>
       )}
       {(lessonId === 74) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: hints on long press</RgText>
           <TooltipDemo />
         </RgCard>
       )}
       {(lessonId === 75) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: groups held apart by lines</RgText>
           <DividerDemo />
         </RgCard>
       )}
       {(lessonId === 76) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: sorting that leaves the array alone</RgText>
           <TablesDepthDemo />
         </RgCard>
       )}
       {(lessonId === 77) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: three destinations at the bottom</RgText>
           <BottomNavDemo />
         </RgCard>
       )}
       {(lessonId === 78) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: pull the list</RgText>
           <RefreshDemo />
         </RgCard>
       )}
       {(lessonId === 79) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: scroll for the next page</RgText>
           <InfiniteScrollDemo />
         </RgCard>
       )}
       {(lessonId === 80) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the skeleton and the card</RgText>
           <SkeletonDemo />
         </RgCard>
       )}
       {(lessonId === 81) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: swipe a row</RgText>
           <RowActionsDemo />
         </RgCard>
       )}
       {(lessonId === 82) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: pick a photo, pick documents</RgText>
           <FilePickerDemo />
         </RgCard>
       )}
       {(lessonId === 83) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: two masked fields</RgText>
           <MaskDemo />
         </RgCard>
       )}
       {(lessonId === 84) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: rate the session</RgText>
           <RatingDemo />
         </RgCard>
       )}
       {(lessonId === 85) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the six digit code</RgText>
           <OtpDemo />
         </RgCard>
       )}
       {(lessonId === 86) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: three pages</RgText>
           <CarouselDemo />
         </RgCard>
       )}
       {(lessonId === 87) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: one morning on a rail</RgText>
           <TimelineDemo />
         </RgCard>
       )}
       {(lessonId === 88) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a month to tap</RgText>
           <CalendarDemo />
         </RgCard>
       )}
       {(lessonId === 89) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: people in circles</RgText>
           <AvatarsDemo />
         </RgCard>
       )}
       {(lessonId === 90) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: an inbox that starts empty</RgText>
           <EmptyStateDemo />
         </RgCard>
       )}
       {(lessonId === 91) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: one week, three drawings</RgText>
           <ChartsDemo />
         </RgCard>
       )}
       {(lessonId === 92) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: notes with marks</RgText>
           <EditorDemo />
         </RgCard>
       )}
       {(lessonId === 93) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a photo that opens</RgText>
           <ImageDemo />
         </RgCard>
       )}
       {(lessonId === 94) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: pick a colour</RgText>
           <ColorPickerDemo />
         </RgCard>
       )}
       {(lessonId === 95) && (
-        <RgCard>
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the path to here</RgText>
           <BreadcrumbsDemo />
         </RgCard>
@@ -5252,7 +5246,7 @@ export function About() {
     <RgSection>
       {/* (menu) has no standard RN prop, mapped to onMenu */}
       <RgAppbar tone="tint" title="About" pin menu onMenu={() => openNav()} />
-      <RgBottomNav index={3} onChange={($event) => pickTab($event)}>
+      <RgBottomNav haptic index={3} onChange={($event) => pickTab($event)}>
         <RgNavItem icon="home" label="Learn" />
         <RgNavItem icon="bookmark" label="Saved" />
         <RgNavItem icon="chart" label="Progress" />
@@ -5291,7 +5285,7 @@ export function About() {
           <RgText variant="bodyLarge">This app is being prepared for release on the App Store and Google Play. All 95 lessons are complete, and the icon, splash artwork, and store listing are prepared. The store accounts and the submission itself are the remaining steps.</RgText>
         </RgSection>
       </RgCard>
-      <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.1.6</RgText>
+      <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.1.8</RgText>
     </RgSection>
   );
 }
@@ -5341,7 +5335,7 @@ export default function App() {
   };
   return (
     <>
-      <RgScreen key={__route.path} fade>
+      <RgScreen scrollKey={__route.path} fade>
         <RgDrawer open={shell.drawerOpen} onClose={() => closeDrawer()}>
           <RgSection style={styles.drawerHead}>
             <RgSection style={styles.drawerMark}>
@@ -5357,7 +5351,7 @@ export default function App() {
             <RgRow icon="info" title="How to use this tutorial" onPress={() => openHowTo()} />
             <RgRow icon="info" title="About" selected={(shell.place === 'about')} onPress={() => goAbout()} />
           </RgList>
-          <RgText variant="bodyLarge">Rangular framework 0.1.6</RgText>
+          <RgText variant="bodyLarge">Rangular framework 0.1.8</RgText>
         </RgDrawer>
         <RgDialog title="How to use this tutorial" open={shell.howToOpen} onClose={() => closeHowTo()}>
           <RgText variant="bodyLarge">Start at Lesson 1 and go in order. Tap a lesson, read it, try its demo, then mark it done and move to the next one.</RgText>
@@ -5418,6 +5412,7 @@ const styles = StyleSheet.create({
   progressStatTile: {"flex":1},
   lessonEyebrow: {"color":"#5f6368","fontWeight":700},
   lessonTipCard: {"backgroundColor":"#e8f0fe","borderWidth":0},
+  lessonDemoCard: {"backgroundColor":"transparent","borderWidth":0,"padding":0},
   classStyleDemoLookCalm: {"color":"#5f6368"},
   classStyleDemoLookAlert: {"color":"#b3261e","fontWeight":700},
   classStyleDemoLookBig: {"fontSize":20,"fontWeight":600},

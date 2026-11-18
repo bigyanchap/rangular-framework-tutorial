@@ -1,6 +1,6 @@
 <section>
   <appbar pin tone="tint" title="Rangular" menu (menu)="openNav()"></appbar>
-  <bottom-nav [index]="0" (change)="pickTab($event)">
+  <bottom-nav haptic [index]="0" (change)="pickTab($event)">
     <nav-item icon="home" label="Learn"></nav-item>
     <nav-item icon="bookmark" label="Saved"></nav-item>
     <nav-item icon="chart" label="Progress"></nav-item>
@@ -18,7 +18,7 @@
     <section *ngIf="searching">
     <section label="Search results" plain [meta]="results.length + ' found'">
       <list>
-        <row *ngFor="let l of results" avatar [avatarTone]="tileTone(l)" [avatarText]="tileText(l)" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [selected]="isCurrent(l)" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
+        <row *ngFor="let l of results" avatar [avatarTone]="tileTone(l)" [avatarText]="tileText(l)" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
       </list>
       <p *ngIf="query && results.length === 0">No lesson matches that search. Try a shorter word.</p>
     </section>
@@ -27,35 +27,35 @@
     <section *ngIf="!searching">
     <section label="Getting started" plain [meta]="starterMeta">
       <list>
-        <row *ngFor="let l of starterLessons" avatar [avatarTone]="tileTone(l)" [avatarText]="tileText(l)" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [selected]="isCurrent(l)" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
+        <row *ngFor="let l of starterLessons" avatar [avatarTone]="tileTone(l)" [avatarText]="tileText(l)" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
       </list>
     </section>
     <section label="Components and templates" plain [meta]="batchMeta">
       <list>
-        <row *ngFor="let l of batchLessons" avatar [avatarTone]="tileTone(l)" [avatarText]="tileText(l)" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [selected]="isCurrent(l)" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
+        <row *ngFor="let l of batchLessons" avatar [avatarTone]="tileTone(l)" [avatarText]="tileText(l)" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
       </list>
     </section>
     <section label="Forms and interaction" plain [meta]="formsMeta">
       <list>
-        <row *ngFor="let l of formsLessons" avatar [avatarTone]="tileTone(l)" [avatarText]="tileText(l)" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [selected]="isCurrent(l)" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
+        <row *ngFor="let l of formsLessons" avatar [avatarTone]="tileTone(l)" [avatarText]="tileText(l)" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
       </list>
     </section>
     <section label="Services, routing, and data" plain [meta]="dataMeta">
       <list>
-        <row *ngFor="let l of dataLessons" avatar [avatarTone]="tileTone(l)" [avatarText]="tileText(l)" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [selected]="isCurrent(l)" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
+        <row *ngFor="let l of dataLessons" avatar [avatarTone]="tileTone(l)" [avatarText]="tileText(l)" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
       </list>
     </section>
     <section label="The Material pieces" plain [meta]="piecesMeta">
       <list>
-        <row *ngFor="let l of piecesLessons" avatar [avatarTone]="tileTone(l)" [avatarText]="tileText(l)" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [selected]="isCurrent(l)" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
+        <row *ngFor="let l of piecesLessons" avatar [avatarTone]="tileTone(l)" [avatarText]="tileText(l)" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
       </list>
     </section>
     <section label="Beyond Angular" plain [meta]="beyondMeta">
       <list>
-        <row *ngFor="let l of beyondLessons" avatar [avatarTone]="tileTone(l)" [avatarText]="tileText(l)" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [selected]="isCurrent(l)" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
+        <row *ngFor="let l of beyondLessons" avatar [avatarTone]="tileTone(l)" [avatarText]="tileText(l)" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
       </list>
     </section>
-    <p>95 lessons · Rangular framework 0.1.6</p>
+    <p>95 lessons · Rangular framework 0.1.8</p>
     </section>
   </section>
 </section>

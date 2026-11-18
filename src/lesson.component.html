@@ -1,388 +1,388 @@
 <section>
   <appbar [title]="barTitle" tone="plain" pin back (back)="goHome()" [progress]="progressPct" [actionIcon]="lesson ? (bookmarked ? 'bookmark' : 'bookmark-outline') : ''" (action)="toggleBookmark()"></appbar>
-  <card *ngIf="lesson">
+  <section *ngIf="lesson">
     <p class="eyebrow">LESSON {{ lesson.id }} · {{ sectionName }}</p>
     <h2>{{ lesson.title }}</h2>
     <p>{{ lesson.intro }}</p>
-  </card>
+  </section>
   <p *ngIf="!lesson">This lesson could not be found.</p>
   <section *ngIf="hasCode">
     <label>Code</label>
     <code>{{ lesson.code }}</code>
   </section>
-  <card *ngIf="lessonId === 2">
+  <card class="demo-card" *ngIf="lessonId === 2">
     <label>Live demo: your first component</label>
     <app-hello></app-hello>
   </card>
-  <card *ngIf="lessonId === 3">
+  <card class="demo-card" *ngIf="lessonId === 3">
     <label>Live demo: interpolation</label>
     <app-interpolation-demo></app-interpolation-demo>
   </card>
-  <card *ngIf="lessonId === 4">
+  <card class="demo-card" *ngIf="lessonId === 4">
     <label>Live demo: event binding</label>
     <app-events-demo></app-events-demo>
   </card>
-  <card *ngIf="lessonId === 5">
+  <card class="demo-card" *ngIf="lessonId === 5">
     <label>Live demo: property binding and ngIf</label>
     <app-bindings-demo></app-bindings-demo>
   </card>
-  <card *ngIf="lessonId === 6">
+  <card class="demo-card" *ngIf="lessonId === 6">
     <label>Live demo: ngFor and lists</label>
     <app-lists-demo></app-lists-demo>
   </card>
-  <card *ngIf="lessonId === 7">
+  <card class="demo-card" *ngIf="lessonId === 7">
     <label>Live demo: ngIf in depth</label>
     <app-ngif-demo></app-ngif-demo>
   </card>
-  <card *ngIf="lessonId === 8">
+  <card class="demo-card" *ngIf="lessonId === 8">
     <label>Live demo: class and style bindings</label>
     <app-class-style-demo></app-class-style-demo>
   </card>
-  <card *ngIf="lessonId === 9">
+  <card class="demo-card" *ngIf="lessonId === 9">
     <label>Live demo: child components</label>
     <app-child-demo></app-child-demo>
   </card>
-  <card *ngIf="lessonId === 10">
+  <card class="demo-card" *ngIf="lessonId === 10">
     <label>Live demo: inputs</label>
     <app-inputs-demo></app-inputs-demo>
   </card>
-  <card *ngIf="lessonId === 11">
+  <card class="demo-card" *ngIf="lessonId === 11">
     <label>Live demo: outputs and EventEmitter</label>
     <app-outputs-demo></app-outputs-demo>
   </card>
-  <card *ngIf="lessonId === 12">
+  <card class="demo-card" *ngIf="lessonId === 12">
     <label>Live demo: component lifecycle</label>
     <app-lifecycle-demo></app-lifecycle-demo>
   </card>
-  <card *ngIf="lessonId === 13">
+  <card class="demo-card" *ngIf="lessonId === 13">
     <label>Live demo: content projection</label>
     <app-projection-demo></app-projection-demo>
   </card>
-  <card *ngIf="lessonId === 14">
+  <card class="demo-card" *ngIf="lessonId === 14">
     <label>Live demo: template reference variables</label>
     <app-refs-demo></app-refs-demo>
   </card>
-  <card *ngIf="lessonId === 15">
+  <card class="demo-card" *ngIf="lessonId === 15">
     <label>Live demo: built in pipes</label>
     <app-pipes-demo></app-pipes-demo>
   </card>
-  <card *ngIf="lessonId === 16">
+  <card class="demo-card" *ngIf="lessonId === 16">
     <label>Live demo: custom pipes</label>
     <app-custom-pipes-demo></app-custom-pipes-demo>
   </card>
-  <card *ngIf="lessonId === 17">
+  <card class="demo-card" *ngIf="lessonId === 17">
     <label>Live demo: attribute directives</label>
     <app-directives-demo></app-directives-demo>
   </card>
-  <card *ngIf="lessonId === 18">
+  <card class="demo-card" *ngIf="lessonId === 18">
     <label>Live demo: switch and checkbox</label>
     <app-switch-checkbox-demo></app-switch-checkbox-demo>
   </card>
-  <card *ngIf="lessonId === 19">
+  <card class="demo-card" *ngIf="lessonId === 19">
     <label>Live demo: radio groups and switchers</label>
     <app-radio-switcher-demo></app-radio-switcher-demo>
   </card>
-  <card *ngIf="lessonId === 20">
+  <card class="demo-card" *ngIf="lessonId === 20">
     <label>Live demo: icons</label>
     <app-icons-demo></app-icons-demo>
   </card>
-  <card *ngIf="lessonId === 21">
+  <card class="demo-card" *ngIf="lessonId === 21">
     <label>Live demo: cards, lists, and rows</label>
     <app-layout-demo></app-layout-demo>
   </card>
-  <card *ngIf="lessonId === 22">
+  <card class="demo-card" *ngIf="lessonId === 22">
     <label>Live demo: tabs and accordion</label>
     <app-tabs-demo></app-tabs-demo>
   </card>
-  <card *ngIf="lessonId === 23">
+  <card class="demo-card" *ngIf="lessonId === 23">
     <label>Live demo: tables and data display</label>
     <app-tables-demo></app-tables-demo>
   </card>
-  <card *ngIf="lessonId === 24">
+  <card class="demo-card" *ngIf="lessonId === 24">
     <label>Live demo: chips, badges, and progress</label>
     <app-chips-demo></app-chips-demo>
   </card>
-  <card *ngIf="lessonId === 25">
+  <card class="demo-card" *ngIf="lessonId === 25">
     <label>Live demo: theming with design tokens</label>
     <app-theming-demo></app-theming-demo>
   </card>
-  <card *ngIf="lessonId === 26">
+  <card class="demo-card" *ngIf="lessonId === 26">
     <label>Live demo: template driven forms with ngModel</label>
     <app-ngmodel-demo></app-ngmodel-demo>
   </card>
-  <card *ngIf="lessonId === 27">
+  <card class="demo-card" *ngIf="lessonId === 27">
     <label>Live demo: the input block</label>
     <app-input-types-demo></app-input-types-demo>
   </card>
-  <card *ngIf="lessonId === 28">
+  <card class="demo-card" *ngIf="lessonId === 28">
     <label>Live demo: required, minlength, maxlength</label>
     <app-validators-basic-demo></app-validators-basic-demo>
   </card>
-  <card *ngIf="lessonId === 29">
+  <card class="demo-card" *ngIf="lessonId === 29">
     <label>Live demo: email and pattern validators</label>
     <app-validators-shape-demo></app-validators-shape-demo>
   </card>
-  <card *ngIf="lessonId === 30">
+  <card class="demo-card" *ngIf="lessonId === 30">
     <label>Live demo: form state</label>
     <app-form-state-demo></app-form-state-demo>
   </card>
-  <card *ngIf="lessonId === 31">
+  <card class="demo-card" *ngIf="lessonId === 31">
     <label>Live demo: showing errors well</label>
     <app-error-display-demo></app-error-display-demo>
   </card>
-  <card *ngIf="lessonId === 32">
+  <card class="demo-card" *ngIf="lessonId === 32">
     <label>Live demo: submitting a form</label>
     <app-submit-demo></app-submit-demo>
   </card>
-  <card *ngIf="lessonId === 33">
+  <card class="demo-card" *ngIf="lessonId === 33">
     <label>Live demo: FormControl</label>
     <app-form-control-demo></app-form-control-demo>
   </card>
-  <card *ngIf="lessonId === 34">
+  <card class="demo-card" *ngIf="lessonId === 34">
     <label>Live demo: FormGroup</label>
     <app-form-group-demo></app-form-group-demo>
   </card>
-  <card *ngIf="lessonId === 35">
+  <card class="demo-card" *ngIf="lessonId === 35">
     <label>Live demo: reactive validators and group state</label>
     <app-reactive-state-demo></app-reactive-state-demo>
   </card>
-  <card *ngIf="lessonId === 36">
+  <card class="demo-card" *ngIf="lessonId === 36">
     <label>Live demo: setting values from code</label>
     <app-set-value-demo></app-set-value-demo>
   </card>
-  <card *ngIf="lessonId === 37">
+  <card class="demo-card" *ngIf="lessonId === 37">
     <label>Live demo: date pickers</label>
     <app-date-picker-demo></app-date-picker-demo>
   </card>
-  <card *ngIf="lessonId === 38">
+  <card class="demo-card" *ngIf="lessonId === 38">
     <label>Live demo: time and datetime pickers</label>
     <app-time-picker-demo></app-time-picker-demo>
   </card>
-  <card *ngIf="lessonId === 39">
+  <card class="demo-card" *ngIf="lessonId === 39">
     <label>Live demo: bottom sheets</label>
     <app-sheet-demo></app-sheet-demo>
   </card>
-  <card *ngIf="lessonId === 40">
+  <card class="demo-card" *ngIf="lessonId === 40">
     <label>Live demo: dialogs</label>
     <app-dialog-demo></app-dialog-demo>
   </card>
-  <card *ngIf="lessonId === 41">
+  <card class="demo-card" *ngIf="lessonId === 41">
     <label>Live demo: SnackBar messages with actions</label>
     <app-snackbar-demo></app-snackbar-demo>
   </card>
-  <card *ngIf="lessonId === 42">
+  <card class="demo-card" *ngIf="lessonId === 42">
     <label>Live demo: autocomplete inputs</label>
     <app-autocomplete-demo></app-autocomplete-demo>
   </card>
-  <card *ngIf="lessonId === 43">
+  <card class="demo-card" *ngIf="lessonId === 43">
     <label>Live demo: sliders</label>
     <app-slider-demo></app-slider-demo>
   </card>
-  <card *ngIf="lessonId === 44">
+  <card class="demo-card" *ngIf="lessonId === 44">
     <label>Live demo: choice controls in a form</label>
     <app-choice-form-demo></app-choice-form-demo>
   </card>
-  <card *ngIf="lessonId === 45">
+  <card class="demo-card" *ngIf="lessonId === 45">
     <label>Live demo: a complete form, sign up</label>
     <app-signup-demo></app-signup-demo>
   </card>
-  <card *ngIf="lessonId === 46">
+  <card class="demo-card" *ngIf="lessonId === 46">
     <label>Live demo: a first service</label>
     <app-service-basics-demo></app-service-basics-demo>
   </card>
-  <card *ngIf="lessonId === 47">
+  <card class="demo-card" *ngIf="lessonId === 47">
     <label>Live demo: constructor injection</label>
     <app-injection-demo></app-injection-demo>
   </card>
-  <card *ngIf="lessonId === 48">
+  <card class="demo-card" *ngIf="lessonId === 48">
     <label>Live demo: one shared instance</label>
     <app-singleton-demo></app-singleton-demo>
   </card>
-  <card *ngIf="lessonId === 49">
+  <card class="demo-card" *ngIf="lessonId === 49">
     <label>Live demo: services using services</label>
     <app-container-demo></app-container-demo>
   </card>
-  <card *ngIf="lessonId === 50">
+  <card class="demo-card" *ngIf="lessonId === 50">
     <label>Live demo: sharing state between siblings</label>
     <app-sharing-demo></app-sharing-demo>
   </card>
-  <card *ngIf="lessonId === 51">
+  <card class="demo-card" *ngIf="lessonId === 51">
     <label>Live demo: assign, do not mutate</label>
     <app-reactivity-demo></app-reactivity-demo>
   </card>
-  <card *ngIf="lessonId === 52">
+  <card class="demo-card" *ngIf="lessonId === 52">
     <label>Live demo: a service as the store</label>
     <app-store-demo></app-store-demo>
   </card>
-  <card *ngIf="lessonId === 53">
+  <card class="demo-card" *ngIf="lessonId === 53">
     <label>Live demo: fields and derived values</label>
     <app-signals-demo></app-signals-demo>
   </card>
-  <card *ngIf="lessonId === 54">
+  <card class="demo-card" *ngIf="lessonId === 54">
     <label>Live demo: this app's route table</label>
     <app-routes-table-demo></app-routes-table-demo>
   </card>
-  <card *ngIf="lessonId === 55">
+  <card class="demo-card" *ngIf="lessonId === 55">
     <label>Live demo: routerLink, string and array</label>
     <app-router-link-demo></app-router-link-demo>
   </card>
-  <card *ngIf="lessonId === 56">
+  <card class="demo-card" *ngIf="lessonId === 56">
     <label>Live demo: links with parameters</label>
     <app-route-params-demo></app-route-params-demo>
   </card>
-  <card *ngIf="lessonId === 57">
+  <card class="demo-card" *ngIf="lessonId === 57">
     <label>Live demo: reading this lesson's route</label>
     <app-activated-route-demo></app-activated-route-demo>
   </card>
-  <card *ngIf="lessonId === 58">
+  <card class="demo-card" *ngIf="lessonId === 58">
     <label>Live demo: navigate from code</label>
     <app-programmatic-nav-demo></app-programmatic-nav-demo>
   </card>
-  <card *ngIf="lessonId === 59">
+  <card class="demo-card" *ngIf="lessonId === 59">
     <label>Live demo: the edges of the route table</label>
     <app-redirects-demo></app-redirects-demo>
   </card>
-  <card *ngIf="lessonId === 60">
+  <card class="demo-card" *ngIf="lessonId === 60">
     <label>Live demo: the check before you navigate</label>
     <app-route-gate-demo></app-route-gate-demo>
   </card>
-  <card *ngIf="lessonId === 61">
+  <card class="demo-card" *ngIf="lessonId === 61">
     <label>Live demo: a real GET request</label>
     <app-http-basics-demo></app-http-basics-demo>
   </card>
-  <card *ngIf="lessonId === 62">
+  <card class="demo-card" *ngIf="lessonId === 62">
     <label>Live demo: loading, error, and data</label>
     <app-http-states-demo></app-http-states-demo>
   </card>
-  <card *ngIf="lessonId === 63">
+  <card class="demo-card" *ngIf="lessonId === 63">
     <label>Live demo: HTTP behind a service</label>
     <app-data-service-demo></app-data-service-demo>
   </card>
-  <card *ngIf="lessonId === 64">
+  <card class="demo-card" *ngIf="lessonId === 64">
     <label>Live demo: the practice log, data layer</label>
     <app-capstone-data-demo></app-capstone-data-demo>
   </card>
-  <card *ngIf="lessonId === 65">
+  <card class="demo-card" *ngIf="lessonId === 65">
     <label>Live demo: the practice log, whole</label>
     <app-capstone-demo></app-capstone-demo>
   </card>
-  <card *ngIf="lessonId === 66">
+  <card class="demo-card" *ngIf="lessonId === 66">
     <label>Live demo: a menu of actions</label>
     <app-menu-demo></app-menu-demo>
   </card>
-  <card *ngIf="lessonId === 67">
+  <card class="demo-card" *ngIf="lessonId === 67">
     <label>Live demo: a drawer with destinations</label>
     <app-drawer-demo></app-drawer-demo>
   </card>
-  <card *ngIf="lessonId === 68">
+  <card class="demo-card" *ngIf="lessonId === 68">
     <label>Live demo: picking a city</label>
     <app-select-demo></app-select-demo>
   </card>
-  <card *ngIf="lessonId === 69">
+  <card class="demo-card" *ngIf="lessonId === 69">
     <label>Live demo: a select inside a form</label>
     <app-select-form-demo></app-select-form-demo>
   </card>
-  <card *ngIf="lessonId === 70">
+  <card class="demo-card" *ngIf="lessonId === 70">
     <label>Live demo: scheduling in three steps</label>
     <app-stepper-demo></app-stepper-demo>
   </card>
-  <card *ngIf="lessonId === 71">
+  <card class="demo-card" *ngIf="lessonId === 71">
     <label>Live demo: tiles in two and three columns</label>
     <app-grid-demo></app-grid-demo>
   </card>
-  <card *ngIf="lessonId === 72">
+  <card class="demo-card" *ngIf="lessonId === 72">
     <label>Live demo: uneven tiles, staggered</label>
     <app-masonry-demo></app-masonry-demo>
   </card>
-  <card *ngIf="lessonId === 73">
+  <card class="demo-card" *ngIf="lessonId === 73">
     <label>Live demo: a folder tree</label>
     <app-tree-demo></app-tree-demo>
   </card>
-  <card *ngIf="lessonId === 74">
+  <card class="demo-card" *ngIf="lessonId === 74">
     <label>Live demo: hints on long press</label>
     <app-tooltip-demo></app-tooltip-demo>
   </card>
-  <card *ngIf="lessonId === 75">
+  <card class="demo-card" *ngIf="lessonId === 75">
     <label>Live demo: groups held apart by lines</label>
     <app-divider-demo></app-divider-demo>
   </card>
-  <card *ngIf="lessonId === 76">
+  <card class="demo-card" *ngIf="lessonId === 76">
     <label>Live demo: sorting that leaves the array alone</label>
     <app-tables-depth-demo></app-tables-depth-demo>
   </card>
-  <card *ngIf="lessonId === 77">
+  <card class="demo-card" *ngIf="lessonId === 77">
     <label>Live demo: three destinations at the bottom</label>
     <app-bottom-nav-demo></app-bottom-nav-demo>
   </card>
-  <card *ngIf="lessonId === 78">
+  <card class="demo-card" *ngIf="lessonId === 78">
     <label>Live demo: pull the list</label>
     <app-refresh-demo></app-refresh-demo>
   </card>
-  <card *ngIf="lessonId === 79">
+  <card class="demo-card" *ngIf="lessonId === 79">
     <label>Live demo: scroll for the next page</label>
     <app-infinite-scroll-demo></app-infinite-scroll-demo>
   </card>
-  <card *ngIf="lessonId === 80">
+  <card class="demo-card" *ngIf="lessonId === 80">
     <label>Live demo: the skeleton and the card</label>
     <app-skeleton-demo></app-skeleton-demo>
   </card>
-  <card *ngIf="lessonId === 81">
+  <card class="demo-card" *ngIf="lessonId === 81">
     <label>Live demo: swipe a row</label>
     <app-row-actions-demo></app-row-actions-demo>
   </card>
-  <card *ngIf="lessonId === 82">
+  <card class="demo-card" *ngIf="lessonId === 82">
     <label>Live demo: pick a photo, pick documents</label>
     <app-file-picker-demo></app-file-picker-demo>
   </card>
-  <card *ngIf="lessonId === 83">
+  <card class="demo-card" *ngIf="lessonId === 83">
     <label>Live demo: two masked fields</label>
     <app-mask-demo></app-mask-demo>
   </card>
-  <card *ngIf="lessonId === 84">
+  <card class="demo-card" *ngIf="lessonId === 84">
     <label>Live demo: rate the session</label>
     <app-rating-demo></app-rating-demo>
   </card>
-  <card *ngIf="lessonId === 85">
+  <card class="demo-card" *ngIf="lessonId === 85">
     <label>Live demo: the six digit code</label>
     <app-otp-demo></app-otp-demo>
   </card>
-  <card *ngIf="lessonId === 86">
+  <card class="demo-card" *ngIf="lessonId === 86">
     <label>Live demo: three pages</label>
     <app-carousel-demo></app-carousel-demo>
   </card>
-  <card *ngIf="lessonId === 87">
+  <card class="demo-card" *ngIf="lessonId === 87">
     <label>Live demo: one morning on a rail</label>
     <app-timeline-demo></app-timeline-demo>
   </card>
-  <card *ngIf="lessonId === 88">
+  <card class="demo-card" *ngIf="lessonId === 88">
     <label>Live demo: a month to tap</label>
     <app-calendar-demo></app-calendar-demo>
   </card>
-  <card *ngIf="lessonId === 89">
+  <card class="demo-card" *ngIf="lessonId === 89">
     <label>Live demo: people in circles</label>
     <app-avatars-demo></app-avatars-demo>
   </card>
-  <card *ngIf="lessonId === 90">
+  <card class="demo-card" *ngIf="lessonId === 90">
     <label>Live demo: an inbox that starts empty</label>
     <app-empty-state-demo></app-empty-state-demo>
   </card>
-  <card *ngIf="lessonId === 91">
+  <card class="demo-card" *ngIf="lessonId === 91">
     <label>Live demo: one week, three drawings</label>
     <app-charts-demo></app-charts-demo>
   </card>
-  <card *ngIf="lessonId === 92">
+  <card class="demo-card" *ngIf="lessonId === 92">
     <label>Live demo: notes with marks</label>
     <app-editor-demo></app-editor-demo>
   </card>
-  <card *ngIf="lessonId === 93">
+  <card class="demo-card" *ngIf="lessonId === 93">
     <label>Live demo: a photo that opens</label>
     <app-image-demo></app-image-demo>
   </card>
-  <card *ngIf="lessonId === 94">
+  <card class="demo-card" *ngIf="lessonId === 94">
     <label>Live demo: pick a colour</label>
     <app-color-picker-demo></app-color-picker-demo>
   </card>
-  <card *ngIf="lessonId === 95">
+  <card class="demo-card" *ngIf="lessonId === 95">
     <label>Live demo: the path to here</label>
     <app-breadcrumbs-demo></app-breadcrumbs-demo>
   </card>

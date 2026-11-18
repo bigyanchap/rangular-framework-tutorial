@@ -1,6 +1,6 @@
 <section>
   <appbar pin tone="tint" title="Your progress" menu (menu)="openNav()"></appbar>
-  <bottom-nav [index]="2" (change)="pickTab($event)">
+  <bottom-nav haptic [index]="2" (change)="pickTab($event)">
     <nav-item icon="home" label="Learn"></nav-item>
     <nav-item icon="bookmark" label="Saved"></nav-item>
     <nav-item icon="chart" label="Progress"></nav-item>

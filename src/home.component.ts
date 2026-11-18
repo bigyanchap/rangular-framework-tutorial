@@ -101,12 +101,7 @@ export class HomeComponent {
 
   tileTone(l: Lesson) {
     if (this.bookmarks.isDone(l.id)) return 'green';
-    if (this.continueLesson !== null && l.id === this.continueLesson.id) return 'blue';
     return 'varied';
-  }
-
-  isCurrent(l: Lesson) {
-    return this.continueLesson !== null && l.id === this.continueLesson.id;
   }
 
   isSaved(id: number) {
