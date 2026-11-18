@@ -26,7 +26,7 @@ export class SetValueDemoComponent {
 
   fillSample() {
     this.profileForm.get('name').setValue('Maya');
-    this.profileForm.get('city').setValue('Pokhara');
+    this.profileForm.get('city').setValue('London');
   }
 
   clearAll() {

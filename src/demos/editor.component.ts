@@ -13,7 +13,7 @@ import { Component } from '@angular/core';
   templateUrl: './editor.component.html',
 })
 export class EditorDemoComponent {
-  notes = 'Saw the **sunrise** again, and sat in *silence*.\n- Walked the river road\n- Meditated';
+  notes = 'Saw the **sunrise** again, and the air was *clear*.\n- Walked the river road\n- Took photos';
 
   onNotes(v: string) {
     this.notes = v;

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 /**
  * Lesson 91's live demo: three charts, one array. The
- * week of practice minutes is drawn as bars, a line, and
+ * week of reading minutes is drawn as bars, a line, and
  * a pie, all bound to the same field. Adding minutes
  * rebuilds the array by assignment, the Wednesday entry
  * carried at its new value, and every chart follows,

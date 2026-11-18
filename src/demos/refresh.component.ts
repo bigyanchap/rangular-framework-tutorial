@@ -17,8 +17,8 @@ export class RefreshDemoComponent {
   refreshCount = 0;
 
   notes = [
-    { id: 1, title: 'Morning practice', detail: 'Sunrise session, 25 minutes' },
-    { id: 2, title: 'Reading', detail: 'Part 23 of the series' },
+    { id: 1, title: 'Morning run', detail: 'Park loop, 25 minutes' },
+    { id: 2, title: 'Reading', detail: 'Chapter 12 of the novel' },
     { id: 3, title: 'Walk', detail: 'The river road, there and back' },
   ];
 

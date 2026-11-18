@@ -15,7 +15,7 @@ export class RowActionsDemoComponent {
   lastAction = '';
 
   mails = [
-    { id: 1, from: 'Sarju', subject: 'Photos from the weekend' },
+    { id: 1, from: 'Emma', subject: 'Photos from the weekend' },
     { id: 2, from: 'Medium', subject: 'Your weekly reading list' },
     { id: 3, from: 'Field Notes', subject: 'Transformer testing, day one' },
     { id: 4, from: 'Google', subject: 'Security alert' },

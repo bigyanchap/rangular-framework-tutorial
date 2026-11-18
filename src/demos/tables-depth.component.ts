@@ -15,13 +15,13 @@ import { Component } from '@angular/core';
 })
 export class TablesDepthDemoComponent {
   people = [
-    { name: 'Mina', age: 31, city: 'Kathmandu' },
-    { name: 'Arun', age: 25, city: 'Pokhara' },
-    { name: 'Sita', age: 40, city: 'Bhaktapur' },
-    { name: 'Bikash', age: 25, city: 'Kathmandu' },
-    { name: 'Anita', age: 36, city: 'Patan' },
-    { name: 'Kiran', age: 29, city: 'Pokhara' },
-    { name: 'Rita', age: 33, city: 'Bhaktapur' },
+    { name: 'Emma', age: 31, city: 'London' },
+    { name: 'Liam', age: 25, city: 'Toronto' },
+    { name: 'Sofia', age: 40, city: 'Sydney' },
+    { name: 'Noah', age: 25, city: 'London' },
+    { name: 'Ava', age: 36, city: 'Berlin' },
+    { name: 'Lucas', age: 29, city: 'Toronto' },
+    { name: 'Mia', age: 33, city: 'Sydney' },
   ];
   extras = [
     { name: 'Hari', age: 27, city: 'Dharan' },

@@ -1,4 +1,4 @@
-<p *ngIf="!noteDeleted">Note: Book the yoga hall for Saturday.</p>
+<p *ngIf="!noteDeleted">Note: Book the meeting room for Saturday.</p>
 <p *ngIf="noteDeleted">The note was deleted.</p>
 <button *ngIf="!noteDeleted" (click)="openConfirm()">Delete the note</button>
 <button *ngIf="noteDeleted" (click)="restore()">Restore the note</button>

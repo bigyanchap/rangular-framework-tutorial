@@ -17,7 +17,7 @@ export class EmptyStateDemoComponent {
 
   load() {
     this.messages = [
-      { id: 1, from: 'Sarju', subject: 'Photos from the weekend' },
+      { id: 1, from: 'Emma', subject: 'Photos from the weekend' },
       { id: 2, from: 'Medium', subject: 'Your weekly reading list' },
     ];
   }

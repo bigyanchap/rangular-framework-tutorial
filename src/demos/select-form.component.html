@@ -1,9 +1,9 @@
 <form (submit)="save()">
   <input label="Your name" [(ngModel)]="name" placeholder="Type your name">
   <select label="City to visit" [value]="city" (change)="onCity($event)" placeholder="Pick a city">
-    <option value="Kathmandu">Kathmandu</option>
-    <option value="Pokhara">Pokhara</option>
-    <option value="Bhaktapur">Bhaktapur</option>
+    <option value="New York">New York</option>
+    <option value="London">London</option>
+    <option value="Sydney">Sydney</option>
   </select>
   <switch [checked]="guided" (change)="onGuided($event)">Guided tour</switch>
   <button type="submit" [disabled]="!name || !city">Save the visit</button>

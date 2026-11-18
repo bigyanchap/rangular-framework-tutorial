@@ -8,7 +8,7 @@ import { Injectable } from '@angular/core';
  */
 @Injectable({ providedIn: 'root' })
 export class ShelfService {
-  items = ['Yoga mat'];
+  items = ['Notebook'];
 
   addQuietly(name: string) {
     this.items.push(name);

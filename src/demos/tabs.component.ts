@@ -13,11 +13,11 @@ import { Component } from '@angular/core';
 export class TabsDemoComponent {
   tabIndex = 0;
   inboxMails = [
-    { from: 'Sarju', subject: 'Train tickets for Friday' },
+    { from: 'Emma', subject: 'Train tickets for Friday' },
     { from: 'Medium', subject: 'Your weekly reading list' },
   ];
   starredMails = [
-    { from: 'Awaken Me', subject: 'Launch checklist' },
+    { from: 'Design Team', subject: 'Launch checklist' },
   ];
 
   onTab(index: number) {

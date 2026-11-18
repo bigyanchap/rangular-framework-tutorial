@@ -19,7 +19,7 @@ export class FormControlDemoComponent {
   applied = '';
 
   useSample() {
-    this.inviteForm.get('code').setValue('YOGA10');
+    this.inviteForm.get('code').setValue('WELCOME10');
   }
 
   clear() {

@@ -13,7 +13,7 @@ import { Component } from '@angular/core';
 })
 export class StepperDemoComponent {
   stepIndex = 0;
-  practice = '';
+  activity = '';
 
   onStep(i: number) {
     this.stepIndex = i;
@@ -28,7 +28,7 @@ export class StepperDemoComponent {
   }
 
   pick(name: string) {
-    this.practice = name;
+    this.activity = name;
     this.stepIndex = 1;
   }
 }
