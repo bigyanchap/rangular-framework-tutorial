@@ -33,6 +33,8 @@ export class BookmarksService {
   storageKey = 'rangular-tutorial.progress.v1';
   db: any = null;
   useSqlite = false;
+  saving = false;
+  saveQueued = false;
 
   constructor() {
     this.useSqlite = Platform.OS !== 'web';
@@ -45,8 +47,8 @@ export class BookmarksService {
           'CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)',
         ).then(() => {
           this.loadFromDb();
-        });
-      });
+        }, () => {});
+      }, () => {});
     } else {
       AsyncStorage.getItem(this.storageKey).then((raw) => {
         if (raw) {
@@ -56,7 +58,7 @@ export class BookmarksService {
           this.lastLessonId = saved.lastLessonId;
           this.howToSeen = saved.howToSeen === true;
         }
-      });
+      }, () => {});
     }
   }
 
@@ -69,9 +71,9 @@ export class BookmarksService {
           } else {
             this.applyRows(rows, crows, srows);
           }
-        });
-      });
-    });
+        }, () => {});
+      }, () => {});
+    }, () => {});
   }
 
   applyRows(rows: any, crows: any, srows: any) {
@@ -97,22 +99,33 @@ export class BookmarksService {
         this.howToSeen = saved.howToSeen === true;
         this.save();
       }
-    });
+    }, () => {});
   }
 
   save() {
     if (this.useSqlite) {
       if (this.db) {
-        this.db.execAsync('DELETE FROM bookmarks; DELETE FROM completions; DELETE FROM settings').then(() => {
-          this.bookmarkIds.forEach((id) => {
-            this.db.runAsync('INSERT INTO bookmarks (lesson_id) VALUES (?)', id).then(() => {});
+        if (this.saving) {
+          this.saveQueued = true;
+        } else {
+          this.saving = true;
+          this.db.execAsync('DELETE FROM bookmarks; DELETE FROM completions; DELETE FROM settings').then(() => {
+            this.bookmarkIds.forEach((id) => {
+              this.db.runAsync('INSERT OR REPLACE INTO bookmarks (lesson_id) VALUES (?)', id).then(() => {}, () => {});
+            });
+            this.completions.forEach((c) => {
+              this.db.runAsync('INSERT OR REPLACE INTO completions (lesson_id, day) VALUES (?, ?)', c.id, c.day).then(() => {}, () => {});
+            });
+            this.db.runAsync('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', 'lastLessonId', String(this.lastLessonId)).then(() => {}, () => {});
+            this.db.runAsync('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', 'howToSeen', String(this.howToSeen)).then(() => {
+              this.finishSave();
+            }, () => {
+              this.finishSave();
+            });
+          }, () => {
+            this.finishSave();
           });
-          this.completions.forEach((c) => {
-            this.db.runAsync('INSERT INTO completions (lesson_id, day) VALUES (?, ?)', c.id, c.day).then(() => {});
-          });
-          this.db.runAsync('INSERT INTO settings (key, value) VALUES (?, ?)', 'lastLessonId', String(this.lastLessonId)).then(() => {});
-          this.db.runAsync('INSERT INTO settings (key, value) VALUES (?, ?)', 'howToSeen', String(this.howToSeen)).then(() => {});
-        });
+        }
       }
     } else {
       AsyncStorage.setItem(
@@ -124,6 +137,24 @@ export class BookmarksService {
           howToSeen: this.howToSeen,
         }),
       );
+    }
+  }
+
+  /**
+   * Saves run one at a time: a save asked for while one is in
+   * flight queues exactly one more pass, so two delete and
+   * rewrite passes can never interleave their statements on the
+   * connection (the first phone run, 2026-11-18, interleaved
+   * them and the duplicate inserts met the primary keys). The
+   * inserts are OR REPLACE as a second belt, and every promise
+   * in the service carries a rejection handler, so a failed
+   * statement can never surface as an uncaught error either.
+   */
+  finishSave() {
+    this.saving = false;
+    if (this.saveQueued) {
+      this.saveQueued = false;
+      this.save();
     }
   }
 

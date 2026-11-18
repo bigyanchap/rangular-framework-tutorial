@@ -907,6 +907,8 @@ export class BookmarksService extends ReactiveService {
   storageKey = 'rangular-tutorial.progress.v1';
   db: any = null;
   useSqlite = false;
+  saving = false;
+  saveQueued = false;
   constructor() {
     super();
     this.useSqlite = Platform.OS !== 'web';
@@ -917,7 +919,11 @@ export class BookmarksService extends ReactiveService {
   this.__notify();
   this.db.execAsync('CREATE TABLE IF NOT EXISTS bookmarks (lesson_id INTEGER PRIMARY KEY); ' + 'CREATE TABLE IF NOT EXISTS completions (lesson_id INTEGER PRIMARY KEY, day TEXT NOT NULL); ' + 'CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)').then(() => {
   this.loadFromDb();
+}, () => {
+
 });
+}, () => {
+
 });
     } else {
       AsyncStorage.getItem(this.storageKey).then((raw) => {
@@ -932,6 +938,8 @@ export class BookmarksService extends ReactiveService {
     this.howToSeen = saved.howToSeen === true;
     this.__notify();
   }
+}, () => {
+
 });
     }
   }
@@ -944,8 +952,14 @@ export class BookmarksService extends ReactiveService {
   } else {
     this.applyRows(rows, crows, srows);
   }
+}, () => {
+
 });
+}, () => {
+
 });
+}, () => {
+
 });
   }
   applyRows(rows: any, crows: any, srows: any) {
@@ -978,32 +992,60 @@ export class BookmarksService extends ReactiveService {
     this.__notify();
     this.save();
   }
+}, () => {
+
 });
   }
   save() {
     if (this.useSqlite) {
       if (this.db) {
-        this.db.execAsync('DELETE FROM bookmarks; DELETE FROM completions; DELETE FROM settings').then(() => {
+        if (this.saving) {
+          this.saveQueued = true;
+          this.__notify();
+        } else {
+          this.saving = true;
+          this.__notify();
+          this.db.execAsync('DELETE FROM bookmarks; DELETE FROM completions; DELETE FROM settings').then(() => {
   this.bookmarkIds.forEach((id) => {
-  this.db.runAsync('INSERT INTO bookmarks (lesson_id) VALUES (?)', id).then(() => {
+  this.db.runAsync('INSERT OR REPLACE INTO bookmarks (lesson_id) VALUES (?)', id).then(() => {
+
+}, () => {
 
 });
 });
   this.completions.forEach((c) => {
-  this.db.runAsync('INSERT INTO completions (lesson_id, day) VALUES (?, ?)', c.id, c.day).then(() => {
+  this.db.runAsync('INSERT OR REPLACE INTO completions (lesson_id, day) VALUES (?, ?)', c.id, c.day).then(() => {
+
+}, () => {
 
 });
 });
-  this.db.runAsync('INSERT INTO settings (key, value) VALUES (?, ?)', 'lastLessonId', String(this.lastLessonId)).then(() => {
+  this.db.runAsync('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', 'lastLessonId', String(this.lastLessonId)).then(() => {
+
+}, () => {
 
 });
-  this.db.runAsync('INSERT INTO settings (key, value) VALUES (?, ?)', 'howToSeen', String(this.howToSeen)).then(() => {
-
+  this.db.runAsync('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', 'howToSeen', String(this.howToSeen)).then(() => {
+  this.finishSave();
+}, () => {
+  this.finishSave();
 });
+}, () => {
+  this.finishSave();
 });
+        }
       }
     } else {
       AsyncStorage.setItem(this.storageKey, JSON.stringify({ bookmarkIds: this.bookmarkIds, completions: this.completions, lastLessonId: this.lastLessonId, howToSeen: this.howToSeen }));
+    }
+  }
+  finishSave() {
+    this.saving = false;
+    this.__notify();
+    if (this.saveQueued) {
+      this.saveQueued = false;
+      this.__notify();
+      this.save();
     }
   }
   dismissHowTo() {
@@ -1281,7 +1323,7 @@ export function Splash() {
         <RgChip>Free</RgChip>
       </RgChips>
       <RgButton onPress={() => __router.navigateByUrl("/home")}>Start learning</RgButton>
-      <RgText variant="bodyLarge" style={styles.splashEntryFoot}>Rangular framework 0.1.4 · No account needed</RgText>
+      <RgText variant="bodyLarge" style={styles.splashEntryFoot}>Rangular framework 0.1.5 · No account needed</RgText>
     </RgSection>
   );
 }
@@ -1507,7 +1549,7 @@ export function Home() {
                   ))}
                 </RgList>
               </RgSection>
-              <RgText variant="bodyLarge">95 lessons · Rangular framework 0.1.4</RgText>
+              <RgText variant="bodyLarge">95 lessons · Rangular framework 0.1.5</RgText>
             </RgSection>
           )}
         </RgSection>
@@ -5278,7 +5320,7 @@ export function About() {
           <RgText variant="bodyLarge">This app is being prepared for release on the App Store and Google Play. All 95 lessons are complete, and the icon, splash artwork, and store listing are prepared. The store accounts and the submission itself are the remaining steps.</RgText>
         </RgSection>
       </RgCard>
-      <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.1.4</RgText>
+      <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.1.5</RgText>
     </RgSection>
   );
 }
@@ -5344,7 +5386,7 @@ export default function App() {
             <RgRow icon="info" title="How to use this tutorial" onPress={() => openHowTo()} />
             <RgRow icon="info" title="About" selected={(shell.place === 'about')} onPress={() => goAbout()} />
           </RgList>
-          <RgText variant="bodyLarge">Rangular framework 0.1.4</RgText>
+          <RgText variant="bodyLarge">Rangular framework 0.1.5</RgText>
         </RgDrawer>
         <RgDialog title="How to use this tutorial" open={shell.howToOpen} onClose={() => closeHowTo()}>
           <RgText variant="bodyLarge">Start at Lesson 1 and go in order. Tap a lesson, read it, try its demo, then mark it done and move to the next one.</RgText>
