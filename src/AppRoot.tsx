@@ -5399,6 +5399,7 @@ export function About() {
       </RgCard>
       <RgCard>
         <RgSection icon="home" label="Built with Rangular">
+          <RgText variant="bodyLarge">Rangular Framework is Bigyan Chapagain's project on GitHub, and Rangular Tutorial is his own dogfooding project, tutorial, and documentation all put together.</RgText>
           <RgText variant="bodyLarge">The Rangular framework is open source under the Apache 2.0 license. This app is its tutorial and its test at the same time: if a lesson teaches it, this app uses it.</RgText>
         </RgSection>
       </RgCard>
