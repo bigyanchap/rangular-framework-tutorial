@@ -36,7 +36,7 @@ export class LessonService {
       subtitle: 'Buttons that call your methods',
       minutes: '4 min',
       intro: 'Event binding connects a tap to a method in your class. You write the event in round brackets, like (click), and name the method to run. The counter below is the classic first demo: every tap runs increment(), which changes the count field, and interpolation shows the new value. The third button calls a method that shows a toast, because a tap can call any method, including one that talks to a service.',
-      code: '<button (click)="increment()">Increment</button>',
+      code: '<button (click)="increment()">\n  Increment\n</button>',
       tip: 'Keep methods small and named for what they do. A button should call one clear method, never a long chain of logic inside the template.',
     },
     {
@@ -55,7 +55,8 @@ export class LessonService {
       minutes: '4 min',
       intro: 'ngFor repeats a block once for every item in a list. You write the block once, name a loop variable with let, and Rangular renders it for each item in the array. Add let i = index when you need the position. Try it in the demo: the list starts with three tasks, the buttons add and remove items, and the rows follow the array every time it changes. Notice how the list changes: always by assignment, building a new array, never by editing the old one in place.',
       code: '<row *ngFor="let item of items" [title]="item"></row>',
-      tip: 'Change lists by assignment, never by editing in place. this.items = [...this.items, next] to add, and this.items = this.items.filter(...) to remove. A new array is what tells Rangular to render the list again.',
+      tip: 'Change lists by assignment, never by editing in place. A new array is what tells Rangular to render the list again.',
+      tipCode: 'this.items = [...this.items, next];\nthis.items = this.items.filter(item => item !== removed);',
     },
     {
       id: 7,
@@ -405,7 +406,7 @@ export class LessonService {
       subtitle: 'Fields, rules, state, submit, and a toast, together',
       minutes: '6 min',
       intro: 'This capstone builds the sign up form the whole batch has been walking toward. Template driven fields carry validators and refs. Error lines wait for touched. A terms checkbox rides the change contract, not ngModel. The submit button stays disabled until every ref is valid and the terms are accepted, and saving answers with a SnackBar, the way lesson 41 taught. Nothing here is new: that is the point. A real form is these small pieces, each doing one job.',
-      code: '<button type="submit" [disabled]="nameField.invalid || !terms">Create account</button>',
+      code: '<button type="submit" [disabled]="nameField.invalid || !terms">\n  Create account\n</button>',
       tip: 'Build every form in this order: fields, rules, error lines gated on touched, a gated submit, and feedback after the save. When a form feels broken, it is almost always one of the five done out of order.',
     },
     {
@@ -540,7 +541,7 @@ export class LessonService {
       subtitle: 'No guards, resolvers, or lazy routes; the check before you navigate',
       minutes: '5 min',
       intro: 'Stated plainly, so a route table never promises what it cannot do: Rangular routes have no guards, no resolvers, no lazy loading, no child routes, and no routerLinkActive styling. A route entry that uses one fails the build with GEN_ROUTE_UNSUPPORTED, naming the feature, rather than compiling into a half working screen. The everyday need behind a guard, keeping a visitor out of a screen until a condition holds, has a working pattern today: check first, then navigate, with the check living in the tap handler instead of the route table. The demo is a diary gate, built from the opposite pair of lesson 7. With the switch off, the button only warns. With it on, the same button navigates, here to the About screen, which plays the diary so you can watch the navigation happen.',
-      code: '<button *ngIf="signedIn" (click)="openDiary()">Open my diary</button>',
+      code: '<button *ngIf="signedIn" (click)="openDiary()">\n  Open my diary\n</button>',
       tip: 'Put the check where the action starts, and make the refusal kind and clear: a message that says what is missing, not a dead button. When guards arrive in the framework, these checks move into the route table almost word for word.',
     },
     {
@@ -666,7 +667,7 @@ export class LessonService {
       subtitle: 'matTooltip, in the only form a phone has',
       minutes: '4 min',
       intro: 'A tooltip is a short hint that names what a control does. On the web, matTooltip shows on hover. A phone has no hover, so here the tooltip attribute shows its bubble above the control on a long press: the press and hold is the mobile form of hovering. The attribute belongs on the pressable hosts only: button, row, and icon-button. On any other element the compiler warns GEN_TOOLTIP_HOST and drops the tooltip, the same rule the badge follows. In the browser preview, the same text rides the browser\'s own title tooltip instead. The demo puts one tooltip on each of the three hosts; long press to read, tap to use.',
-      code: '<button tooltip="Saves the current list" (click)="save()">Save</button>',
+      code: '<button tooltip="Saves the current list" (click)="save()">\n  Save\n</button>',
       tip: 'Write the hint for the person who almost understands the control: say what happens, in a few words. If a control needs a paragraph to explain, the control is wrong, not the tooltip.',
     },
     {

@@ -389,6 +389,7 @@
   <card *ngIf="lesson" class="tip-card">
     <label>Best practice</label>
     <p>{{ lesson.tip }}</p>
+    <code *ngIf="lesson.tipCode">{{ lesson.tipCode }}</code>
   </card>
   <actions *ngIf="lesson">
     <button variant="text" [disabled]="lessonId <= 1" (click)="prevLesson()">Previous</button>
