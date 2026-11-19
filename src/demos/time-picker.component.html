@@ -2,3 +2,5 @@
 <p>Time value (ISO): {{ at }}</p>
 <datetime-picker label="Date and time" [value]="when" (change)="onWhen($event)"></datetime-picker>
 <p>Datetime value (ISO): {{ when }}</p>
+<datetime-picker label="Date and time (modal)" presentation="modal" [value]="whenModal" (change)="onWhenModal($event)"></datetime-picker>
+<p>Modal datetime value (ISO): {{ whenModal }}</p>

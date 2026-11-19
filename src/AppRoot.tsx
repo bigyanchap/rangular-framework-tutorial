@@ -428,7 +428,7 @@ export class LessonService extends ReactiveService {
       title: 'Date pickers',
       subtitle: 'mode date: month, day, and year wheels',
       minutes: '4 min',
-      intro: 'The date picker is one block, <datetime-picker>. Its field row shows the current value; tapping it opens a bottom sheet of wheels, the iOS arrangement, on every platform. That is a product rule, not a setting: no calendar grid, no clock face. In date mode the wheels are month, day, and year, with years running 25 each way from the value. Done emits (change) once, with the day as an ISO string in $event. Cancel emits nothing. Days clamp into their month, leap years included, so January 31 followed by February lands on February 28 or 29.',
+      intro: 'The date picker is one block, <datetime-picker>. Its field row shows the current value; tapping it opens the wheels, the iOS arrangement, on every platform, in a bottom sheet by default. The wheels are a product rule, not a setting: no calendar grid, no clock face. The container is a choice, a sheet by default or a centred modal with presentation="modal", and lesson 40 shows both. In date mode the wheels are month, day, and year, with years running 25 each way from the value. Done emits (change) once, with the day as an ISO string in $event. Cancel emits nothing. Days clamp into their month, leap years included, so January 31 followed by February lands on February 28 or 29.',
       code: '<datetime-picker mode="date" [value]="day" (change)="onDay($event)">',
       implementation: '// date-picker.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-date-picker-demo\',\n  templateUrl: \'./date-picker.component.html\',\n})\nexport class DatePickerDemoComponent {\n  startDay = \'2026-11-13\';\n  endDay = \'2026-11-20\';\n\n  onStart(value: string) {\n    this.startDay = value;\n  }\n\n  onEnd(value: string) {\n    this.endDay = value;\n  }\n}\n\n// date-picker.component.html\n<datetime-picker\n  label="Start day"\n  mode="date"\n  [value]="startDay"\n  (change)="onStart($event)"\n></datetime-picker>\n<datetime-picker\n  label="End day"\n  mode="date"\n  [value]="endDay"\n  (change)="onEnd($event)"\n></datetime-picker>\n<p>Start day (ISO): {{ startDay }}</p>\n<p>End day (ISO): {{ endDay }}</p>',
       tip: 'Store the picker value as the ISO string it emits. It sorts correctly as text, prints without formatting work, and feeds straight back into [value] when the screen returns.',
@@ -438,9 +438,9 @@ export class LessonService extends ReactiveService {
       title: 'Time and datetime pickers',
       subtitle: 'mode time, and the combined datetime mode',
       minutes: '4 min',
-      intro: 'Time mode shows hour, minute, and AM/PM wheels, the iOS form: hours run 1 to 12, and the AM/PM wheel does the rest. Datetime is the default mode: one combined date wheel, listing days like Nov 13 2026, plus the time wheels, in a single sheet. The date wheel is a window of 183 days each way from the value. minuteInterval snaps the minutes: 5 gives the quarter hour steps most schedules want, and a value between steps opens on the nearest one. Both modes emit the same local ISO string shape, YYYY-MM-DDTHH:mm:00.',
-      code: '<datetime-picker mode="time" minuteInterval="5" [value]="at" (change)="onAt($event)">',
-      implementation: '// time-picker.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-time-picker-demo\',\n  templateUrl: \'./time-picker.component.html\',\n})\nexport class TimePickerDemoComponent {\n  at = \'2026-11-13T09:00:00\';\n  when = \'2026-11-13T09:00:00\';\n\n  onAt(value: string) {\n    this.at = value;\n  }\n\n  onWhen(value: string) {\n    this.when = value;\n  }\n}\n\n// time-picker.component.html\n<datetime-picker\n  label="Reminder time"\n  mode="time"\n  minuteInterval="5"\n  [value]="at"\n  (change)="onAt($event)"\n></datetime-picker>\n<p>Time value (ISO): {{ at }}</p>\n<datetime-picker label="Date and time" [value]="when" (change)="onWhen($event)"></datetime-picker>\n<p>Datetime value (ISO): {{ when }}</p>',
+      intro: 'Time mode shows hour, minute, and AM/PM wheels, the iOS form: hours run 1 to 12, and the AM/PM wheel does the rest. Datetime is the default mode: one combined date wheel, listing days like Nov 13 2026, plus the time wheels, in a single sheet. The date wheel is a window of 183 days each way from the value. minuteInterval snaps the minutes: 5 gives the quarter hour steps most schedules want, and a value between steps opens on the nearest one. Both modes emit the same local ISO string shape, YYYY-MM-DDTHH:mm:00. Every picker also takes presentation: "sheet", the default, slides the wheels up in a bottom sheet, and "modal" centres the same wheels and the same Done and Cancel header in a dialog card. The demo\'s third picker is the modal one; only the container changes.',
+      code: '<datetime-picker presentation="modal" [value]="whenModal" (change)="onWhenModal($event)">',
+      implementation: '// time-picker.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-time-picker-demo\',\n  templateUrl: \'./time-picker.component.html\',\n})\nexport class TimePickerDemoComponent {\n  at = \'2026-11-13T09:00:00\';\n  when = \'2026-11-13T09:00:00\';\n  whenModal = \'2026-11-13T09:00:00\';\n\n  onAt(value: string) {\n    this.at = value;\n  }\n\n  onWhen(value: string) {\n    this.when = value;\n  }\n\n  onWhenModal(value: string) {\n    this.whenModal = value;\n  }\n}\n\n// time-picker.component.html\n<datetime-picker\n  label="Reminder time"\n  mode="time"\n  minuteInterval="5"\n  [value]="at"\n  (change)="onAt($event)"\n></datetime-picker>\n<p>Time value (ISO): {{ at }}</p>\n<datetime-picker label="Date and time" [value]="when" (change)="onWhen($event)"></datetime-picker>\n<p>Datetime value (ISO): {{ when }}</p>\n<datetime-picker\n  label="Date and time (modal)"\n  presentation="modal"\n  [value]="whenModal"\n  (change)="onWhenModal($event)"\n></datetime-picker>\n<p>Modal datetime value (ISO): {{ whenModal }}</p>',
       tip: 'Use minuteInterval="5" unless the exact minute matters. A wheel of sixty minutes is slow to spin; a wheel of twelve steps respects the learner time, and schedules rarely need more.',
     },
     {
@@ -450,18 +450,18 @@ export class LessonService extends ReactiveService {
       minutes: '4 min',
       intro: 'A bottom sheet is a panel that slides up over a dimmed backdrop, for options that belong to the current screen. Angular Material opens sheets from code through a service. Rangular keeps the look and makes it declarative: <sheet [open]="sheetOpen" (close)="closeSheet()">, with the content written inside. A backdrop tap emits (close). The handler is a method that sets the field false, always: event bindings never hold assignments in Rangular, and the compiler warns and drops one that tries. A sheet with no [open] renders open for good and warns GEN_OVERLAY_OPEN.',
       code: '<sheet [open]="sheetOpen" (close)="closeSheet()">',
-      implementation: '// sheet.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-sheet-demo\',\n  templateUrl: \'./sheet.component.html\',\n})\nexport class SheetDemoComponent {\n  sort = \'newest\';\n  sheetOpen = false;\n\n  openSheet() {\n    this.sheetOpen = true;\n  }\n\n  closeSheet() {\n    this.sheetOpen = false;\n  }\n\n  onSort(value: string) {\n    this.sort = value;\n  }\n}\n\n// sheet.component.html\n<p>Sort order: {{ sort }}</p>\n<button (click)="openSheet()">\n  Change sort order\n</button>\n<sheet [open]="sheetOpen" (close)="closeSheet()">\n  <label>\n    Sort order\n  </label>\n  <radio-group [value]="sort" (change)="onSort($event)">\n    <radio value="newest">\n      Newest first\n    </radio>\n    <radio value="oldest">\n      Oldest first\n    </radio>\n    <radio value="name">\n      By name\n    </radio>\n  </radio-group>\n  <button (click)="closeSheet()">\n    Done\n  </button>\n</sheet>',
-      tip: 'Sheets are for choices tied to this screen: sort order, repeat rules, a short list of actions. If the content needs its own back button or a long form, it deserves its own screen, not a taller sheet.',
+      implementation: '// sheet.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-sheet-demo\',\n  templateUrl: \'./sheet.component.html\',\n})\nexport class SheetDemoComponent {\n  sheetOpen = false;\n  time = \'2026-11-13T06:30:00\';\n  label = \'Wake up\';\n  sound = \'bell\';\n  vibrate = true;\n  alarm = \'\';\n\n  openSheet() {\n    this.sheetOpen = true;\n  }\n\n  closeSheet() {\n    this.sheetOpen = false;\n  }\n\n  onTime(value: string) {\n    this.time = value;\n  }\n\n  onSound(value: string) {\n    this.sound = value;\n  }\n\n  onVibrate(value: boolean) {\n    this.vibrate = value;\n  }\n\n  save() {\n    this.sheetOpen = false;\n    this.alarm = this.label + \', sound \' + this.sound + \', vibrate \' + (this.vibrate ? \'on\' : \'off\');\n  }\n}\n\n// sheet.component.html\n<p *ngIf="!alarm">No alarm yet.</p>\n<p *ngIf="alarm">Alarm set: {{ alarm }}</p>\n<p *ngIf="alarm">Time (ISO): {{ time }}</p>\n<button (click)="openSheet()">\n  Set an alarm\n</button>\n<sheet [open]="sheetOpen" (close)="closeSheet()">\n  <label>\n    Alarm\n  </label>\n  <datetime-picker\n    label="Time"\n    mode="time"\n    minuteInterval="5"\n    [value]="time"\n    (change)="onTime($event)"\n  ></datetime-picker>\n  <input label="Label" placeholder="Wake up" [(ngModel)]="label">\n  <label>\n    Sound\n  </label>\n  <radio-group [value]="sound" (change)="onSound($event)">\n    <radio value="bell">\n      Bell\n    </radio>\n    <radio value="chime">\n      Chime\n    </radio>\n    <radio value="waves">\n      Waves\n    </radio>\n  </radio-group>\n  <switch [checked]="vibrate" (change)="onVibrate($event)">\n    Vibrate\n  </switch>\n  <actions>\n    <button color="neutral" (click)="closeSheet()">\n      Cancel\n    </button>\n    <button (click)="save()">\n      Save alarm\n    </button>\n  </actions>\n</sheet>',
+      tip: 'Sheets are for short tasks tied to this screen: setting an alarm, a sort order, repeat rules. If the content needs its own back button or a long form, it deserves its own screen, not a taller sheet.',
     },
     {
       id: 42,
       title: 'Dialogs',
       subtitle: 'A centred question with an actions row',
       minutes: '4 min',
-      intro: 'A dialog asks one question in a centred card over a dimmed backdrop. Write <dialog [open] (close) title="...">: the title attribute is the heading, the children are the body, and buttons wrapped in <actions> form the right aligned action row. A button outside <actions> stays an ordinary button in the body. Closing is a method setting the bound field false, from a button or from a backdrop tap, which emits (close). The pattern that earns the dialog its keep is confirmation: ask before the destructive tap lands, then do the work in the confirming handler.',
-      code: '<dialog [open]="confirmOpen" (close)="closeConfirm()" title="Delete this note?">',
-      implementation: '// dialog.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-dialog-demo\',\n  templateUrl: \'./dialog.component.html\',\n})\nexport class DialogDemoComponent {\n  confirmOpen = false;\n  noteDeleted = false;\n\n  openConfirm() {\n    this.confirmOpen = true;\n  }\n\n  closeConfirm() {\n    this.confirmOpen = false;\n  }\n\n  deleteNote() {\n    this.confirmOpen = false;\n    this.noteDeleted = true;\n  }\n\n  restore() {\n    this.noteDeleted = false;\n  }\n}\n\n// dialog.component.html\n<p *ngIf="!noteDeleted">Note: Book the meeting room for Saturday.</p>\n<p *ngIf="noteDeleted">The note was deleted.</p>\n<button *ngIf="!noteDeleted" (click)="openConfirm()">\n  Delete the note\n</button>\n<button *ngIf="noteDeleted" (click)="restore()">\n  Restore the note\n</button>\n<dialog [open]="confirmOpen" (close)="closeConfirm()" title="Delete this note?">\n  <p>The note leaves the list. You can restore it afterwards from this screen.</p>\n  <actions>\n    <button (click)="closeConfirm()">\n      Cancel\n    </button>\n    <button (click)="deleteNote()">\n      Delete\n    </button>\n  </actions>\n</dialog>',
-      tip: 'Reserve dialogs for decisions that are hard to undo, and write the buttons as the answer to the title question: Delete and Cancel under "Delete this note?", never OK and Cancel under a warning.',
+      intro: 'A dialog asks one question in a centred card over a dimmed backdrop. Write <dialog [open] (close) title="...">: the title attribute is the heading, the children are the body, and buttons wrapped in <actions> form the right aligned action row. A button outside <actions> stays an ordinary button in the body. Closing is a method setting the bound field false, from a button or from a backdrop tap, which emits (close). The pattern that earns the dialog its keep is confirmation: ask before the destructive tap lands, then do the work in the confirming handler. Buttons carry colour roles, never paint names: color="danger" paints the destructive answer in the theme red, color="neutral" paints the cancelling answer a quiet grey, and a button with no color keeps the primary gradient. The demo\'s second dialog is a regular modal: a small register form living in a dialog, closed by its own Register and Cancel buttons.',
+      code: '<button color="danger" (click)="deleteNote()">Delete</button>',
+      implementation: '// dialog.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-dialog-demo\',\n  templateUrl: \'./dialog.component.html\',\n})\nexport class DialogDemoComponent {\n  confirmOpen = false;\n  noteDeleted = false;\n  registerOpen = false;\n  name = \'\';\n  email = \'\';\n  password = \'\';\n  registered = \'\';\n\n  openConfirm() {\n    this.confirmOpen = true;\n  }\n\n  closeConfirm() {\n    this.confirmOpen = false;\n  }\n\n  deleteNote() {\n    this.confirmOpen = false;\n    this.noteDeleted = true;\n  }\n\n  restore() {\n    this.noteDeleted = false;\n  }\n\n  openRegister() {\n    this.registerOpen = true;\n  }\n\n  closeRegister() {\n    this.registerOpen = false;\n  }\n\n  register() {\n    this.registerOpen = false;\n    this.registered = this.name + \' (\' + this.email + \')\';\n  }\n}\n\n// dialog.component.html\n<p *ngIf="!noteDeleted">Note: Book the meeting room for Saturday.</p>\n<p *ngIf="noteDeleted">The note was deleted.</p>\n<button *ngIf="!noteDeleted" (click)="openConfirm()">\n  Delete the note\n</button>\n<button *ngIf="noteDeleted" (click)="restore()">\n  Restore the note\n</button>\n<dialog [open]="confirmOpen" (close)="closeConfirm()" title="Delete this note?">\n  <p>The note leaves the list. You can restore it afterwards from this screen.</p>\n  <actions>\n    <button color="neutral" (click)="closeConfirm()">\n      Cancel\n    </button>\n    <button color="danger" (click)="deleteNote()">\n      Delete\n    </button>\n  </actions>\n</dialog>\n<button (click)="openRegister()">\n  Create an account\n</button>\n<p *ngIf="registered">Registered: {{ registered }}</p>\n<dialog [open]="registerOpen" (close)="closeRegister()" title="Create your account">\n  <input label="Name" placeholder="Your name" [(ngModel)]="name">\n  <input label="Email" type="email" placeholder="you@example.com" [(ngModel)]="email">\n  <input\n    label="Password"\n    type="password"\n    placeholder="At least 6 characters"\n    [(ngModel)]="password"\n  >\n  <actions>\n    <button color="neutral" (click)="closeRegister()">\n      Cancel\n    </button>\n    <button (click)="register()">\n      Register\n    </button>\n  </actions>\n</dialog>',
+      tip: 'Reserve dialogs for decisions that are hard to undo, and write the buttons as the answer to the title question: Delete and Cancel under "Delete this note?", never OK and Cancel under a warning. Colour them by role, danger for the destructive answer and neutral for the cancelling one, so the eye finds the safe choice first.',
     },
     {
       id: 43,
@@ -3748,11 +3748,15 @@ export function DatePickerDemo() {
 export function TimePickerDemo() {
   const [at, setAt] = useState('2026-11-13T09:00:00');
   const [when, setWhen] = useState('2026-11-13T09:00:00');
+  const [whenModal, setWhenModal] = useState('2026-11-13T09:00:00');
   const onAt = (value: string) => {
     setAt(value);
   };
   const onWhen = (value: string) => {
     setWhen(value);
+  };
+  const onWhenModal = (value: string) => {
+    setWhenModal(value);
   };
   return (
     <>
@@ -3760,34 +3764,65 @@ export function TimePickerDemo() {
       <RgText variant="bodyLarge">Time value (ISO): {at}</RgText>
       <RgDateTimePicker label="Date and time" value={when} onChange={($event) => onWhen($event)} />
       <RgText variant="bodyLarge">Datetime value (ISO): {when}</RgText>
+      <RgDateTimePicker presentation="modal" label="Date and time (modal)" value={whenModal} onChange={($event) => onWhenModal($event)} />
+      <RgText variant="bodyLarge">Modal datetime value (ISO): {whenModal}</RgText>
     </>
   );
 }
 
 export function SheetDemo() {
-  const [sort, setSort] = useState('newest');
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [time, setTime] = useState('2026-11-13T06:30:00');
+  const [label, setLabel] = useState('Wake up');
+  const [sound, setSound] = useState('bell');
+  const [vibrate, setVibrate] = useState(true);
+  const [alarm, setAlarm] = useState('');
   const openSheet = () => {
     setSheetOpen(true);
   };
   const closeSheet = () => {
     setSheetOpen(false);
   };
-  const onSort = (value: string) => {
-    setSort(value);
+  const onTime = (value: string) => {
+    setTime(value);
+  };
+  const onSound = (value: string) => {
+    setSound(value);
+  };
+  const onVibrate = (value: boolean) => {
+    setVibrate(value);
+  };
+  const save = () => {
+    setSheetOpen(false);
+    setAlarm(label + ', sound ' + sound + ', vibrate ' + ((vibrate ? 'on' : 'off')));
   };
   return (
     <>
-      <RgText variant="bodyLarge">Sort order: {sort}</RgText>
-      <RgButton onPress={() => openSheet()}>Change sort order</RgButton>
+      {!alarm && (
+        <RgText variant="bodyLarge">No alarm yet.</RgText>
+      )}
+      {alarm && (
+        <RgText variant="bodyLarge">Alarm set: {alarm}</RgText>
+      )}
+      {alarm && (
+        <RgText variant="bodyLarge">Time (ISO): {time}</RgText>
+      )}
+      <RgButton onPress={() => openSheet()}>Set an alarm</RgButton>
       <RgSheet open={sheetOpen} onClose={() => closeSheet()}>
-        <RgText variant="label">Sort order</RgText>
-        <RgRadioGroup value={sort} onChange={($event) => onSort($event)}>
-          <RgRadio value="newest">Newest first</RgRadio>
-          <RgRadio value="oldest">Oldest first</RgRadio>
-          <RgRadio value="name">By name</RgRadio>
+        <RgText variant="label">Alarm</RgText>
+        <RgDateTimePicker mode="time" minuteInterval={5} label="Time" value={time} onChange={($event) => onTime($event)} />
+        <RgInput label="Label" placeholder="Wake up" value={label} onChangeText={($event) => setLabel($event)} />
+        <RgText variant="label">Sound</RgText>
+        <RgRadioGroup value={sound} onChange={($event) => onSound($event)}>
+          <RgRadio value="bell">Bell</RgRadio>
+          <RgRadio value="chime">Chime</RgRadio>
+          <RgRadio value="waves">Waves</RgRadio>
         </RgRadioGroup>
-        <RgButton onPress={() => closeSheet()}>Done</RgButton>
+        <RgSwitch checked={vibrate} onChange={($event) => onVibrate($event)}>Vibrate</RgSwitch>
+        <RgActions>
+          <RgButton color="neutral" onPress={() => closeSheet()}>Cancel</RgButton>
+          <RgButton onPress={() => save()}>Save alarm</RgButton>
+        </RgActions>
       </RgSheet>
     </>
   );
@@ -3796,6 +3831,11 @@ export function SheetDemo() {
 export function DialogDemo() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [noteDeleted, setNoteDeleted] = useState(false);
+  const [registerOpen, setRegisterOpen] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [registered, setRegistered] = useState('');
   const openConfirm = () => {
     setConfirmOpen(true);
   };
@@ -3808,6 +3848,16 @@ export function DialogDemo() {
   };
   const restore = () => {
     setNoteDeleted(false);
+  };
+  const openRegister = () => {
+    setRegisterOpen(true);
+  };
+  const closeRegister = () => {
+    setRegisterOpen(false);
+  };
+  const register = () => {
+    setRegisterOpen(false);
+    setRegistered(name + ' (' + email + ')');
   };
   return (
     <>
@@ -3826,8 +3876,21 @@ export function DialogDemo() {
       <RgDialog title="Delete this note?" open={confirmOpen} onClose={() => closeConfirm()}>
         <RgText variant="bodyLarge">The note leaves the list. You can restore it afterwards from this screen.</RgText>
         <RgActions>
-          <RgButton onPress={() => closeConfirm()}>Cancel</RgButton>
-          <RgButton onPress={() => deleteNote()}>Delete</RgButton>
+          <RgButton color="neutral" onPress={() => closeConfirm()}>Cancel</RgButton>
+          <RgButton color="danger" onPress={() => deleteNote()}>Delete</RgButton>
+        </RgActions>
+      </RgDialog>
+      <RgButton onPress={() => openRegister()}>Create an account</RgButton>
+      {registered && (
+        <RgText variant="bodyLarge">Registered: {registered}</RgText>
+      )}
+      <RgDialog title="Create your account" open={registerOpen} onClose={() => closeRegister()}>
+        <RgInput label="Name" placeholder="Your name" value={name} onChangeText={($event) => setName($event)} />
+        <RgInput keyboardType="email-address" label="Email" placeholder="you@example.com" value={email} onChangeText={($event) => setEmail($event)} />
+        <RgInput secure label="Password" placeholder="At least 6 characters" value={password} onChangeText={($event) => setPassword($event)} />
+        <RgActions>
+          <RgButton color="neutral" onPress={() => closeRegister()}>Cancel</RgButton>
+          <RgButton onPress={() => register()}>Register</RgButton>
         </RgActions>
       </RgDialog>
     </>

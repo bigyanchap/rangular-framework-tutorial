@@ -5,7 +5,18 @@
 <dialog [open]="confirmOpen" (close)="closeConfirm()" title="Delete this note?">
   <p>The note leaves the list. You can restore it afterwards from this screen.</p>
   <actions>
-    <button (click)="closeConfirm()">Cancel</button>
-    <button (click)="deleteNote()">Delete</button>
+    <button color="neutral" (click)="closeConfirm()">Cancel</button>
+    <button color="danger" (click)="deleteNote()">Delete</button>
+  </actions>
+</dialog>
+<button (click)="openRegister()">Create an account</button>
+<p *ngIf="registered">Registered: {{ registered }}</p>
+<dialog [open]="registerOpen" (close)="closeRegister()" title="Create your account">
+  <input label="Name" placeholder="Your name" [(ngModel)]="name">
+  <input label="Email" type="email" placeholder="you@example.com" [(ngModel)]="email">
+  <input label="Password" type="password" placeholder="At least 6 characters" [(ngModel)]="password">
+  <actions>
+    <button color="neutral" (click)="closeRegister()">Cancel</button>
+    <button (click)="register()">Register</button>
   </actions>
 </dialog>
