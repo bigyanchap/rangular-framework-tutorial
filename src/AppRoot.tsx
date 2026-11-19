@@ -1311,7 +1311,7 @@ export function Splash() {
   return (
     <RgSection>
       <RgSection style={styles.splashEntryMark}>
-        <RgIcon name="code" size={28} color="onPrimary" />
+        <RgIcon name="logo" size={64} />
       </RgSection>
       <RgText variant="title">Rangular Tutorial</RgText>
       <RgText variant="display">Write Angular. Ship real phone apps.</RgText>
@@ -1319,7 +1319,7 @@ export function Splash() {
       <RgCode>{snippet}</RgCode>
       <RgText variant="bodyLarge" style={styles.splashEntryStats}>95 lessons · Live demos · Free</RgText>
       <RgButton onPress={() => __router.navigateByUrl("/home")}>Start learning</RgButton>
-      <RgText variant="bodyLarge" style={styles.splashEntryFoot}>Rangular framework 0.2.0 · No account needed</RgText>
+      <RgText variant="bodyLarge" style={styles.splashEntryFoot}>Rangular framework 0.3.0 · No account needed</RgText>
     </RgSection>
   );
 }
@@ -1512,7 +1512,7 @@ export function Home() {
                 ))}
               </RgList>
             </RgSection>
-            <RgText variant="bodyLarge">95 lessons · Rangular framework 0.1.8</RgText>
+            <RgText variant="bodyLarge">95 lessons · Rangular framework 0.3.0</RgText>
           </RgSection>
         )}
       </RgSection>
@@ -5251,7 +5251,7 @@ export function About() {
       </RgBottomNav>
       <RgCard style={styles.aboutHero}>
         <RgSection style={styles.aboutHeroMark}>
-          <RgIcon name="code" size={24} color="primary" />
+          <RgIcon name="logo" size={48} />
         </RgSection>
         <RgText variant="heading" style={styles.aboutHeroTitle}>Rangular Tutorial</RgText>
         <RgText variant="bodyLarge" style={styles.aboutHeroText}>Version 1.0.0 · 95 lessons</RgText>
@@ -5282,7 +5282,7 @@ export function About() {
           <RgText variant="bodyLarge">This app is being prepared for release on the App Store and Google Play. All 95 lessons are complete, and the icon, splash artwork, and store listing are prepared. The store accounts and the submission itself are the remaining steps.</RgText>
         </RgSection>
       </RgCard>
-      <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.2.0</RgText>
+      <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.3.0</RgText>
     </RgSection>
   );
 }
@@ -5348,7 +5348,7 @@ export default function App() {
             <RgRow icon="info" title="How to use this tutorial" onPress={() => openHowTo()} />
             <RgRow icon="info" title="About" selected={(shell.place === 'about')} onPress={() => goAbout()} />
           </RgList>
-          <RgText variant="bodyLarge">Rangular framework 0.1.8</RgText>
+          <RgText variant="bodyLarge">Rangular framework 0.3.0</RgText>
         </RgDrawer>
         <RgDialog title="How to use this tutorial" open={shell.howToOpen} onClose={() => closeHowTo()}>
           <RgText variant="bodyLarge">Start at Lesson 1 and go in order. Tap a lesson, read it, try its demo, then mark it done and move to the next one.</RgText>
@@ -5401,7 +5401,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  splashEntryMark: {"width":64,"height":64,"borderRadius":16,"backgroundColor":"#0b57d0","alignItems":"center","justifyContent":"center"},
+  splashEntryMark: {"width":64,"height":64,"alignItems":"center","justifyContent":"center"},
   splashEntryFoot: {"color":"#5f6368"},
   splashEntryStats: {"color":"#5f6368"},
   homePathCard: {"backgroundColor":"#e8f0fe","borderWidth":0,"borderRadius":16,"padding":16},
@@ -5424,7 +5424,7 @@ const styles = StyleSheet.create({
   layoutDemoPill: {"backgroundColor":"#c2e7ff","color":"#001d35","borderRadius":9999,"paddingTop":4,"paddingBottom":4,"paddingLeft":12,"paddingRight":12,"fontSize":12,"fontWeight":700},
   errorDisplayDemoReady: {"color":"#137333","fontWeight":700},
   aboutHero: {"backgroundColor":"#0b57d0","borderWidth":0,"borderRadius":16,"padding":16},
-  aboutHeroMark: {"width":48,"height":48,"borderRadius":9999,"backgroundColor":"#ffffff","alignItems":"center","justifyContent":"center"},
+  aboutHeroMark: {"width":48,"height":48,"alignItems":"center","justifyContent":"center"},
   aboutHeroTitle: {"color":"#ffffff"},
   aboutHeroText: {"color":"#d3e3fd"},
   drawerHead: {"padding":16},

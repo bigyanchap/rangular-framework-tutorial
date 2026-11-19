@@ -13,7 +13,7 @@ import { ShellService } from './shell.service';
   templateUrl: './about.component.html',
   styles: [`
     .hero { background-color: #0b57d0; border-width: 0; border-radius: 16px; padding: 16px; }
-    .hero-mark { width: 48px; height: 48px; border-radius: 9999px; background-color: #ffffff; align-items: center; justify-content: center; }
+    .hero-mark { width: 48px; height: 48px; align-items: center; justify-content: center; }
     .hero-title { color: #ffffff; }
     .hero-text { color: #d3e3fd; }
   `],

@@ -9,7 +9,7 @@ import { Component } from '@angular/core';
   selector: 'app-splash',
   templateUrl: './splash.component.html',
   styles: [`
-    .entry-mark { width: 64px; height: 64px; border-radius: 16px; background-color: #0b57d0; align-items: center; justify-content: center; }
+    .entry-mark { width: 64px; height: 64px; align-items: center; justify-content: center; }
     .entry-foot { color: #5f6368; }
     .entry-stats { color: #5f6368; }
   `],

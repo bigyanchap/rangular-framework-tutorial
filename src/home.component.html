@@ -54,7 +54,7 @@
         <row *ngFor="let l of beyondLessons" avatar [avatarTone]="tileTone(l)" [avatarText]="tileText(l)" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
       </list>
     </section>
-    <p>95 lessons · Rangular framework 0.1.8</p>
+    <p>95 lessons · Rangular framework 0.3.0</p>
     </section>
   </section>
 </section>
