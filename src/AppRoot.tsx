@@ -1324,7 +1324,7 @@ export function Splash() {
       <RgCode>{snippet}</RgCode>
       <RgText variant="bodyLarge" style={styles.splashEntryStats}>95 lessons · Live demos · Free</RgText>
       <RgButton onPress={() => __router.navigateByUrl("/home")}>Start learning</RgButton>
-      <RgText variant="bodyLarge" style={styles.splashEntryFoot}>Rangular framework 0.3.1 · No account needed</RgText>
+      <RgText variant="bodyLarge" style={styles.splashEntryFoot}>Rangular framework 0.3.2 · No account needed</RgText>
     </RgSection>
   );
 }
@@ -1517,7 +1517,7 @@ export function Home() {
                 ))}
               </RgList>
             </RgSection>
-            <RgText variant="bodyLarge">95 lessons · Rangular framework 0.3.1</RgText>
+            <RgText variant="bodyLarge">95 lessons · Rangular framework 0.3.2</RgText>
           </RgSection>
         )}
       </RgSection>
@@ -5302,7 +5302,7 @@ export function About() {
           <RgText variant="bodyLarge">This app is being prepared for release on the App Store and Google Play. All 95 lessons are complete, and the icon, splash artwork, and store listing are prepared. The store accounts and the submission itself are the remaining steps.</RgText>
         </RgSection>
       </RgCard>
-      <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.3.1</RgText>
+      <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.3.2</RgText>
     </RgSection>
   );
 }
@@ -5368,7 +5368,7 @@ export default function App() {
             <RgRow icon="info" title="How to use this tutorial" onPress={() => openHowTo()} />
             <RgRow icon="info" title="About" selected={(shell.place === 'about')} onPress={() => goAbout()} />
           </RgList>
-          <RgText variant="bodyLarge">Rangular framework 0.3.1</RgText>
+          <RgText variant="bodyLarge">Rangular framework 0.3.2</RgText>
         </RgDrawer>
         <RgDialog title="How to use this tutorial" open={shell.howToOpen} onClose={() => closeHowTo()}>
           <RgText variant="bodyLarge">Start at Lesson 1 and go in order. Tap a lesson, read it, try its demo, then mark it done and move to the next one.</RgText>
