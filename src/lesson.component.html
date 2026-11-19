@@ -394,6 +394,10 @@
     <code *ngIf="lesson.tipDiagram">{{ lesson.tipDiagram }}</code>
     <code *ngIf="lesson.tipCode">{{ lesson.tipCode }}</code>
   </card>
+  <section *ngIf="lesson && lesson.implementation">
+    <label>Implementations</label>
+    <code>{{ lesson.implementation }}</code>
+  </section>
   <actions *ngIf="lesson">
     <button variant="text" [disabled]="lessonId <= 1" (click)="prevLesson()">Previous</button>
     <button (click)="markDoneNext()">{{ nextLabel }}</button>

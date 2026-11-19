@@ -52,7 +52,8 @@ export class LessonService extends ReactiveService {
       subtitle: 'A class, a selector, and a template',
       minutes: '4 min',
       intro: 'A component is the building block of every screen. It is a TypeScript class with a @Component decorator. The decorator gives the component a selector (its tag name) and a template file. Fields on the class hold the screen data, and the template shows that data.',
-      code: '// hello.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-hello\',\n  templateUrl: \'./hello.component.html\',\n})\nexport class HelloComponent {}\n\n// hello.component.html\n<h3>Hello from app-hello</h3>',
+      code: "@Component({ selector: 'app-hello', templateUrl: './hello.component.html' })",
+      implementation: '// hello.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-hello\',\n  templateUrl: \'./hello.component.html\',\n})\nexport class HelloComponent {}\n\n// hello.component.html\n<h3>Hello from app-hello</h3>\n<p>\n  This whole block is one child component. The lesson\n  screen shows it by writing its tag, and everything\n  here comes from this component\'s own class and\n  template.\n</p>',
       tip: 'Keep one component per screen or per clear piece of a screen. Small components are easy to read, test, and reuse.',
     },
     {
@@ -70,7 +71,8 @@ export class LessonService extends ReactiveService {
       subtitle: 'Buttons that call your methods',
       minutes: '4 min',
       intro: 'Event binding connects a tap to a method in your class. You write the event in round brackets, like (click), and name the method to run. The counter below is the classic first demo: every tap runs increment(), which changes the count field, and interpolation shows the new value. The third button calls a method that shows a toast, because a tap can call any method, including one that talks to a service.',
-      code: '<button (click)="increment()">\n  Increment\n</button>',
+      code: '<button (click)="increment()">Increment</button>',
+      implementation: '// events.component.ts\nimport { Component } from \'@angular/core\';\nimport { SnackBar } from \'@angular/material/snack-bar\';\n\n@Component({\n  selector: \'app-events-demo\',\n  templateUrl: \'./events.component.html\',\n})\nexport class EventsDemoComponent {\n  count = 0;\n\n  constructor(private snack: SnackBar) {}\n\n  increment() {\n    this.count++;\n  }\n\n  decrement() {\n    this.count--;\n  }\n\n  announce() {\n    this.snack.open(\'Button clicked!\');\n  }\n}\n\n// events.component.html\n<h1>{{ count }}</h1>\n<button (click)="increment()">\n  Increment\n</button>\n<button (click)="decrement()" [disabled]="count === 0">\n  Decrement\n</button>\n<button (click)="announce()">\n  Show a toast\n</button>',
       tip: 'Keep methods small and named for what they do. A button should call one clear method, never a long chain of logic inside the template.',
     },
     {
@@ -444,7 +446,8 @@ export class LessonService extends ReactiveService {
       subtitle: 'Fields, rules, state, submit, and a toast, together',
       minutes: '6 min',
       intro: 'This capstone builds the sign up form the whole batch has been walking toward. Template driven fields carry validators and refs. Error lines wait for touched. A terms checkbox rides the change contract, not ngModel. The submit button stays disabled until every ref is valid and the terms are accepted, and saving answers with a SnackBar, the way lesson 41 taught. Nothing here is new: that is the point. A real form is these small pieces, each doing one job.',
-      code: '<button type="submit" [disabled]="nameField.invalid || !terms">\n  Create account\n</button>',
+      code: '<button type="submit" [disabled]="nameField.invalid || !terms">Create account</button>',
+      implementation: '// signup.component.ts\nimport { Component } from \'@angular/core\';\nimport { SnackBar } from \'@angular/material/snack-bar\';\n\n@Component({\n  selector: \'app-signup-demo\',\n  templateUrl: \'./signup.component.html\',\n})\nexport class SignupDemoComponent {\n  name = \'\';\n  email = \'\';\n  password = \'\';\n  terms = false;\n  submitted = false;\n\n  constructor(private snack: SnackBar) {}\n\n  onTerms(value: boolean) {\n    this.terms = value;\n  }\n\n  save() {\n    this.submitted = true;\n    this.snack.open(\'Account created\');\n  }\n}\n\n// signup.component.html\n<form (submit)="save()">\n  <input\n    label="Full name"\n    placeholder="e.g. Maya Sharma"\n    [(ngModel)]="name"\n    #nameField="ngModel"\n    required\n    minlength="3"\n  >\n  <p *ngIf="nameField.invalid && nameField.touched">\n    Name is required and needs at least 3 characters.\n  </p>\n  <input\n    label="Email"\n    type="email"\n    placeholder="you@example.com"\n    [(ngModel)]="email"\n    #emailField="ngModel"\n    required\n    email\n  >\n  <p *ngIf="emailField.invalid && emailField.touched">\n    Enter a valid email address.\n  </p>\n  <input\n    label="Password"\n    type="password"\n    placeholder="At least 6 characters"\n    [(ngModel)]="password"\n    #passwordField="ngModel"\n    required\n    minlength="6"\n  >\n  <p *ngIf="passwordField.invalid && passwordField.touched">\n    Password is required and needs at least 6 characters.\n  </p>\n  <checkbox [checked]="terms" (change)="onTerms($event)">\n    I accept the terms\n  </checkbox>\n  <button\n    type="submit"\n    [disabled]="nameField.invalid || emailField.invalid || passwordField.invalid || !terms"\n  >\n    Create account\n  </button>\n</form>\n<p *ngIf="submitted">\n  Welcome aboard, {{ name }}. Your account was created.\n</p>',
       tip: 'Build every form in this order: fields, rules, error lines gated on touched, a gated submit, and feedback after the save. When a form feels broken, it is almost always one of the five done out of order.',
     },
     {
@@ -579,7 +582,8 @@ export class LessonService extends ReactiveService {
       subtitle: 'No guards, resolvers, or lazy routes; the check before you navigate',
       minutes: '5 min',
       intro: 'Stated plainly, so a route table never promises what it cannot do: Rangular routes have no guards, no resolvers, no lazy loading, no child routes, and no routerLinkActive styling. A route entry that uses one fails the build with GEN_ROUTE_UNSUPPORTED, naming the feature, rather than compiling into a half working screen. The everyday need behind a guard, keeping a visitor out of a screen until a condition holds, has a working pattern today: check first, then navigate, with the check living in the tap handler instead of the route table. The demo is a diary gate, built from the opposite pair of lesson 7. With the switch off, the button only warns. With it on, the same button navigates, here to the About screen, which plays the diary so you can watch the navigation happen.',
-      code: '<button *ngIf="signedIn" (click)="openDiary()">\n  Open my diary\n</button>',
+      code: '<button *ngIf="signedIn" (click)="openDiary()">Open my diary</button>',
+      implementation: '// route-gate.component.ts\nimport { Component } from \'@angular/core\';\nimport { Router } from \'@angular/router\';\nimport { SnackBar } from \'@angular/material/snack-bar\';\n\n@Component({\n  selector: \'app-route-gate-demo\',\n  templateUrl: \'./route-gate.component.html\',\n})\nexport class RouteGateDemoComponent {\n  signedIn = false;\n\n  constructor(\n    private router: Router,\n    private snack: SnackBar,\n  ) {}\n\n  onSignedIn(value: boolean) {\n    this.signedIn = value;\n  }\n\n  warn() {\n    this.snack.open(\'Sign in first. The diary stays closed.\');\n  }\n\n  openDiary() {\n    this.router.navigate([\'/about\']);\n  }\n}\n\n// route-gate.component.html\n<switch [checked]="signedIn" (change)="onSignedIn($event)">\n  Signed in\n</switch>\n<p>{{ signedIn ? \'You are signed in.\' : \'You are signed out.\' }}</p>\n<button *ngIf="signedIn" (click)="openDiary()">\n  Open my diary\n</button>\n<button *ngIf="!signedIn" (click)="warn()">\n  Open my diary\n</button>\n<p>\n  One button, two handlers, chosen by the check. In this\n  tutorial the About screen plays the diary, so you can\n  watch the navigation happen.\n</p>',
       tip: 'Put the check where the action starts, and make the refusal kind and clear: a message that says what is missing, not a dead button. When guards arrive in the framework, these checks move into the route table almost word for word.',
     },
     {
@@ -705,7 +709,8 @@ export class LessonService extends ReactiveService {
       subtitle: 'matTooltip, in the only form a phone has',
       minutes: '4 min',
       intro: 'A tooltip is a short hint that names what a control does. On the web, matTooltip shows on hover. A phone has no hover, so here the tooltip attribute shows its bubble above the control on a long press: the press and hold is the mobile form of hovering. The attribute belongs on the pressable hosts only: button, row, and icon-button. On any other element the compiler warns GEN_TOOLTIP_HOST and drops the tooltip, the same rule the badge follows. In the browser preview, the same text rides the browser\'s own title tooltip instead. The demo puts one tooltip on each of the three hosts; long press to read, tap to use.',
-      code: '<button tooltip="Saves the current list" (click)="save()">\n  Save\n</button>',
+      code: '<button tooltip="Saves the current list" (click)="save()">Save</button>',
+      implementation: '// tooltip.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-tooltip-demo\',\n  templateUrl: \'./tooltip.component.html\',\n})\nexport class TooltipDemoComponent {\n  lastTap = \'\';\n\n  tap(name: string) {\n    this.lastTap = name;\n  }\n}\n\n// tooltip.component.html\n<p>Long press each control to read its hint. Tap it to use it.</p>\n<button (click)="tap(\'Save button\')" tooltip="Saves the current list">\n  Save the list\n</button>\n<row\n  title="Daily report"\n  subtitle="One row, with a hint"\n  (click)="tap(\'Report row\')"\n  tooltip="Opens the full report"\n></row>\n<icon-button\n  name="share"\n  (click)="tap(\'Share icon\')"\n  tooltip="Shares this lesson"\n></icon-button>\n<p *ngIf="lastTap">Last tap: {{ lastTap }}</p>\n<p *ngIf="!lastTap">Nothing tapped yet.</p>',
       tip: 'Write the hint for the person who almost understands the control: say what happens, in a few words. If a control needs a paragraph to explain, the control is wrong, not the tooltip.',
     },
     {
@@ -2383,6 +2388,12 @@ export function Lesson() {
             <RgCode>{lesson.tipCode}</RgCode>
           )}
         </RgCard>
+      )}
+      {(lesson && lesson.implementation) && (
+        <RgSection>
+          <RgText variant="label">Implementations</RgText>
+          <RgCode>{lesson.implementation}</RgCode>
+        </RgSection>
       )}
       {lesson && (
         <RgActions>
