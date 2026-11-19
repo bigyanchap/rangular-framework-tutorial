@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { GreetingCardComponent } from './greeting-card.component';
+import { FlowerCardComponent } from './flower-card.component';
 
 /**
- * Lesson 10's live demo: inputs. The parent owns the teacher
- * fields and binds them into the greeting card. Cycling the
- * teacher changes the parent fields, and the card re-renders
+ * Lesson 10's live demo: inputs. The garden owns the flower
+ * fields and binds them into the flower card. Cycling the
+ * flower changes the garden fields, and the card re-renders
  * with the new input values.
  */
 @Component({
@@ -12,18 +12,18 @@ import { GreetingCardComponent } from './greeting-card.component';
   templateUrl: './inputs.component.html',
 })
 export class InputsDemoComponent {
-  private teachers = [
-    { name: 'David Lee', role: 'Mathematics' },
-    { name: 'Sofia Garcia', role: 'History' },
-    { name: 'James Carter', role: 'Science' },
+  private flowers = [
+    { name: 'Sunflower', colour: 'gold' },
+    { name: 'Rose', colour: 'red' },
+    { name: 'Tulip', colour: 'pink' },
   ];
   private index = 0;
-  teacherName = 'David Lee';
-  teacherRole = 'Mathematics';
+  flowerName = 'Sunflower';
+  flowerColour = 'gold';
 
   cycle() {
-    this.index = (this.index + 1) % this.teachers.length;
-    this.teacherName = this.teachers[this.index].name;
-    this.teacherRole = this.teachers[this.index].role;
+    this.index = (this.index + 1) % this.flowers.length;
+    this.flowerName = this.flowers[this.index].name;
+    this.flowerColour = this.flowers[this.index].colour;
   }
 }

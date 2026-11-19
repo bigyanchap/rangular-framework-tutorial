@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
-import { TaskTileComponent } from './task-tile.component';
+import { FlowerComponent } from './flower.component';
 
 /**
- * Lesson 9's live demo: child components. The same task
- * tile tag is written three times, and each tile is its own
- * instance with its own count, so tapping one moves only one.
+ * Lesson 9's live demo: child components. The garden is the
+ * parent and writes the flower tag three times. Each flower
+ * is its own instance with its own bloom count, so tapping
+ * Bloom in one flower moves only that flower.
  */
 @Component({
   selector: 'app-child-demo',

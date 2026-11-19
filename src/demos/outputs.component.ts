@@ -1,26 +1,23 @@
 import { Component } from '@angular/core';
-import { QuoteCardComponent } from './quote-card.component';
+import { FlowerPickComponent } from './flower-pick.component';
 
 /**
- * Lesson 11's live demo: outputs. Two quote cards receive
- * their quote through an input and report each save through
- * the saved output. The parent counts the saves and keeps
- * the last quote the event carried.
+ * Lesson 11's live demo: outputs. Two flower cards receive
+ * their name through an input and report each pick through
+ * the picked output. The garden counts the picks and keeps
+ * the last flower name the event carried.
  */
 @Component({
   selector: 'app-outputs-demo',
   templateUrl: './outputs.component.html',
 })
 export class OutputsDemoComponent {
-  quotes = [
-    'Silence is a source of great strength.',
-    'What you seek is seeking you.',
-  ];
-  saveCount = 0;
-  lastSaved = '';
+  flowers = ['Sunflower', 'Rose'];
+  pickCount = 0;
+  lastPicked = '';
 
-  recordSave(quote: string) {
-    this.saveCount++;
-    this.lastSaved = quote;
+  recordPick(name: string) {
+    this.pickCount++;
+    this.lastPicked = name;
   }
 }

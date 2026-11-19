@@ -1,12 +1,12 @@
-<p class="look-calm" *ngIf="look === 'calm'">A calm line, styled by the look-calm class.</p>
-<p class="look-alert" *ngIf="look === 'alert'">An alert line, styled by the look-alert class.</p>
-<p class="look-big" *ngIf="look === 'big'">A big line, styled by the look-big class.</p>
-<button (click)="show('calm')">Calm</button>
-<button (click)="show('alert')">Alert</button>
+<p class="look-sunny" *ngIf="look === 'sunny'">The garden in the sun.</p>
+<p class="look-rainy" *ngIf="look === 'rainy'">The garden in the rain.</p>
+<p class="look-big" *ngIf="look === 'big'">The garden, up close.</p>
+<button (click)="show('sunny')">Sunny</button>
+<button (click)="show('rainy')">Rainy</button>
 <button (click)="show('big')">Big</button>
-<p [class.look-highlight]="highlighted">This line carries a class binding. The highlight class turns on and off with the button below.</p>
+<p [class.look-highlight]="highlighted">This flower bed carries a class binding. The highlight class turns on and off with the button below.</p>
 <button (click)="toggleHighlight()">Toggle highlight</button>
-<input label="Try it: your own line, in all three looks" [(ngModel)]="ownLine">
-<p class="look-calm">{{ ownLine }}</p>
-<p class="look-alert">{{ ownLine }}</p>
+<input label="Try it: your own garden line, in all three looks" [(ngModel)]="ownLine">
+<p class="look-sunny">{{ ownLine }}</p>
+<p class="look-rainy">{{ ownLine }}</p>
 <p class="look-big">{{ ownLine }}</p>
