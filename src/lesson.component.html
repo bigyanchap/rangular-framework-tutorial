@@ -398,6 +398,10 @@
     <label>Implementations</label>
     <code>{{ lesson.implementation }}</code>
   </section>
+  <section *ngIf="lesson && lesson.note">
+    <label>Note</label>
+    <p>{{ lesson.note }}</p>
+  </section>
   <actions *ngIf="lesson">
     <button variant="text" [disabled]="lessonId <= 1" (click)="prevLesson()">Previous</button>
     <button (click)="markDoneNext()">{{ nextLabel }}</button>
