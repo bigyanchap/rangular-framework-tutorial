@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 72's live demo: a grid list in masonry mode. The
+ * Lesson 74's live demo: a grid list in masonry mode. The
  * tiles carry different amounts of text on purpose. In the
  * plain grid they would line up in rows and leave gaps
  * under the short ones; in masonry mode they are dealt

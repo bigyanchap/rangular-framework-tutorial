@@ -51,7 +51,7 @@ export class ProgressComponent {
     const done = this.lessons.lessons.filter((l: Lesson) => this.bookmarks.isDone(l.id));
     this.doneCount = done.length;
     this.doneMinutes = done.reduce((sum: number, l: Lesson) => sum + parseInt(l.minutes, 10), 0);
-    this.percent = Math.round((this.doneCount * 100) / 95);
+    this.percent = Math.round((this.doneCount * 100) / 97);
     this.savedCount = this.bookmarks.bookmarkIds.length;
     if (this.bookmarks.lastLessonId > 0) {
       const found = this.lessons.lessons.find((l: Lesson) => l.id === this.bookmarks.lastLessonId);
@@ -64,10 +64,10 @@ export class ProgressComponent {
     this.groups = [
       this.groupStat('Getting started', 1, 5),
       this.groupStat('Components and templates', 6, 25),
-      this.groupStat('Forms and interaction', 26, 45),
-      this.groupStat('Services, routing, and data', 46, 65),
-      this.groupStat('The Material pieces', 66, 76),
-      this.groupStat('Beyond Angular', 77, 95),
+      this.groupStat('Forms and interaction', 26, 47),
+      this.groupStat('Services, routing, and data', 48, 67),
+      this.groupStat('The Material pieces', 68, 78),
+      this.groupStat('Beyond Angular', 79, 97),
     ];
   }
 

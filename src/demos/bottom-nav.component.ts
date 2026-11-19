@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 77's live demo: bottom navigation. A small screen
+ * Lesson 79's live demo: bottom navigation. A small screen
  * sits inside the lesson so the bar can pin under it, as
  * it does under a real screen. The bar follows the tabs
  * contract: [index] in, (change) out, and the three panels

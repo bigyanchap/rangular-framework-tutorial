@@ -3,7 +3,7 @@ import { QuoteBrowserComponent } from './quote-browser.component';
 import { FavouriteListComponent } from './favourite-list.component';
 
 /**
- * Lesson 52's live demo: a service as the store. The browser
+ * Lesson 54's live demo: a service as the store. The browser
  * writes through the service, the list reads from it, and
  * neither component holds a copy of the saved quotes.
  */

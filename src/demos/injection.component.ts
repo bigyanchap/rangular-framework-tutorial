@@ -3,7 +3,7 @@ import { TallyService } from './tally.service';
 import { TrailService } from './trail.service';
 
 /**
- * Lesson 47's live demo: constructor injection. Two services
+ * Lesson 49's live demo: constructor injection. Two services
  * are declared as constructor parameter properties, and the
  * framework hands both in. One tap uses each: the tally
  * counts, the trail records the count as a line.

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 69's live demo: a select inside a small form.
+ * Lesson 71's live demo: a select inside a small form.
  * The text field uses ngModel, the switch uses its own
  * contract, and the select uses [value] and (change): the
  * handler stores the picked value in a field, and the

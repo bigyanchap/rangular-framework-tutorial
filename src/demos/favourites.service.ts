@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 /**
- * Lesson 52's store: the saved quotes live here and only
+ * Lesson 54's store: the saved quotes live here and only
  * here. save and clear are the only doors that change the
  * list, and both change it by assignment.
  */

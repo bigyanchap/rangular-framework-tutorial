@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { SnackBar } from '@angular/material/snack-bar';
 
 /**
- * Lesson 45's live demo: the complete sign up form.
+ * Lesson 47's live demo: the complete sign up form.
  * Template driven fields with validators and refs, error
  * lines gated on touched, a terms checkbox on the change
  * contract, a submit button gated on every ref, and a

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 38's live demo: a time picker on five minute
+ * Lesson 40's live demo: a time picker on five minute
  * steps, and a datetime picker in the default combined
  * mode. Both emit the same local ISO string shape.
  */

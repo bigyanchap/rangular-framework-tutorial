@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 39's live demo: a bottom sheet holding a sort
+ * Lesson 41's live demo: a bottom sheet holding a sort
  * order choice. The sheet is declarative: [open] shows it,
  * (close) fires from the backdrop or the Done button, and
  * the radio group inside keeps its usual contract.

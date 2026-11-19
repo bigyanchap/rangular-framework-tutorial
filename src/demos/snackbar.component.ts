@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { SnackBar } from '@angular/material/snack-bar';
 
 /**
- * Lesson 41's live demo: SnackBar messages with actions.
+ * Lesson 43's live demo: SnackBar messages with actions.
  * Save opens a plain message. Delete opens a bar with an
  * Undo action, subscribed in the statement form, and the
  * callback brings the note back.

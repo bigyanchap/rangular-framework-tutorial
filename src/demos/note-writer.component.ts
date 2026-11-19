@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NotebookService } from './notebook.service';
 
 /**
- * Lesson 48's writer: it adds lines to the shared notebook.
+ * Lesson 50's writer: it adds lines to the shared notebook.
  * It receives no inputs and knows nothing about the reader.
  */
 @Component({

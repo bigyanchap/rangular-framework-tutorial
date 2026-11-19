@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 78's live demo: pull to refresh on a list. The
+ * Lesson 80's live demo: pull to refresh on a list. The
  * handler sets the refreshing flag, prepends the fresh
  * note by assignment, and clears the flag: the whole
  * contract in three moves. The data is local, so it lands

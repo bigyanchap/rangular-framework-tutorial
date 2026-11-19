@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 70's live demo: a three step stepper. The class
+ * Lesson 72's live demo: a three step stepper. The class
  * holds the position in stepIndex: header taps arrive
  * through (change), and the Continue and Back buttons move
  * the same field, so both paths steer one stepper. Steps

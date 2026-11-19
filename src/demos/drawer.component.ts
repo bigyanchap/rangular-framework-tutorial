@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 67's live demo: a drawer, the full height panel
+ * Lesson 69's live demo: a drawer, the full height panel
  * from the left. The three section buttons inside it set
  * the section shown below and close the drawer, the way
  * tapping a destination in a real app's drawer both moves

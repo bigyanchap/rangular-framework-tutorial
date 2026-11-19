@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 /**
- * Lesson 49's inner service: a counter that knows nothing
+ * Lesson 51's inner service: a counter that knows nothing
  * about reports. The report service uses it from one layer up.
  */
 @Injectable({ providedIn: 'root' })

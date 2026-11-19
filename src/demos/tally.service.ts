@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 /**
- * Lesson 47's first service: a plain counter, kept in a
+ * Lesson 49's first service: a plain counter, kept in a
  * service so the demo component can be handed it.
  */
 @Injectable({ providedIn: 'root' })

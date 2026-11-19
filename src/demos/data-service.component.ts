@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { UserService } from './user.service';
 
 /**
- * Lesson 63's live demo: a data service. This component
+ * Lesson 65's live demo: a data service. This component
  * contains no URL and no request. It asks the UserService to
  * load a user and renders the fields the service holds.
  * Previous and Next page through the first three users.

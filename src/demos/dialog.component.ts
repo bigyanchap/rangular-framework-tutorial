@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 40's live demo: the confirmation dialog. Delete
+ * Lesson 42's live demo: the confirmation dialog. Delete
  * asks first; the work happens in the confirming handler,
  * and Cancel only closes. The note can be restored from
  * the screen afterwards.

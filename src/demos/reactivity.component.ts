@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ShelfService } from './shelf.service';
 
 /**
- * Lesson 51's live demo: the reactivity contract. The shelf
+ * Lesson 53's live demo: the reactivity contract. The shelf
  * lives in a service. The quiet add mutates the array and the
  * list does not move; a local change then renders the screen
  * and the book appears, because it was in the data all

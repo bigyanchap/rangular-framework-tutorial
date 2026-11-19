@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 73's live demo: a folder tree. Inbox starts
+ * Lesson 75's live demo: a folder tree. Inbox starts
  * expanded, because it carries the expanded seed; Archive
  * starts closed. Tapping a branch header opens or closes
  * it, and the nodes keep that state themselves: this

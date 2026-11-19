@@ -3,12 +3,12 @@ import { SnackBar } from '@angular/material/snack-bar';
 import { ActivityLogService } from './activity-log.service';
 
 /**
- * Lesson 65's live demo: capstone part 2, the activity log
+ * Lesson 67's live demo: capstone part 2, the activity log
  * whole. A name from an input, minutes from choice buttons
  * (an input hands you text, and the total needs a number),
  * a gated Add, the shared ActivityLogService underneath, a
  * Remove on every entry, the running total, and a toast when
- * an activity is logged. Entries added in lesson 64 are still
+ * an activity is logged. Entries added in lesson 66 are still
  * here, because the service outlives the screen.
  */
 @Component({

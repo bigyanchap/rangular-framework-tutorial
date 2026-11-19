@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 /**
- * Lesson 51's shelf: the same add done two ways. addQuietly
+ * Lesson 53's shelf: the same add done two ways. addQuietly
  * mutates the array in place, so no field is assigned and no
  * screen is told. addProperly assigns a new array, which is
  * the assignment that notifies every reader.

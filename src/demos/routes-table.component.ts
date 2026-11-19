@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 54's live demo: routes and the outlet. The table
+ * Lesson 56's live demo: routes and the outlet. The table
  * below is this app's own route table from app.routes.ts,
  * the real one, and the buttons under it are ordinary links:
  * the same navigation that brought you to this lesson.

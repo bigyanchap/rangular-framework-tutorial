@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FavouritesService } from './favourites.service';
 
 /**
- * Lesson 52's saved list: it reads only the favourites
+ * Lesson 54's saved list: it reads only the favourites
  * service. What the browser saved appears here, because the
  * service is the one source of truth for both.
  */

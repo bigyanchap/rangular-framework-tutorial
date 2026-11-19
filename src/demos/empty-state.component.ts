@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 90's live demo: the empty state in its real
+ * Lesson 92's live demo: the empty state in its real
  * job. The inbox starts empty, so the empty state shows
  * with its one real action, loading the sample messages.
  * The clear button empties the array by assignment and

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 /**
- * Lesson 47's second service: a trail of lines, added by
+ * Lesson 49's second service: a trail of lines, added by
  * assignment so every reader renders again.
  */
 @Injectable({ providedIn: 'root' })

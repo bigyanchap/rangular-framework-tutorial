@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 92's live demo: the marked text editor. The
+ * Lesson 94's live demo: the marked text editor. The
  * seed value carries the three marks: double stars for
  * bold, a single star for italic, and a dash line for a
  * list entry. The button appends one more list line by

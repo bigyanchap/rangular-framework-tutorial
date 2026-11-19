@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 /**
- * Lesson 35's live demo: reactive validators and group
+ * Lesson 37's live demo: reactive validators and group
  * state. The rules live in the class, the panel reads the
  * group state live, and the email control errors print as
  * JSON. Submit marks every control touched first.

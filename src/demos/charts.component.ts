@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 91's live demo: three charts, one array. The
+ * Lesson 93's live demo: three charts, one array. The
  * week of reading minutes is drawn as bars, a line, and
  * a pie, all bound to the same field. Adding minutes
  * rebuilds the array by assignment, the Wednesday entry

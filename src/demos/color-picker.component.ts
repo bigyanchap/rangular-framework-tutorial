@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 94's live demo: the colour picker. The line
+ * Lesson 96's live demo: the colour picker. The line
  * under the picker prints the hex the class holds, so
  * the value channel is visible as it changes. Reset
  * writes the starting blue back through [value].

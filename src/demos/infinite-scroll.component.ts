@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 79's live demo: infinite scroll. The list starts
+ * Lesson 81's live demo: infinite scroll. The list starts
  * with the first page of a reading list. (endReached)
  * appends the next page by assignment, once per approach,
  * until the pages run out and the done flag rests. Reset

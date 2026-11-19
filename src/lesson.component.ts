@@ -35,6 +35,8 @@ import { ErrorDisplayDemoComponent } from './demos/error-display.component';
 import { SubmitDemoComponent } from './demos/submit.component';
 import { FormControlDemoComponent } from './demos/form-control.component';
 import { FormGroupDemoComponent } from './demos/form-group.component';
+import { FormBuilderDemoComponent } from './demos/form-builder.component';
+import { FormArrayDemoComponent } from './demos/form-array.component';
 import { ReactiveStateDemoComponent } from './demos/reactive-state.component';
 import { SetValueDemoComponent } from './demos/set-value.component';
 import { DatePickerDemoComponent } from './demos/date-picker.component';
@@ -143,7 +145,7 @@ export class LessonComponent {
       this.barTitle = 'Lesson ' + this.lessonId;
       this.hasCode = this.lesson.code !== '';
       this.done = this.bookmarks.isDone(this.lessonId);
-      this.progressPct = Math.round((this.lessonId * 100) / 95);
+      this.progressPct = Math.round((this.lessonId * 100) / 97);
       this.sectionName = this.nameFor(this.lessonId);
       this.nextLabel = this.labelFor(this.lessonId);
       this.implBlocks = this.buildImplBlocks(this.lesson.implementation || '');
@@ -170,14 +172,14 @@ export class LessonComponent {
   nameFor(id: number) {
     if (id <= 5) return 'GETTING STARTED';
     if (id <= 25) return 'COMPONENTS AND TEMPLATES';
-    if (id <= 45) return 'FORMS AND INTERACTION';
-    if (id <= 65) return 'SERVICES, ROUTING, AND DATA';
-    if (id <= 76) return 'THE MATERIAL PIECES';
+    if (id <= 47) return 'FORMS AND INTERACTION';
+    if (id <= 67) return 'SERVICES, ROUTING, AND DATA';
+    if (id <= 78) return 'THE MATERIAL PIECES';
     return 'BEYOND ANGULAR';
   }
 
   labelFor(id: number) {
-    if (id >= 95) return this.done ? 'Done · Back home' : 'Mark done · Finish';
+    if (id >= 97) return this.done ? 'Done · Back home' : 'Mark done · Finish';
     return this.done ? 'Done · Next lesson' : 'Mark done · Next lesson';
   }
 
@@ -190,7 +192,7 @@ export class LessonComponent {
   markDoneNext() {
     if (this.lessonId > 0) {
       this.bookmarks.markDone(this.lessonId);
-      if (this.lessonId >= 95) {
+      if (this.lessonId >= 97) {
         this.router.navigate(['/home']);
       } else {
         this.router.navigate(['/lesson', this.lessonId + 1]);

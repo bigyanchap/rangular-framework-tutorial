@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { MinutesService } from './minutes.service';
 
 /**
- * Lesson 53's display: it reads the minutes field from the
+ * Lesson 55's display: it reads the minutes field from the
  * service, and derives the hours text with a method, fresh
  * on every render. The derived text is never stored, so it
  * can never disagree with the minutes: this is the job

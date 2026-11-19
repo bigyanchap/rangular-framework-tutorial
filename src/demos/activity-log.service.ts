@@ -5,8 +5,8 @@ import { Injectable } from '@angular/core';
  * activity log. Entries and a running total, changed only
  * through add and remove, always by assignment, so every
  * screen that reads the log stays live. One service serves
- * both capstone lessons, so entries added in lesson 64 are
- * still here in lesson 65: the service outlives the screen.
+ * both capstone lessons, so entries added in lesson 66 are
+ * still here in lesson 67: the service outlives the screen.
  */
 @Injectable({ providedIn: 'root' })
 export class ActivityLogService {

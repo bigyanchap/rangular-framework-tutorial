@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 /**
- * Lesson 62's live demo: honest request states. The list
+ * Lesson 64's live demo: honest request states. The list
  * loads when the screen opens. Loading shows a spinner and a
  * line; failure shows the error and a Retry that calls the
  * same method again; success shows the users as rows and a

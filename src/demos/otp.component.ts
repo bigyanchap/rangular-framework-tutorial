@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 85's live demo: the OTP input. (change) emits
+ * Lesson 87's live demo: the OTP input. (change) emits
  * the digit string as it grows, so the demo reports
  * progress by its length and calls the code complete
  * only at the full six. Clear writes the empty string

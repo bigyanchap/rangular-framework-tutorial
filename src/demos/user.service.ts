@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 /**
- * Lesson 63's data service: the HTTP lives here, not in a
+ * Lesson 65's data service: the HTTP lives here, not in a
  * component. The service owns the URL, the loading and error
  * state, and the loaded fields; components call load and
  * render what the service holds. The requests are real, to

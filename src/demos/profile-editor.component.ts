@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ProfileService } from './profile.service';
 
 /**
- * Lesson 50's editor: it drafts locally, then saves into the
+ * Lesson 52's editor: it drafts locally, then saves into the
  * shared profile service. Its drafts start from whatever the
  * service currently holds.
  */

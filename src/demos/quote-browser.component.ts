@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FavouritesService } from './favourites.service';
 
 /**
- * Lesson 52's browser: three quotes of its own, each with a
+ * Lesson 54's browser: three quotes of its own, each with a
  * Save button that asks the favourites service to keep it.
  * The browser keeps no list of what was saved.
  */

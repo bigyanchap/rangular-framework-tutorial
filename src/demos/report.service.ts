@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { CounterService } from './counter.service';
 
 /**
- * Lesson 49's outer service: it injects the counter service
+ * Lesson 51's outer service: it injects the counter service
  * the same way a component would, relays bumps to it, and
  * shapes its value into a report line. The relayed field is
  * its own, assigned on every bump, so screens that inject

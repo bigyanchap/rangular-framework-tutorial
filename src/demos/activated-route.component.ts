@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 /**
- * Lesson 57's live demo: ActivatedRoute. This component is
+ * Lesson 59's live demo: ActivatedRoute. This component is
  * not told which lesson it sits in. It reads the route it
  * arrived by: the snapshot once in ngOnInit, and paramMap by
  * subscribing, counting the emissions it receives.

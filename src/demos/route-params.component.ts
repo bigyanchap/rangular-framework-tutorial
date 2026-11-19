@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 56's live demo: route parameters. Each row sends a
+ * Lesson 58's live demo: route parameters. Each row sends a
  * different number into the same lesson/:id entry. The last
  * button reopens this very lesson, the same path with the
  * same parameter, so the rebuild is visible.

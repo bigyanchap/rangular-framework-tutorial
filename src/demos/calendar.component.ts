@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 88's live demo: the calendar month view. The
+ * Lesson 90's live demo: the calendar month view. The
  * selected day rides [value] in and (change) out as an
  * ISO string, and the line below shows the string the
  * class actually holds. The button writes the seed day

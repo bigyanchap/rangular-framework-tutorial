@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 
 /**
- * Lesson 36's live demo: setValue from code. The buttons
+ * Lesson 38's live demo: setValue from code. The buttons
  * fill and clear the form without any typing, and the
  * counter is fed by a valueChanges subscription taken in
  * ngOnInit, so it counts typing and setValue writes alike.

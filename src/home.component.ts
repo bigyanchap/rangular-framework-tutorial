@@ -67,10 +67,10 @@ export class HomeComponent {
     this.shell.setPlace('learn');
     this.starterLessons = this.lessons.lessons.filter((l: Lesson) => l.id <= 5);
     this.batchLessons = this.lessons.lessons.filter((l: Lesson) => l.id >= 6 && l.id <= 25);
-    this.formsLessons = this.lessons.lessons.filter((l: Lesson) => l.id >= 26 && l.id <= 45);
-    this.dataLessons = this.lessons.lessons.filter((l: Lesson) => l.id >= 46 && l.id <= 65);
-    this.piecesLessons = this.lessons.lessons.filter((l: Lesson) => l.id >= 66 && l.id <= 76);
-    this.beyondLessons = this.lessons.lessons.filter((l: Lesson) => l.id >= 77);
+    this.formsLessons = this.lessons.lessons.filter((l: Lesson) => l.id >= 26 && l.id <= 47);
+    this.dataLessons = this.lessons.lessons.filter((l: Lesson) => l.id >= 48 && l.id <= 67);
+    this.piecesLessons = this.lessons.lessons.filter((l: Lesson) => l.id >= 68 && l.id <= 78);
+    this.beyondLessons = this.lessons.lessons.filter((l: Lesson) => l.id >= 79);
     this.refreshProgress();
   }
 
@@ -78,16 +78,16 @@ export class HomeComponent {
     const done = this.lessons.lessons.filter((l: Lesson) => this.bookmarks.isDone(l.id));
     this.doneCount = done.length;
     this.doneMinutes = done.reduce((sum: number, l: Lesson) => sum + parseInt(l.minutes, 10), 0);
-    this.percent = Math.round((this.doneCount * 100) / 95);
-    this.allDone = this.doneCount >= 95;
+    this.percent = Math.round((this.doneCount * 100) / 97);
+    this.allDone = this.doneCount >= 97;
     const next = this.lessons.lessons.find((l: Lesson) => !this.bookmarks.isDone(l.id));
     this.continueLesson = next === undefined ? null : next;
     this.starterMeta = this.doneIn(1, 5);
     this.batchMeta = this.doneIn(6, 25);
-    this.formsMeta = this.doneIn(26, 45);
-    this.dataMeta = this.doneIn(46, 65);
-    this.piecesMeta = this.doneIn(66, 76);
-    this.beyondMeta = this.doneIn(77, 95);
+    this.formsMeta = this.doneIn(26, 47);
+    this.dataMeta = this.doneIn(48, 67);
+    this.piecesMeta = this.doneIn(68, 78);
+    this.beyondMeta = this.doneIn(79, 97);
   }
 
   doneIn(from: number, to: number) {

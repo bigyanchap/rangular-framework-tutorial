@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 76's live demo: sorting and paging, in depth.
+ * Lesson 78's live demo: sorting and paging, in depth.
  * The table above sorts and pages its own copy of the
  * rows. The list below renders the bound array itself, in
  * its own order, and it never changes while you sort:

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { MinutesService } from './minutes.service';
 
 /**
- * Lesson 53's stepper: it only changes the value in the
+ * Lesson 55's stepper: it only changes the value in the
  * service. It displays nothing itself.
  */
 @Component({

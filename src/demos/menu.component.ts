@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 66's live demo: a menu of actions for one message.
+ * Lesson 68's live demo: a menu of actions for one message.
  * The menu is an overlay driven by a boolean: [open] shows
  * it, (close) fires when the backdrop is tapped or an item
  * is chosen. Choosing an item runs its own handler first,

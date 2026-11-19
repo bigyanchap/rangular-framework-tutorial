@@ -2,7 +2,7 @@
 import { useContext, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Text, StyleSheet } from 'react-native';
 import { ActivatedRouteContext, RgAccordion, RgActions, RgAppbar, RgAvatar, RgAvatarGroup, RgBottomNav, RgBreadcrumbs, RgButton, RgCalendar, RgCard, RgCarousel, RgChart, RgCheckbox, RgChip, RgChips, RgCode, RgColorPicker, RgColumn, RgCrumb, RgDateTimePicker, RgDialog, RgDivider, RgDrawer, RgEditor, RgEmptyState, RgFilePicker, RgGridList, RgGridTile, RgIcon, RgIconButton, RgImage, RgInput, RgLightbox, RgList, RgMenu, RgMenuItem, RgNavItem, RgOption, RgOtp, RgOutlet, RgPanel, RgProgressBar, RgRadio, RgRadioGroup, RgRating, RgRow, RgRowAction, RgScreen, RgSection, RgSelect, RgSheet, RgSkeleton, RgSlider, RgSnackbar, RgSpinner, RgStep, RgStepper, RgSwitch, RgSwitcher, RgTab, RgTable, RgTabs, RgText, RgTimeline, RgTimelineItem, RgTree, RgTreeNode } from '@rangular-framework/ui';
-import { ActivatedRoute, Container, FormControl, FormGroup, HttpClient, ReactiveService, RgNavigator, Router, SnackBar, Validators, pipe, validateValue } from '@rangular-framework/runtime';
+import { ActivatedRoute, Container, FormArray, FormBuilder, FormControl, FormGroup, HttpClient, ReactiveService, RgNavigator, Router, SnackBar, Validators, pipe, validateValue } from '@rangular-framework/runtime';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
@@ -298,7 +298,7 @@ export class LessonService extends ReactiveService {
       title: 'Template driven forms with ngModel',
       subtitle: 'Bind each input to a field with [(ngModel)]',
       minutes: '5 min',
-      intro: 'A template driven form is declared in the template. Each input binds to a plain field in the class with [(ngModel)], the banana in a box. Typing writes into the field, and writing the field from code updates the input: the binding runs both ways. There is no form object in the class. The fields are the form. ngModel works on the input block only; the choice controls keep their own contract, and lesson 44 shows them inside a form.',
+      intro: 'A template driven form is declared in the template. Each input binds to a plain field in the class with [(ngModel)], the banana in a box. Typing writes into the field, and writing the field from code updates the input: the binding runs both ways. There is no form object in the class. The fields are the form. ngModel works on the input block only; the choice controls keep their own contract, and lesson 46 shows them inside a form.',
       code: '<input label="Name" [(ngModel)]="name">',
       implementation: '// ngmodel.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-ngmodel-demo\',\n  templateUrl: \'./ngmodel.component.html\',\n})\nexport class NgmodelDemoComponent {\n  name = \'\';\n  city = \'\';\n  greeting = \'\';\n\n  greet() {\n    this.greeting = \'Hello, \' + this.name + \' from \' + this.city + \'.\';\n  }\n}\n\n// ngmodel.component.html\n<input label="Your name" placeholder="e.g. Maya" [(ngModel)]="name">\n<input label="Your city" placeholder="e.g. London" [(ngModel)]="city">\n<p>Name field: {{ name }}</p>\n<p>City field: {{ city }}</p>\n<button (click)="greet()" [disabled]="!name || !city">\n  Say hello\n</button>\n<p *ngIf="greeting">{{ greeting }}</p>',
       tip: 'Name each field for the data it holds, and keep one field per input. When the class needs the value, it reads its own field. It never reaches into the template.',
@@ -385,6 +385,26 @@ export class LessonService extends ReactiveService {
     },
     {
       id: 35,
+      title: 'Reactive forms: FormBuilder',
+      subtitle: 'The same form tree, built from config tuples',
+      minutes: '5 min',
+      intro: "FormBuilder is Angular's shorthand for the same tree. Inject it like HttpClient, constructor(private fb: FormBuilder), and build the group from a config object: a tuple ['', Validators.required] is a control with validators, a plain value like 'Salem' is a control holding it, and fb.control and fb.array build the other nodes, nested as deep as the tree goes. What comes back is a real FormGroup, so [formGroup], formControlName, .get() and submit all behave exactly as lesson 34 taught. The builder is a spelling, not a second forms system. The demo builds the sign up form with tuples and prints the group value live.",
+      code: 'name: [\'\', Validators.required],',
+      implementation: '// form-builder.component.ts\nimport { Component } from \'@angular/core\';\nimport { FormBuilder, Validators } from \'@angular/forms\';\n\n@Component({\n  selector: \'app-form-builder-demo\',\n  templateUrl: \'./form-builder.component.html\',\n})\nexport class FormBuilderDemoComponent {\n  signupForm = this.fb.group({\n    name: [\'\', Validators.required],\n    email: [\'\', [Validators.required, Validators.email]],\n    city: \'Salem\',\n  });\n  summary = \'\';\n\n  constructor(private fb: FormBuilder) {}\n\n  save() {\n    this.summary = JSON.stringify(this.signupForm.value);\n  }\n}\n\n// form-builder.component.html\n<form [formGroup]="signupForm" (submit)="save()">\n  <input label="Name" placeholder="Your name" formControlName="name">\n  <p *ngIf="signupForm.get(\'name\').invalid && signupForm.get(\'name\').touched">Name is required.</p>\n  <input label="Email" placeholder="you@example.com" formControlName="email">\n  <p *ngIf="signupForm.get(\'email\').invalid && signupForm.get(\'email\').touched">Enter a valid email address.</p>\n  <input label="City" placeholder="Your city" formControlName="city">\n  <p>Group value: {{ signupForm.value | json }}</p>\n  <button type="submit" [disabled]="signupForm.invalid">\n    Create account\n  </button>\n</form>\n<p *ngIf="summary">Saved: {{ summary }}</p>',
+      tip: 'Reach for the builder when a form is wide and the class spelling turns into a wall of new FormControl lines. Stay with the classes when a control needs a comment of its own: a tuple has no room to explain itself.',
+    },
+    {
+      id: 36,
+      title: 'Reactive forms: FormArray',
+      subtitle: 'A dynamic list of controls, one input per row',
+      minutes: '6 min',
+      intro: "Some forms hold a list the user can grow: members, phone numbers, aliases. A FormArray is an ordered list of controls that lives inside a group as one of its children, so the group value carries the list as an array and the group is valid when every row is valid. The container in the template carries formArrayName, naming the array control. Rows repeat with *ngFor over teamForm.get('members').controls, and a row input binds [formControlName]=\"i\": the binding form is allowed only here, because a row is found by its index, not by a name. Buttons push a new FormControl into the array and removeAt takes one out, and the form re-renders because the array reports both edits and structure changes. The demo is a team form: add members, remove them, and watch the group value.",
+      code: '<input label="Member" [formControlName]="i">',
+      implementation: '// form-array.component.ts\nimport { Component } from \'@angular/core\';\nimport { FormArray, FormControl, FormGroup, Validators } from \'@angular/forms\';\n\n@Component({\n  selector: \'app-form-array-demo\',\n  templateUrl: \'./form-array.component.html\',\n})\nexport class FormArrayDemoComponent {\n  teamForm = new FormGroup({\n    team: new FormControl(\'\', Validators.required),\n    members: new FormArray([\n      new FormControl(\'\', Validators.required),\n      new FormControl(\'Ana\'),\n    ]),\n  });\n  summary = \'\';\n\n  addMember() {\n    (this.teamForm.get(\'members\') as FormArray).push(new FormControl(\'\', Validators.required));\n  }\n\n  removeMember(i: number) {\n    (this.teamForm.get(\'members\') as FormArray).removeAt(i);\n  }\n\n  save() {\n    this.summary = JSON.stringify(this.teamForm.value);\n  }\n}\n\n// form-array.component.html\n<form [formGroup]="teamForm" (submit)="save()">\n  <input label="Team name" placeholder="Red Tigers" formControlName="team">\n  <p *ngIf="teamForm.get(\'team\').invalid && teamForm.get(\'team\').touched">Team name is required.</p>\n  <div formArrayName="members">\n    <div *ngFor="let m of teamForm.get(\'members\').controls; let i = index">\n      <input label="Member" placeholder="Member name" [formControlName]="i">\n      <p *ngIf="teamForm.get(\'members\').at(i).invalid && teamForm.get(\'members\').at(i).touched">Member name is required.</p>\n      <button (click)="removeMember(i)">\n        Remove\n      </button>\n    </div>\n  </div>\n  <button (click)="addMember()">\n    Add member\n  </button>\n  <p>Group value: {{ teamForm.value | json }}</p>\n  <button type="submit" [disabled]="teamForm.invalid">\n    Save team\n  </button>\n</form>\n<p *ngIf="summary">Saved: {{ summary }}</p>',
+      tip: 'Reach the array with .get() at each use site and cast it there, (this.teamForm.get(\'members\') as FormArray). Class getters are not part of the subset, so a get members() shortcut would never be generated. One array, read plainly, beats a hidden one.',
+    },
+    {
+      id: 37,
       title: 'Reactive validators and group state',
       subtitle: 'Validators in code, and a group valid when all controls are',
       minutes: '5 min',
@@ -394,17 +414,17 @@ export class LessonService extends ReactiveService {
       tip: 'Read state from the group in the template, and values from the group in the handler. If a rule depends on two fields at once, that is a group level rule, and it is not built yet: check it in the save handler and say so in a comment.',
     },
     {
-      id: 36,
+      id: 38,
       title: 'Setting values from code',
       subtitle: 'setValue fills a control, and valueChanges reports it',
       minutes: '5 min',
-      intro: "Code writes into a reactive form with setValue: profileForm.get('name').setValue('Maya'). The write marks the control dirty, runs the validators again, and notifies valueChanges, an observable you can subscribe to in ngOnInit. That is how edit screens prefill a form from loaded data. Two honest limits: there is no reset and no patchValue in this version, so clearing a form means setValue on each control, and setValue does not clear touched. The demo fills and clears the form from buttons, and counts the name changes valueChanges reports.",
+      intro: "Code writes into a reactive form with setValue: profileForm.get('name').setValue('Maya'). The write marks the control dirty, runs the validators again, and notifies valueChanges, an observable you can subscribe to in ngOnInit. That is how edit screens prefill a form from loaded data. One honest limit: there is no reset in this version, so clearing a form means setValue on each control, and setValue does not clear touched. A group or array also takes setValue for a complete shape and patchValue for a partial one, the way the next lessons' trees need. The demo fills and clears the form from buttons, and counts the name changes valueChanges reports.",
       code: "this.profileForm.get('name').setValue('Maya')",
       implementation: '// set-value.component.ts\nimport { Component } from \'@angular/core\';\nimport { FormControl, FormGroup } from \'@angular/forms\';\n\n@Component({\n  selector: \'app-set-value-demo\',\n  templateUrl: \'./set-value.component.html\',\n})\nexport class SetValueDemoComponent {\n  profileForm = new FormGroup({\n    name: new FormControl(\'\'),\n    city: new FormControl(\'\'),\n  });\n  changes = 0;\n\n  ngOnInit() {\n    this.profileForm.get(\'name\').valueChanges.subscribe((v) => {\n      this.changes = this.changes + 1;\n    });\n  }\n\n  fillSample() {\n    this.profileForm.get(\'name\').setValue(\'Maya\');\n    this.profileForm.get(\'city\').setValue(\'London\');\n  }\n\n  clearAll() {\n    this.profileForm.get(\'name\').setValue(\'\');\n    this.profileForm.get(\'city\').setValue(\'\');\n  }\n}\n\n// set-value.component.html\n<form [formGroup]="profileForm">\n  <input label="Name" placeholder="Your name" formControlName="name">\n  <input label="City" placeholder="Your city" formControlName="city">\n  <p>Name dirty: {{ profileForm.get(\'name\').dirty ? \'yes\' : \'no\' }}</p>\n  <p>Name changes reported by valueChanges: {{ changes }}</p>\n  <button (click)="fillSample()">\n    Fill a sample\n  </button>\n  <button (click)="clearAll()">\n    Clear\n  </button>\n</form>',
       tip: 'Prefill with setValue when data loads, never by reaching into the template. And treat valueChanges as a tap on the shoulder, not a data channel: read the control value when it fires, and do not stash copies elsewhere.',
     },
     {
-      id: 37,
+      id: 39,
       title: 'Date pickers',
       subtitle: 'mode date: month, day, and year wheels',
       minutes: '4 min',
@@ -414,7 +434,7 @@ export class LessonService extends ReactiveService {
       tip: 'Store the picker value as the ISO string it emits. It sorts correctly as text, prints without formatting work, and feeds straight back into [value] when the screen returns.',
     },
     {
-      id: 38,
+      id: 40,
       title: 'Time and datetime pickers',
       subtitle: 'mode time, and the combined datetime mode',
       minutes: '4 min',
@@ -424,7 +444,7 @@ export class LessonService extends ReactiveService {
       tip: 'Use minuteInterval="5" unless the exact minute matters. A wheel of sixty minutes is slow to spin; a wheel of twelve steps respects the learner time, and schedules rarely need more.',
     },
     {
-      id: 39,
+      id: 41,
       title: 'Bottom sheets',
       subtitle: 'Options in a panel that slides up',
       minutes: '4 min',
@@ -434,7 +454,7 @@ export class LessonService extends ReactiveService {
       tip: 'Sheets are for choices tied to this screen: sort order, repeat rules, a short list of actions. If the content needs its own back button or a long form, it deserves its own screen, not a taller sheet.',
     },
     {
-      id: 40,
+      id: 42,
       title: 'Dialogs',
       subtitle: 'A centred question with an actions row',
       minutes: '4 min',
@@ -444,7 +464,7 @@ export class LessonService extends ReactiveService {
       tip: 'Reserve dialogs for decisions that are hard to undo, and write the buttons as the answer to the title question: Delete and Cancel under "Delete this note?", never OK and Cancel under a warning.',
     },
     {
-      id: 41,
+      id: 43,
       title: 'SnackBar messages with actions',
       subtitle: 'A toast with one action: the Undo pattern',
       minutes: '5 min',
@@ -454,7 +474,7 @@ export class LessonService extends ReactiveService {
       tip: 'Use the action for the one recovery the message implies: Undo after a delete, Retry after a failed save. A bar with no recovery to offer needs no action label; the message alone is enough.',
     },
     {
-      id: 42,
+      id: 44,
       title: 'Autocomplete inputs',
       subtitle: 'Suggestions on an ordinary input: [options]',
       minutes: '4 min',
@@ -464,7 +484,7 @@ export class LessonService extends ReactiveService {
       tip: 'Suggest from a short, known list: folders, cities, recent values. Autocomplete helps memory, not discovery; if the learner cannot guess the first letters, a select or a list is the kinder control.',
     },
     {
-      id: 43,
+      id: 45,
       title: 'Sliders',
       subtitle: 'Pick a number on a rail: min, max, step',
       minutes: '4 min',
@@ -474,7 +494,7 @@ export class LessonService extends ReactiveService {
       tip: 'Pick the step for the decision, not for precision theatre: 5 for brightness, 15 for minutes. If the exact number matters, give an input beside the slider and let each update the other through the same field.',
     },
     {
-      id: 44,
+      id: 46,
       title: 'Choice controls in a form',
       subtitle: 'Switch, checkbox, and radio values, gathered by one submit',
       minutes: '5 min',
@@ -484,17 +504,17 @@ export class LessonService extends ReactiveService {
       tip: 'Keep one field per control and one handler per control that only stores the value. The submit handler then reads like a list of the form contents, and a missing value is a missing field, easy to spot.',
     },
     {
-      id: 45,
+      id: 47,
       title: 'A complete form: sign up',
       subtitle: 'Fields, rules, state, submit, and a toast, together',
       minutes: '6 min',
-      intro: 'This capstone builds the sign up form the whole batch has been walking toward. Template driven fields carry validators and refs. Error lines wait for touched. A terms checkbox rides the change contract, not ngModel. The submit button stays disabled until every ref is valid and the terms are accepted, and saving answers with a SnackBar, the way lesson 41 taught. Nothing here is new: that is the point. A real form is these small pieces, each doing one job.',
+      intro: 'This capstone builds the sign up form the whole batch has been walking toward. Template driven fields carry validators and refs. Error lines wait for touched. A terms checkbox rides the change contract, not ngModel. The submit button stays disabled until every ref is valid and the terms are accepted, and saving answers with a SnackBar, the way lesson 43 taught. Nothing here is new: that is the point. A real form is these small pieces, each doing one job.',
       code: '<button type="submit" [disabled]="nameField.invalid || !terms">Create account</button>',
       implementation: '// signup.component.ts\nimport { Component } from \'@angular/core\';\nimport { SnackBar } from \'@angular/material/snack-bar\';\n\n@Component({\n  selector: \'app-signup-demo\',\n  templateUrl: \'./signup.component.html\',\n})\nexport class SignupDemoComponent {\n  name = \'\';\n  email = \'\';\n  password = \'\';\n  terms = false;\n  submitted = false;\n\n  constructor(private snack: SnackBar) {}\n\n  onTerms(value: boolean) {\n    this.terms = value;\n  }\n\n  save() {\n    this.submitted = true;\n    this.snack.open(\'Account created\');\n  }\n}\n\n// signup.component.html\n<form (submit)="save()">\n  <input\n    label="Full name"\n    placeholder="e.g. Maya Sharma"\n    [(ngModel)]="name"\n    #nameField="ngModel"\n    required\n    minlength="3"\n  >\n  <p *ngIf="nameField.invalid && nameField.touched">Name is required and needs at least 3 characters.</p>\n  <input\n    label="Email"\n    type="email"\n    placeholder="you@example.com"\n    [(ngModel)]="email"\n    #emailField="ngModel"\n    required\n    email\n  >\n  <p *ngIf="emailField.invalid && emailField.touched">Enter a valid email address.</p>\n  <input\n    label="Password"\n    type="password"\n    placeholder="At least 6 characters"\n    [(ngModel)]="password"\n    #passwordField="ngModel"\n    required\n    minlength="6"\n  >\n  <p *ngIf="passwordField.invalid && passwordField.touched">Password is required and needs at least 6 characters.</p>\n  <checkbox [checked]="terms" (change)="onTerms($event)">\n    I accept the terms\n  </checkbox>\n  <button\n    type="submit"\n    [disabled]="nameField.invalid || emailField.invalid || passwordField.invalid || !terms"\n  >\n    Create account\n  </button>\n</form>\n<p *ngIf="submitted">Welcome aboard, {{ name }}. Your account was created.</p>',
       tip: 'Build every form in this order: fields, rules, error lines gated on touched, a gated submit, and feedback after the save. When a form feels broken, it is almost always one of the five done out of order.',
     },
     {
-      id: 46,
+      id: 48,
       title: 'Services: shared work in one place',
       subtitle: 'One class holds the data and the logic, every screen shares it',
       minutes: '4 min',
@@ -504,17 +524,17 @@ export class LessonService extends ReactiveService {
       tip: 'Put data in a service when more than one screen needs it, or when the work is not about one screen: fetching, storing, computing. Keep screen only state, like whether a sheet is open, in the component.',
     },
     {
-      id: 47,
+      id: 49,
       title: 'Constructor injection',
       subtitle: 'Declare what you need; the framework hands it over',
       minutes: '4 min',
       intro: 'A component never builds its own services. Writing new QuoteService() inside a component would give that component a private copy, cut off from everyone else. Instead the component declares its needs as constructor parameters with private in front: constructor(private tally: TallyService). Rangular reads those declarations, finds or builds each service, and hands it in when the component is created. That is the whole mechanism. Two honest details: the parameter must be a parameter property, private or public in front of the name, and the constructor body itself is not translated, so constructors stay empty: wiring only, no work. The demo injects two services at once, and one tap uses both: the tally counts, the trail records.',
       code: 'constructor(private tally: TallyService, private trail: TrailService) {}',
       implementation: '// injection.component.ts\nimport { Component } from \'@angular/core\';\nimport { TallyService } from \'./tally.service\';\nimport { TrailService } from \'./trail.service\';\n\n@Component({\n  selector: \'app-injection-demo\',\n  templateUrl: \'./injection.component.html\',\n})\nexport class InjectionDemoComponent {\n  constructor(\n    private tally: TallyService,\n    private trail: TrailService,\n  ) {}\n\n  tallyAndRecord() {\n    this.tally.add();\n    this.trail.record(\'The tally reached \' + this.tally.count);\n  }\n}\n\n// tally.service.ts\nimport { Injectable } from \'@angular/core\';\n\n@Injectable({ providedIn: \'root\' })\nexport class TallyService {\n  count = 0;\n\n  add() {\n    this.count = this.count + 1;\n  }\n}\n\n// trail.service.ts\nimport { Injectable } from \'@angular/core\';\n\n@Injectable({ providedIn: \'root\' })\nexport class TrailService {\n  lines: string[] = [];\n\n  record(line: string) {\n    this.lines = [...this.lines, line];\n  }\n}\n\n// injection.component.html\n<p>The tally stands at {{ tally.count }}.</p>\n<button (click)="tallyAndRecord()">\n  Add one and record it\n</button>\n<p *ngIf="trail.lines.length === 0">The trail is empty. One tap writes into both services.</p>\n<p *ngFor="let line of trail.lines">{{ line }}</p>',
-      tip: 'If a constructor grows past three or four services, the component is probably doing too much. Split the screen, or move the shared work into one service that uses the others, which is lesson 49.',
+      tip: 'If a constructor grows past three or four services, the component is probably doing too much. Split the screen, or move the shared work into one service that uses the others, which is lesson 51.',
     },
     {
-      id: 48,
+      id: 50,
       title: 'providedIn root: one instance for the whole app',
       subtitle: 'The singleton: every injector gets the same service',
       minutes: '5 min',
@@ -524,7 +544,7 @@ export class LessonService extends ReactiveService {
       tip: 'Root services live as long as the app runs. That is their power and their risk: state put there survives every navigation, so clear it deliberately when its job is done, the way a log out clears the current user.',
     },
     {
-      id: 49,
+      id: 51,
       title: 'The container: how instances are made',
       subtitle: 'Dependency order, and services that use services',
       minutes: '5 min',
@@ -534,7 +554,7 @@ export class LessonService extends ReactiveService {
       tip: 'Layer services by job: one talks to the network or storage, one holds state, one shapes what screens show. A screen should inject the layer it talks to, not reach through it to the layers below.',
     },
     {
-      id: 50,
+      id: 52,
       title: 'Sharing state between components',
       subtitle: 'Siblings talk through a service, not through each other',
       minutes: '5 min',
@@ -544,7 +564,7 @@ export class LessonService extends ReactiveService {
       tip: 'Share through a service when the readers and writers are not parent and child. Keep parent to child data on inputs: it is visible in the template, and visible wiring beats invisible wiring when both can do the job.',
     },
     {
-      id: 51,
+      id: 53,
       title: 'Updating service state: assign, do not mutate',
       subtitle: 'The reactivity contract: a new value tells the screens',
       minutes: '5 min',
@@ -554,7 +574,7 @@ export class LessonService extends ReactiveService {
       tip: 'In services, change collections by assignment: a spread to add, filter to remove, map to update. The rule you learned for component lists in lesson 6 matters twice here, because a missed assignment in a service leaves every screen stale at once.',
     },
     {
-      id: 52,
+      id: 54,
       title: 'A service as the store',
       subtitle: 'One source of truth that screens only read and request',
       minutes: '5 min',
@@ -564,7 +584,7 @@ export class LessonService extends ReactiveService {
       tip: 'Let service methods be the only doors into shared state. A component that reaches in and edits a service field directly has made a second, invisible door, and the next reader pays for it.',
     },
     {
-      id: 53,
+      id: 55,
       title: 'Signals: the Angular idea, the Rangular way',
       subtitle: 'Reactive values here are fields; derived values are read, not stored',
       minutes: '5 min',
@@ -574,7 +594,7 @@ export class LessonService extends ReactiveService {
       tip: 'Never store a value you can derive. Two copies of one fact will disagree one day; a method that computes from the single source cannot. When Rangular gains real signals, this pattern maps straight onto computed().',
     },
     {
-      id: 54,
+      id: 56,
       title: 'Routes and the outlet',
       subtitle: 'One table of paths, one outlet in the shell',
       minutes: '4 min',
@@ -584,27 +604,27 @@ export class LessonService extends ReactiveService {
       tip: 'Keep the route table small, flat, and in one file. A reader should be able to draw the whole app from app.routes.ts alone: every screen, one line each.',
     },
     {
-      id: 55,
+      id: 57,
       title: 'routerLink: links that navigate',
       subtitle: 'A string for fixed paths, an array when a value travels',
       minutes: '4 min',
       intro: 'routerLink turns a tappable block, a button, a row, a fab, into a navigation. The string form names a fixed path: routerLink="/about". The array form builds a path from pieces: [routerLink] joins its commands with slashes and turns numbers into text, which is how a list sends each row to its own parameter. Both forms end in the same place: a press that writes the new path into the navigator. The demo rows are array links to real lessons, and its button is a string link to About. Tapping one leaves this lesson. That is not a flaw in the demo; that is the demo.',
       code: "[routerLink]=\"['/lesson', 46]\"",
-      implementation: '// router-link.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-router-link-demo\',\n  templateUrl: \'./router-link.component.html\',\n})\nexport class RouterLinkDemoComponent {}\n\n// router-link.component.html\n<list>\n  <row\n    title="Lesson 1: Introduction"\n    subtitle="Array link: [\'/lesson\', 1]"\n    [routerLink]="[\'/lesson\', 1]"\n  ></row>\n  <row\n    title="Lesson 26: Template driven forms with ngModel"\n    subtitle="Array link: [\'/lesson\', 26]"\n    [routerLink]="[\'/lesson\', 26]"\n  ></row>\n  <row\n    title="Lesson 46: Services"\n    subtitle="Array link: [\'/lesson\', 46]"\n    [routerLink]="[\'/lesson\', 46]"\n  ></row>\n</list>\n<button routerLink="/about">\n  About, with a plain string link\n</button>',
+      implementation: '// router-link.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-router-link-demo\',\n  templateUrl: \'./router-link.component.html\',\n})\nexport class RouterLinkDemoComponent {}\n\n// router-link.component.html\n<list>\n  <row\n    title="Lesson 1: Introduction"\n    subtitle="Array link: [\'/lesson\', 1]"\n    [routerLink]="[\'/lesson\', 1]"\n  ></row>\n  <row\n    title="Lesson 26: Template driven forms with ngModel"\n    subtitle="Array link: [\'/lesson\', 26]"\n    [routerLink]="[\'/lesson\', 26]"\n  ></row>\n  <row\n    title="Lesson 48: Services"\n    subtitle="Array link: [\'/lesson\', 46]"\n    [routerLink]="[\'/lesson\', 46]"\n  ></row>\n</list>\n<button routerLink="/about">\n  About, with a plain string link\n</button>',
       tip: 'Use the string form when the path never changes and the array form when any piece comes from data. Never build a link by gluing strings together in the template: the array is the gluing, done safely.',
     },
     {
-      id: 56,
+      id: 58,
       title: 'Route parameters',
       subtitle: 'The :id segment: one path, many screens',
       minutes: '4 min',
       intro: 'A segment that starts with a colon is a parameter: lesson/:id matches lesson/1, lesson/26, and lesson/65 with a single table entry. The matched text is captured as a string, always a string, and handed to the component, which is the next lesson\'s subject. One entry, one component, endlessly many addresses: that is what lets a list of sixty five lessons need exactly one route. The demo rows carry different parameters to real lessons, and its last button reopens this very lesson, the same path with the same parameter, so you can watch the screen rebuild around the number 56.',
       code: "{ path: 'lesson/:id', component: LessonComponent }",
-      implementation: '// route-params.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-route-params-demo\',\n  templateUrl: \'./route-params.component.html\',\n})\nexport class RouteParamsDemoComponent {}\n\n// route-params.component.html\n<list>\n  <row\n    title="Lesson 6: ngFor and lists"\n    subtitle="The 6 travels as the id parameter"\n    [routerLink]="[\'/lesson\', 6]"\n  ></row>\n  <row\n    title="Lesson 27: The input block"\n    subtitle="The 27 travels as the id parameter"\n    [routerLink]="[\'/lesson\', 27]"\n  ></row>\n  <row\n    title="Lesson 45: A complete form: sign up"\n    subtitle="The 45 travels as the id parameter"\n    [routerLink]="[\'/lesson\', 45]"\n  ></row>\n</list>\n<button [routerLink]="[\'/lesson\', 56]">\n  Reopen this very lesson (parameter 56)\n</button>',
+      implementation: '// route-params.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-route-params-demo\',\n  templateUrl: \'./route-params.component.html\',\n})\nexport class RouteParamsDemoComponent {}\n\n// route-params.component.html\n<list>\n  <row\n    title="Lesson 6: ngFor and lists"\n    subtitle="The 6 travels as the id parameter"\n    [routerLink]="[\'/lesson\', 6]"\n  ></row>\n  <row\n    title="Lesson 27: The input block"\n    subtitle="The 27 travels as the id parameter"\n    [routerLink]="[\'/lesson\', 27]"\n  ></row>\n  <row\n    title="Lesson 47: A complete form: sign up"\n    subtitle="The 45 travels as the id parameter"\n    [routerLink]="[\'/lesson\', 45]"\n  ></row>\n</list>\n<button [routerLink]="[\'/lesson\', 56]">\n  Reopen this very lesson (parameter 56)\n</button>',
       tip: 'Name parameters for what they are: :id, :slug, :date. And remember they arrive as strings: turn an id into a number in the class, the way this app\'s lesson service does with Number(id), before you compare or compute with it.',
     },
     {
-      id: 57,
+      id: 59,
       title: 'ActivatedRoute: reading the parameter in code',
       subtitle: 'Snapshot for the value now, paramMap for the stream',
       minutes: '5 min',
@@ -614,7 +634,7 @@ export class LessonService extends ReactiveService {
       tip: 'Read the snapshot when the screen is built once per address, which is most screens. Reach for paramMap only when one long lived screen must react to parameter changes without rebuilding, and unsubscribe in ngOnDestroy what you subscribed in ngOnInit.',
     },
     {
-      id: 58,
+      id: 60,
       title: 'Programmatic navigation: the Router service',
       subtitle: 'Navigate from code, when a tap is not a link',
       minutes: '4 min',
@@ -624,7 +644,7 @@ export class LessonService extends ReactiveService {
       tip: 'Navigate from code at the end of an action, not instead of a link. If a plain tap on a block goes somewhere fixed, that is a routerLink; the Router service earns its place when logic chooses the moment or the destination.',
     },
     {
-      id: 59,
+      id: 61,
       title: 'Redirects and the wildcard route',
       subtitle: 'The empty path sends you on; ** catches the rest',
       minutes: '4 min',
@@ -634,7 +654,7 @@ export class LessonService extends ReactiveService {
       tip: 'Every routed app needs both edges covered from its first day: a redirect for the empty path, and a wildcard with a friendly screen and a working way back. An app that skips them ships its first bug before its first feature.',
     },
     {
-      id: 60,
+      id: 62,
       title: 'What routing does not do yet',
       subtitle: 'No guards, resolvers, or lazy routes; the check before you navigate',
       minutes: '5 min',
@@ -644,17 +664,17 @@ export class LessonService extends ReactiveService {
       tip: 'Put the check where the action starts, and make the refusal kind and clear: a message that says what is missing, not a dead button. When guards arrive in the framework, these checks move into the route table almost word for word.',
     },
     {
-      id: 61,
+      id: 63,
       title: 'HttpClient: asking the network',
       subtitle: 'A real GET over fetch, answered as JSON',
       minutes: '5 min',
-      intro: "HttpClient is a built in service, injected like any other, that performs real requests with fetch and hands back parsed JSON. get(url) returns a small observable: subscribe with a block bodied arrow that assigns your fields, and add a second arrow for the error, because networks fail. There are no operators, no pipe, no retry: the subscribe is the whole tool, and lesson 62 builds the states around it. The demo makes a real call to JSONPlaceholder, a public test API kept for exactly this purpose, and shows the user it returns: sample data, fetched by a genuine request. Two honest notes: the call needs the phone online, and in this app's browser preview HttpClient is a stub that never answers, so the demo waits at Loading there. On the phone, nothing is faked.",
+      intro: "HttpClient is a built in service, injected like any other, that performs real requests with fetch and hands back parsed JSON. get(url) returns a small observable: subscribe with a block bodied arrow that assigns your fields, and add a second arrow for the error, because networks fail. There are no operators, no pipe, no retry: the subscribe is the whole tool, and lesson 64 builds the states around it. The demo makes a real call to JSONPlaceholder, a public test API kept for exactly this purpose, and shows the user it returns: sample data, fetched by a genuine request. Two honest notes: the call needs the phone online, and in this app's browser preview HttpClient is a stub that never answers, so the demo waits at Loading there. On the phone, nothing is faked.",
       code: 'this.http.get(url).subscribe((data) => { this.name = data.name; });',
       implementation: '// http-basics.component.ts\nimport { Component } from \'@angular/core\';\nimport { HttpClient } from \'@angular/common/http\';\n\n@Component({\n  selector: \'app-http-basics-demo\',\n  templateUrl: \'./http-basics.component.html\',\n})\nexport class HttpBasicsDemoComponent {\n  name = \'\';\n  email = \'\';\n  city = \'\';\n  loading = false;\n  failed = \'\';\n\n  constructor(private http: HttpClient) {}\n\n  load() {\n    this.loading = true;\n    this.failed = \'\';\n    this.http.get(\'https://jsonplaceholder.typicode.com/users/1\').subscribe(\n      (data) => {\n        this.name = data.name;\n        this.email = data.email;\n        this.city = data.address.city;\n        this.loading = false;\n      },\n      (err) => {\n        this.failed = \'The request failed. Check the connection and try again.\';\n        this.loading = false;\n      },\n    );\n  }\n}\n\n// http-basics.component.html\n<button (click)="load()" [disabled]="loading">\n  Load one user\n</button>\n<spinner *ngIf="loading"></spinner>\n<p *ngIf="loading">Loading...</p>\n<p *ngIf="failed">{{ failed }}</p>\n<section *ngIf="name">\n  <p>Name: {{ name }}</p>\n  <p>Email: {{ email }}</p>\n  <p>City: {{ city }}</p>\n</section>\n<p *ngIf="!name && !loading && !failed">Nothing loaded yet. Tap the button and the request travels.</p>',
       tip: 'Keep the URL in one place, a constant or a service, never scattered through components. And always write the error arrow: a request without an error path is a screen that hangs silently one day.',
     },
     {
-      id: 62,
+      id: 64,
       title: 'Loading, error, and data: honest request states',
       subtitle: 'Every request shows where it stands',
       minutes: '5 min',
@@ -664,17 +684,17 @@ export class LessonService extends ReactiveService {
       tip: 'Design the three states together, every time: what shows while waiting, what shows on failure and how to retry, and what shows with the data. A screen designed only for success is a screen designed for the best day, not the real one.',
     },
     {
-      id: 63,
+      id: 65,
       title: 'Data services: HTTP behind a service',
       subtitle: 'Components render; the service fetches and holds',
       minutes: '5 min',
-      intro: 'Two lessons of raw HttpClient in components is enough to see the smell: URLs in screens, loading flags copied per component, the same error line written five times. The Angular pattern moves the request into a service. The service owns the URL, the loading and error state, and the loaded fields; the component injects it, calls load, and renders the fields the service holds in its template, the same reading you have done since lesson 46. The demo below pages through three sample users with Previous and Next: every tap asks the UserService for another id, and the screen only reads. If the API changes tomorrow, one file changes.',
+      intro: 'Two lessons of raw HttpClient in components is enough to see the smell: URLs in screens, loading flags copied per component, the same error line written five times. The Angular pattern moves the request into a service. The service owns the URL, the loading and error state, and the loaded fields; the component injects it, calls load, and renders the fields the service holds in its template, the same reading you have done since lesson 48. The demo below pages through three sample users with Previous and Next: every tap asks the UserService for another id, and the screen only reads. If the API changes tomorrow, one file changes.',
       code: 'load(id: number) { this.http.get(url + id).subscribe((data) => { this.name = data.name; }); }',
       implementation: '// data-service.component.ts\nimport { Component } from \'@angular/core\';\nimport { UserService } from \'./user.service\';\n\n@Component({\n  selector: \'app-data-service-demo\',\n  templateUrl: \'./data-service.component.html\',\n})\nexport class DataServiceDemoComponent {\n  constructor(private user: UserService) {}\n\n  ngOnInit() {\n    this.user.load(1);\n  }\n\n  prev() {\n    this.user.load(this.user.which - 1);\n  }\n\n  next() {\n    this.user.load(this.user.which + 1);\n  }\n}\n\n// user.service.ts\nimport { Injectable } from \'@angular/core\';\nimport { HttpClient } from \'@angular/common/http\';\n\n@Injectable({ providedIn: \'root\' })\nexport class UserService {\n  which = 1;\n  name = \'\';\n  email = \'\';\n  city = \'\';\n  loading = false;\n  failed = \'\';\n\n  constructor(private http: HttpClient) {}\n\n  load(id: number) {\n    this.which = id;\n    this.loading = true;\n    this.failed = \'\';\n    this.http.get(\'https://jsonplaceholder.typicode.com/users/\' + id).subscribe(\n      (data) => {\n        this.name = data.name;\n        this.email = data.email;\n        this.city = data.address.city;\n        this.loading = false;\n      },\n      (err) => {\n        this.failed = \'The request failed. Check the connection and try again.\';\n        this.loading = false;\n      },\n    );\n  }\n}\n\n// data-service.component.html\n<spinner *ngIf="user.loading"></spinner>\n<p *ngIf="user.loading">Loading user {{ user.which }}...</p>\n<p *ngIf="user.failed">{{ user.failed }}</p>\n<section *ngIf="user.name">\n  <p>Name: {{ user.name }}</p>\n  <p>Email: {{ user.email }}</p>\n  <p>City: {{ user.city }}</p>\n</section>\n<button (click)="prev()" [disabled]="user.which <= 1 || user.loading">\n  Previous user\n</button>\n<button (click)="next()" [disabled]="user.which >= 3 || user.loading">\n  Next user\n</button>\n<p>User {{ user.which }} of 3, fetched and held by the UserService. This component only reads.</p>',
       tip: 'Keep one data service per kind of data: users, lessons, orders. Components should be able to say what they show without knowing where it came from; the day the API moves, you will be glad they cannot.',
     },
     {
-      id: 64,
+      id: 66,
       title: 'Capstone, part 1: the activity log service',
       subtitle: 'Build a small real app: first the data layer',
       minutes: '5 min',
@@ -684,17 +704,17 @@ export class LessonService extends ReactiveService {
       tip: 'Build the data layer first and make it boring: fields, add, remove, a total that is always right. Screens are easy to change; a service every screen trusts is the app.',
     },
     {
-      id: 65,
+      id: 67,
       title: 'Capstone, part 2: the activity log, whole',
       subtitle: 'Form, list, totals, and a toast: the batch in one screen',
       minutes: '6 min',
-      intro: 'Part 2 finishes the activity log on the same service. A name from an input; the minutes from choice buttons, because an input hands you text and the total needs a real number; an Add button that stays disabled until both are set; the entries with a Remove on each; the running total; an empty state that invites the first entry; and a toast when an activity is logged. One honest detail proves the whole batch: if you added entries in lesson 64, they are still here. The service outlives the screen, because it was never the screen\'s to keep. Nothing in this demo is new, and that is the point of a capstone: the app is the lessons, assembled.',
+      intro: 'Part 2 finishes the activity log on the same service. A name from an input; the minutes from choice buttons, because an input hands you text and the total needs a real number; an Add button that stays disabled until both are set; the entries with a Remove on each; the running total; an empty state that invites the first entry; and a toast when an activity is logged. One honest detail proves the whole batch: if you added entries in lesson 66, they are still here. The service outlives the screen, because it was never the screen\'s to keep. Nothing in this demo is new, and that is the point of a capstone: the app is the lessons, assembled.',
       code: 'this.log.add(this.name, this.minutes);',
       implementation: '// capstone.component.ts\nimport { Component } from \'@angular/core\';\nimport { SnackBar } from \'@angular/material/snack-bar\';\nimport { ActivityLogService } from \'./activity-log.service\';\n\n@Component({\n  selector: \'app-capstone-demo\',\n  templateUrl: \'./capstone.component.html\',\n})\nexport class CapstoneDemoComponent {\n  name = \'\';\n  minutes = 0;\n\n  constructor(\n    private log: ActivityLogService,\n    private snack: SnackBar,\n  ) {}\n\n  pickMinutes(value: number) {\n    this.minutes = value;\n  }\n\n  add() {\n    this.log.add(this.name, this.minutes);\n    this.snack.open(\'Activity logged\');\n    this.name = \'\';\n    this.minutes = 0;\n  }\n\n  remove(entry: any) {\n    this.log.remove(entry);\n  }\n}\n\n// activity-log.service.ts\nimport { Injectable } from \'@angular/core\';\n\n@Injectable({ providedIn: \'root\' })\nexport class ActivityLogService {\n  entries: any[] = [];\n  total = 0;\n\n  add(name: string, minutes: number) {\n    this.entries = [...this.entries, { name: name, minutes: minutes }];\n    this.total = this.total + minutes;\n  }\n\n  remove(entry: any) {\n    this.entries = this.entries.filter((x) => x !== entry);\n    this.total = this.total - entry.minutes;\n  }\n}\n\n// capstone.component.html\n<input label="Activity" placeholder="e.g. Reading" [(ngModel)]="name">\n<p>Minutes: {{ minutes === 0 ? \'not picked yet\' : minutes }}</p>\n<button (click)="pickMinutes(10)">\n  10 min\n</button>\n<button (click)="pickMinutes(15)">\n  15 min\n</button>\n<button (click)="pickMinutes(20)">\n  20 min\n</button>\n<button (click)="pickMinutes(30)">\n  30 min\n</button>\n<button (click)="add()" [disabled]="name === \'\' || minutes === 0">\n  Add to the log\n</button>\n<p *ngIf="log.entries.length === 0">The log is empty. Add your first activity above.</p>\n<section *ngFor="let e of log.entries">\n  <row [title]="e.name" [subtitle]="e.minutes + \' min\'"></row>\n  <button (click)="remove(e)">\n    Remove\n  </button>\n</section>\n<p>Total today: {{ log.total }} min</p>',
       tip: 'When you build your own app, assemble it in this order: service, screens that read it, form, feedback. And when something shows wrong, ask first which layer lied: the service, the binding, or the state change that never assigned.',
     },
     {
-      id: 66,
+      id: 68,
       title: 'Menu: actions for one thing',
       subtitle: 'A small panel of choices, with Angular Material menu',
       minutes: '4 min',
@@ -704,7 +724,7 @@ export class LessonService extends ReactiveService {
       tip: 'Keep the open state in one boolean and change it only inside methods. Event bindings never hold assignments, so (close) calls a closeMenu() method, never (close)="menuOpen = false". And give the item that destroys something a divider above it, as the demo does: the eye should slow down before Delete.',
     },
     {
-      id: 67,
+      id: 69,
       title: 'Drawer: a panel from the left',
       subtitle: 'Navigation that slides over the screen, MatSidenav in over mode',
       minutes: '4 min',
@@ -714,7 +734,7 @@ export class LessonService extends ReactiveService {
       tip: 'Put destinations in the drawer, not settings or content. When a tap inside the drawer moves the user somewhere, close the drawer in the same handler, so the panel is gone when the new screen arrives.',
     },
     {
-      id: 68,
+      id: 70,
       title: 'Select: picking one from a list',
       subtitle: 'The dropdown control, MatSelect with the controls contract',
       minutes: '5 min',
@@ -724,7 +744,7 @@ export class LessonService extends ReactiveService {
       tip: 'Let the option value be the stable code (nyc) and the label be the words a person reads (New York). Store the code, show the label, and your saved data stays clean when the wording changes.',
     },
     {
-      id: 69,
+      id: 71,
       title: 'Select in a form',
       subtitle: 'One contract among the others, read by the save handler',
       minutes: '5 min',
@@ -734,7 +754,7 @@ export class LessonService extends ReactiveService {
       tip: 'Treat every control the same way: its change handler stores one field, and validation and submit read fields only. When a form misbehaves, you then have exactly one place to look per control.',
     },
     {
-      id: 70,
+      id: 72,
       title: 'Stepper: a task in steps',
       subtitle: 'A wizard with the tabs contract, MatStepper',
       minutes: '5 min',
@@ -744,7 +764,7 @@ export class LessonService extends ReactiveService {
       tip: 'Keep one index field as the only source of the position. Header taps, Continue buttons, and code after a save all write that field, and the stepper simply follows.',
     },
     {
-      id: 71,
+      id: 73,
       title: 'Grid list: tiles in columns',
       subtitle: 'Equal shares of the width, MatGridList',
       minutes: '4 min',
@@ -754,7 +774,7 @@ export class LessonService extends ReactiveService {
       tip: 'Reach for a grid when the items are peers of the same weight, like places or products. When one item matters more than the rest, a list of rows leads the eye better than equal tiles do.',
     },
     {
-      id: 72,
+      id: 74,
       title: 'Grid list, masonry mode',
       subtitle: 'The same tiles, dealt into stacks so uneven heights stagger',
       minutes: '4 min',
@@ -764,7 +784,7 @@ export class LessonService extends ReactiveService {
       tip: 'Use masonry when the tiles are cards of genuinely different heights, like notes or photos. When the heights are near equal, the plain grid reads calmer, and masonry only adds noise.',
     },
     {
-      id: 73,
+      id: 75,
       title: 'Tree: folders that open',
       subtitle: 'Nested nodes that manage their own expansion, MatTree',
       minutes: '5 min',
@@ -774,7 +794,7 @@ export class LessonService extends ReactiveService {
       tip: 'Keep trees for navigation and picking, where the user opening a branch is the whole interaction. The moment other parts of the screen must follow the tree state, switch to rows you control.',
     },
     {
-      id: 74,
+      id: 76,
       title: 'Tooltip: a hint on long press',
       subtitle: 'matTooltip, in the only form a phone has',
       minutes: '4 min',
@@ -784,17 +804,17 @@ export class LessonService extends ReactiveService {
       tip: 'Write the hint for the person who almost understands the control: say what happens, in a few words. If a control needs a paragraph to explain, the control is wrong, not the tooltip.',
     },
     {
-      id: 75,
+      id: 77,
       title: 'Divider: one quiet line',
       subtitle: 'A hairline that separates groups, MatDivider',
       minutes: '3 min',
-      intro: 'A divider is one hairline across its container, and nothing else. In Angular Material it is MatDivider. It takes no content, no binding, and no event; there is nothing to wire and nothing that can fail. Its whole job is separation where spacing alone is not enough: between the items of a menu (lesson 66 puts one before Delete), and between the groups of a screen, as in the demo, where a morning routine falls into three groups and the lines keep them from running together on the scroll.',
+      intro: 'A divider is one hairline across its container, and nothing else. In Angular Material it is MatDivider. It takes no content, no binding, and no event; there is nothing to wire and nothing that can fail. Its whole job is separation where spacing alone is not enough: between the items of a menu (lesson 68 puts one before Delete), and between the groups of a screen, as in the demo, where a morning routine falls into three groups and the lines keep them from running together on the scroll.',
       code: '<divider></divider>',
       implementation: '// divider.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-divider-demo\',\n  templateUrl: \'./divider.component.html\',\n})\nexport class DividerDemoComponent {}\n\n// divider.component.html\n<h3>\n  The day, in three groups\n</h3>\n<p>A run and a shower</p>\n<p>Breakfast</p>\n<divider></divider>\n<p>Team standup</p>\n<p>The first deep work block</p>\n<divider></divider>\n<p>A walk in the sun</p>\n<p>Lunch, eaten slowly</p>',
       tip: 'Try spacing first. Add a divider only where two groups would blur into one without it, and never stack dividers as decoration: a line that separates nothing teaches the eye to ignore all lines.',
     },
     {
-      id: 76,
+      id: 78,
       title: 'Tables in depth: sorting and paging',
       subtitle: 'The table view state, and why your array is safe',
       minutes: '6 min',
@@ -804,7 +824,7 @@ export class LessonService extends ReactiveService {
       tip: 'Never sort your array in the component to help the table. The table owns its view; your array is the data. Keep it in the order your service gave it, and every other screen reading the same array stays sane.',
     },
     {
-      id: 77,
+      id: 79,
       title: 'Bottom navigation: destinations at the thumb',
       subtitle: 'bottom-nav and nav-item, a piece Angular leaves to you',
       minutes: '5 min',
@@ -814,7 +834,7 @@ export class LessonService extends ReactiveService {
       tip: 'Keep bottom navigation for the three to five top destinations of the whole app. Switching sections inside one screen is a switcher or tabs job; a bar that changes from screen to screen confuses the thumb and the memory alike.',
     },
     {
-      id: 78,
+      id: 80,
       title: 'Pull to refresh',
       subtitle: 'The refreshing flag and the refresh event, on screen and on list',
       minutes: '5 min',
@@ -824,7 +844,7 @@ export class LessonService extends ReactiveService {
       tip: 'Always clear the flag, on success and on failure alike. A stuck flag is a stuck spinner, and it is the most common refresh bug there is.',
     },
     {
-      id: 79,
+      id: 81,
       title: 'Infinite scroll: the endReached event',
       subtitle: 'Append the next page when the end is near',
       minutes: '5 min',
@@ -834,7 +854,7 @@ export class LessonService extends ReactiveService {
       tip: 'Treat (endReached) as the end is near, not as render again. Append one page, and let the last page be a resting state with a clear end line, not an error and not a spinner that never stops.',
     },
     {
-      id: 80,
+      id: 82,
       title: 'Skeleton: standing in for content',
       subtitle: 'Placeholder shapes while the real thing loads',
       minutes: '4 min',
@@ -844,7 +864,7 @@ export class LessonService extends ReactiveService {
       tip: 'Match the skeleton to the layout it replaces: same boxes, same order, same rough sizes. A skeleton that jumps when the content lands is worse than a plain spinner, because it teaches the eye the wrong shape first.',
     },
     {
-      id: 81,
+      id: 83,
       title: 'Swipe row actions',
       subtitle: 'row-action declarations that live inside the row',
       minutes: '5 min',
@@ -854,7 +874,7 @@ export class LessonService extends ReactiveService {
       tip: 'Put the destructive action last and give it the error colour. And make each tap complete its job on its own: an action that only selects the row trains people to distrust every swipe after it.',
     },
     {
-      id: 82,
+      id: 84,
       title: 'File picker: photos and documents',
       subtitle: 'The picker hands back file information, not files',
       minutes: '5 min',
@@ -864,7 +884,7 @@ export class LessonService extends ReactiveService {
       tip: 'Treat a cancel as silence, not an error: check what actually arrived before you report anything. And keep the uri from the pick; it is the only handle you get to the file later.',
     },
     {
-      id: 83,
+      id: 85,
       title: 'Input masks: format while typing',
       subtitle: 'A pattern on an ordinary input, in 9, A, and star',
       minutes: '5 min',
@@ -874,7 +894,7 @@ export class LessonService extends ReactiveService {
       tip: 'If a backend wants digits only, strip the literals in the class at save time and keep the formatted string on screen. Never store both forms of the same value; one day they will disagree, and the screen will be the one that is wrong.',
     },
     {
-      id: 84,
+      id: 86,
       title: 'Rating: stars on the contract',
       subtitle: 'One number in, one number out, no half stars',
       minutes: '4 min',
@@ -884,7 +904,7 @@ export class LessonService extends ReactiveService {
       tip: 'Ask for the rating at the moment the thing ends, not later from a list. A number given in context is honest; a number given from memory is a guess wearing a number\'s clothes.',
     },
     {
-      id: 85,
+      id: 87,
       title: 'The OTP input: one code, digit boxes',
       subtitle: 'One string over a hidden field, complete only at full length',
       minutes: '5 min',
@@ -894,7 +914,7 @@ export class LessonService extends ReactiveService {
       tip: 'Never act on a partial code. Check the length on every change, and let only the full length enable the verify step; a code checked early teaches the server to expect your mistakes.',
     },
     {
-      id: 86,
+      id: 88,
       title: 'Carousel: pages you swipe',
       subtitle: 'Projected children as pages, the stepper index contract',
       minutes: '4 min',
@@ -904,17 +924,17 @@ export class LessonService extends ReactiveService {
       tip: 'Keep carousel pages few, and alike in shape and weight. The moment one page needs its own scrolling or its own form, it wants to be a screen of its own, not a page in a row.',
     },
     {
-      id: 87,
+      id: 89,
       title: 'Timeline: a journey on a rail',
       subtitle: 'timeline-item declarations with a title and a time',
       minutes: '4 min',
-      intro: 'A timeline shows a journey in order: what happened, and when. A timeline holds timeline-item declarations, nothing else; anything else inside warns GEN_CONTROL_NESTING. Each item takes a title and a short time label as attributes, and its body is projected content under the title. The items stack on a dotted rail down the left side, and the last item\'s line stops at its dot, because the journey ends there. Like the divider from lesson 75, this is a display piece: no value, no event, nothing to wire and nothing that can fail. The demo is one morning in three entries.',
+      intro: 'A timeline shows a journey in order: what happened, and when. A timeline holds timeline-item declarations, nothing else; anything else inside warns GEN_CONTROL_NESTING. Each item takes a title and a short time label as attributes, and its body is projected content under the title. The items stack on a dotted rail down the left side, and the last item\'s line stops at its dot, because the journey ends there. Like the divider from lesson 77, this is a display piece: no value, no event, nothing to wire and nothing that can fail. The demo is one morning in three entries.',
       code: '<timeline-item title="Deep work" time="7:00 am">',
       implementation: '// timeline.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-timeline-demo\',\n  templateUrl: \'./timeline.component.html\',\n})\nexport class TimelineDemoComponent {}\n\n// timeline.component.html\n<timeline>\n  <timeline-item title="Early start" time="6:00 am">\n    <p>The day began with a glass of water and a short walk.</p>\n  </timeline-item>\n  <timeline-item title="Exercise" time="6:30 am">\n    <p>A run in the park, then a shower. The body woke up in that order.</p>\n  </timeline-item>\n  <timeline-item title="Deep work" time="7:00 am">\n    <p>Two hours at the desk before the first message was opened.</p>\n  </timeline-item>\n</timeline>',
       tip: 'Write timeline entries in the past tense, and keep the time label short: a day, a date, or a clock time, never a sentence. The rail already supplies the order; the words only name the stops.',
     },
     {
-      id: 88,
+      id: 90,
       title: 'Calendar: a month to look at',
       subtitle: 'A browsing month view, and why it is not a form picker',
       minutes: '5 min',
@@ -924,7 +944,7 @@ export class LessonService extends ReactiveService {
       tip: 'Reach for the calendar when the day itself is the topic: browsing a month, or picking from days spread through it. When a form needs one moment, the wheel picker asks in a single gesture, and the calendar asks in two.',
     },
     {
-      id: 89,
+      id: 91,
       title: 'Avatars and avatar groups',
       subtitle: 'Initials or a photo, and the +N fold',
       minutes: '5 min',
@@ -934,7 +954,7 @@ export class LessonService extends ReactiveService {
       tip: 'Prefer initials when a photo may be missing, stale, or slow. Initials never fail to load, never show the wrong person, and stay readable at the small sizes where faces blur into colour.',
     },
     {
-      id: 90,
+      id: 92,
       title: 'Empty state: the friendly nothing',
       subtitle: 'One named block for the day the list is empty',
       minutes: '4 min',
@@ -944,7 +964,7 @@ export class LessonService extends ReactiveService {
       tip: 'An empty state must answer two questions: what will live here, and what can I do now. If a screen cannot name an action, a plain line of text is more honest than a decorated block standing for nothing.',
     },
     {
-      id: 91,
+      id: 93,
       title: 'Charts: one data shape, three drawings',
       subtitle: 'Bar, line, and pie over label and value pairs',
       minutes: '6 min',
@@ -954,7 +974,7 @@ export class LessonService extends ReactiveService {
       tip: 'Keep one array as every chart\'s only source, and change it by assignment, as with every list. Three charts fed from three copies of the same numbers will disagree by Friday, and nobody will know which one lied.',
     },
     {
-      id: 92,
+      id: 94,
       title: 'Editor: marked text, honestly',
       subtitle: 'Bold with stars and lists with dashes, not a WYSIWYG',
       minutes: '5 min',
@@ -964,7 +984,7 @@ export class LessonService extends ReactiveService {
       tip: 'Store the marked text exactly as the editor holds it, and let the same marks render wherever the text is shown. Converting to another format on save and back on load is where simple formatting goes to die.',
     },
     {
-      id: 93,
+      id: 95,
       title: 'Images and the lightbox',
       subtitle: 'A declared size, and a photo that opens full screen',
       minutes: '5 min',
@@ -974,7 +994,7 @@ export class LessonService extends ReactiveService {
       tip: 'Declare the size the layout should reserve, even when you happen to know the file\'s real size. The reservation, not the file, is what stops the screen from jumping while photos land one by one.',
     },
     {
-      id: 94,
+      id: 96,
       title: 'Colour picker: a hex value with a swatch',
       subtitle: 'The shared data palette, plus one custom hex row',
       minutes: '4 min',
@@ -984,13 +1004,13 @@ export class LessonService extends ReactiveService {
       tip: 'Store the hex, and show the hex. A colour remembered as the third palette colour breaks the day the palette is reordered; a hex string means the same colour forever, in every theme and every app.',
     },
     {
-      id: 95,
+      id: 97,
       title: 'Breadcrumbs: where you are, as a path',
       subtitle: 'crumb declarations, and the last one is not a link',
       minutes: '4 min',
       intro: 'Breadcrumbs show the path to the current place as a short row of names. A breadcrumbs block holds crumb declarations and nothing else; the crumbs join with chevron icons from the icon set, never with typed characters. Every crumb but the last takes a routerLink or a (click), because those places are still visitable; the last crumb renders as the current page in plain semibold text, and it is never a link. A crumb outside breadcrumbs warns GEN_CONTROL_NESTING. On a phone the path stays short, two or three crumbs: this piece was added last in its stage on purpose, because deep paths are a desktop habit that a small screen punishes. In the demo, the first two crumbs carry clicks that switch a place line, standing in for the navigation they would do in a real app, so the piece can be felt without leaving the lesson.',
       code: '<crumb routerLink="/home">Home</crumb>',
-      implementation: '// breadcrumbs.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-breadcrumbs-demo\',\n  templateUrl: \'./breadcrumbs.component.html\',\n})\nexport class BreadcrumbsDemoComponent {\n  place = \'Lesson 95\';\n\n  goPlace(name: string) {\n    this.place = name;\n  }\n}\n\n// breadcrumbs.component.html\n<breadcrumbs>\n  <crumb (click)="goPlace(\'Home\')">\n    Home\n  </crumb>\n  <crumb (click)="goPlace(\'Beyond Angular\')">\n    Beyond Angular\n  </crumb>\n  <crumb>\n    Lesson 95\n  </crumb>\n</breadcrumbs>\n<p>You are looking at: {{ place }}</p>\n<p>Tap Home or Beyond Angular and the line follows. The last crumb never moves: it is where you already are.</p>',
+      implementation: '// breadcrumbs.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-breadcrumbs-demo\',\n  templateUrl: \'./breadcrumbs.component.html\',\n})\nexport class BreadcrumbsDemoComponent {\n  place = \'Lesson 97\';\n\n  goPlace(name: string) {\n    this.place = name;\n  }\n}\n\n// breadcrumbs.component.html\n<breadcrumbs>\n  <crumb (click)="goPlace(\'Home\')">\n    Home\n  </crumb>\n  <crumb (click)="goPlace(\'Beyond Angular\')">\n    Beyond Angular\n  </crumb>\n  <crumb>\n    Lesson 97\n  </crumb>\n</breadcrumbs>\n<p>You are looking at: {{ place }}</p>\n<p>Tap Home or Beyond Angular and the line follows. The last crumb never moves: it is where you already are.</p>',
       tip: 'If the last crumb is a link, it is wrong: the current page linking to itself teaches people that links lie. Keep the last crumb plain text, always, and keep the whole path short enough to read at a glance.',
     },
   ];
@@ -1385,6 +1405,7 @@ const __pipeDurationPipe = new DurationPipe();
 
 const __container = new Container();
 __container.register(HttpClient, new HttpClient());
+__container.register(FormBuilder, new FormBuilder());
 __container.register(ShellService, new ShellService());
 __container.register(LessonService, new LessonService());
 __container.register(BookmarksService, new BookmarksService());
@@ -1418,7 +1439,7 @@ export function Splash() {
       <RgText variant="display">Write Angular. Ship React Native.</RgText>
       <RgText variant="bodyLarge">Learn the Rangular framework lesson by lesson, with a live demo on every screen. And when the learning is done, the same pages stay beside you as documentation, each with its full working code to look up. This app is built with Rangular itself.</RgText>
       <RgCode>{snippet}</RgCode>
-      <RgText variant="bodyLarge" style={styles.splashEntryStats}>95 lessons · Live demos · Free</RgText>
+      <RgText variant="bodyLarge" style={styles.splashEntryStats}>97 lessons · Live demos · Free</RgText>
       <RgButton onPress={() => __router.navigateByUrl("/home")}>Start learning</RgButton>
       <RgText variant="bodyLarge" style={styles.splashEntryFoot}>Rangular framework 0.3.2 · No account needed</RgText>
     </RgSection>
@@ -1457,10 +1478,10 @@ export function Home() {
     shell.setPlace('learn');
     setStarterLessons(lessons.lessons.filter((l: Lesson) => l.id <= 5));
     setBatchLessons(lessons.lessons.filter((l: Lesson) => l.id >= 6 && l.id <= 25));
-    setFormsLessons(lessons.lessons.filter((l: Lesson) => l.id >= 26 && l.id <= 45));
-    setDataLessons(lessons.lessons.filter((l: Lesson) => l.id >= 46 && l.id <= 65));
-    setPiecesLessons(lessons.lessons.filter((l: Lesson) => l.id >= 66 && l.id <= 76));
-    setBeyondLessons(lessons.lessons.filter((l: Lesson) => l.id >= 77));
+    setFormsLessons(lessons.lessons.filter((l: Lesson) => l.id >= 26 && l.id <= 47));
+    setDataLessons(lessons.lessons.filter((l: Lesson) => l.id >= 48 && l.id <= 67));
+    setPiecesLessons(lessons.lessons.filter((l: Lesson) => l.id >= 68 && l.id <= 78));
+    setBeyondLessons(lessons.lessons.filter((l: Lesson) => l.id >= 79));
     refreshProgress();
   };
   const refreshProgress = () => {
@@ -1469,16 +1490,16 @@ export function Home() {
     __shadowDoneCount = done.length;
     setDoneCount(__shadowDoneCount);
     setDoneMinutes(done.reduce((sum: number, l: Lesson) => sum + parseInt(l.minutes, 10), 0));
-    setPercent(Math.round((__shadowDoneCount * 100) / 95));
-    setAllDone(__shadowDoneCount >= 95);
+    setPercent(Math.round((__shadowDoneCount * 100) / 97));
+    setAllDone(__shadowDoneCount >= 97);
     const next = lessons.lessons.find((l: Lesson) => !bookmarks.isDone(l.id));
     setContinueLesson((next === undefined ? null : next));
     setStarterMeta(doneIn(1, 5));
     setBatchMeta(doneIn(6, 25));
-    setFormsMeta(doneIn(26, 45));
-    setDataMeta(doneIn(46, 65));
-    setPiecesMeta(doneIn(66, 76));
-    setBeyondMeta(doneIn(77, 95));
+    setFormsMeta(doneIn(26, 47));
+    setDataMeta(doneIn(48, 67));
+    setPiecesMeta(doneIn(68, 78));
+    setBeyondMeta(doneIn(79, 97));
   };
   const doneIn = (from: number, to: number) => {
     const group = lessons.lessons.filter((l: Lesson) => l.id >= from && l.id <= to);
@@ -1554,7 +1575,7 @@ export function Home() {
             <RgText variant="bodyLarge" style={styles.homePathContinue}>Lesson {continueLesson.id} · {continueLesson.title}</RgText>
           )}
         </RgCard>
-        <RgInput variant="search" placeholder="Search 95 lessons" onChangeText={($event) => onQuery($event)} value={query} />
+        <RgInput variant="search" placeholder="Search 97 lessons" onChangeText={($event) => onQuery($event)} value={query} />
         {searching && (
           <RgSection>
             <RgSection label="Search results" plain meta={(results.length + ' found')}>
@@ -1706,14 +1727,14 @@ export function Progress() {
     __shadowDoneCount = done.length;
     setDoneCount(__shadowDoneCount);
     setDoneMinutes(done.reduce((sum: number, l: Lesson) => sum + parseInt(l.minutes, 10), 0));
-    setPercent(Math.round((__shadowDoneCount * 100) / 95));
+    setPercent(Math.round((__shadowDoneCount * 100) / 97));
     setSavedCount(bookmarks.bookmarkIds.length);
     if (bookmarks.lastLessonId > 0) {
       const found = lessons.lessons.find((l: Lesson) => l.id === bookmarks.lastLessonId);
       setLastLesson((found === undefined ? null : found));
     }
     setWeekData([6, 5, 4, 3, 2, 1, 0].map((off: number) => ({ label: dayLabel(off), value: dayMinutes(off) })));
-    setGroups([groupStat('Getting started', 1, 5), groupStat('Components and templates', 6, 25), groupStat('Forms and interaction', 26, 45), groupStat('Services, routing, and data', 46, 65), groupStat('The Material pieces', 66, 76), groupStat('Beyond Angular', 77, 95)]);
+    setGroups([groupStat('Getting started', 1, 5), groupStat('Components and templates', 6, 25), groupStat('Forms and interaction', 26, 47), groupStat('Services, routing, and data', 48, 67), groupStat('The Material pieces', 68, 78), groupStat('Beyond Angular', 79, 97)]);
   };
   const minutesOf = (id: number) => {
     const found = lessons.lessons.find((l: Lesson) => l.id === id);
@@ -1758,7 +1779,7 @@ export function Progress() {
       </RgBottomNav>
       <RgCard style={styles.progressPathCard}>
         <RgText variant="heading">{percent}%</RgText>
-        <RgText variant="bodyLarge">{doneCount} of 95 lessons · {doneMinutes} minutes in</RgText>
+        <RgText variant="bodyLarge">{doneCount} of 97 lessons · {doneMinutes} minutes in</RgText>
         <RgProgressBar value={percent} />
         {lastLesson && (
           <RgText variant="bodyLarge">You are on Lesson {lastLesson.id} · {lastLesson.title}</RgText>
@@ -1824,7 +1845,7 @@ export function Lesson() {
       setBarTitle('Lesson ' + __shadowLessonId);
       setHasCode(__shadowLesson.code !== '');
       setDone(bookmarks.isDone(__shadowLessonId));
-      setProgressPct(Math.round((__shadowLessonId * 100) / 95));
+      setProgressPct(Math.round((__shadowLessonId * 100) / 97));
       setSectionName(nameFor(__shadowLessonId));
       setNextLabel(labelFor(__shadowLessonId));
       setImplBlocks(buildImplBlocks(__shadowLesson.implementation || ''));
@@ -1853,19 +1874,19 @@ export function Lesson() {
     if (id <= 25) {
       return 'COMPONENTS AND TEMPLATES';
     }
-    if (id <= 45) {
+    if (id <= 47) {
       return 'FORMS AND INTERACTION';
     }
-    if (id <= 65) {
+    if (id <= 67) {
       return 'SERVICES, ROUTING, AND DATA';
     }
-    if (id <= 76) {
+    if (id <= 78) {
       return 'THE MATERIAL PIECES';
     }
     return 'BEYOND ANGULAR';
   };
   const labelFor = (id: number) => {
-    if (id >= 95) {
+    if (id >= 97) {
       return (done ? 'Done · Back home' : 'Mark done · Finish');
     }
     return (done ? 'Done · Next lesson' : 'Mark done · Next lesson');
@@ -1878,7 +1899,7 @@ export function Lesson() {
   const markDoneNext = () => {
     if (lessonId > 0) {
       bookmarks.markDone(lessonId);
-      if (lessonId >= 95) {
+      if (lessonId >= 97) {
         router.navigate(['/home']);
       } else {
         router.navigate(['/lesson', lessonId + 1]);
@@ -2122,365 +2143,377 @@ export function Lesson() {
       )}
       {(lessonId === 35) && (
         <RgCard style={styles.lessonDemoCard}>
+          <RgText variant="label">Live demo: FormBuilder</RgText>
+          <FormBuilderDemo />
+        </RgCard>
+      )}
+      {(lessonId === 36) && (
+        <RgCard style={styles.lessonDemoCard}>
+          <RgText variant="label">Live demo: FormArray</RgText>
+          <FormArrayDemo />
+        </RgCard>
+      )}
+      {(lessonId === 37) && (
+        <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: reactive validators and group state</RgText>
           <ReactiveStateDemo />
         </RgCard>
       )}
-      {(lessonId === 36) && (
+      {(lessonId === 38) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: setting values from code</RgText>
           <SetValueDemo />
         </RgCard>
       )}
-      {(lessonId === 37) && (
+      {(lessonId === 39) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: date pickers</RgText>
           <DatePickerDemo />
         </RgCard>
       )}
-      {(lessonId === 38) && (
+      {(lessonId === 40) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: time and datetime pickers</RgText>
           <TimePickerDemo />
         </RgCard>
       )}
-      {(lessonId === 39) && (
+      {(lessonId === 41) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: bottom sheets</RgText>
           <SheetDemo />
         </RgCard>
       )}
-      {(lessonId === 40) && (
+      {(lessonId === 42) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: dialogs</RgText>
           <DialogDemo />
         </RgCard>
       )}
-      {(lessonId === 41) && (
+      {(lessonId === 43) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: SnackBar messages with actions</RgText>
           <SnackbarDemo />
         </RgCard>
       )}
-      {(lessonId === 42) && (
+      {(lessonId === 44) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: autocomplete inputs</RgText>
           <AutocompleteDemo />
         </RgCard>
       )}
-      {(lessonId === 43) && (
+      {(lessonId === 45) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: sliders</RgText>
           <SliderDemo />
         </RgCard>
       )}
-      {(lessonId === 44) && (
+      {(lessonId === 46) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: choice controls in a form</RgText>
           <ChoiceFormDemo />
         </RgCard>
       )}
-      {(lessonId === 45) && (
+      {(lessonId === 47) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a complete form, sign up</RgText>
           <SignupDemo />
         </RgCard>
       )}
-      {(lessonId === 46) && (
+      {(lessonId === 48) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a first service</RgText>
           <ServiceBasicsDemo />
         </RgCard>
       )}
-      {(lessonId === 47) && (
+      {(lessonId === 49) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: constructor injection</RgText>
           <InjectionDemo />
         </RgCard>
       )}
-      {(lessonId === 48) && (
+      {(lessonId === 50) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: one shared instance</RgText>
           <SingletonDemo />
         </RgCard>
       )}
-      {(lessonId === 49) && (
+      {(lessonId === 51) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: services using services</RgText>
           <ContainerDemo />
         </RgCard>
       )}
-      {(lessonId === 50) && (
+      {(lessonId === 52) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: sharing state between siblings</RgText>
           <SharingDemo />
         </RgCard>
       )}
-      {(lessonId === 51) && (
+      {(lessonId === 53) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: assign, do not mutate</RgText>
           <ReactivityDemo />
         </RgCard>
       )}
-      {(lessonId === 52) && (
+      {(lessonId === 54) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a service as the store</RgText>
           <StoreDemo />
         </RgCard>
       )}
-      {(lessonId === 53) && (
+      {(lessonId === 55) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: fields and derived values</RgText>
           <SignalsDemo />
         </RgCard>
       )}
-      {(lessonId === 54) && (
+      {(lessonId === 56) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: this app's route table</RgText>
           <RoutesTableDemo />
         </RgCard>
       )}
-      {(lessonId === 55) && (
+      {(lessonId === 57) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: routerLink, string and array</RgText>
           <RouterLinkDemo />
         </RgCard>
       )}
-      {(lessonId === 56) && (
+      {(lessonId === 58) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: links with parameters</RgText>
           <RouteParamsDemo />
         </RgCard>
       )}
-      {(lessonId === 57) && (
+      {(lessonId === 59) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: reading this lesson's route</RgText>
           <ActivatedRouteDemo />
         </RgCard>
       )}
-      {(lessonId === 58) && (
+      {(lessonId === 60) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: navigate from code</RgText>
           <ProgrammaticNavDemo />
         </RgCard>
       )}
-      {(lessonId === 59) && (
+      {(lessonId === 61) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the edges of the route table</RgText>
           <RedirectsDemo />
         </RgCard>
       )}
-      {(lessonId === 60) && (
+      {(lessonId === 62) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the check before you navigate</RgText>
           <RouteGateDemo />
         </RgCard>
       )}
-      {(lessonId === 61) && (
+      {(lessonId === 63) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a real GET request</RgText>
           <HttpBasicsDemo />
         </RgCard>
       )}
-      {(lessonId === 62) && (
+      {(lessonId === 64) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: loading, error, and data</RgText>
           <HttpStatesDemo />
         </RgCard>
       )}
-      {(lessonId === 63) && (
+      {(lessonId === 65) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: HTTP behind a service</RgText>
           <DataServiceDemo />
         </RgCard>
       )}
-      {(lessonId === 64) && (
+      {(lessonId === 66) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the activity log, data layer</RgText>
           <CapstoneDataDemo />
         </RgCard>
       )}
-      {(lessonId === 65) && (
+      {(lessonId === 67) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the activity log, whole</RgText>
           <CapstoneDemo />
         </RgCard>
       )}
-      {(lessonId === 66) && (
+      {(lessonId === 68) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a menu of actions</RgText>
           <MenuDemo />
         </RgCard>
       )}
-      {(lessonId === 67) && (
+      {(lessonId === 69) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a drawer with destinations</RgText>
           <DrawerDemo />
         </RgCard>
       )}
-      {(lessonId === 68) && (
+      {(lessonId === 70) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: picking a city</RgText>
           <SelectDemo />
         </RgCard>
       )}
-      {(lessonId === 69) && (
+      {(lessonId === 71) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a select inside a form</RgText>
           <SelectFormDemo />
         </RgCard>
       )}
-      {(lessonId === 70) && (
+      {(lessonId === 72) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: scheduling in three steps</RgText>
           <StepperDemo />
         </RgCard>
       )}
-      {(lessonId === 71) && (
+      {(lessonId === 73) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: tiles in two and three columns</RgText>
           <GridDemo />
         </RgCard>
       )}
-      {(lessonId === 72) && (
+      {(lessonId === 74) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: uneven tiles, staggered</RgText>
           <MasonryDemo />
         </RgCard>
       )}
-      {(lessonId === 73) && (
+      {(lessonId === 75) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a folder tree</RgText>
           <TreeDemo />
         </RgCard>
       )}
-      {(lessonId === 74) && (
+      {(lessonId === 76) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: hints on long press</RgText>
           <TooltipDemo />
         </RgCard>
       )}
-      {(lessonId === 75) && (
+      {(lessonId === 77) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: groups held apart by lines</RgText>
           <DividerDemo />
         </RgCard>
       )}
-      {(lessonId === 76) && (
+      {(lessonId === 78) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: sorting that leaves the array alone</RgText>
           <TablesDepthDemo />
         </RgCard>
       )}
-      {(lessonId === 77) && (
+      {(lessonId === 79) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: three destinations at the bottom</RgText>
           <BottomNavDemo />
         </RgCard>
       )}
-      {(lessonId === 78) && (
+      {(lessonId === 80) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: pull the list</RgText>
           <RefreshDemo />
         </RgCard>
       )}
-      {(lessonId === 79) && (
+      {(lessonId === 81) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: scroll for the next page</RgText>
           <InfiniteScrollDemo />
         </RgCard>
       )}
-      {(lessonId === 80) && (
+      {(lessonId === 82) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the skeleton and the card</RgText>
           <SkeletonDemo />
         </RgCard>
       )}
-      {(lessonId === 81) && (
+      {(lessonId === 83) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: swipe a row</RgText>
           <RowActionsDemo />
         </RgCard>
       )}
-      {(lessonId === 82) && (
+      {(lessonId === 84) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: pick a photo, pick documents</RgText>
           <FilePickerDemo />
         </RgCard>
       )}
-      {(lessonId === 83) && (
+      {(lessonId === 85) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: two masked fields</RgText>
           <MaskDemo />
         </RgCard>
       )}
-      {(lessonId === 84) && (
+      {(lessonId === 86) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: rate the session</RgText>
           <RatingDemo />
         </RgCard>
       )}
-      {(lessonId === 85) && (
+      {(lessonId === 87) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the six digit code</RgText>
           <OtpDemo />
         </RgCard>
       )}
-      {(lessonId === 86) && (
+      {(lessonId === 88) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: three pages</RgText>
           <CarouselDemo />
         </RgCard>
       )}
-      {(lessonId === 87) && (
+      {(lessonId === 89) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: one morning on a rail</RgText>
           <TimelineDemo />
         </RgCard>
       )}
-      {(lessonId === 88) && (
+      {(lessonId === 90) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a month to tap</RgText>
           <CalendarDemo />
         </RgCard>
       )}
-      {(lessonId === 89) && (
+      {(lessonId === 91) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: people in circles</RgText>
           <AvatarsDemo />
         </RgCard>
       )}
-      {(lessonId === 90) && (
+      {(lessonId === 92) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: an inbox that starts empty</RgText>
           <EmptyStateDemo />
         </RgCard>
       )}
-      {(lessonId === 91) && (
+      {(lessonId === 93) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: one week, three drawings</RgText>
           <ChartsDemo />
         </RgCard>
       )}
-      {(lessonId === 92) && (
+      {(lessonId === 94) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: notes with marks</RgText>
           <EditorDemo />
         </RgCard>
       )}
-      {(lessonId === 93) && (
+      {(lessonId === 95) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a photo that opens</RgText>
           <ImageDemo />
         </RgCard>
       )}
-      {(lessonId === 94) && (
+      {(lessonId === 96) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: pick a colour</RgText>
           <ColorPickerDemo />
         </RgCard>
       )}
-      {(lessonId === 95) && (
+      {(lessonId === 97) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the path to here</RgText>
           <BreadcrumbsDemo />
@@ -3516,6 +3549,100 @@ export function FormGroupDemo() {
   );
 }
 
+export function FormBuilderDemo() {
+  const fb = __container.get<FormBuilder>(FormBuilder);
+  const [summary, setSummary] = useState('');
+  const signupFormRef = useRef(fb.group({
+    name: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
+    city: 'Salem',
+  }));
+  const [, setFormVersion] = useState(0);
+  useEffect(() => {
+    const subs = [
+      ...Object.values(signupFormRef.current.controls).map((control) => control.valueChanges.subscribe(() => setFormVersion((v) => v + 1))),
+    ];
+    return () => { subs.forEach((sub) => sub.unsubscribe()); };
+  }, []);
+  const save = () => {
+    setSummary(JSON.stringify(signupFormRef.current.value));
+  };
+  return (
+    <>
+      <RgSection>
+        <RgInput label="Name" placeholder="Your name" value={signupFormRef.current.get('name').value} onChangeText={($event) => signupFormRef.current.get('name').setValue($event)} onBlur={() => { signupFormRef.current.get('name').markAsTouched(); setFormVersion((v) => v + 1); }} />
+        {(signupFormRef.current.get('name').invalid && signupFormRef.current.get('name').touched) && (
+          <RgText variant="bodyLarge">Name is required.</RgText>
+        )}
+        <RgInput label="Email" placeholder="you@example.com" value={signupFormRef.current.get('email').value} onChangeText={($event) => signupFormRef.current.get('email').setValue($event)} onBlur={() => { signupFormRef.current.get('email').markAsTouched(); setFormVersion((v) => v + 1); }} />
+        {(signupFormRef.current.get('email').invalid && signupFormRef.current.get('email').touched) && (
+          <RgText variant="bodyLarge">Enter a valid email address.</RgText>
+        )}
+        <RgInput label="City" placeholder="Your city" value={signupFormRef.current.get('city').value} onChangeText={($event) => signupFormRef.current.get('city').setValue($event)} onBlur={() => { signupFormRef.current.get('city').markAsTouched(); setFormVersion((v) => v + 1); }} />
+        <RgText variant="bodyLarge">Group value: {pipe('json', signupFormRef.current.value)}</RgText>
+        <RgButton disabled={signupFormRef.current.invalid} onPress={() => { signupFormRef.current.markAllAsTouched(); setFormVersion((v) => v + 1); save(); }}>Create account</RgButton>
+      </RgSection>
+      {summary && (
+        <RgText variant="bodyLarge">Saved: {summary}</RgText>
+      )}
+    </>
+  );
+}
+
+export function FormArrayDemo() {
+  const [summary, setSummary] = useState('');
+  const teamFormRef = useRef(new FormGroup({
+    team: new FormControl('', Validators.required),
+    members: new FormArray([
+      new FormControl('', Validators.required),
+      new FormControl('Ana'),
+    ]),
+  }));
+  const [, setFormVersion] = useState(0);
+  useEffect(() => {
+    const subs = [
+      ...Object.values(teamFormRef.current.controls).map((control) => control.valueChanges.subscribe(() => setFormVersion((v) => v + 1))),
+    ];
+    return () => { subs.forEach((sub) => sub.unsubscribe()); };
+  }, []);
+  const addMember = () => {
+    (teamFormRef.current.get('members')).push(new FormControl('', Validators.required));
+  };
+  const removeMember = (i: number) => {
+    (teamFormRef.current.get('members')).removeAt(i);
+  };
+  const save = () => {
+    setSummary(JSON.stringify(teamFormRef.current.value));
+  };
+  return (
+    <>
+      <RgSection>
+        <RgInput label="Team name" placeholder="Red Tigers" value={teamFormRef.current.get('team').value} onChangeText={($event) => teamFormRef.current.get('team').setValue($event)} onBlur={() => { teamFormRef.current.get('team').markAsTouched(); setFormVersion((v) => v + 1); }} />
+        {(teamFormRef.current.get('team').invalid && teamFormRef.current.get('team').touched) && (
+          <RgText variant="bodyLarge">Team name is required.</RgText>
+        )}
+        <RgSection>
+          {teamFormRef.current.get('members').controls.map((m, i) => (
+            <RgSection key={m?.id ?? i}>
+              <RgInput label="Member" placeholder="Member name" value={teamFormRef.current.get('members').at(i).value} onChangeText={($event) => teamFormRef.current.get('members').at(i).setValue($event)} onBlur={() => { teamFormRef.current.get('members').at(i).markAsTouched?.(); setFormVersion((v) => v + 1); }} />
+              {(teamFormRef.current.get('members').at(i).invalid && teamFormRef.current.get('members').at(i).touched) && (
+                <RgText variant="bodyLarge">Member name is required.</RgText>
+              )}
+              <RgButton onPress={() => removeMember(i)}>Remove</RgButton>
+            </RgSection>
+          ))}
+        </RgSection>
+        <RgButton onPress={() => addMember()}>Add member</RgButton>
+        <RgText variant="bodyLarge">Group value: {pipe('json', teamFormRef.current.value)}</RgText>
+        <RgButton disabled={teamFormRef.current.invalid} onPress={() => { teamFormRef.current.markAllAsTouched(); setFormVersion((v) => v + 1); save(); }}>Save team</RgButton>
+      </RgSection>
+      {summary && (
+        <RgText variant="bodyLarge">Saved: {summary}</RgText>
+      )}
+    </>
+  );
+}
+
 export function ReactiveStateDemo() {
   const [saved, setSaved] = useState(false);
   const profileFormRef = useRef(new FormGroup({
@@ -4188,7 +4315,7 @@ export function RouterLinkDemo() {
       <RgList>
         <RgRow title="Lesson 1: Introduction" subtitle="Array link: ['/lesson', 1]" onPress={() => __router.navigate(['/lesson', 1])} />
         <RgRow title="Lesson 26: Template driven forms with ngModel" subtitle="Array link: ['/lesson', 26]" onPress={() => __router.navigate(['/lesson', 26])} />
-        <RgRow title="Lesson 46: Services" subtitle="Array link: ['/lesson', 46]" onPress={() => __router.navigate(['/lesson', 46])} />
+        <RgRow title="Lesson 48: Services" subtitle="Array link: ['/lesson', 46]" onPress={() => __router.navigate(['/lesson', 46])} />
       </RgList>
       <RgButton onPress={() => __router.navigateByUrl("/about")}>About, with a plain string link</RgButton>
     </>
@@ -4201,7 +4328,7 @@ export function RouteParamsDemo() {
       <RgList>
         <RgRow title="Lesson 6: ngFor and lists" subtitle="The 6 travels as the id parameter" onPress={() => __router.navigate(['/lesson', 6])} />
         <RgRow title="Lesson 27: The input block" subtitle="The 27 travels as the id parameter" onPress={() => __router.navigate(['/lesson', 27])} />
-        <RgRow title="Lesson 45: A complete form: sign up" subtitle="The 45 travels as the id parameter" onPress={() => __router.navigate(['/lesson', 45])} />
+        <RgRow title="Lesson 47: A complete form: sign up" subtitle="The 45 travels as the id parameter" onPress={() => __router.navigate(['/lesson', 45])} />
       </RgList>
       <RgButton onPress={() => __router.navigate(['/lesson', 56])}>Reopen this very lesson (parameter 56)</RgButton>
     </>
@@ -5350,7 +5477,7 @@ export function ColorPickerDemo() {
 }
 
 export function BreadcrumbsDemo() {
-  const [place, setPlace] = useState('Lesson 95');
+  const [place, setPlace] = useState('Lesson 97');
   const goPlace = (name: string) => {
     setPlace(name);
   };
@@ -5359,7 +5486,7 @@ export function BreadcrumbsDemo() {
       <RgBreadcrumbs>
         <RgCrumb onPress={() => goPlace('Home')}>Home</RgCrumb>
         <RgCrumb onPress={() => goPlace('Beyond Angular')}>Beyond Angular</RgCrumb>
-        <RgCrumb>Lesson 95</RgCrumb>
+        <RgCrumb>Lesson 97</RgCrumb>
       </RgBreadcrumbs>
       <RgText variant="bodyLarge">You are looking at: {place}</RgText>
       <RgText variant="bodyLarge">Tap Home or Beyond Angular and the line follows. The last crumb never moves: it is where you already are.</RgText>
@@ -5404,7 +5531,7 @@ export function About() {
           <RgIcon name="logo" size={48} />
         </RgSection>
         <RgText variant="heading" style={styles.aboutHeroTitle}>Rangular Tutorial</RgText>
-        <RgText variant="bodyLarge" style={styles.aboutHeroText}>Version 1.0.0 · 95 lessons</RgText>
+        <RgText variant="bodyLarge" style={styles.aboutHeroText}>Version 1.0.0 · 97 lessons</RgText>
         <RgText variant="bodyLarge" style={styles.aboutHeroText}>A step by step tutorial that teaches the Rangular framework: writing iOS and Android apps the Angular way. Every screen in this app, including this one, started as Angular code and was compiled by Rangular into React Native.</RgText>
       </RgCard>
       <RgCard>
@@ -5430,7 +5557,7 @@ export function About() {
       </RgCard>
       <RgCard>
         <RgSection icon="star" label="Made for the stores">
-          <RgText variant="bodyLarge">This app is being prepared for release on the App Store and Google Play. All 95 lessons are complete, and the icon, splash artwork, and store listing are prepared. The store accounts and the submission itself are the remaining steps.</RgText>
+          <RgText variant="bodyLarge">This app is being prepared for release on the App Store and Google Play. All 97 lessons are complete, and the icon, splash artwork, and store listing are prepared. The store accounts and the submission itself are the remaining steps.</RgText>
         </RgSection>
       </RgCard>
       <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.3.2</RgText>

@@ -3,7 +3,7 @@ import { LogQuickAddComponent } from './log-quick-add.component';
 import { LogListComponent } from './log-list.component';
 
 /**
- * Lesson 64's live demo: capstone part 1. A quick add writes
+ * Lesson 66's live demo: capstone part 1. A quick add writes
  * into the ActivityLogService; the list reads from it. The
  * two components share nothing but the service, which is the
  * whole design.

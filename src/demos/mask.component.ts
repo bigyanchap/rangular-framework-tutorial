@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 83's live demo: input masks. Both fields are
+ * Lesson 85's live demo: input masks. Both fields are
  * ordinary inputs carrying a mask attribute. The phone
  * mask is all digit slots with literal brackets, a space
  * and a dash; the member code mixes two letter slots

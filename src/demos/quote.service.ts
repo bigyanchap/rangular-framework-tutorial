@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 /**
- * Lesson 46's service: the quotes live here, in one place.
+ * Lesson 48's service: the quotes live here, in one place.
  * Any component that injects this service reads the same
  * quotes and the same position in them.
  */
