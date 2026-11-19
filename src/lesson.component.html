@@ -4,6 +4,8 @@
     <p class="eyebrow">LESSON {{ lesson.id }} · {{ sectionName }}</p>
     <h2>{{ lesson.title }}</h2>
     <p>{{ lesson.intro }}</p>
+    <label *ngIf="lesson.diagram">Block diagram</label>
+    <code *ngIf="lesson.diagram">{{ lesson.diagram }}</code>
   </section>
   <p *ngIf="!lesson">This lesson could not be found.</p>
   <section *ngIf="hasCode">
@@ -389,6 +391,7 @@
   <card *ngIf="lesson" class="tip-card">
     <label>Best practice</label>
     <p>{{ lesson.tip }}</p>
+    <code *ngIf="lesson.tipDiagram">{{ lesson.tipDiagram }}</code>
     <code *ngIf="lesson.tipCode">{{ lesson.tipCode }}</code>
   </card>
   <actions *ngIf="lesson">
