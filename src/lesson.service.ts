@@ -18,7 +18,7 @@ export class LessonService {
       subtitle: 'A class, a selector, and a template',
       minutes: '4 min',
       intro: 'A component is the building block of every screen. It is a TypeScript class with a @Component decorator. The decorator gives the component a selector (its tag name) and a template file. Fields on the class hold the screen data, and the template shows that data.',
-      code: "@Component({ selector: 'app-hello', templateUrl: './hello.component.html' })",
+      code: '// hello.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-hello\',\n  templateUrl: \'./hello.component.html\',\n})\nexport class HelloComponent {}\n\n// hello.component.html\n<h3>Hello from app-hello</h3>',
       tip: 'Keep one component per screen or per clear piece of a screen. Small components are easy to read, test, and reuse.',
     },
     {
