@@ -117,6 +117,7 @@ import { BreadcrumbsDemoComponent } from './demos/breadcrumbs.component';
 })
 export class LessonComponent {
   lesson: any = null;
+  implBlocks: any[] = [];
   lessonId = 0;
   bookmarked = false;
   barTitle = 'Rangular Tutorial';
@@ -145,7 +146,25 @@ export class LessonComponent {
       this.progressPct = Math.round((this.lessonId * 100) / 95);
       this.sectionName = this.nameFor(this.lessonId);
       this.nextLabel = this.labelFor(this.lessonId);
+      this.implBlocks = this.buildImplBlocks(this.lesson.implementation || '');
     }
+  }
+
+  buildImplBlocks(text: string) {
+    const blocks: any[] = [];
+    text.split('\n').forEach((line: string) => {
+      const rest = line.startsWith('// ') ? line.slice(3) : '';
+      const isHeader = rest !== '' && !rest.includes(' ') && (rest.endsWith('.ts') || rest.endsWith('.html') || rest.endsWith('.css'));
+      if (isHeader) {
+        blocks.push({ name: rest, code: '' });
+      } else if (blocks.length > 0) {
+        const b = blocks[blocks.length - 1];
+        b.code = b.code === '' ? line : b.code + '\n' + line;
+      } else {
+        blocks.push({ name: '', code: line });
+      }
+    });
+    return blocks.map((b: any) => ({ name: b.name, code: b.code.trim() }));
   }
 
   nameFor(id: number) {

@@ -396,7 +396,10 @@
   </card>
   <section *ngIf="lesson && lesson.implementation">
     <label>Implementations</label>
-    <code>{{ lesson.implementation }}</code>
+    <section *ngFor="let block of implBlocks">
+      <label *ngIf="block.name">{{ block.name }}</label>
+      <code>{{ block.code }}</code>
+    </section>
   </section>
   <section *ngIf="lesson && lesson.note">
     <label>Note</label>
