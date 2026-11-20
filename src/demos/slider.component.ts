@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 45's live demo: two sliders. Brightness snaps to
+ * Lesson 47's live demo: two sliders. Brightness snaps to
  * steps of 5 over 0 to 100, minutes to steps of 15 over 0
  * to 60. Each (change) stores the number in the field the
  * slider reads back.

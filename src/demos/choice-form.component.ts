@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 46's live demo: a preferences form. The text
+ * Lesson 39's live demo: a preferences form. The text
  * field uses ngModel; the switch, checkboxes, and radio
  * group keep their [checked] or [value] plus (change)
  * contract, each storing into its own field. One submit

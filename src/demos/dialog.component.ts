@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 42's live demo: two dialogs. The confirmation asks
+ * Lesson 44's live demo: two dialogs. The confirmation asks
  * before deleting, and its buttons carry their colour roles:
  * Cancel is color="neutral", the quiet grey, and Delete is
  * color="danger", the red. The second dialog is a regular

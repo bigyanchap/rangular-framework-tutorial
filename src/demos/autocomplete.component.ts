@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 44's live demo: autocomplete on an ordinary
+ * Lesson 46's live demo: autocomplete on an ordinary
  * input. The options are a string array in the class; a
  * pick writes back through ngModel and is also reported
  * through (optionSelected).

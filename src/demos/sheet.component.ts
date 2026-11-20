@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 41's live demo: a bottom sheet holding an alarm
+ * Lesson 43's live demo: a bottom sheet holding an alarm
  * set page, the kind of short task a sheet is for. The
  * sheet is declarative: [open] shows it, (close) fires
  * from the backdrop or from Cancel, and Save reads the

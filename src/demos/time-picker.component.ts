@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 40's live demo, in the order the lesson teaches:
+ * Lesson 42's live demo, in the order the lesson teaches:
  * a time picker on five minute steps, a date picker that
  * picks a date and nothing else, then the datetime picker
  * in its modal. Every picker emits the same local ISO
