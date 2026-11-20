@@ -6,6 +6,8 @@ import { ActivatedRoute, Container, FormArray, FormBuilder, FormControl, FormGro
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
+import * as Notifications from 'expo-notifications';
+import { createAudioPlayer } from 'expo-audio';
 
 export class ShellService extends ReactiveService {
   drawerOpen = false;
@@ -600,7 +602,8 @@ export class LessonService extends ReactiveService {
       minutes: '4 min',
       intro: 'A routed app is a shell plus a table. The shell, here the app component, holds a single router-outlet. The table, in app.routes.ts, pairs each path with the component that answers it. The screen you are reading is not in the shell at all: the router matched the path lesson/:id, and the outlet rendered this lesson screen in its place. The demo lists this app\'s own route table, the real one from its routes file, and the two buttons under it are ordinary links: the same navigation you have used since the splash screen, now with its wiring visible.',
       code: '<router-outlet></router-outlet>',
-      implementation: '// routes-table.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-routes-table-demo\',\n  templateUrl: \'./routes-table.component.html\',\n})\nexport class RoutesTableDemoComponent {\n  table = [\n    { path: \'(empty path)\', screen: \'Redirects to splash\' },\n    { path: \'splash\', screen: \'SplashComponent\' },\n    { path: \'home\', screen: \'HomeComponent\' },\n    { path: \'lesson/:id\', screen: \'LessonComponent\' },\n    { path: \'about\', screen: \'AboutComponent\' },\n    { path: \'**\', screen: \'NotFoundComponent\' },\n  ];\n}\n\n// routes-table.component.html\n<list>\n  <row *ngFor="let r of table" [title]="r.path" [subtitle]="r.screen"></row>\n</list>\n<p>This screen is the LessonComponent row at work: the router matched lesson/:id and the outlet in the app shell rendered this lesson in its place.</p>\n<p>The two buttons are real links, and they leave this lesson:</p>\n<button routerLink="/about">\n  Open About through a link\n</button>\n<button routerLink="/home">\n  Open Home through a link\n</button>',
+      implementation: '// routes-table.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-routes-table-demo\',\n  templateUrl: \'./routes-table.component.html\',\n})\nexport class RoutesTableDemoComponent {\n  table = [\n    { path: \'(empty path)\', screen: \'Redirects to splash\' },\n    { path: \'splash\', screen: \'SplashComponent\' },\n    { path: \'home\', screen: \'HomeComponent\' },\n    { path: \'saved\', screen: \'SavedComponent\' },\n    { path: \'history\', screen: \'HistoryComponent\' },\n    { path: \'lesson/:id\', screen: \'LessonComponent\' },\n    { path: \'samples\', screen: \'SamplesComponent\' },\n    { path: \'**\', screen: \'NotFoundComponent\' },\n  ];\n}\n\n// routes-table.component.html\n<list>\n  <row *ngFor="let r of table" [title]="r.path" [subtitle]="r.screen"></row>\n</list>\n<p>This screen is the LessonComponent row at work: the router matched lesson/:id and the outlet in the app shell rendered this lesson in its place.</p>\n<p>The two buttons are real links, and they leave this lesson:</p>\n<button routerLink="/history">\n  Open History through a link\n</button>\n<button routerLink="/home">\n  Open Home through a link\n</button>',
+
       tip: 'Keep the route table small, flat, and in one file. A reader should be able to draw the whole app from app.routes.ts alone: every screen, one line each.',
     },
     {
@@ -608,9 +611,10 @@ export class LessonService extends ReactiveService {
       title: 'routerLink: links that navigate',
       subtitle: 'A string for fixed paths, an array when a value travels',
       minutes: '4 min',
-      intro: 'routerLink turns a tappable block, a button, a row, a fab, into a navigation. The string form names a fixed path: routerLink="/about". The array form builds a path from pieces: [routerLink] joins its commands with slashes and turns numbers into text, which is how a list sends each row to its own parameter. Both forms end in the same place: a press that writes the new path into the navigator. The demo rows are array links to real lessons, and its button is a string link to About. Tapping one leaves this lesson. That is not a flaw in the demo; that is the demo.',
+      intro: 'routerLink turns a tappable block, a button, a row, a fab, into a navigation. The string form names a fixed path: routerLink="/history". The array form builds a path from pieces: [routerLink] joins its commands with slashes and turns numbers into text, which is how a list sends each row to its own parameter. Both forms end in the same place: a press that writes the new path into the navigator. The demo rows are array links to real lessons, and its button is a string link to History. Tapping one leaves this lesson. That is not a flaw in the demo; that is the demo.',
       code: "[routerLink]=\"['/lesson', 46]\"",
-      implementation: '// router-link.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-router-link-demo\',\n  templateUrl: \'./router-link.component.html\',\n})\nexport class RouterLinkDemoComponent {}\n\n// router-link.component.html\n<list>\n  <row\n    title="Lesson 1: Introduction"\n    subtitle="Array link: [\'/lesson\', 1]"\n    [routerLink]="[\'/lesson\', 1]"\n  ></row>\n  <row\n    title="Lesson 26: Template driven forms with ngModel"\n    subtitle="Array link: [\'/lesson\', 26]"\n    [routerLink]="[\'/lesson\', 26]"\n  ></row>\n  <row\n    title="Lesson 48: Services"\n    subtitle="Array link: [\'/lesson\', 48]"\n    [routerLink]="[\'/lesson\', 48]"\n  ></row>\n</list>\n<button routerLink="/about">\n  About, with a plain string link\n</button>',
+      implementation: '// router-link.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-router-link-demo\',\n  templateUrl: \'./router-link.component.html\',\n})\nexport class RouterLinkDemoComponent {}\n\n// router-link.component.html\n<list>\n  <row\n    title="Lesson 1: Introduction"\n    subtitle="Array link: [\'/lesson\', 1]"\n    [routerLink]="[\'/lesson\', 1]"\n  ></row>\n  <row\n    title="Lesson 26: Template driven forms with ngModel"\n    subtitle="Array link: [\'/lesson\', 26]"\n    [routerLink]="[\'/lesson\', 26]"\n  ></row>\n  <row\n    title="Lesson 48: Services"\n    subtitle="Array link: [\'/lesson\', 48]"\n    [routerLink]="[\'/lesson\', 48]"\n  ></row>\n</list>\n<button routerLink="/history">\n  History, with a plain string link\n</button>',
+
       tip: 'Use the string form when the path never changes and the array form when any piece comes from data. Never build a link by gluing strings together in the template: the array is the gluing, done safely.',
     },
     {
@@ -640,7 +644,8 @@ export class LessonService extends ReactiveService {
       minutes: '4 min',
       intro: 'Links cover taps on blocks. Code covers the rest: after a save, after a sign in, whenever a value decides the destination. Inject Router and call navigate with a commands array, the array form of a link, or navigateByUrl with a whole path string. Both write to the same navigator the links use, and both resolve from the root of the route table: relative navigation, from this route to a sibling, is not supported yet. The demo asks for a lesson number and navigates to it from a method: type a number from 1 to 65 and tap Go. Ask for a number with no lesson and the lesson screen answers plainly that the lesson could not be found, which is honest behaviour for a bad address.',
       code: "this.router.navigate(['/lesson', this.target]);",
-      implementation: '// programmatic-nav.component.ts\nimport { Component } from \'@angular/core\';\nimport { Router } from \'@angular/router\';\n\n@Component({\n  selector: \'app-programmatic-nav-demo\',\n  templateUrl: \'./programmatic-nav.component.html\',\n})\nexport class ProgrammaticNavDemoComponent {\n  target = \'\';\n\n  constructor(private router: Router) {}\n\n  go() {\n    this.router.navigate([\'/lesson\', this.target]);\n  }\n\n  goAbout() {\n    this.router.navigateByUrl(\'/about\');\n  }\n\n  goHome() {\n    this.router.navigate([\'/home\']);\n  }\n}\n\n// programmatic-nav.component.html\n<input label="Lesson number" placeholder="Type a number from 1 to 65" [(ngModel)]="target">\n<button (click)="go()" [disabled]="target === \'\'">\n  Go to that lesson\n</button>\n<button (click)="goAbout()">\n  About, by navigateByUrl\n</button>\n<button (click)="goHome()">\n  Home, by navigate\n</button>',
+      implementation: '// programmatic-nav.component.ts\nimport { Component } from \'@angular/core\';\nimport { Router } from \'@angular/router\';\n\n@Component({\n  selector: \'app-programmatic-nav-demo\',\n  templateUrl: \'./programmatic-nav.component.html\',\n})\nexport class ProgrammaticNavDemoComponent {\n  target = \'\';\n\n  constructor(private router: Router) {}\n\n  go() {\n    this.router.navigate([\'/lesson\', this.target]);\n  }\n\n  goHistory() {\n    this.router.navigateByUrl(\'/history\');\n  }\n\n  goHome() {\n    this.router.navigate([\'/home\']);\n  }\n}\n\n// programmatic-nav.component.html\n<input label="Lesson number" placeholder="Type a number from 1 to 65" [(ngModel)]="target">\n<button (click)="go()" [disabled]="target === \'\'">\n  Go to that lesson\n</button>\n<button (click)="goHistory()">\n  History, by navigateByUrl\n</button>\n<button (click)="goHome()">\n  Home, by navigate\n</button>',
+
       tip: 'Navigate from code at the end of an action, not instead of a link. If a plain tap on a block goes somewhere fixed, that is a routerLink; the Router service earns its place when logic chooses the moment or the destination.',
     },
     {
@@ -658,9 +663,10 @@ export class LessonService extends ReactiveService {
       title: 'What routing does not do yet',
       subtitle: 'No guards, resolvers, or lazy routes; the check before you navigate',
       minutes: '5 min',
-      intro: 'Stated plainly, so a route table never promises what it cannot do: Rangular routes have no guards, no resolvers, no lazy loading, no child routes, and no routerLinkActive styling. A route entry that uses one fails the build with GEN_ROUTE_UNSUPPORTED, naming the feature, rather than compiling into a half working screen. The everyday need behind a guard, keeping a visitor out of a screen until a condition holds, has a working pattern today: check first, then navigate, with the check living in the tap handler instead of the route table. The demo is a diary gate, built from the opposite pair of lesson 7. With the switch off, the button only warns. With it on, the same button navigates, here to the About screen, which plays the diary so you can watch the navigation happen.',
+      intro: 'Stated plainly, so a route table never promises what it cannot do: Rangular routes have no guards, no resolvers, no lazy loading, no child routes, and no routerLinkActive styling. A route entry that uses one fails the build with GEN_ROUTE_UNSUPPORTED, naming the feature, rather than compiling into a half working screen. The everyday need behind a guard, keeping a visitor out of a screen until a condition holds, has a working pattern today: check first, then navigate, with the check living in the tap handler instead of the route table. The demo is a diary gate, built from the opposite pair of lesson 7. With the switch off, the button only warns. With it on, the same button navigates, here to the History screen, which plays the diary so you can watch the navigation happen.',
       code: '<button *ngIf="signedIn" (click)="openDiary()">Open my diary</button>',
-      implementation: '// route-gate.component.ts\nimport { Component } from \'@angular/core\';\nimport { Router } from \'@angular/router\';\nimport { SnackBar } from \'@angular/material/snack-bar\';\n\n@Component({\n  selector: \'app-route-gate-demo\',\n  templateUrl: \'./route-gate.component.html\',\n})\nexport class RouteGateDemoComponent {\n  signedIn = false;\n\n  constructor(\n    private router: Router,\n    private snack: SnackBar,\n  ) {}\n\n  onSignedIn(value: boolean) {\n    this.signedIn = value;\n  }\n\n  warn() {\n    this.snack.open(\'Sign in first. The diary stays closed.\');\n  }\n\n  openDiary() {\n    this.router.navigate([\'/about\']);\n  }\n}\n\n// route-gate.component.html\n<switch [checked]="signedIn" (change)="onSignedIn($event)">\n  Signed in\n</switch>\n<p>{{ signedIn ? \'You are signed in.\' : \'You are signed out.\' }}</p>\n<button *ngIf="signedIn" (click)="openDiary()">\n  Open my diary\n</button>\n<button *ngIf="!signedIn" (click)="warn()">\n  Open my diary\n</button>\n<p>One button, two handlers, chosen by the check. In this tutorial the About screen plays the diary, so you can watch the navigation happen.</p>',
+      implementation: '// route-gate.component.ts\nimport { Component } from \'@angular/core\';\nimport { Router } from \'@angular/router\';\nimport { SnackBar } from \'@angular/material/snack-bar\';\n\n@Component({\n  selector: \'app-route-gate-demo\',\n  templateUrl: \'./route-gate.component.html\',\n})\nexport class RouteGateDemoComponent {\n  signedIn = false;\n\n  constructor(\n    private router: Router,\n    private snack: SnackBar,\n  ) {}\n\n  onSignedIn(value: boolean) {\n    this.signedIn = value;\n  }\n\n  warn() {\n    this.snack.open(\'Sign in first. The diary stays closed.\');\n  }\n\n  openDiary() {\n    this.router.navigate([\'/history\']);\n  }\n}\n\n// route-gate.component.html\n<switch [checked]="signedIn" (change)="onSignedIn($event)">\n  Signed in\n</switch>\n<p>{{ signedIn ? \'You are signed in.\' : \'You are signed out.\' }}</p>\n<button *ngIf="signedIn" (click)="openDiary()">\n  Open my diary\n</button>\n<button *ngIf="!signedIn" (click)="warn()">\n  Open my diary\n</button>\n<p>One button, two handlers, chosen by the check. In this tutorial the History screen plays the diary, so you can watch the navigation happen.</p>',
+
       tip: 'Put the check where the action starts, and make the refusal kind and clear: a message that says what is missing, not a dead button. When guards arrive in the framework, these checks move into the route table almost word for word.',
     },
     {
@@ -728,7 +734,7 @@ export class LessonService extends ReactiveService {
       title: 'Drawer: a panel from the left',
       subtitle: 'Navigation that slides over the screen, MatSidenav in over mode',
       minutes: '4 min',
-      intro: 'A drawer is a full height panel that slides in from the left, over the screen. In Angular Material it is MatSidenav; here it follows the same overlay contract as the menu: [open] and (close), a boolean of yours, and a backdrop tap closes it. This app already trusts the piece with its own navigation: the menu icon on Home opens a drawer holding the Home and About links. One limit, stated plainly: the drawer is the over mode only. A permanently visible side column is not a drawer at all; on a wide layout you build that from a plain section beside your content.',
+      intro: 'A drawer is a full height panel that slides in from the left, over the screen. In Angular Material it is MatSidenav; here it follows the same overlay contract as the menu: [open] and (close), a boolean of yours, and a backdrop tap closes it. This app already trusts the piece with its own navigation: the menu icon on Home opens a drawer holding a link to every tab. One limit, stated plainly: the drawer is the over mode only. A permanently visible side column is not a drawer at all; on a wide layout you build that from a plain section beside your content.',
       code: '<drawer [open]="navOpen" (close)="closeNav()">',
       implementation: '// drawer.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-drawer-demo\',\n  templateUrl: \'./drawer.component.html\',\n})\nexport class DrawerDemoComponent {\n  navOpen = false;\n  section = \'Inbox\';\n\n  openNav() {\n    this.navOpen = true;\n  }\n\n  closeNav() {\n    this.navOpen = false;\n  }\n\n  go(name: string) {\n    this.section = name;\n    this.navOpen = false;\n  }\n}\n\n// drawer.component.html\n<p>You are reading: {{ section }}</p>\n<button (click)="openNav()">\n  Open the drawer\n</button>\n<drawer [open]="navOpen" (close)="closeNav()">\n  <h3>\n    Mailbox\n  </h3>\n  <p>Pick a section. The drawer closes and the line above follows your pick.</p>\n  <button variant="text" (click)="go(\'Inbox\')">\n    Inbox\n  </button>\n  <button variant="text" (click)="go(\'Starred\')">\n    Starred\n  </button>\n  <button variant="text" (click)="go(\'Sent\')">\n    Sent\n  </button>\n</drawer>',
       tip: 'Put destinations in the drawer, not settings or content. When a tap inside the drawer moves the user somewhere, close the drawer in the same handler, so the panel is gone when the new screen arrives.',
@@ -1024,6 +1030,7 @@ export class BookmarksService extends ReactiveService {
   bookmarkIds: number[] = [];
   completions: { id: number; day: string }[] = [];
   lastLessonId = 0;
+  recentIds: number[] = [];
   howToSeen = false;
   storageKey = 'rangular-tutorial.progress.v1';
   db: any = null;
@@ -1055,6 +1062,8 @@ export class BookmarksService extends ReactiveService {
     this.completions = (saved.completions === undefined ? [] : saved.completions);
     this.__notify();
     this.lastLessonId = saved.lastLessonId;
+    this.__notify();
+    this.recentIds = (saved.recentIds === undefined ? [] : saved.recentIds);
     this.__notify();
     this.howToSeen = saved.howToSeen === true;
     this.__notify();
@@ -1097,6 +1106,10 @@ export class BookmarksService extends ReactiveService {
     this.howToSeen = r.value === 'true';
     this.__notify();
   }
+  if (r.key === 'recentIds') {
+    this.recentIds = JSON.parse(r.value);
+    this.__notify();
+  }
 });
   }
   importOldSave() {
@@ -1108,6 +1121,8 @@ export class BookmarksService extends ReactiveService {
     this.completions = (saved.completions === undefined ? [] : saved.completions);
     this.__notify();
     this.lastLessonId = saved.lastLessonId;
+    this.__notify();
+    this.recentIds = (saved.recentIds === undefined ? [] : saved.recentIds);
     this.__notify();
     this.howToSeen = saved.howToSeen === true;
     this.__notify();
@@ -1146,6 +1161,11 @@ export class BookmarksService extends ReactiveService {
 }, () => {
 
 });
+  this.db.runAsync('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', 'recentIds', JSON.stringify(this.recentIds)).then(() => {
+
+}, () => {
+
+});
   this.db.runAsync('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', 'howToSeen', String(this.howToSeen)).then(() => {
   this.finishSave();
 }, () => {
@@ -1157,7 +1177,7 @@ export class BookmarksService extends ReactiveService {
         }
       }
     } else {
-      AsyncStorage.setItem(this.storageKey, JSON.stringify({ bookmarkIds: this.bookmarkIds, completions: this.completions, lastLessonId: this.lastLessonId, howToSeen: this.howToSeen }));
+      AsyncStorage.setItem(this.storageKey, JSON.stringify({ bookmarkIds: this.bookmarkIds, completions: this.completions, lastLessonId: this.lastLessonId, recentIds: this.recentIds, howToSeen: this.howToSeen }));
     }
   }
   finishSave() {
@@ -1176,6 +1196,8 @@ export class BookmarksService extends ReactiveService {
   }
   recordLast(id: number) {
     this.lastLessonId = id;
+    this.__notify();
+    this.recentIds = [id, ...this.recentIds.filter((x) => x !== id)].slice(0, 20);
     this.__notify();
     this.save();
   }
@@ -1394,6 +1416,451 @@ export class ActivityLogService extends ReactiveService {
   }
 }
 
+export class AlarmService extends ReactiveService {
+  time = '07:00';
+  enabled = false;
+  ringing = false;
+  storageKey = 'rangular-tutorial.alarm.v1';
+  notificationId = '';
+  player: any = null;
+  listener: any = null;
+  constructor() {
+    super();
+    if (Platform.OS !== 'web') {
+      Notifications.setNotificationHandler({ handleNotification: () => ({ shouldShowBanner: true, shouldShowList: true, shouldPlaySound: false, shouldSetBadge: false }) });
+      this.listener = Notifications.addNotificationReceivedListener(() => {
+  if (this.enabled) {
+    this.fire();
+  }
+});
+      this.__notify();
+    }
+    AsyncStorage.getItem(this.storageKey).then((raw) => {
+  if (raw) {
+    const saved = JSON.parse(raw);
+    if (saved.time !== undefined) {
+      this.time = saved.time;
+      this.__notify();
+    }
+    if (saved.enabled === true) {
+      this.enabled = true;
+      this.__notify();
+      this.arm();
+    }
+  }
+}, () => {
+
+});
+  }
+  save() {
+    AsyncStorage.setItem(this.storageKey, JSON.stringify({ time: this.time, enabled: this.enabled }));
+  }
+  arm() {
+    if (Platform.OS === 'web') {
+      return;
+    }
+    const parts = this.time.split(':');
+    Notifications.requestPermissionsAsync().then(() => {
+  Notifications.cancelAllScheduledNotificationsAsync().then(() => {
+  Notifications.scheduleNotificationAsync({ content: { title: 'Alarm', body: 'Your alarm is ringing.', sound: 'alarm-tone.wav' }, trigger: { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour: parseInt(parts[0], 10), minute: parseInt(parts[1], 10) } }).then((id) => {
+  this.notificationId = id;
+  this.__notify();
+}, () => {
+
+});
+}, () => {
+
+});
+}, () => {
+
+});
+  }
+  setAlarm(time: string) {
+    this.time = time;
+    this.__notify();
+    this.enabled = true;
+    this.__notify();
+    this.save();
+    this.arm();
+  }
+  cancel() {
+    this.enabled = false;
+    this.__notify();
+    if (Platform.OS !== 'web') {
+      Notifications.cancelAllScheduledNotificationsAsync().then(() => {
+
+}, () => {
+
+});
+      this.notificationId = '';
+      this.__notify();
+    }
+    this.save();
+  }
+  fire() {
+    this.ringing = true;
+    this.__notify();
+    this.player = createAudioPlayer(toneSource);
+    this.__notify();
+    this.player.loop = true;
+    this.player.play();
+  }
+  stop() {
+    this.ringing = false;
+    this.__notify();
+    this.enabled = false;
+    this.__notify();
+    if (this.player) {
+      this.player.pause();
+      this.player.remove();
+      this.player = null;
+      this.__notify();
+    }
+    if (Platform.OS !== 'web') {
+      Notifications.cancelAllScheduledNotificationsAsync().then(() => {
+
+}, () => {
+
+});
+      this.notificationId = '';
+      this.__notify();
+    }
+    this.save();
+  }
+}
+
+export class MarioService extends ReactiveService {
+  levelRows: string[] = [
+    '                                                                                          ',
+    '                                                                                          ',
+    '                                                                                     F|   ',
+    '                                                     o                                |   ',
+    '                               oooo                 ===                               |   ',
+    '               B?B         oo     #         oo               BB?BBB    #              |   ',
+    '                     ==   ===    ##           PP   =   =               ##             |   ',
+    '            PP                  ###       PP  PP              oooo     ###            |   ',
+    '            PP                 ####       PP  PP                       ####           |   ',
+    '#######################  ###########################   #####################  ############',
+    '#######################  ###########################   #####################  ############',
+  ];
+  rowIdx = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  colIdx = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
+  grid: string[][] = [];
+  view: string[][] = [];
+  px = 2;
+  py = 8;
+  vy = 0;
+  run = 0;
+  grounded = true;
+  enemies: any[] = [];
+  coins = 0;
+  lives = 3;
+  state = 'playing';
+  stateLine = 'Reach the flag.';
+  timer: any = null;
+  start() {
+    if (this.timer) {
+      return;
+    }
+    this.buildLevel();
+    this.resetEnemies();
+    this.render();
+    this.timer = setInterval(() => this.tick(), 50);
+    this.__notify();
+  }
+  stop() {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+    this.timer = null;
+    this.__notify();
+  }
+  buildLevel() {
+    this.grid = this.levelRows.map((r) => r.split(''));
+    this.__notify();
+  }
+  resetEnemies() {
+    this.enemies = [{ x: 28, min: 26, max: 29, dir: -1, alive: true }, { x: 44, min: 44, max: 45, dir: 1, alive: true }, { x: 68, min: 66, max: 69, dir: -1, alive: true }, { x: 78, min: 78, max: 79, dir: 1, alive: true }];
+    this.__notify();
+  }
+  solidAt(c: number, r: number) {
+    if (c < 0 || c >= 90) {
+      return true;
+    }
+    if (r < 0 || r >= 11) {
+      return false;
+    }
+    const ch = this.grid[r][c];
+    return ch === '#' || ch === 'B' || ch === '?' || ch === 'P' || ch === '=';
+  }
+  boxHitsSolid(x: number, y: number) {
+    const c0 = Math.floor(x + 0.05);
+    const c1 = Math.floor(x + 0.95);
+    const r0 = Math.floor(y + 0.05);
+    const r1 = Math.floor(y + 0.95);
+    const cols = (c1 === c0 ? [c0] : [c0, c1]);
+    const rows = (r1 === r0 ? [r0] : [r0, r1]);
+    let hit = false;
+    cols.forEach((c) => {
+  rows.forEach((r) => {
+  if (this.solidAt(c, r)) {
+    hit = true;
+  }
+});
+});
+    return hit;
+  }
+  tick() {
+    if (this.state !== 'playing') {
+      return;
+    }
+    const dt = 0.05;
+    const vx = this.run * 5.5;
+    if (vx !== 0) {
+      const nx = this.px + vx * dt;
+      if (!this.boxHitsSolid(nx, this.py)) {
+        this.px = nx;
+        this.__notify();
+      }
+    }
+    this.vy = Math.min(this.vy + 30 * dt, 18);
+    this.__notify();
+    const ny = this.py + this.vy * dt;
+    if (this.boxHitsSolid(this.px, ny)) {
+      if (this.vy > 0) {
+        this.py = Math.floor(ny + 0.95) - 1 + 0.001;
+        this.__notify();
+        this.grounded = true;
+        this.__notify();
+      } else {
+        this.py = Math.floor(ny) + 1;
+        this.__notify();
+      }
+      this.vy = 0;
+      this.__notify();
+    } else {
+      this.py = ny;
+      this.__notify();
+      this.grounded = this.boxHitsSolid(this.px, this.py + 0.06);
+      this.__notify();
+      if (this.grounded) {
+        this.vy = 0;
+        this.__notify();
+      }
+    }
+    this.enemies = this.enemies.map((e) => {
+  if (!e.alive) {
+    return e;
+  }
+  let x = e.x + e.dir * 2.2 * dt;
+  let dir = e.dir;
+  if (x < e.min) {
+    x = e.min;
+    dir = 1;
+  }
+  if (x > e.max) {
+    x = e.max;
+    dir = -1;
+  }
+  return { x, min: e.min, max: e.max, dir, alive: true };
+});
+    this.__notify();
+    const cc = Math.floor(this.px + 0.5);
+    const cr = Math.floor(this.py + 0.5);
+    if (cr >= 0 && cr < 11 && cc >= 0 && cc < 90 && this.grid[cr][cc] === 'o') {
+      this.grid[cr][cc] = ' ';
+      this.coins = this.coins + 1;
+      this.__notify();
+    }
+    this.enemies.forEach((e) => {
+  if (!e.alive || this.state !== 'playing') {
+    return;
+  }
+  const overlap = this.px + 0.9 > e.x && this.px < e.x + 0.9 && this.py + 0.9 > 8 && this.py < 9;
+  if (overlap) {
+    if (this.vy > 2 && this.py + 1 <= 8.6) {
+      e.alive = false;
+      this.vy = -8;
+      this.__notify();
+    } else {
+      this.die();
+    }
+  }
+});
+    if (this.state !== 'playing') {
+      this.render();
+      return;
+    }
+    if (this.py > 10.4) {
+      this.die();
+      this.render();
+      return;
+    }
+    if (this.px >= 85.1) {
+      this.state = 'won';
+      this.__notify();
+      this.stateLine = 'You reached the flag. Level complete.';
+      this.__notify();
+    }
+    this.render();
+  }
+  die() {
+    this.lives = this.lives - 1;
+    this.__notify();
+    if (this.lives <= 0) {
+      this.state = 'over';
+      this.__notify();
+      this.stateLine = 'Game over. Restart and try again.';
+      this.__notify();
+      return;
+    }
+    this.stateLine = 'Ouch. ' + this.lives + ((this.lives === 1 ? ' life' : ' lives')) + ' left.';
+    this.__notify();
+    this.px = 2;
+    this.__notify();
+    this.py = 8;
+    this.__notify();
+    this.vy = 0;
+    this.__notify();
+    this.run = 0;
+    this.__notify();
+    this.resetEnemies();
+  }
+  render() {
+    let cam = Math.floor(this.px) - 6;
+    if (cam < 0) {
+      cam = 0;
+    }
+    if (cam > 72) {
+      cam = 72;
+    }
+    this.view = this.rowIdx.map((r) => this.colIdx.map((dc) => {
+  const c = cam + dc;
+  let ch = this.grid[r][c];
+  this.enemies.forEach((e) => {
+  if (e.alive && Math.floor(e.x) === c && r === 8) {
+    ch = 'E';
+  }
+});
+  if (Math.floor(this.px) === c && Math.floor(this.py) === r) {
+    ch = 'X';
+  }
+  return ch;
+}));
+    this.__notify();
+  }
+  goLeft() {
+    this.run = (this.run === -1 ? 0 : -1);
+    this.__notify();
+  }
+  goRight() {
+    this.run = (this.run === 1 ? 0 : 1);
+    this.__notify();
+  }
+  jump() {
+    if (this.state === 'playing' && this.grounded) {
+      this.vy = -15;
+      this.__notify();
+      this.grounded = false;
+      this.__notify();
+    }
+  }
+  restart() {
+    this.buildLevel();
+    this.resetEnemies();
+    this.px = 2;
+    this.__notify();
+    this.py = 8;
+    this.__notify();
+    this.vy = 0;
+    this.__notify();
+    this.run = 0;
+    this.__notify();
+    this.coins = 0;
+    this.__notify();
+    this.lives = 3;
+    this.__notify();
+    this.state = 'playing';
+    this.__notify();
+    this.stateLine = 'Reach the flag.';
+    this.__notify();
+    this.render();
+  }
+}
+
+export class HabitService extends ReactiveService {
+  names: string[] = [
+    'Morning workout',
+    'Read for 20 minutes',
+    'Write code for one hour',
+    'No phone after 9 pm',
+    'Drink two litres of water',
+  ];
+  doneToday: boolean[] = [false, false, false, false, false];
+  storageKey = 'rangular-tutorial.habits.v1';
+  loaded = false;
+  waiters: any[] = [];
+  constructor() {
+    super();
+    AsyncStorage.getItem(this.storageKey).then((raw) => {
+  if (raw) {
+    const saved = JSON.parse(raw);
+    if (saved.names !== undefined && saved.names.length > 0) {
+      this.names = saved.names;
+      this.__notify();
+      this.doneToday = this.names.map(() => false);
+      this.__notify();
+    }
+    if (saved.day === this.dayKey() && saved.done !== undefined) {
+      this.doneToday = this.names.map((_, i) => saved.done[i] === true);
+      this.__notify();
+    }
+  }
+  this.loaded = true;
+  this.__notify();
+  const pending = this.waiters;
+  this.waiters = [];
+  this.__notify();
+  pending.forEach((cb) => cb());
+}, () => {
+  this.loaded = true;
+  this.__notify();
+});
+  }
+  dayKey() {
+    return 'day-' + Math.floor(Date.now() / 86400000);
+  }
+  whenLoaded(cb: () => void) {
+    if (this.loaded) {
+      cb();
+    } else {
+      this.waiters.push(cb);
+    }
+  }
+  save() {
+    AsyncStorage.setItem(this.storageKey, JSON.stringify({ names: this.names, day: this.dayKey(), done: this.doneToday }));
+  }
+  toggle(i: number) {
+    this.doneToday = this.doneToday.map((d, j) => ((j === i ? !d : d)));
+    this.__notify();
+    this.save();
+  }
+  add(name: string) {
+    this.names = [...this.names, name];
+    this.__notify();
+    this.doneToday = [...this.doneToday, false];
+    this.__notify();
+    this.save();
+  }
+  remove(i: number) {
+    this.names = this.names.filter((_, j) => j !== i);
+    this.__notify();
+    this.doneToday = this.doneToday.filter((_, j) => j !== i);
+    this.__notify();
+    this.save();
+  }
+}
+
 export class DurationPipe {
   transform(value: number) {
     const hours = Math.floor(value / 60);
@@ -1422,8 +1889,11 @@ __container.register(FavouritesService, new FavouritesService());
 __container.register(MinutesService, new MinutesService());
 __container.register(UserService, new UserService(__container.get<HttpClient>(HttpClient)));
 __container.register(ActivityLogService, new ActivityLogService());
+__container.register(AlarmService, new AlarmService());
+__container.register(MarioService, new MarioService());
+__container.register(HabitService, new HabitService());
 
-const __navigator = new RgNavigator([{"path":"","redirectTo":"splash"},{"path":"splash"},{"path":"home"},{"path":"saved"},{"path":"progress"},{"path":"lesson/:id"},{"path":"about"},{"path":"**"}]);
+const __navigator = new RgNavigator([{"path":"","redirectTo":"splash"},{"path":"splash"},{"path":"home"},{"path":"saved"},{"path":"history"},{"path":"progress","redirectTo":"history"},{"path":"lesson/:id"},{"path":"samples"},{"path":"samples/alarm"},{"path":"samples/mario"},{"path":"samples/habit"},{"path":"about"},{"path":"**"}]);
 const __router = new Router(__navigator);
 
 const __snackBar = new SnackBar();
@@ -1457,11 +1927,7 @@ export function Home() {
   const [query, setQuery] = useState('');
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState([]);
-  const [continueLesson, setContinueLesson] = useState(null);
-  const [doneCount, setDoneCount] = useState(0);
-  const [doneMinutes, setDoneMinutes] = useState(0);
-  const [percent, setPercent] = useState(0);
-  const [allDone, setAllDone] = useState(false);
+  const [lastLesson, setLastLesson] = useState(null);
   const [starterLessons, setStarterLessons] = useState([]);
   const [batchLessons, setBatchLessons] = useState([]);
   const [formsLessons, setFormsLessons] = useState([]);
@@ -1485,15 +1951,9 @@ export function Home() {
     refreshProgress();
   };
   const refreshProgress = () => {
-    let __shadowDoneCount = doneCount;
-    const done = lessons.lessons.filter((l: Lesson) => bookmarks.isDone(l.id));
-    __shadowDoneCount = done.length;
-    setDoneCount(__shadowDoneCount);
-    setDoneMinutes(done.reduce((sum: number, l: Lesson) => sum + parseInt(l.minutes, 10), 0));
-    setPercent(Math.round((__shadowDoneCount * 100) / 97));
-    setAllDone(__shadowDoneCount >= 97);
-    const next = lessons.lessons.find((l: Lesson) => !bookmarks.isDone(l.id));
-    setContinueLesson((next === undefined ? null : next));
+    const lastId = (bookmarks.recentIds.length > 0 ? bookmarks.recentIds[0] : bookmarks.lastLessonId);
+    const found = lessons.lessons.find((l: Lesson) => l.id === lastId);
+    setLastLesson((found === undefined ? null : found));
     setStarterMeta(doneIn(1, 5));
     setBatchMeta(doneIn(6, 25));
     setFormsMeta(doneIn(26, 47));
@@ -1533,9 +1993,11 @@ export function Home() {
       setResults([]);
     }
   };
-  const goContinue = () => {
-    if (continueLesson) {
-      router.navigate(['/lesson', continueLesson.id]);
+  const goLastVisited = () => {
+    if (lastLesson) {
+      router.navigate(['/lesson', lastLesson.id]);
+    } else {
+      router.navigate(['/lesson', 1]);
     }
   };
   const openNav = () => {
@@ -1545,9 +2007,9 @@ export function Home() {
     if (i === 1) {
       router.navigate(['/saved']);
     } else if (i === 2) {
-      router.navigate(['/progress']);
+      router.navigate(['/history']);
     } else if (i === 3) {
-      router.navigate(['/about']);
+      router.navigate(['/samples']);
     }
   };
   useEffect(() => {
@@ -1556,23 +2018,24 @@ export function Home() {
   return (
     <RgSection>
       {/* (menu) has no standard RN prop, mapped to onMenu */}
-      <RgAppbar tone="tint" title="Rangular" pin menu onMenu={() => openNav()} />
+      <RgAppbar tone="tint" title="Rangular Tutorial" pin menu onMenu={() => openNav()} />
       <RgBottomNav haptic index={0} onChange={($event) => pickTab($event)}>
         <RgNavItem icon="home" label="Learn" />
         <RgNavItem icon="bookmark" label="Saved" />
-        <RgNavItem icon="chart" label="Progress" />
-        <RgNavItem icon="info" label="About" />
+        <RgNavItem icon="calendar" label="History" />
+        <RgNavItem icon="play" label="Samples" />
       </RgBottomNav>
       <RgSection>
-        <RgCard onPress={() => goContinue()} style={styles.homePathCard}>
-          <RgText variant="title">Your path</RgText>
-          <RgText variant="bodyLarge">{doneCount} of 95 lessons · {doneMinutes} minutes in</RgText>
-          <RgProgressBar value={percent} />
-          {allDone && (
-            <RgText variant="bodyLarge">You finished the whole path. Every lesson is still here when you want it again.</RgText>
+        <RgCard onPress={() => goLastVisited()} style={styles.homePathCard}>
+          <RgText variant="title">Last visited</RgText>
+          {lastLesson && (
+            <RgText variant="bodyLarge">Lesson {lastLesson.id} · {lastLesson.title}</RgText>
           )}
-          {continueLesson && (
-            <RgText variant="bodyLarge" style={styles.homePathContinue}>Lesson {continueLesson.id} · {continueLesson.title}</RgText>
+          {!lastLesson && (
+            <RgText variant="bodyLarge">No lesson opened yet. Start with Lesson 1, and your place will wait for you here.</RgText>
+          )}
+          {lastLesson && (
+            <RgText variant="bodyLarge" style={styles.homePathContinue}>Tap to pick it up again</RgText>
           )}
         </RgCard>
         <RgInput variant="search" placeholder="Search 97 lessons" onChangeText={($event) => onQuery($event)} value={query} />
@@ -1634,7 +2097,7 @@ export function Home() {
                 ))}
               </RgList>
             </RgSection>
-            <RgText variant="bodyLarge">95 lessons · Rangular framework 0.3.4</RgText>
+            <RgText variant="bodyLarge">97 lessons · Rangular framework 0.3.4</RgText>
           </RgSection>
         )}
       </RgSection>
@@ -1672,9 +2135,9 @@ export function Saved() {
     if (i === 0) {
       router.navigate(['/home']);
     } else if (i === 2) {
-      router.navigate(['/progress']);
+      router.navigate(['/history']);
     } else if (i === 3) {
-      router.navigate(['/about']);
+      router.navigate(['/samples']);
     }
   };
   useEffect(() => {
@@ -1687,8 +2150,8 @@ export function Saved() {
       <RgBottomNav haptic index={1} onChange={($event) => pickTab($event)}>
         <RgNavItem icon="home" label="Learn" />
         <RgNavItem icon="bookmark" label="Saved" />
-        <RgNavItem icon="chart" label="Progress" />
-        <RgNavItem icon="info" label="About" />
+        <RgNavItem icon="calendar" label="History" />
+        <RgNavItem icon="play" label="Samples" />
       </RgBottomNav>
       <RgText variant="bodyLarge">Lessons you bookmarked, kept on this device.</RgText>
       {(savedLessons.length > 0) && (
@@ -1705,7 +2168,7 @@ export function Saved() {
   );
 }
 
-export function Progress() {
+export function History() {
   const lessons = __container.get<LessonService>(LessonService);
   useSyncExternalStore((cb) => lessons.__subscribe(cb), () => lessons.__getVersion());
   const bookmarks = __container.get<BookmarksService>(BookmarksService);
@@ -1713,26 +2176,23 @@ export function Progress() {
   const shell = __container.get<ShellService>(ShellService);
   useSyncExternalStore((cb) => shell.__subscribe(cb), () => shell.__getVersion());
   const router = __router;
+  const [recentLessons, setRecentLessons] = useState([]);
   const [doneCount, setDoneCount] = useState(0);
   const [doneMinutes, setDoneMinutes] = useState(0);
   const [percent, setPercent] = useState(0);
   const [savedCount, setSavedCount] = useState(0);
-  const [lastLesson, setLastLesson] = useState(null);
   const [weekData, setWeekData] = useState([]);
   const [groups, setGroups] = useState([]);
   const ngOnInit = () => {
     let __shadowDoneCount = doneCount;
-    shell.setPlace('progress');
+    shell.setPlace('history');
+    setRecentLessons(bookmarks.recentIds.slice(0, 5).map((id: number) => lessons.lessons.find((l: Lesson) => l.id === id)).filter((l: any) => l !== undefined));
     const done = lessons.lessons.filter((l: Lesson) => bookmarks.isDone(l.id));
     __shadowDoneCount = done.length;
     setDoneCount(__shadowDoneCount);
     setDoneMinutes(done.reduce((sum: number, l: Lesson) => sum + parseInt(l.minutes, 10), 0));
     setPercent(Math.round((__shadowDoneCount * 100) / 97));
     setSavedCount(bookmarks.bookmarkIds.length);
-    if (bookmarks.lastLessonId > 0) {
-      const found = lessons.lessons.find((l: Lesson) => l.id === bookmarks.lastLessonId);
-      setLastLesson((found === undefined ? null : found));
-    }
     setWeekData([6, 5, 4, 3, 2, 1, 0].map((off: number) => ({ label: dayLabel(off), value: dayMinutes(off) })));
     setGroups([groupStat('Getting started', 1, 5), groupStat('Components and templates', 6, 25), groupStat('Forms and interaction', 26, 47), groupStat('Services, routing, and data', 48, 67), groupStat('The Material pieces', 68, 78), groupStat('Beyond Angular', 79, 97)]);
   };
@@ -1761,7 +2221,7 @@ export function Progress() {
     } else if (i === 1) {
       router.navigate(['/saved']);
     } else if (i === 3) {
-      router.navigate(['/about']);
+      router.navigate(['/samples']);
     }
   };
   useEffect(() => {
@@ -1770,34 +2230,45 @@ export function Progress() {
   return (
     <RgSection>
       {/* (menu) has no standard RN prop, mapped to onMenu */}
-      <RgAppbar tone="tint" title="Your progress" pin menu onMenu={() => openNav()} />
+      <RgAppbar tone="tint" title="History" pin menu onMenu={() => openNav()} />
       <RgBottomNav haptic index={2} onChange={($event) => pickTab($event)}>
         <RgNavItem icon="home" label="Learn" />
         <RgNavItem icon="bookmark" label="Saved" />
-        <RgNavItem icon="chart" label="Progress" />
-        <RgNavItem icon="info" label="About" />
+        <RgNavItem icon="calendar" label="History" />
+        <RgNavItem icon="play" label="Samples" />
       </RgBottomNav>
-      <RgCard style={styles.progressPathCard}>
-        <RgText variant="heading">{percent}%</RgText>
-        <RgText variant="bodyLarge">{doneCount} of 97 lessons · {doneMinutes} minutes in</RgText>
-        <RgProgressBar value={percent} />
-        {lastLesson && (
-          <RgText variant="bodyLarge">You are on Lesson {lastLesson.id} · {lastLesson.title}</RgText>
+      <RgSection label="Recently visited" plain>
+        {(recentLessons.length > 0) && (
+          <RgList>
+            {recentLessons.map((l, index) => (
+              <RgRow key={l?.id ?? index} avatarTone="varied" avatar avatarText={l.id} title={l.title} subtitle={l.subtitle} time={l.minutes} onPress={() => __router.navigate(['/lesson', l.id])} />
+            ))}
+          </RgList>
         )}
-      </RgCard>
-      <RgSection style={styles.progressStatRow}>
-        <RgCard style={styles.progressStatTile}>
-          <RgText variant="title">{doneCount}</RgText>
-          <RgText variant="bodyLarge">lessons done</RgText>
+        {(recentLessons.length === 0) && (
+          <RgText variant="bodyLarge">No lessons visited yet. Open any lesson and it will wait for you here.</RgText>
+        )}
+      </RgSection>
+      <RgSection label="Your progress" plain>
+        <RgCard style={styles.historyPathCard}>
+          <RgText variant="heading">{percent}%</RgText>
+          <RgText variant="bodyLarge">{doneCount} of 97 lessons · {doneMinutes} minutes in</RgText>
+          <RgProgressBar value={percent} />
         </RgCard>
-        <RgCard style={styles.progressStatTile}>
-          <RgText variant="title">{doneMinutes}</RgText>
-          <RgText variant="bodyLarge">minutes in</RgText>
-        </RgCard>
-        <RgCard style={styles.progressStatTile}>
-          <RgText variant="title">{savedCount}</RgText>
-          <RgText variant="bodyLarge">saved</RgText>
-        </RgCard>
+        <RgSection style={styles.historyStatRow}>
+          <RgCard style={styles.historyStatTile}>
+            <RgText variant="title">{doneCount}</RgText>
+            <RgText variant="bodyLarge">lessons done</RgText>
+          </RgCard>
+          <RgCard style={styles.historyStatTile}>
+            <RgText variant="title">{doneMinutes}</RgText>
+            <RgText variant="bodyLarge">minutes in</RgText>
+          </RgCard>
+          <RgCard style={styles.historyStatTile}>
+            <RgText variant="title">{savedCount}</RgText>
+            <RgText variant="bodyLarge">saved</RgText>
+          </RgCard>
+        </RgSection>
       </RgSection>
       <RgSection label="This week" plain>
         <RgChart type="bar" data={weekData} />
@@ -4423,8 +4894,10 @@ export function RoutesTableDemo() {
     { path: '(empty path)', screen: 'Redirects to splash' },
     { path: 'splash', screen: 'SplashComponent' },
     { path: 'home', screen: 'HomeComponent' },
+    { path: 'saved', screen: 'SavedComponent' },
+    { path: 'history', screen: 'HistoryComponent' },
     { path: 'lesson/:id', screen: 'LessonComponent' },
-    { path: 'about', screen: 'AboutComponent' },
+    { path: 'samples', screen: 'SamplesComponent' },
     { path: '**', screen: 'NotFoundComponent' },
   ];
   return (
@@ -4436,7 +4909,7 @@ export function RoutesTableDemo() {
       </RgList>
       <RgText variant="bodyLarge">This screen is the LessonComponent row at work: the router matched lesson/:id and the outlet in the app shell rendered this lesson in its place.</RgText>
       <RgText variant="bodyLarge">The two buttons are real links, and they leave this lesson:</RgText>
-      <RgButton onPress={() => __router.navigateByUrl("/about")}>Open About through a link</RgButton>
+      <RgButton onPress={() => __router.navigateByUrl("/history")}>Open History through a link</RgButton>
       <RgButton onPress={() => __router.navigateByUrl("/home")}>Open Home through a link</RgButton>
     </>
   );
@@ -4450,7 +4923,7 @@ export function RouterLinkDemo() {
         <RgRow title="Lesson 26: Template driven forms with ngModel" subtitle="Array link: ['/lesson', 26]" onPress={() => __router.navigate(['/lesson', 26])} />
         <RgRow title="Lesson 48: Services" subtitle="Array link: ['/lesson', 48]" onPress={() => __router.navigate(['/lesson', 48])} />
       </RgList>
-      <RgButton onPress={() => __router.navigateByUrl("/about")}>About, with a plain string link</RgButton>
+      <RgButton onPress={() => __router.navigateByUrl("/history")}>History, with a plain string link</RgButton>
     </>
   );
 }
@@ -4499,8 +4972,8 @@ export function ProgrammaticNavDemo() {
   const go = () => {
     router.navigate(['/lesson', target]);
   };
-  const goAbout = () => {
-    router.navigateByUrl('/about');
+  const goHistory = () => {
+    router.navigateByUrl('/history');
   };
   const goHome = () => {
     router.navigate(['/home']);
@@ -4509,7 +4982,7 @@ export function ProgrammaticNavDemo() {
     <>
       <RgInput label="Lesson number" placeholder="Type a number from 1 to 65" value={target} onChangeText={($event) => setTarget($event)} />
       <RgButton disabled={(target === '')} onPress={() => go()}>Go to that lesson</RgButton>
-      <RgButton onPress={() => goAbout()}>About, by navigateByUrl</RgButton>
+      <RgButton onPress={() => goHistory()}>History, by navigateByUrl</RgButton>
       <RgButton onPress={() => goHome()}>Home, by navigate</RgButton>
     </>
   );
@@ -4536,7 +5009,7 @@ export function RouteGateDemo() {
     snack.open('Sign in first. The diary stays closed.');
   };
   const openDiary = () => {
-    router.navigate(['/about']);
+    router.navigate(['/history']);
   };
   return (
     <>
@@ -4548,7 +5021,7 @@ export function RouteGateDemo() {
       {!signedIn && (
         <RgButton onPress={() => warn()}>Open my diary</RgButton>
       )}
-      <RgText variant="bodyLarge">One button, two handlers, chosen by the check. In this tutorial the About screen plays the diary, so you can watch the navigation happen.</RgText>
+      <RgText variant="bodyLarge">One button, two handlers, chosen by the check. In this tutorial the History screen plays the diary, so you can watch the navigation happen.</RgText>
     </>
   );
 }
@@ -5632,12 +6105,12 @@ export function BreadcrumbsDemo() {
   );
 }
 
-export function About() {
+export function Samples() {
   const shell = __container.get<ShellService>(ShellService);
   useSyncExternalStore((cb) => shell.__subscribe(cb), () => shell.__getVersion());
   const router = __router;
   const ngOnInit = () => {
-    shell.setPlace('about');
+    shell.setPlace('samples');
   };
   const openNav = () => {
     shell.openDrawer();
@@ -5648,8 +6121,17 @@ export function About() {
     } else if (i === 1) {
       router.navigate(['/saved']);
     } else if (i === 2) {
-      router.navigate(['/progress']);
+      router.navigate(['/history']);
     }
+  };
+  const goAlarm = () => {
+    router.navigate(['/samples/alarm']);
+  };
+  const goMario = () => {
+    router.navigate(['/samples/mario']);
+  };
+  const goHabit = () => {
+    router.navigate(['/samples/habit']);
   };
   useEffect(() => {
     ngOnInit();
@@ -5657,13 +6139,62 @@ export function About() {
   return (
     <RgSection>
       {/* (menu) has no standard RN prop, mapped to onMenu */}
-      <RgAppbar tone="tint" title="About" pin menu onMenu={() => openNav()} />
+      <RgAppbar tone="tint" title="Samples" pin menu onMenu={() => openNav()} />
       <RgBottomNav haptic index={3} onChange={($event) => pickTab($event)}>
         <RgNavItem icon="home" label="Learn" />
         <RgNavItem icon="bookmark" label="Saved" />
-        <RgNavItem icon="chart" label="Progress" />
-        <RgNavItem icon="info" label="About" />
+        <RgNavItem icon="calendar" label="History" />
+        <RgNavItem icon="play" label="Samples" />
       </RgBottomNav>
+      <RgText variant="bodyLarge">Small, complete apps, each built with the pieces the lessons teach. Open one and use it.</RgText>
+      <RgCard onPress={() => goAlarm()}>
+        <RgSection style={styles.samplesSampleRow}>
+          <RgSection style={styles.samplesSampleMain}>
+            <RgText variant="title">Alarm</RgText>
+            <RgText variant="bodyLarge">A working alarm clock. Pick a time, switch it on, and it rings with its tone: on this screen while the app is open, and as a system notification when it is not.</RgText>
+          </RgSection>
+          <RgIcon name="chevron-right" />
+        </RgSection>
+      </RgCard>
+      <RgCard onPress={() => goMario()}>
+        <RgSection style={styles.samplesSampleRow}>
+          <RgSection style={styles.samplesSampleMain}>
+            <RgText variant="title">Platformer</RgText>
+            <RgText variant="bodyLarge">A small Mario style platform game: run, jump, gather coins, dodge the walkers, and reach the flag. One level, drawn and animated entirely with bindings.</RgText>
+          </RgSection>
+          <RgIcon name="chevron-right" />
+        </RgSection>
+      </RgCard>
+      <RgCard onPress={() => goHabit()}>
+        <RgSection style={styles.samplesSampleRow}>
+          <RgSection style={styles.samplesSampleMain}>
+            <RgText variant="title">Habit tracker</RgText>
+            <RgText variant="bodyLarge">A daily checklist for the habits you choose. Tick each one off as the day goes, and start fresh tomorrow. Your list and your ticks stay on this device.</RgText>
+          </RgSection>
+          <RgIcon name="chevron-right" />
+        </RgSection>
+      </RgCard>
+      <RgText variant="bodyLarge">Every sample on this page was built with Rangular, and so was this entire app: each screen began as Angular code and was compiled by the Rangular framework into the React Native app you are holding.</RgText>
+    </RgSection>
+  );
+}
+
+export function About() {
+  const shell = __container.get<ShellService>(ShellService);
+  useSyncExternalStore((cb) => shell.__subscribe(cb), () => shell.__getVersion());
+  const router = __router;
+  const ngOnInit = () => {
+    shell.setPlace('about');
+  };
+  const goBack = () => {
+    router.navigate(['/home']);
+  };
+  useEffect(() => {
+    ngOnInit();
+  }, []);
+  return (
+    <RgSection>
+      <RgAppbar tone="tint" title="About" pin back onBack={() => goBack()} />
       <RgCard style={styles.aboutHero}>
         <RgSection style={styles.aboutHeroMark}>
           <RgIcon name="logo" size={48} />
@@ -5679,7 +6210,7 @@ export function About() {
       </RgCard>
       <RgCard>
         <RgSection icon="bookmark" label="Bookmarks and your place">
-          <RgText variant="bodyLarge">Your saved lessons, your path, and your minutes are kept on this device only. Nothing is sent anywhere. They keep across restarts, so the lesson you were reading is still your place when you come back.</RgText>
+          <RgText variant="bodyLarge">Your saved lessons, your recent lessons, and your progress are kept on this device only. Nothing is sent anywhere. They keep across restarts, so the lesson you were reading is still your place when you come back.</RgText>
         </RgSection>
       </RgCard>
       <RgCard>
@@ -5699,6 +6230,199 @@ export function About() {
         </RgSection>
       </RgCard>
       <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.3.4</RgText>
+    </RgSection>
+  );
+}
+
+export function AlarmSample() {
+  const alarm = __container.get<AlarmService>(AlarmService);
+  useSyncExternalStore((cb) => alarm.__subscribe(cb), () => alarm.__getVersion());
+  const router = __router;
+  const [picked, setPicked] = useState('07:00');
+  const ngOnInit = () => {
+    setPicked(alarm.time);
+  };
+  const onTime = (value: string) => {
+    setPicked(value);
+  };
+  const setAlarm = () => {
+    alarm.setAlarm(picked);
+  };
+  const turnOff = () => {
+    alarm.cancel();
+  };
+  const stopRinging = () => {
+    alarm.stop();
+  };
+  const goBack = () => {
+    router.navigate(['/samples']);
+  };
+  useEffect(() => {
+    ngOnInit();
+  }, []);
+  return (
+    <RgSection>
+      <RgAppbar tone="tint" title="Alarm" pin back onBack={() => goBack()} />
+      {alarm.ringing && (
+        <RgCard style={styles.alarmSampleReadout}>
+          <RgText variant="title" style={styles.alarmSampleStateLine}>Your alarm is ringing</RgText>
+          <RgText variant="bodyLarge" style={styles.alarmSampleBigTime}>{alarm.time}</RgText>
+          <RgButton color="danger" onPress={() => stopRinging()}>Stop</RgButton>
+        </RgCard>
+      )}
+      <RgCard style={styles.alarmSampleReadout}>
+        <RgText variant="bodyLarge" style={styles.alarmSampleBigTime}>{(alarm.enabled ? alarm.time : picked)}</RgText>
+        {alarm.enabled && (
+          <RgText variant="bodyLarge" style={styles.alarmSampleStateLine}>Alarm is on for {alarm.time}. It rings here while the app is open, and as a notification when it is not.</RgText>
+        )}
+        {!alarm.enabled && (
+          <RgText variant="bodyLarge" style={styles.alarmSampleStateLine}>Alarm is off. Pick a time and set it.</RgText>
+        )}
+      </RgCard>
+      <RgDateTimePicker mode="time" minuteInterval={1} label="Alarm time" value={picked} onChange={($event) => onTime($event)} />
+      <RgButton onPress={() => setAlarm()}>Set alarm</RgButton>
+      {alarm.enabled && (
+        <RgButton variant="text" color="danger" onPress={() => turnOff()}>Turn off</RgButton>
+      )}
+    </RgSection>
+  );
+}
+
+export function MarioSample() {
+  const game = __container.get<MarioService>(MarioService);
+  useSyncExternalStore((cb) => game.__subscribe(cb), () => game.__getVersion());
+  const router = __router;
+  const ngOnInit = () => {
+    game.start();
+  };
+  const ngOnDestroy = () => {
+    game.stop();
+  };
+  const goLeft = () => {
+    game.goLeft();
+  };
+  const goRight = () => {
+    game.goRight();
+  };
+  const jump = () => {
+    game.jump();
+  };
+  const restart = () => {
+    game.restart();
+  };
+  const goBack = () => {
+    router.navigate(['/samples']);
+  };
+  useEffect(() => {
+    ngOnInit();
+    return () => {
+      ngOnDestroy();
+    };
+  }, []);
+  return (
+    <RgSection>
+      <RgAppbar tone="tint" title="Platformer" pin back onBack={() => goBack()} />
+      <RgCard style={styles.marioSampleReadout}>
+        <RgText variant="title">Coins {game.coins} · Lives {game.lives}</RgText>
+        <RgText variant="bodyLarge">{game.stateLine}</RgText>
+        <RgText variant="bodyLarge">Tap an arrow to run that way. Tap it again to stop. Jump with the up key. Stomp a walker by landing on it.</RgText>
+      </RgCard>
+      <RgSection style={styles.marioSampleStage}>
+        {game.view.map((row, index) => (
+          <RgSection key={row?.id ?? index} style={styles.marioSampleTrow}>
+            {row.map((c, index) => (
+              <RgSection key={c?.id ?? index} style={[styles.marioSampleCell, styles.marioSampleSky, (c === '#') ? styles.marioSampleGround : undefined, (c === 'B') ? styles.marioSampleBrick : undefined, (c === '?') ? styles.marioSampleQblock : undefined, (c === 'P') ? styles.marioSamplePipe : undefined, (c === '=') ? styles.marioSamplePlat : undefined, (c === 'o') ? styles.marioSampleCoin : undefined, (c === '|') ? styles.marioSamplePole : undefined, (c === 'F') ? styles.marioSampleFlag : undefined, (c === 'E') ? styles.marioSampleEnemy : undefined, (c === 'X') ? styles.marioSamplePlayer : undefined]}>
+                {(c === 'X') && (
+                  <RgSection>
+                    <RgSection style={styles.marioSampleCap} />
+                    <RgSection style={styles.marioSampleFace} />
+                  </RgSection>
+                )}
+              </RgSection>
+            ))}
+          </RgSection>
+        ))}
+      </RgSection>
+      <RgSection style={styles.marioSampleKeysRow}>
+        <DeviceKey glyph="<" label="left" onPressed={($event) => goLeft()} />
+        <DeviceKey glyph="^" label="jump" onPressed={($event) => jump()} />
+        <DeviceKey glyph=">" label="right" onPressed={($event) => goRight()} />
+      </RgSection>
+      <RgButton variant="text" onPress={() => restart()}>Restart level</RgButton>
+    </RgSection>
+  );
+}
+
+export function HabitSample() {
+  const habits = __container.get<HabitService>(HabitService);
+  useSyncExternalStore((cb) => habits.__subscribe(cb), () => habits.__getVersion());
+  const router = __router;
+  const [rows, setRows] = useState([]);
+  const [doneCount, setDoneCount] = useState(0);
+  const [percent, setPercent] = useState(0);
+  const [newName, setNewName] = useState('');
+  const ngOnInit = () => {
+    refresh();
+    habits.whenLoaded(() => refresh());
+  };
+  const refresh = () => {
+    let __shadowRows = rows;
+    let __shadowDoneCount = doneCount;
+    __shadowRows = habits.names.map((name, i) => ({ name, done: habits.doneToday[i] === true }));
+    setRows(__shadowRows);
+    __shadowDoneCount = __shadowRows.filter((r) => r.done).length;
+    setDoneCount(__shadowDoneCount);
+    setPercent((__shadowRows.length === 0 ? 0 : Math.round((__shadowDoneCount * 100) / __shadowRows.length)));
+  };
+  const toggle = (i: number) => {
+    habits.toggle(i);
+    refresh();
+  };
+  const add = () => {
+    const name = newName.trim();
+    if (name === '') {
+      return;
+    }
+    habits.add(name);
+    setNewName('');
+    refresh();
+  };
+  const remove = (i: number) => {
+    habits.remove(i);
+    refresh();
+  };
+  const goBack = () => {
+    router.navigate(['/samples']);
+  };
+  useEffect(() => {
+    ngOnInit();
+  }, []);
+  return (
+    <RgSection>
+      <RgAppbar tone="tint" title="Habit tracker" pin back onBack={() => goBack()} />
+      <RgCard style={styles.habitSampleReadout}>
+        <RgText variant="title">{doneCount} of {rows.length} done today</RgText>
+        <RgProgressBar value={percent} />
+        <RgText variant="bodyLarge">A new day starts unticked. Nothing carries over, and nothing is owed.</RgText>
+      </RgCard>
+      {rows.map((r, i) => (
+        <RgSection key={r?.id ?? i} style={styles.habitSampleHabitRow}>
+          <RgSection onPress={() => toggle(i)} style={styles.habitSampleCheckHit}>
+            <RgSection style={[styles.habitSampleCheck, r.done ? styles.habitSampleCheckOn : undefined]}>
+              {r.done && (
+                <RgIcon name="check" size={20} color="onPrimary" />
+              )}
+            </RgSection>
+          </RgSection>
+          <RgText variant="bodyLarge" style={styles.habitSampleHabitName}>{r.name}</RgText>
+          <RgButton variant="text" onPress={() => remove(i)}>Remove</RgButton>
+        </RgSection>
+      ))}
+      {(rows.length === 0) && (
+        <RgText variant="bodyLarge">No habits yet. Add your first one below.</RgText>
+      )}
+      <RgInput label="New habit" placeholder="e.g. Walk for 15 minutes" value={newName} onChangeText={($event) => setNewName($event)} />
+      <RgButton disabled={(newName === '')} onPress={() => add()}>Add habit</RgButton>
     </RgSection>
   );
 }
@@ -5738,9 +6462,13 @@ export default function App() {
     shell.closeDrawer();
     router.navigate(['/saved']);
   };
-  const goProgress = () => {
+  const goHistory = () => {
     shell.closeDrawer();
-    router.navigate(['/progress']);
+    router.navigate(['/history']);
+  };
+  const goSamples = () => {
+    shell.closeDrawer();
+    router.navigate(['/samples']);
   };
   const goAbout = () => {
     shell.closeDrawer();
@@ -5755,20 +6483,21 @@ export default function App() {
               <RgIcon name="code" size={24} color="onPrimary" />
             </RgSection>
             <RgText variant="title">Rangular Tutorial</RgText>
-            <RgText variant="bodyLarge">95 lessons · Learn by running code</RgText>
+            <RgText variant="bodyLarge">97 lessons · Learn by running code</RgText>
           </RgSection>
           <RgList>
             <RgRow icon="home" title="Learn" selected={(shell.place === 'learn')} onPress={() => goLearn()} />
             <RgRow icon="bookmark" title="Saved lessons" selected={(shell.place === 'saved')} onPress={() => goSaved()} />
-            <RgRow icon="chart" title="Your progress" selected={(shell.place === 'progress')} onPress={() => goProgress()} />
+            <RgRow icon="calendar" title="History" selected={(shell.place === 'history')} onPress={() => goHistory()} />
             <RgRow icon="info" title="How to use this tutorial" onPress={() => openHowTo()} />
+            <RgRow icon="play" title="Samples" selected={(shell.place === 'samples')} onPress={() => goSamples()} />
             <RgRow icon="info" title="About" selected={(shell.place === 'about')} onPress={() => goAbout()} />
           </RgList>
           <RgText variant="bodyLarge">Rangular framework 0.3.4</RgText>
         </RgDrawer>
         <RgDialog title="How to use this tutorial" open={shell.howToOpen} onClose={() => closeHowTo()}>
           <RgText variant="bodyLarge">Start at Lesson 1 and go in order. Tap a lesson, read it, try its demo, then mark it done and move to the next one.</RgText>
-          <RgText variant="bodyLarge">Use the search on Home to find one topic. Tap the bookmark icon on a lesson row, or on the lesson screen itself, to save the lesson. Your saved lessons live on the Saved tab, and your path and minutes live on the Progress tab.</RgText>
+          <RgText variant="bodyLarge">Use the search on Home to find one topic. Tap the bookmark icon on a lesson row, or on the lesson screen itself, to save the lesson. Your saved lessons live on the Saved tab, your recent lessons and progress live on the History tab, and small working apps built with Rangular live on the Samples tab.</RgText>
           <RgActions>
             <RgButton variant="text" onPress={() => closeHowTo()}>Got it</RgButton>
           </RgActions>
@@ -5789,14 +6518,34 @@ export default function App() {
               <Saved key={__route.path} />
             </ActivatedRouteContext.Provider>
           )}
-          {__route.routePath === "progress" && (
+          {__route.routePath === "history" && (
             <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
-              <Progress key={__route.path} />
+              <History key={__route.path} />
             </ActivatedRouteContext.Provider>
           )}
           {__route.routePath === "lesson/:id" && (
             <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
               <Lesson key={__route.path} />
+            </ActivatedRouteContext.Provider>
+          )}
+          {__route.routePath === "samples" && (
+            <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
+              <Samples key={__route.path} />
+            </ActivatedRouteContext.Provider>
+          )}
+          {__route.routePath === "samples/alarm" && (
+            <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
+              <AlarmSample key={__route.path} />
+            </ActivatedRouteContext.Provider>
+          )}
+          {__route.routePath === "samples/mario" && (
+            <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
+              <MarioSample key={__route.path} />
+            </ActivatedRouteContext.Provider>
+          )}
+          {__route.routePath === "samples/habit" && (
+            <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
+              <HabitSample key={__route.path} />
             </ActivatedRouteContext.Provider>
           )}
           {__route.routePath === "about" && (
@@ -5822,9 +6571,9 @@ const styles = StyleSheet.create({
   splashEntryStats: {"color":"#5f6368"},
   homePathCard: {"backgroundColor":"#e8f0fe","borderWidth":0,"borderRadius":16,"padding":16},
   homePathContinue: {"color":"#0b57d0","fontWeight":600},
-  progressPathCard: {"backgroundColor":"#e8f0fe","borderWidth":0,"borderRadius":16,"padding":16},
-  progressStatRow: {"flexDirection":"row","gap":12},
-  progressStatTile: {"flex":1},
+  historyPathCard: {"backgroundColor":"#e8f0fe","borderWidth":0,"borderRadius":16,"padding":16},
+  historyStatRow: {"flexDirection":"row","gap":12},
+  historyStatTile: {"flex":1},
   lessonEyebrow: {"color":"#5f6368","fontWeight":700},
   lessonTipCard: {"backgroundColor":"#e8f0fe","borderWidth":0},
   lessonDemoCard: {"backgroundColor":"transparent","borderWidth":0,"padding":0},
@@ -5857,10 +6606,39 @@ const styles = StyleSheet.create({
   logListPanel: {"borderWidth":1,"borderColor":"#a06a35","borderRadius":12,"padding":12,"backgroundColor":"#fdf6ec"},
   capstoneDemoPanel: {"borderWidth":1,"borderColor":"#a06a35","borderRadius":12,"padding":12,"backgroundColor":"#fdf6ec"},
   capstoneDemoBtnrow: {"flexDirection":"row","gap":8},
+  samplesSampleRow: {"flexDirection":"row","alignItems":"center","gap":12},
+  samplesSampleMain: {"flex":1},
   aboutHero: {"backgroundColor":"#0b57d0","borderWidth":0,"borderRadius":16,"padding":16},
   aboutHeroMark: {"width":48,"height":48,"alignItems":"center","justifyContent":"center"},
   aboutHeroTitle: {"color":"#ffffff"},
   aboutHeroText: {"color":"#d3e3fd"},
+  alarmSampleReadout: {"backgroundColor":"#fdf6ec","borderColor":"#a06a35","borderRadius":16,"padding":16},
+  alarmSampleBigTime: {"fontSize":32,"fontWeight":700,"textAlign":"center"},
+  alarmSampleStateLine: {"textAlign":"center"},
+  marioSampleReadout: {"backgroundColor":"#fdf6ec","borderColor":"#a06a35","borderRadius":16,"padding":16},
+  marioSampleStage: {"alignItems":"center","padding":8},
+  marioSampleTrow: {"flexDirection":"row","justifyContent":"center","gap":0},
+  marioSampleCell: {"width":17,"height":17},
+  marioSampleSky: {"backgroundColor":"#bfe3f2"},
+  marioSampleGround: {"backgroundColor":"#9c6642"},
+  marioSampleBrick: {"backgroundColor":"#c1553b"},
+  marioSampleQblock: {"backgroundColor":"#e8a91c"},
+  marioSamplePipe: {"backgroundColor":"#3f9e4d"},
+  marioSamplePlat: {"backgroundColor":"#7a4a21"},
+  marioSampleCoin: {"backgroundColor":"#f5c542","borderRadius":9999,"borderWidth":2,"borderColor":"#b8860b"},
+  marioSamplePole: {"backgroundColor":"#2e7d32"},
+  marioSampleFlag: {"backgroundColor":"#2e7d32","borderRadius":8},
+  marioSampleEnemy: {"backgroundColor":"#6d3b1f","borderRadius":8},
+  marioSamplePlayer: {"backgroundColor":"#d43a2f","borderRadius":8},
+  marioSampleCap: {"backgroundColor":"#8f1d14","height":5,"borderRadius":8},
+  marioSampleFace: {"backgroundColor":"#f2c49b","height":6,"borderRadius":8,"margin":4},
+  marioSampleKeysRow: {"flexDirection":"row","gap":8,"justifyContent":"center","padding":12},
+  habitSampleReadout: {"backgroundColor":"#fdf6ec","borderColor":"#a06a35","borderRadius":16,"padding":16},
+  habitSampleHabitRow: {"flexDirection":"row","alignItems":"center","gap":12,"padding":8},
+  habitSampleCheckHit: {"width":44,"height":44,"alignItems":"center","justifyContent":"center"},
+  habitSampleCheck: {"width":34,"height":34,"borderRadius":8,"borderWidth":2,"borderColor":"#a06a35","alignItems":"center","justifyContent":"center"},
+  habitSampleCheckOn: {"backgroundColor":"#a06a35"},
+  habitSampleHabitName: {"flex":1,"fontSize":16},
   drawerHead: {"padding":16},
   drawerMark: {"width":48,"height":48,"borderRadius":9999,"backgroundColor":"#0b57d0","alignItems":"center","justifyContent":"center"},
 });

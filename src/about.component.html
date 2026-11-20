@@ -1,11 +1,5 @@
 <section>
-  <appbar pin tone="tint" title="About" menu (menu)="openNav()"></appbar>
-  <bottom-nav haptic [index]="3" (change)="pickTab($event)">
-    <nav-item icon="home" label="Learn"></nav-item>
-    <nav-item icon="bookmark" label="Saved"></nav-item>
-    <nav-item icon="chart" label="Progress"></nav-item>
-    <nav-item icon="info" label="About"></nav-item>
-  </bottom-nav>
+  <appbar pin tone="tint" title="About" back (back)="goBack()"></appbar>
   <card class="hero">
     <section class="hero-mark">
       <icon name="logo" size="48"></icon>
@@ -21,7 +15,7 @@
   </card>
   <card>
     <section icon="bookmark" label="Bookmarks and your place">
-      <p>Your saved lessons, your path, and your minutes are kept on this device only. Nothing is sent anywhere. They keep across restarts, so the lesson you were reading is still your place when you come back.</p>
+      <p>Your saved lessons, your recent lessons, and your progress are kept on this device only. Nothing is sent anywhere. They keep across restarts, so the lesson you were reading is still your place when you come back.</p>
     </section>
   </card>
   <card>

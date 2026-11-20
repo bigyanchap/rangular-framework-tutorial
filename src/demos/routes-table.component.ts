@@ -15,8 +15,10 @@ export class RoutesTableDemoComponent {
     { path: '(empty path)', screen: 'Redirects to splash' },
     { path: 'splash', screen: 'SplashComponent' },
     { path: 'home', screen: 'HomeComponent' },
+    { path: 'saved', screen: 'SavedComponent' },
+    { path: 'history', screen: 'HistoryComponent' },
     { path: 'lesson/:id', screen: 'LessonComponent' },
-    { path: 'about', screen: 'AboutComponent' },
+    { path: 'samples', screen: 'SamplesComponent' },
     { path: '**', screen: 'NotFoundComponent' },
   ];
 }

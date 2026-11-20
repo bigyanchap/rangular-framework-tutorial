@@ -3,8 +3,8 @@
   <bottom-nav haptic [index]="1" (change)="pickTab($event)">
     <nav-item icon="home" label="Learn"></nav-item>
     <nav-item icon="bookmark" label="Saved"></nav-item>
-    <nav-item icon="chart" label="Progress"></nav-item>
-    <nav-item icon="info" label="About"></nav-item>
+    <nav-item icon="calendar" label="History"></nav-item>
+    <nav-item icon="play" label="Samples"></nav-item>
   </bottom-nav>
   <p>Lessons you bookmarked, kept on this device.</p>
   <list *ngIf="savedLessons.length > 0">

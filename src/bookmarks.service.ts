@@ -29,6 +29,7 @@ export class BookmarksService {
   bookmarkIds: number[] = [];
   completions: { id: number; day: string }[] = [];
   lastLessonId = 0;
+  recentIds: number[] = [];
   howToSeen = false;
   storageKey = 'rangular-tutorial.progress.v1';
   db: any = null;
@@ -56,6 +57,7 @@ export class BookmarksService {
           this.bookmarkIds = saved.bookmarkIds;
           this.completions = saved.completions === undefined ? [] : saved.completions;
           this.lastLessonId = saved.lastLessonId;
+          this.recentIds = saved.recentIds === undefined ? [] : saved.recentIds;
           this.howToSeen = saved.howToSeen === true;
         }
       }, () => {});
@@ -86,6 +88,9 @@ export class BookmarksService {
       if (r.key === 'howToSeen') {
         this.howToSeen = r.value === 'true';
       }
+      if (r.key === 'recentIds') {
+        this.recentIds = JSON.parse(r.value);
+      }
     });
   }
 
@@ -96,6 +101,7 @@ export class BookmarksService {
         this.bookmarkIds = saved.bookmarkIds;
         this.completions = saved.completions === undefined ? [] : saved.completions;
         this.lastLessonId = saved.lastLessonId;
+        this.recentIds = saved.recentIds === undefined ? [] : saved.recentIds;
         this.howToSeen = saved.howToSeen === true;
         this.save();
       }
@@ -117,6 +123,7 @@ export class BookmarksService {
               this.db.runAsync('INSERT OR REPLACE INTO completions (lesson_id, day) VALUES (?, ?)', c.id, c.day).then(() => {}, () => {});
             });
             this.db.runAsync('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', 'lastLessonId', String(this.lastLessonId)).then(() => {}, () => {});
+            this.db.runAsync('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', 'recentIds', JSON.stringify(this.recentIds)).then(() => {}, () => {});
             this.db.runAsync('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', 'howToSeen', String(this.howToSeen)).then(() => {
               this.finishSave();
             }, () => {
@@ -134,6 +141,7 @@ export class BookmarksService {
           bookmarkIds: this.bookmarkIds,
           completions: this.completions,
           lastLessonId: this.lastLessonId,
+          recentIds: this.recentIds,
           howToSeen: this.howToSeen,
         }),
       );
@@ -165,6 +173,7 @@ export class BookmarksService {
 
   recordLast(id: number) {
     this.lastLessonId = id;
+    this.recentIds = [id, ...this.recentIds.filter((x) => x !== id)].slice(0, 20);
     this.save();
   }
 

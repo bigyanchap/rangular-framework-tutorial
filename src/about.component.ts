@@ -3,10 +3,12 @@ import { Router } from '@angular/router';
 import { ShellService } from './shell.service';
 
 /**
- * The About tab: one title in the bar, a hero that says what
- * the app is, and short cards with an icon chip each. As a tab
- * root it carries no back chevron; the bar's menu opens the
- * drawer, like every tab.
+ * The About page: a hero that says what the app is, and
+ * short cards with an icon chip each. It is not a tab any
+ * more (the Samples tab took the fourth tab slot in the
+ * 2026-11-20 overhaul); it lives in the drawer menu, and
+ * its bar carries the standard back chevron to Home, like
+ * the sample pages.
  */
 @Component({
   selector: 'app-about',
@@ -28,13 +30,7 @@ export class AboutComponent {
     this.shell.setPlace('about');
   }
 
-  openNav() {
-    this.shell.openDrawer();
-  }
-
-  pickTab(i: number) {
-    if (i === 0) this.router.navigate(['/home']);
-    else if (i === 1) this.router.navigate(['/saved']);
-    else if (i === 2) this.router.navigate(['/progress']);
+  goBack() {
+    this.router.navigate(['/home']);
   }
 }

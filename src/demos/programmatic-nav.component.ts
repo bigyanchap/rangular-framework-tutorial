@@ -20,8 +20,8 @@ export class ProgrammaticNavDemoComponent {
     this.router.navigate(['/lesson', this.target]);
   }
 
-  goAbout() {
-    this.router.navigateByUrl('/about');
+  goHistory() {
+    this.router.navigateByUrl('/history');
   }
 
   goHome() {

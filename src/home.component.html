@@ -1,18 +1,17 @@
 <section>
-  <appbar pin tone="tint" title="Rangular" menu (menu)="openNav()"></appbar>
+  <appbar pin tone="tint" title="Rangular Tutorial" menu (menu)="openNav()"></appbar>
   <bottom-nav haptic [index]="0" (change)="pickTab($event)">
     <nav-item icon="home" label="Learn"></nav-item>
     <nav-item icon="bookmark" label="Saved"></nav-item>
-    <nav-item icon="chart" label="Progress"></nav-item>
-    <nav-item icon="info" label="About"></nav-item>
+    <nav-item icon="calendar" label="History"></nav-item>
+    <nav-item icon="play" label="Samples"></nav-item>
   </bottom-nav>
   <section>
-    <card class="path-card" (click)="goContinue()">
-      <h3>Your path</h3>
-      <p>{{ doneCount }} of 95 lessons · {{ doneMinutes }} minutes in</p>
-      <progress-bar [value]="percent"></progress-bar>
-      <p *ngIf="allDone">You finished the whole path. Every lesson is still here when you want it again.</p>
-      <p *ngIf="continueLesson" class="path-continue">Lesson {{ continueLesson.id }} · {{ continueLesson.title }}</p>
+    <card class="path-card" (click)="goLastVisited()">
+      <h3>Last visited</h3>
+      <p *ngIf="lastLesson">Lesson {{ lastLesson.id }} · {{ lastLesson.title }}</p>
+      <p *ngIf="!lastLesson">No lesson opened yet. Start with Lesson 1, and your place will wait for you here.</p>
+      <p *ngIf="lastLesson" class="path-continue">Tap to pick it up again</p>
     </card>
     <input variant="search" placeholder="Search 97 lessons" [value]="query" (change)="onQuery($event)">
     <section *ngIf="searching">
@@ -54,7 +53,7 @@
         <row *ngFor="let l of beyondLessons" avatar [avatarTone]="tileTone(l)" [avatarText]="tileText(l)" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
       </list>
     </section>
-    <p>95 lessons · Rangular framework 0.3.4</p>
+    <p>97 lessons · Rangular framework 0.3.4</p>
     </section>
   </section>
 </section>

@@ -1,0 +1,16 @@
+<section>
+  <appbar pin tone="tint" title="Alarm" back (back)="goBack()"></appbar>
+  <card *ngIf="alarm.ringing" class="readout">
+    <h3 class="state-line">Your alarm is ringing</h3>
+    <p class="big-time">{{ alarm.time }}</p>
+    <button color="danger" (click)="stopRinging()">Stop</button>
+  </card>
+  <card class="readout">
+    <p class="big-time">{{ alarm.enabled ? alarm.time : picked }}</p>
+    <p *ngIf="alarm.enabled" class="state-line">Alarm is on for {{ alarm.time }}. It rings here while the app is open, and as a notification when it is not.</p>
+    <p *ngIf="!alarm.enabled" class="state-line">Alarm is off. Pick a time and set it.</p>
+  </card>
+  <datetime-picker label="Alarm time" mode="time" minuteInterval="1" [value]="picked" (change)="onTime($event)"></datetime-picker>
+  <button (click)="setAlarm()">Set alarm</button>
+  <button *ngIf="alarm.enabled" variant="text" color="danger" (click)="turnOff()">Turn off</button>
+</section>

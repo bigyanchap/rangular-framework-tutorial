@@ -45,9 +45,14 @@ export class AppComponent {
     this.router.navigate(['/saved']);
   }
 
-  goProgress() {
+  goHistory() {
     this.shell.closeDrawer();
-    this.router.navigate(['/progress']);
+    this.router.navigate(['/history']);
+  }
+
+  goSamples() {
+    this.shell.closeDrawer();
+    this.router.navigate(['/samples']);
   }
 
   goAbout() {

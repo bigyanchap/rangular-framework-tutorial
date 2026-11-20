@@ -7,7 +7,7 @@ import { SnackBar } from '@angular/material/snack-bar';
  * pattern that does a guard's everyday job today. The switch
  * holds the signed in state. The button is an opposite pair
  * from lesson 7: signed in, it navigates; signed out, the
- * same label only warns. The About screen plays the diary,
+ * same label only warns. The History screen plays the diary,
  * so the navigation is real and visible.
  */
 @Component({
@@ -31,6 +31,6 @@ export class RouteGateDemoComponent {
   }
 
   openDiary() {
-    this.router.navigate(['/about']);
+    this.router.navigate(['/history']);
   }
 }

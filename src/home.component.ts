@@ -17,8 +17,8 @@ type Lesson = {
 /**
  * Home, the Learn tab: a flat tint app bar that blends into the
  * status area, carrying a menu, a search action and a saved
- * shortcut. Below it, the reader's path: how far they are, and
- * the next lesson waiting. The lesson list follows in six
+ * shortcut. Below it, the last lesson the reader visited, one
+ * tap from opening again. The lesson list follows in six
  * labelled groups, each row a step on the path: a green check
  * tile for a done lesson, a blue tile for the current one, a
  * pastel number for the rest. The groups are split from the one
@@ -38,11 +38,7 @@ export class HomeComponent {
   query = '';
   searching = false;
   results: Lesson[] = [];
-  continueLesson: any = null;
-  doneCount = 0;
-  doneMinutes = 0;
-  percent = 0;
-  allDone = false;
+  lastLesson: any = null;
   starterLessons: Lesson[] = [];
   batchLessons: Lesson[] = [];
   formsLessons: Lesson[] = [];
@@ -75,13 +71,9 @@ export class HomeComponent {
   }
 
   refreshProgress() {
-    const done = this.lessons.lessons.filter((l: Lesson) => this.bookmarks.isDone(l.id));
-    this.doneCount = done.length;
-    this.doneMinutes = done.reduce((sum: number, l: Lesson) => sum + parseInt(l.minutes, 10), 0);
-    this.percent = Math.round((this.doneCount * 100) / 97);
-    this.allDone = this.doneCount >= 97;
-    const next = this.lessons.lessons.find((l: Lesson) => !this.bookmarks.isDone(l.id));
-    this.continueLesson = next === undefined ? null : next;
+    const lastId = this.bookmarks.recentIds.length > 0 ? this.bookmarks.recentIds[0] : this.bookmarks.lastLessonId;
+    const found = this.lessons.lessons.find((l: Lesson) => l.id === lastId);
+    this.lastLesson = found === undefined ? null : found;
     this.starterMeta = this.doneIn(1, 5);
     this.batchMeta = this.doneIn(6, 25);
     this.formsMeta = this.doneIn(26, 47);
@@ -129,8 +121,9 @@ export class HomeComponent {
     }
   }
 
-  goContinue() {
-    if (this.continueLesson) this.router.navigate(['/lesson', this.continueLesson.id]);
+  goLastVisited() {
+    if (this.lastLesson) this.router.navigate(['/lesson', this.lastLesson.id]);
+    else this.router.navigate(['/lesson', 1]);
   }
 
   openNav() {
@@ -139,7 +132,7 @@ export class HomeComponent {
 
   pickTab(i: number) {
     if (i === 1) this.router.navigate(['/saved']);
-    else if (i === 2) this.router.navigate(['/progress']);
-    else if (i === 3) this.router.navigate(['/about']);
+    else if (i === 2) this.router.navigate(['/history']);
+    else if (i === 3) this.router.navigate(['/samples']);
   }
 }

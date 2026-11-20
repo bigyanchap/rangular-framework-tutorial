@@ -57,7 +57,7 @@ export class SavedComponent {
 
   pickTab(i: number) {
     if (i === 0) this.router.navigate(['/home']);
-    else if (i === 2) this.router.navigate(['/progress']);
-    else if (i === 3) this.router.navigate(['/about']);
+    else if (i === 2) this.router.navigate(['/history']);
+    else if (i === 3) this.router.navigate(['/samples']);
   }
 }

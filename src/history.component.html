@@ -1,0 +1,46 @@
+<section>
+  <appbar pin tone="tint" title="History" menu (menu)="openNav()"></appbar>
+  <bottom-nav haptic [index]="2" (change)="pickTab($event)">
+    <nav-item icon="home" label="Learn"></nav-item>
+    <nav-item icon="bookmark" label="Saved"></nav-item>
+    <nav-item icon="calendar" label="History"></nav-item>
+    <nav-item icon="play" label="Samples"></nav-item>
+  </bottom-nav>
+  <section label="Recently visited" plain>
+    <list *ngIf="recentLessons.length > 0">
+      <row *ngFor="let l of recentLessons" avatar avatarTone="varied" [avatarText]="l.id" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [routerLink]="['/lesson', l.id]"></row>
+    </list>
+    <p *ngIf="recentLessons.length === 0">No lessons visited yet. Open any lesson and it will wait for you here.</p>
+  </section>
+  <section label="Your progress" plain>
+    <card class="path-card">
+      <h2>{{ percent }}%</h2>
+      <p>{{ doneCount }} of 97 lessons · {{ doneMinutes }} minutes in</p>
+      <progress-bar [value]="percent"></progress-bar>
+    </card>
+    <section class="stat-row">
+      <card class="stat-tile">
+        <h3>{{ doneCount }}</h3>
+        <p>lessons done</p>
+      </card>
+      <card class="stat-tile">
+        <h3>{{ doneMinutes }}</h3>
+        <p>minutes in</p>
+      </card>
+      <card class="stat-tile">
+        <h3>{{ savedCount }}</h3>
+        <p>saved</p>
+      </card>
+    </section>
+  </section>
+  <section label="This week" plain>
+    <chart type="bar" [data]="weekData"></chart>
+    <p>Every lesson counts, on any day.</p>
+  </section>
+  <section label="By section" plain>
+    <section *ngFor="let g of groups">
+      <p>{{ g.label }} · {{ g.done }} of {{ g.total }} done</p>
+      <progress-bar [value]="g.pct"></progress-bar>
+    </section>
+  </section>
+</section>
