@@ -1,4 +1,5 @@
-<section *ngFor="let q of quotes">
-  <p>{{ q }}</p>
-  <button (click)="save(q)">Save this quote</button>
+<section class="btnrow">
+  <button class="sq" *ngFor="let q of quotes; let i = index" (click)="save(q)">Save {{ i + 1 }}</button>
 </section>
+<label>The quotes</label>
+<p *ngFor="let q of quotes; let i = index">{{ i + 1 }}. {{ q }}</p>

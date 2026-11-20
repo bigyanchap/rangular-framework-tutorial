@@ -1,0 +1,9 @@
+<section class="panel">
+  <label>Inside the service: the array itself</label>
+  <p>items: {{ itemsText() }}</p>
+  <p>{{ shelf.items.length }} on the shelf. Fresh reads by this panel: {{ reads }}</p>
+</section>
+<section class="btnrow">
+  <button class="sq" (click)="quiet()">Add quietly</button>
+  <button class="sq" (click)="proper()">Add properly</button>
+</section>

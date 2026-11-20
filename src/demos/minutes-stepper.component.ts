@@ -2,12 +2,17 @@ import { Component } from '@angular/core';
 import { MinutesService } from './minutes.service';
 
 /**
- * Lesson 55's stepper: it only changes the value in the
- * service. It displays nothing itself.
+ * Lesson 55's stepper: square buttons under the display. It
+ * only changes the value in the service. It displays nothing
+ * itself.
  */
 @Component({
   selector: 'app-minutes-stepper',
   templateUrl: './minutes-stepper.component.html',
+  styles: [`
+    .btnrow { flex-direction: row; gap: 8px; }
+    .sq { width: 84px; height: 84px; border-radius: 16px; }
+  `],
 })
 export class MinutesStepperComponent {
   constructor(private focus: MinutesService) {}

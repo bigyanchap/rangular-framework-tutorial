@@ -1,14 +1,21 @@
 import { Component } from '@angular/core';
+import { SnackBar } from '@angular/material/snack-bar';
 import { FavouritesService } from './favourites.service';
 
 /**
- * Lesson 54's browser: three quotes of its own, each with a
- * Save button that asks the favourites service to keep it.
- * The browser keeps no list of what was saved.
+ * Lesson 54's browser: three quotes of its own, listed under
+ * a row of square Save buttons, one per quote, under the
+ * saved panel. Saving asks the favourites service to keep
+ * the quote and confirms with a toast. The browser keeps no
+ * list of what was saved.
  */
 @Component({
   selector: 'app-quote-browser',
   templateUrl: './quote-browser.component.html',
+  styles: [`
+    .btnrow { flex-direction: row; gap: 8px; }
+    .sq { width: 84px; height: 84px; border-radius: 16px; }
+  `],
 })
 export class QuoteBrowserComponent {
   quotes = [
@@ -17,9 +24,13 @@ export class QuoteBrowserComponent {
     'Small steps, taken daily, cross the mountain.',
   ];
 
-  constructor(private favourites: FavouritesService) {}
+  constructor(
+    private favourites: FavouritesService,
+    private snack: SnackBar,
+  ) {}
 
   save(quote: string) {
     this.favourites.save(quote);
+    this.snack.open('Saved to your list.');
   }
 }

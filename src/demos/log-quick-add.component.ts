@@ -2,13 +2,18 @@ import { Component } from '@angular/core';
 import { ActivityLogService } from './activity-log.service';
 
 /**
- * Capstone part 1's quick add: three honest buttons, each
- * one a single call into the log service. No form yet: this
- * lesson builds the data layer and its simplest writer.
+ * Capstone part 1's quick add: three honest square buttons
+ * under the log panel, each one a single call into the log
+ * service. No form yet: this lesson builds the data layer
+ * and its simplest writer.
  */
 @Component({
   selector: 'app-log-quick-add',
   templateUrl: './log-quick-add.component.html',
+  styles: [`
+    .btnrow { flex-direction: row; gap: 8px; }
+    .sq { width: 84px; height: 84px; border-radius: 16px; }
+  `],
 })
 export class LogQuickAddComponent {
   constructor(private log: ActivityLogService) {}

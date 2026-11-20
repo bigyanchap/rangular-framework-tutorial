@@ -8,12 +8,19 @@ import { ActivityLogService } from './activity-log.service';
  * (an input hands you text, and the total needs a number),
  * a gated Add, the shared ActivityLogService underneath, a
  * Remove on every entry, the running total, and a toast when
- * an activity is logged. Entries added in lesson 66 are still
+ * an activity is logged. The log sits in a panel at the top
+ * of the demo, so every add and remove shows at once, and
+ * the form sits under it. Entries added in lesson 66 are still
  * here, because the service outlives the screen.
  */
 @Component({
   selector: 'app-capstone-demo',
   templateUrl: './capstone.component.html',
+  styles: [`
+    .panel { border-width: 1px; border-color: #a06a35; border-radius: 12px; padding: 12px; background-color: #fdf6ec; }
+    .btnrow { flex-direction: row; gap: 8px; }
+    .sq { width: 72px; height: 72px; border-radius: 16px; }
+  `],
 })
 export class CapstoneDemoComponent {
   name = '';

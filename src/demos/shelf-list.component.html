@@ -1,0 +1,5 @@
+<label>The shelf, as the list renders it</label>
+<list>
+  <row *ngFor="let item of shelf.items" [title]="item"></row>
+</list>
+<button (click)="tap()">A local change in this component (taps: {{ taps }})</button>
