@@ -28,7 +28,16 @@
     },
     "version": "1.0.0",
     "plugins": [
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-audio",
+      [
+        "expo-notifications",
+        {
+          "sounds": [
+            "./assets/alarm-tone.wav"
+          ]
+        }
+      ]
     ]
   }
 }
