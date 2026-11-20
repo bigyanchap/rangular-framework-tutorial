@@ -5,7 +5,7 @@ import { ActivatedRouteContext, RgAccordion, RgActions, RgAppbar, RgAvatar, RgAv
 import { ActivatedRoute, Container, FormArray, FormBuilder, FormControl, FormGroup, HttpClient, ReactiveService, RgNavigator, Router, SnackBar, Validators, pipe, validateValue } from '@rangular-framework/runtime';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SQLite from 'expo-sqlite';
-import { Platform } from 'react-native';
+import { Platform, Vibration } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { createAudioPlayer } from 'expo-audio';
 
@@ -1212,6 +1212,11 @@ export class BookmarksService extends ReactiveService {
       this.save();
     }
   }
+  resetChecks() {
+    this.completions = [];
+    this.__notify();
+    this.save();
+  }
   dayNumber(offset: number) {
     return Math.floor(Date.now() / 86400000) - offset;
   }
@@ -1425,6 +1430,7 @@ export class AlarmService extends ReactiveService {
   enabled = false;
   ringing = false;
   ringProgress = 0;
+  previewing = false;
   player: any = null;
   ringTimer: any = null;
   ringStart = 0;
@@ -1539,7 +1545,7 @@ export class AlarmService extends ReactiveService {
     }
   }
   setTitle(t: string) {
-    this.title = (t ? t : 'Alarm');
+    this.title = (t ? t.slice(0, 50) : 'Alarm');
     this.__notify();
     this.persist();
     if (this.enabled) {
@@ -1569,6 +1575,29 @@ export class AlarmService extends ReactiveService {
   tone() {
     return require('../assets/alarm-tone.wav');
   }
+  preview() {
+    if (this.previewing) {
+      this.previewing = false;
+      this.__notify();
+      if (this.player) {
+        this.player.pause();
+      }
+      return;
+    }
+    this.previewing = true;
+    this.__notify();
+    if (!this.player) {
+      this.player = createAudioPlayer(this.tone());
+      this.__notify();
+    }
+    this.player.loop = false;
+    this.player.volume = this.volume;
+    this.player.play();
+    setTimeout(() => {
+  this.previewing = false;
+  this.__notify();
+}, 8000);
+  }
   fire() {
     this.ringing = true;
     this.__notify();
@@ -1576,13 +1605,17 @@ export class AlarmService extends ReactiveService {
     this.__notify();
     this.ringProgress = 0;
     this.__notify();
-    if (!this.player) {
-      this.player = createAudioPlayer(this.tone());
-      this.__notify();
+    if (this.volume === 0) {
+      Vibration.vibrate([500, 500], true);
+    } else {
+      if (!this.player) {
+        this.player = createAudioPlayer(this.tone());
+        this.__notify();
+      }
+      this.player.loop = true;
+      this.player.volume = this.volume;
+      this.player.play();
     }
-    this.player.loop = true;
-    this.player.volume = this.volume;
-    this.player.play();
     if (this.ringTimer) {
       clearInterval(this.ringTimer);
     }
@@ -1597,6 +1630,7 @@ export class AlarmService extends ReactiveService {
     this.__notify();
     this.ringProgress = 0;
     this.__notify();
+    Vibration.cancel();
     if (this.ringTimer) {
       clearInterval(this.ringTimer);
     }
@@ -1967,6 +2001,7 @@ export function Home() {
   const router = __router;
   const [query, setQuery] = useState('');
   const [searching, setSearching] = useState(false);
+  const [resetOpen, setResetOpen] = useState(false);
   const [results, setResults] = useState([]);
   const [lastLesson, setLastLesson] = useState(null);
   const [starterLessons, setStarterLessons] = useState([]);
@@ -2043,6 +2078,17 @@ export function Home() {
   };
   const openNav = () => {
     shell.openDrawer();
+  };
+  const askReset = () => {
+    setResetOpen(true);
+  };
+  const cancelReset = () => {
+    setResetOpen(false);
+  };
+  const confirmReset = () => {
+    bookmarks.resetChecks();
+    setResetOpen(false);
+    refreshProgress();
   };
   const pickTab = (i: number) => {
     if (i === 1) {
@@ -2139,9 +2185,17 @@ export function Home() {
               </RgList>
             </RgSection>
             <RgText variant="bodyLarge">97 lessons · Rangular framework 0.3.4</RgText>
+            <RgButton color="danger" onPress={() => askReset()}>Reset all checks</RgButton>
           </RgSection>
         )}
       </RgSection>
+      <RgDialog title="Are you sure?" open={resetOpen} onClose={() => cancelReset()}>
+        <RgText variant="bodyLarge">This clears the check mark from every lesson you marked done. Your saved lessons and your visit history stay as they are.</RgText>
+        <RgActions>
+          <RgButton variant="text" onPress={() => cancelReset()}>Cancel</RgButton>
+          <RgButton color="danger" onPress={() => confirmReset()}>Reset all checks</RgButton>
+        </RgActions>
+      </RgDialog>
     </RgSection>
   );
 }
@@ -6326,8 +6380,13 @@ export function AlarmSample() {
     refresh();
   };
   const applyTitle = (v: string) => {
-    setTitleDraft(v);
-    alarm.setTitle(v);
+    let __shadowTitleDraft = titleDraft;
+    __shadowTitleDraft = v.slice(0, 50);
+    setTitleDraft(__shadowTitleDraft);
+    alarm.setTitle(__shadowTitleDraft);
+  };
+  const previewTone = () => {
+    alarm.preview();
   };
   const onVolume = (ev: number) => {
     setVolumePct(ev);
@@ -6375,8 +6434,8 @@ export function AlarmSample() {
                 </RgSection>
               </RgSection>
               <RgSection style={styles.alarmSampleTagRow}>
-                <RgSection style={styles.alarmSampleToneTag}>
-                  <RgIcon name="bell" />
+                <RgSection onPress={() => previewTone()} style={styles.alarmSampleToneTag}>
+                  <RgIcon name={(alarm.previewing ? 'pause' : 'play')} />
                   <RgText variant="bodyLarge" style={styles.alarmSampleToneName}>Alarm tone</RgText>
                   <RgText variant="bodyLarge" style={styles.alarmSampleToneDur}>(0:08)</RgText>
                 </RgSection>
@@ -6399,9 +6458,17 @@ export function AlarmSample() {
             </RgSection>
             <RgText variant="title">Title</RgText>
             <RgInput label="Alarm title" placeholder="Wake up" value={titleDraft} onChangeText={($event) => { setTitleDraft($event); applyTitle($event); }} />
+            {(titleDraft.length > 40) && (
+              <RgText variant="bodyLarge">{(50 - titleDraft.length)} characters left.</RgText>
+            )}
             <RgText variant="title">Volume</RgText>
             <RgSlider min={0} max={100} step={5} value={volumePct} onChange={($event) => onVolume($event)} />
-            <RgText variant="bodyLarge">Volume is {volumePct} percent. It sets how loud the tone plays on this screen; a system notification uses your device volume.</RgText>
+            {(volumePct === 0) && (
+              <RgText variant="bodyLarge">Volume is 0 percent. The phone vibrates only. Keep your device volume high.</RgText>
+            )}
+            {(volumePct > 0) && (
+              <RgText variant="bodyLarge">Volume is {volumePct} percent. It sets how loud the tone plays on this screen; a system notification uses your device volume.</RgText>
+            )}
           </RgCard>
           <RgText variant="bodyLarge" style={styles.alarmSampleFootNote}>One alarm and one tone, kept on this device. With the app open, the alarm rings here on this page. With the app closed, the system delivers it as a notification that plays the same tone.</RgText>
         </RgSection>

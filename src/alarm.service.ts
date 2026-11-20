@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform } from 'react-native';
+import { Platform, Vibration } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { createAudioPlayer } from 'expo-audio';
 
@@ -28,6 +28,7 @@ export class AlarmService {
   enabled = false;
   ringing = false;
   ringProgress = 0;
+  previewing = false;
   player: any = null;
   ringTimer: any = null;
   ringStart = 0;
@@ -136,7 +137,7 @@ export class AlarmService {
   }
 
   setTitle(t: string) {
-    this.title = t ? t : 'Alarm';
+    this.title = t ? t.slice(0, 50) : 'Alarm';
     this.persist();
     if (this.enabled) this.arm();
   }
@@ -160,14 +161,32 @@ export class AlarmService {
     return require('../assets/alarm-tone.wav');
   }
 
+  preview() {
+    if (this.previewing) {
+      this.previewing = false;
+      if (this.player) this.player.pause();
+      return;
+    }
+    this.previewing = true;
+    if (!this.player) this.player = createAudioPlayer(this.tone());
+    this.player.loop = false;
+    this.player.volume = this.volume;
+    this.player.play();
+    setTimeout(() => { this.previewing = false; }, 8000);
+  }
+
   fire() {
     this.ringing = true;
     this.ringStart = Date.now();
     this.ringProgress = 0;
-    if (!this.player) this.player = createAudioPlayer(this.tone());
-    this.player.loop = true;
-    this.player.volume = this.volume;
-    this.player.play();
+    if (this.volume === 0) {
+      Vibration.vibrate([500, 500], true);
+    } else {
+      if (!this.player) this.player = createAudioPlayer(this.tone());
+      this.player.loop = true;
+      this.player.volume = this.volume;
+      this.player.play();
+    }
     if (this.ringTimer) clearInterval(this.ringTimer);
     this.ringTimer = setInterval(() => {
       this.ringProgress = ((Date.now() - this.ringStart) % 8000) / 8000;
@@ -177,6 +196,7 @@ export class AlarmService {
   stopRing() {
     this.ringing = false;
     this.ringProgress = 0;
+    Vibration.cancel();
     if (this.ringTimer) clearInterval(this.ringTimer);
     this.ringTimer = null;
     if (this.player) this.player.pause();

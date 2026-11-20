@@ -190,6 +190,16 @@ export class BookmarksService {
   }
 
   /**
+   * The Learn page's reset: every check mark goes, in one save.
+   * Bookmarks, the last visited lesson and the visit history
+   * are not checks, so they stay exactly as they are.
+   */
+  resetChecks() {
+    this.completions = [];
+    this.save();
+  }
+
+  /**
    * Calendar keys without a Date object: the method subset has
    * no NewExpression, so the civil date is worked out from the
    * day count since the epoch with plain arithmetic (the

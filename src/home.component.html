@@ -54,6 +54,14 @@
       </list>
     </section>
     <p>97 lessons · Rangular framework 0.3.4</p>
+    <button color="danger" (click)="askReset()">Reset all checks</button>
     </section>
   </section>
+  <dialog [open]="resetOpen" (close)="cancelReset()" title="Are you sure?">
+    <p>This clears the check mark from every lesson you marked done. Your saved lessons and your visit history stay as they are.</p>
+    <actions>
+      <button variant="text" (click)="cancelReset()">Cancel</button>
+      <button color="danger" (click)="confirmReset()">Reset all checks</button>
+    </actions>
+  </dialog>
 </section>

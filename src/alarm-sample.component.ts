@@ -96,8 +96,12 @@ export class AlarmSampleComponent {
   }
 
   applyTitle(v: string) {
-    this.titleDraft = v;
-    this.alarm.setTitle(v);
+    this.titleDraft = v.slice(0, 50);
+    this.alarm.setTitle(this.titleDraft);
+  }
+
+  previewTone() {
+    this.alarm.preview();
   }
 
   onVolume(ev: number) {

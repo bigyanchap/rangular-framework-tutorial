@@ -37,6 +37,7 @@ type Lesson = {
 export class HomeComponent {
   query = '';
   searching = false;
+  resetOpen = false;
   results: Lesson[] = [];
   lastLesson: any = null;
   starterLessons: Lesson[] = [];
@@ -128,6 +129,20 @@ export class HomeComponent {
 
   openNav() {
     this.shell.openDrawer();
+  }
+
+  askReset() {
+    this.resetOpen = true;
+  }
+
+  cancelReset() {
+    this.resetOpen = false;
+  }
+
+  confirmReset() {
+    this.bookmarks.resetChecks();
+    this.resetOpen = false;
+    this.refreshProgress();
   }
 
   pickTab(i: number) {

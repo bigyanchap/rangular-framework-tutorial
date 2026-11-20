@@ -24,8 +24,8 @@
           </section>
         </section>
         <section class="tag-row">
-          <section class="tone-tag">
-            <icon name="bell"></icon>
+          <section class="tone-tag" (click)="previewTone()">
+            <icon [name]="alarm.previewing ? 'pause' : 'play'"></icon>
             <p class="tone-name">Alarm tone</p>
             <p class="tone-dur">(0:08)</p>
           </section>
@@ -46,9 +46,11 @@
       </section>
       <h3>Title</h3>
       <input label="Alarm title" placeholder="Wake up" [(ngModel)]="titleDraft" (change)="applyTitle($event)">
+      <p *ngIf="titleDraft.length > 40">{{ 50 - titleDraft.length }} characters left.</p>
       <h3>Volume</h3>
       <slider min="0" max="100" step="5" [value]="volumePct" (change)="onVolume($event)"></slider>
-      <p>Volume is {{ volumePct }} percent. It sets how loud the tone plays on this screen; a system notification uses your device volume.</p>
+      <p *ngIf="volumePct === 0">Volume is 0 percent. The phone vibrates only. Keep your device volume high.</p>
+      <p *ngIf="volumePct > 0">Volume is {{ volumePct }} percent. It sets how loud the tone plays on this screen; a system notification uses your device volume.</p>
     </card>
     <p class="foot-note">One alarm and one tone, kept on this device. With the app open, the alarm rings here on this page. With the app closed, the system delivers it as a notification that plays the same tone.</p>
   </section>
