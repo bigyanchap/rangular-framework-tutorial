@@ -5,9 +5,7 @@ import { ActivatedRouteContext, RgAccordion, RgActions, RgAppbar, RgAvatar, RgAv
 import { ActivatedRoute, Container, FormArray, FormBuilder, FormControl, FormGroup, HttpClient, ReactiveService, RgNavigator, Router, SnackBar, Validators, pipe, validateValue } from '@rangular-framework/runtime';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SQLite from 'expo-sqlite';
-import { Platform, Vibration } from 'react-native';
-import * as Notifications from 'expo-notifications';
-import { createAudioPlayer } from 'expo-audio';
+import { Platform } from 'react-native';
 
 export class ShellService extends ReactiveService {
   drawerOpen = false;
@@ -1421,234 +1419,6 @@ export class ActivityLogService extends ReactiveService {
   }
 }
 
-export class AlarmService extends ReactiveService {
-  storageKey = 'rangular-tutorial.alarm.v1';
-  time = '07:00';
-  title = 'Wake up';
-  days: number[] = [0, 1, 2, 3, 4, 5, 6];
-  volume = 0.8;
-  enabled = false;
-  ringing = false;
-  ringProgress = 0;
-  previewing = false;
-  player: any = null;
-  ringTimer: any = null;
-  ringStart = 0;
-  loaded = false;
-  waiters: any[] = [];
-  constructor() {
-    super();
-    AsyncStorage.getItem(this.storageKey).then((raw) => {
-  if (raw) {
-    const s = JSON.parse(raw);
-    this.time = (s.time ? s.time : '07:00');
-    this.__notify();
-    this.title = (s.title ? s.title : 'Wake up');
-    this.__notify();
-    this.days = (s.days && s.days.length ? s.days : [0, 1, 2, 3, 4, 5, 6]);
-    this.__notify();
-    this.volume = (s.volume === undefined ? 0.8 : s.volume);
-    this.__notify();
-    this.enabled = (s.enabled ? true : false);
-    this.__notify();
-  }
-  this.loaded = true;
-  this.__notify();
-  this.waiters.forEach((cb) => cb());
-  this.waiters = [];
-  this.__notify();
-  if (this.enabled) {
-    this.arm();
-  }
-}, () => {
-  this.loaded = true;
-  this.__notify();
-  this.waiters.forEach((cb) => cb());
-  this.waiters = [];
-  this.__notify();
-});
-    if (Platform.OS !== 'web') {
-      Notifications.setNotificationHandler({ handleNotification: () => Promise.resolve({ shouldShowBanner: true, shouldShowList: true, shouldPlaySound: false, shouldSetBadge: false }) });
-      Notifications.addNotificationReceivedListener(() => {
-  if (this.enabled) {
-    this.fire();
-  }
-});
-    }
-  }
-  whenLoaded(cb: () => void) {
-    if (this.loaded) {
-      cb();
-    } else {
-      this.waiters = this.waiters.concat([cb]);
-      this.__notify();
-    }
-  }
-  persist() {
-    AsyncStorage.setItem(this.storageKey, JSON.stringify({ time: this.time, title: this.title, days: this.days, volume: this.volume, enabled: this.enabled })).then(() => {
-
-}, () => {
-
-});
-  }
-  quiet(p: any) {
-    p.then(() => {
-
-}, () => {
-
-});
-  }
-  parts() {
-    const bits = this.time.split(':');
-    return { hour: Number(bits[0]), minute: Number(bits[1]) };
-  }
-  content() {
-    return { title: this.title, body: 'Your alarm is ringing.', sound: 'alarm-tone.wav' };
-  }
-  arm() {
-    if (Platform.OS === 'web') {
-      return;
-    }
-    const t = this.parts();
-    this.quiet(Notifications.cancelAllScheduledNotificationsAsync().then(() => {
-  if (this.days.length === 7) {
-    this.quiet(Notifications.scheduleNotificationAsync({ content: this.content(), trigger: { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour: t.hour, minute: t.minute } }));
-  } else {
-    this.days.forEach((d) => {
-  this.quiet(Notifications.scheduleNotificationAsync({ content: this.content(), trigger: { type: Notifications.SchedulableTriggerInputTypes.WEEKLY, weekday: d + 1, hour: t.hour, minute: t.minute } }));
-});
-  }
-}));
-  }
-  disarm() {
-    if (Platform.OS === 'web') {
-      return;
-    }
-    this.quiet(Notifications.cancelAllScheduledNotificationsAsync());
-  }
-  setEnabled(on: boolean) {
-    this.enabled = on;
-    this.__notify();
-    this.persist();
-    if (on) {
-      this.arm();
-    } else {
-      this.disarm();
-    }
-  }
-  setTime(t: string) {
-    this.time = t;
-    this.__notify();
-    this.persist();
-    if (this.enabled) {
-      this.arm();
-    }
-  }
-  setTitle(t: string) {
-    this.title = (t ? t.slice(0, 50) : 'Alarm');
-    this.__notify();
-    this.persist();
-    if (this.enabled) {
-      this.arm();
-    }
-  }
-  toggleDay(d: number) {
-    if (this.days.indexOf(d) >= 0) {
-      if (this.days.length > 1) {
-        this.days = this.days.filter((x) => x !== d);
-        this.__notify();
-      }
-    } else {
-      this.days = this.days.concat([d]).sort();
-      this.__notify();
-    }
-    this.persist();
-    if (this.enabled) {
-      this.arm();
-    }
-  }
-  setVolume(pct: number) {
-    this.volume = pct / 100;
-    this.__notify();
-    this.persist();
-  }
-  tone() {
-    return require('../assets/alarm-tone.wav');
-  }
-  preview() {
-    if (this.previewing) {
-      this.previewing = false;
-      this.__notify();
-      if (this.player) {
-        this.player.pause();
-      }
-      return;
-    }
-    this.previewing = true;
-    this.__notify();
-    if (!this.player) {
-      this.player = createAudioPlayer(this.tone());
-      this.__notify();
-    }
-    this.player.loop = false;
-    this.player.volume = this.volume;
-    this.player.play();
-    setTimeout(() => {
-  this.previewing = false;
-  this.__notify();
-}, 8000);
-  }
-  fire() {
-    this.ringing = true;
-    this.__notify();
-    this.ringStart = Date.now();
-    this.__notify();
-    this.ringProgress = 0;
-    this.__notify();
-    if (this.volume === 0) {
-      Vibration.vibrate([500, 500], true);
-    } else {
-      if (!this.player) {
-        this.player = createAudioPlayer(this.tone());
-        this.__notify();
-      }
-      this.player.loop = true;
-      this.player.volume = this.volume;
-      this.player.play();
-    }
-    if (this.ringTimer) {
-      clearInterval(this.ringTimer);
-    }
-    this.ringTimer = setInterval(() => {
-  this.ringProgress = ((Date.now() - this.ringStart) % 8000) / 8000;
-  this.__notify();
-}, 250);
-    this.__notify();
-  }
-  stopRing() {
-    this.ringing = false;
-    this.__notify();
-    this.ringProgress = 0;
-    this.__notify();
-    Vibration.cancel();
-    if (this.ringTimer) {
-      clearInterval(this.ringTimer);
-    }
-    this.ringTimer = null;
-    this.__notify();
-    if (this.player) {
-      this.player.pause();
-    }
-  }
-  snooze() {
-    this.stopRing();
-    if (Platform.OS === 'web') {
-      return;
-    }
-    this.quiet(Notifications.scheduleNotificationAsync({ content: this.content(), trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 300 } }));
-  }
-}
-
 export class BreakoutService extends ReactiveService {
   rowIdx = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29];
   colIdx = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
@@ -1964,11 +1734,10 @@ __container.register(FavouritesService, new FavouritesService());
 __container.register(MinutesService, new MinutesService());
 __container.register(UserService, new UserService(__container.get<HttpClient>(HttpClient)));
 __container.register(ActivityLogService, new ActivityLogService());
-__container.register(AlarmService, new AlarmService());
 __container.register(BreakoutService, new BreakoutService());
 __container.register(TodoService, new TodoService());
 
-const __navigator = new RgNavigator([{"path":"","redirectTo":"splash"},{"path":"splash"},{"path":"home"},{"path":"saved"},{"path":"history"},{"path":"progress","redirectTo":"history"},{"path":"lesson/:id"},{"path":"samples"},{"path":"samples/alarm"},{"path":"samples/breakout"},{"path":"samples/mario","redirectTo":"samples/breakout"},{"path":"samples/todo"},{"path":"samples/habit","redirectTo":"samples/todo"},{"path":"about"},{"path":"**"}]);
+const __navigator = new RgNavigator([{"path":"","redirectTo":"splash"},{"path":"splash"},{"path":"home"},{"path":"saved"},{"path":"history"},{"path":"progress","redirectTo":"history"},{"path":"lesson/:id"},{"path":"samples"},{"path":"samples/breakout"},{"path":"samples/mario","redirectTo":"samples/breakout"},{"path":"samples/todo"},{"path":"samples/habit","redirectTo":"samples/todo"},{"path":"about"},{"path":"**"}]);
 const __router = new Router(__navigator);
 
 const __snackBar = new SnackBar();
@@ -6219,9 +5988,6 @@ export function Samples() {
       router.navigate(['/history']);
     }
   };
-  const goAlarm = () => {
-    router.navigate(['/samples/alarm']);
-  };
   const goBreakout = () => {
     router.navigate(['/samples/breakout']);
   };
@@ -6242,15 +6008,6 @@ export function Samples() {
         <RgNavItem icon="play" label="Samples" />
       </RgBottomNav>
       <RgText variant="bodyLarge">Small, complete apps, each built with the pieces the lessons teach. Open one and use it.</RgText>
-      <RgCard onPress={() => goAlarm()}>
-        <RgSection style={styles.samplesSampleRow}>
-          <RgSection style={styles.samplesSampleMain}>
-            <RgText variant="title">Alarm</RgText>
-            <RgText variant="bodyLarge">An alarm in the style of Awaken Me: a title, repeat days, volume, and its own tone. It rings on this page while the app is open, and as a system notification when it is not.</RgText>
-          </RgSection>
-          <RgIcon name="chevron-right" />
-        </RgSection>
-      </RgCard>
       <RgCard onPress={() => goBreakout()}>
         <RgSection style={styles.samplesSampleRow}>
           <RgSection style={styles.samplesSampleMain}>
@@ -6325,154 +6082,6 @@ export function About() {
         </RgSection>
       </RgCard>
       <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.3.4</RgText>
-    </RgSection>
-  );
-}
-
-export function AlarmSample() {
-  const alarm = __container.get<AlarmService>(AlarmService);
-  useSyncExternalStore((cb) => alarm.__subscribe(cb), () => alarm.__getVersion());
-  const router = __router;
-  const [picked, setPicked] = useState('07:00');
-  const [titleDraft, setTitleDraft] = useState('Wake up');
-  const [volumePct, setVolumePct] = useState(80);
-  const [timeLabel, setTimeLabel] = useState('7:00 AM');
-  const [daysLabel, setDaysLabel] = useState('Every day');
-  const dayIdx = [0, 1, 2, 3, 4, 5, 6];
-  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const ngOnInit = () => {
-    alarm.whenLoaded(() => {
-  setPicked(alarm.time);
-  setTitleDraft(alarm.title);
-  setVolumePct(Math.round(alarm.volume * 100));
-  refresh();
-});
-  };
-  const refresh = () => {
-    const bits = alarm.time.split(':');
-    let h = Number(bits[0]);
-    const suffix = (h >= 12 ? 'PM' : 'AM');
-    h = h % 12;
-    if (h === 0) {
-      h = 12;
-    }
-    setTimeLabel(h + ':' + bits[1] + ' ' + suffix);
-    if (alarm.days.length === 7) {
-      setDaysLabel('Every day');
-    } else if (alarm.days.join(',') === '1,2,3,4,5') {
-      setDaysLabel('Weekdays');
-    } else if (alarm.days.join(',') === '0,6') {
-      setDaysLabel('Weekends');
-    } else {
-      setDaysLabel(alarm.days.map((d) => dayNames[d]).join(' '));
-    }
-  };
-  const toggleAlarm = () => {
-    alarm.setEnabled(!alarm.enabled);
-  };
-  const onTime = (ev: string) => {
-    setPicked(ev);
-    alarm.setTime(ev);
-    refresh();
-  };
-  const toggleDay = (d: number) => {
-    alarm.toggleDay(d);
-    refresh();
-  };
-  const applyTitle = (v: string) => {
-    let __shadowTitleDraft = titleDraft;
-    __shadowTitleDraft = v.slice(0, 50);
-    setTitleDraft(__shadowTitleDraft);
-    alarm.setTitle(__shadowTitleDraft);
-  };
-  const previewTone = () => {
-    alarm.preview();
-  };
-  const onVolume = (ev: number) => {
-    setVolumePct(ev);
-    alarm.setVolume(ev);
-  };
-  const stop = () => {
-    alarm.stopRing();
-  };
-  const snooze = () => {
-    alarm.snooze();
-  };
-  const goBack = () => {
-    router.navigate(['/samples']);
-  };
-  useEffect(() => {
-    ngOnInit();
-  }, []);
-  return (
-    <RgSection>
-      <RgAppbar tone="tint" title="Alarm" pin back onBack={() => goBack()} />
-      {alarm.ringing && (
-        <RgSection style={styles.alarmSampleRinging}>
-          <RgText variant="bodyLarge" style={styles.alarmSampleRingLabel}>ALARM</RgText>
-          <RgText variant="bodyLarge" style={styles.alarmSampleRingTime}>{timeLabel}</RgText>
-          <RgText variant="title">{alarm.title}</RgText>
-          <RgProgressBar value={(alarm.ringProgress * 100)} />
-          <RgText variant="bodyLarge">The tone plays until you stop it.</RgText>
-          <RgSection style={styles.alarmSampleRingActions}>
-            <RgSection onPress={() => stop()} style={styles.alarmSampleRoundBtn}>
-              <RgSection style={styles.alarmSampleStopSquare} />
-            </RgSection>
-            <RgButton color="neutral" onPress={() => snooze()}>Snooze 5 min</RgButton>
-          </RgSection>
-        </RgSection>
-      )}
-      {!alarm.ringing && (
-        <RgSection>
-          <RgCard style={styles.alarmSampleAlarmCard}>
-            <RgSection style={styles.alarmSampleCardMain}>
-              <RgText variant="title">{alarm.title}</RgText>
-              <RgSection style={styles.alarmSampleTimeRow}>
-                <RgText variant="bodyLarge" style={styles.alarmSampleBigTime}>{timeLabel}</RgText>
-                <RgSection style={styles.alarmSampleBadge}>
-                  <RgText variant="bodyLarge" style={styles.alarmSampleBadgeText}>{daysLabel}</RgText>
-                </RgSection>
-              </RgSection>
-              <RgSection style={styles.alarmSampleTagRow}>
-                <RgSection onPress={() => previewTone()} style={styles.alarmSampleToneTag}>
-                  <RgIcon name={(alarm.previewing ? 'pause' : 'play')} />
-                  <RgText variant="bodyLarge" style={styles.alarmSampleToneName}>Alarm tone</RgText>
-                  <RgText variant="bodyLarge" style={styles.alarmSampleToneDur}>(0:08)</RgText>
-                </RgSection>
-              </RgSection>
-            </RgSection>
-            <RgSection onPress={() => toggleAlarm()} style={[styles.alarmSampleSwitch, alarm.enabled ? styles.alarmSampleSwitchOn : undefined]}>
-              <RgSection style={styles.alarmSampleKnob} />
-            </RgSection>
-          </RgCard>
-          <RgCard style={styles.alarmSampleSettings}>
-            <RgText variant="title">When</RgText>
-            <RgDateTimePicker mode="time" minuteInterval={1} label="Alarm time" value={picked} onChange={($event) => onTime($event)} />
-            <RgText variant="title">Repeat</RgText>
-            <RgSection style={styles.alarmSampleDaysRow}>
-              {dayIdx.map((d, index) => (
-                <RgSection key={d?.id ?? index} onPress={() => toggleDay(d)} style={[styles.alarmSampleDayChip, (alarm.days.indexOf(d) >= 0) ? styles.alarmSampleDayOn : undefined]}>
-                  <RgText variant="bodyLarge" style={[styles.alarmSampleDayText, (alarm.days.indexOf(d) >= 0) ? styles.alarmSampleDayTextOn : undefined]}>{dayNames[d]}</RgText>
-                </RgSection>
-              ))}
-            </RgSection>
-            <RgText variant="title">Title</RgText>
-            <RgInput label="Alarm title" placeholder="Wake up" value={titleDraft} onChangeText={($event) => { setTitleDraft($event); applyTitle($event); }} />
-            {(titleDraft.length > 40) && (
-              <RgText variant="bodyLarge">{(50 - titleDraft.length)} characters left.</RgText>
-            )}
-            <RgText variant="title">Volume</RgText>
-            <RgSlider min={0} max={100} step={5} value={volumePct} onChange={($event) => onVolume($event)} />
-            {(volumePct === 0) && (
-              <RgText variant="bodyLarge">Volume is 0 percent. The phone vibrates only. Keep your device volume high.</RgText>
-            )}
-            {(volumePct > 0) && (
-              <RgText variant="bodyLarge">Volume is {volumePct} percent. It sets how loud the tone plays on this screen; a system notification uses your device volume.</RgText>
-            )}
-          </RgCard>
-          <RgText variant="bodyLarge" style={styles.alarmSampleFootNote}>One alarm and one tone, kept on this device. With the app open, the alarm rings here on this page. With the app closed, the system delivers it as a notification that plays the same tone.</RgText>
-        </RgSection>
-      )}
     </RgSection>
   );
 }
@@ -6777,11 +6386,6 @@ export default function App() {
               <Samples key={__route.path} />
             </ActivatedRouteContext.Provider>
           )}
-          {__route.routePath === "samples/alarm" && (
-            <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
-              <AlarmSample key={__route.path} />
-            </ActivatedRouteContext.Provider>
-          )}
           {__route.routePath === "samples/breakout" && (
             <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
               <BreakoutSample key={__route.path} />
@@ -6856,32 +6460,6 @@ const styles = StyleSheet.create({
   aboutHeroMark: {"width":48,"height":48,"alignItems":"center","justifyContent":"center"},
   aboutHeroTitle: {"color":"#ffffff"},
   aboutHeroText: {"color":"#d3e3fd"},
-  alarmSampleAlarmCard: {"flexDirection":"row","gap":12,"padding":16},
-  alarmSampleCardMain: {"flex":1,"gap":4},
-  alarmSampleTimeRow: {"flexDirection":"row","alignItems":"center","gap":8},
-  alarmSampleBigTime: {"fontSize":32,"fontWeight":700},
-  alarmSampleBadge: {"backgroundColor":"#fdf6ec","borderWidth":1,"borderColor":"#d8c9ae","borderRadius":8,"padding":4},
-  alarmSampleBadgeText: {"fontSize":12,"fontWeight":700,"color":"#a06a35"},
-  alarmSampleTagRow: {"flexDirection":"row"},
-  alarmSampleToneTag: {"flexDirection":"row","alignItems":"center","gap":4,"backgroundColor":"#fdf6ec","borderRadius":8,"padding":4},
-  alarmSampleToneName: {"fontSize":12,"fontWeight":500},
-  alarmSampleToneDur: {"fontSize":12,"color":"#6b5d43"},
-  alarmSampleSwitch: {"width":60,"height":44,"borderRadius":9999,"backgroundColor":"#d8c9ae","flexDirection":"row","alignItems":"center","padding":4},
-  alarmSampleSwitchOn: {"backgroundColor":"#a06a35","justifyContent":"flex-end"},
-  alarmSampleKnob: {"width":34,"height":34,"borderRadius":9999,"backgroundColor":"#ffffff"},
-  alarmSampleSettings: {"gap":12,"padding":16},
-  alarmSampleDaysRow: {"flexDirection":"row","gap":4},
-  alarmSampleDayChip: {"flex":1,"height":44,"borderRadius":12,"borderWidth":1,"borderColor":"#a06a35","alignItems":"center","justifyContent":"center"},
-  alarmSampleDayOn: {"backgroundColor":"#a06a35"},
-  alarmSampleDayText: {"fontSize":12,"fontWeight":700,"color":"#a06a35"},
-  alarmSampleDayTextOn: {"color":"#ffffff"},
-  alarmSampleRinging: {"alignItems":"center","gap":16,"padding":24},
-  alarmSampleRingLabel: {"fontSize":12,"fontWeight":700,"color":"#a06a35"},
-  alarmSampleRingTime: {"fontSize":32,"fontWeight":700},
-  alarmSampleRingActions: {"flexDirection":"row","gap":16,"alignItems":"center"},
-  alarmSampleRoundBtn: {"width":56,"height":56,"borderRadius":9999,"backgroundColor":"#b3261e","alignItems":"center","justifyContent":"center"},
-  alarmSampleStopSquare: {"width":20,"height":20,"borderRadius":8,"backgroundColor":"#ffffff"},
-  alarmSampleFootNote: {"color":"#6b5d43"},
   breakoutSampleReadout: {"backgroundColor":"#fdf6ec","borderColor":"#a06a35","borderRadius":16,"padding":16},
   breakoutSampleStage: {"backgroundColor":"#171d33","borderRadius":16,"padding":8,"alignItems":"center","gap":0},
   breakoutSampleTrow: {"flexDirection":"row","justifyContent":"center","gap":0},

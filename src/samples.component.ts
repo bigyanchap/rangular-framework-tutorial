@@ -40,10 +40,6 @@ export class SamplesComponent {
     else if (i === 2) this.router.navigate(['/history']);
   }
 
-  goAlarm() {
-    this.router.navigate(['/samples/alarm']);
-  }
-
   goBreakout() {
     this.router.navigate(['/samples/breakout']);
   }
