@@ -426,9 +426,9 @@ export class LessonService extends ReactiveService {
     {
       id: 39,
       title: 'Date pickers',
-      subtitle: 'mode date: month, day, and year wheels',
+      subtitle: 'mode date: year, month, and day wheels',
       minutes: '4 min',
-      intro: 'The date picker is one block, <datetime-picker>. Its field row shows the current value; tapping it opens the wheels, the iOS arrangement, on every platform, centred in a modal by default. The wheels are a product rule, not a setting: no calendar grid, no clock face. The container is a choice, a modal by default or a bottom sheet with presentation="sheet", and lesson 40 shows both. In date mode the wheels are month, day, and year, with years running 25 each way from the value. Done emits (change) once, with the day as an ISO string in $event. Cancel emits nothing. Days clamp into their month, leap years included, so January 31 followed by February lands on February 28 or 29.',
+      intro: 'The date picker is one block, <datetime-picker>. Its field row shows the current value; tapping it opens the wheels, the iOS arrangement, on every platform, centred in a modal. The wheels are a product rule, not a setting: no calendar grid, no clock face, and no other container. In date mode the wheels are year, month, and day, with years running 25 each way from the value. Done emits (change) once, with the day as an ISO string in $event. Cancel emits nothing. Days clamp into their month, leap years included, so January 31 followed by February lands on February 28 or 29.',
       code: '<datetime-picker mode="date" [value]="day" (change)="onDay($event)">',
       implementation: '// date-picker.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-date-picker-demo\',\n  templateUrl: \'./date-picker.component.html\',\n})\nexport class DatePickerDemoComponent {\n  startDay = \'2026-11-13\';\n  endDay = \'2026-11-20\';\n\n  onStart(value: string) {\n    this.startDay = value;\n  }\n\n  onEnd(value: string) {\n    this.endDay = value;\n  }\n}\n\n// date-picker.component.html\n<datetime-picker\n  label="Start day"\n  mode="date"\n  [value]="startDay"\n  (change)="onStart($event)"\n></datetime-picker>\n<datetime-picker\n  label="End day"\n  mode="date"\n  [value]="endDay"\n  (change)="onEnd($event)"\n></datetime-picker>\n<p>Start day (ISO): {{ startDay }}</p>\n<p>End day (ISO): {{ endDay }}</p>',
       tip: 'Store the picker value as the ISO string it emits. It sorts correctly as text, prints without formatting work, and feeds straight back into [value] when the screen returns.',
@@ -438,9 +438,9 @@ export class LessonService extends ReactiveService {
       title: 'Time and datetime pickers',
       subtitle: 'mode time, and the combined datetime mode',
       minutes: '4 min',
-      intro: 'Time mode shows hour, minute, and AM/PM wheels, the iOS form: hours run 1 to 12, and the AM/PM wheel does the rest. Datetime is the default mode, and it never mixes date and time in one panel: it opens the date modal first, month, day, and year wheels, with a Next button, then the time modal, with Back and Done. The date wheels are the Apple Calendar form: three separate wheels, each under its own precise control, one notch per flick, in large type. Years run 25 each way from the value. minuteInterval snaps the minutes: 5 gives the quarter hour steps most schedules want, and a value between steps opens on the nearest one. Both modes emit the same local ISO string shape, YYYY-MM-DDTHH:mm:00. Every picker also takes presentation: "modal", the default, centres the wheels in a dialog card, and "sheet" slides the same wheels up in a bottom sheet. Rolling any wheel ticks a small haptic for each row that passes the centre, the iOS wheel feel. The demo walks the four in order: the time picker, a date picker that picks a date and nothing else, then datetime in the default modal, and datetime in a sheet last.',
-      code: '<datetime-picker presentation="sheet" [value]="when" (change)="onWhen($event)">',
-      implementation: '// time-picker.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-time-picker-demo\',\n  templateUrl: \'./time-picker.component.html\',\n})\nexport class TimePickerDemoComponent {\n  at = \'2026-11-13T09:00:00\';\n  day = \'2026-11-13T09:00:00\';\n  when = \'2026-11-13T09:00:00\';\n  whenModal = \'2026-11-13T09:00:00\';\n\n  onAt(value: string) {\n    this.at = value;\n  }\n\n  onDay(value: string) {\n    this.day = value;\n  }\n\n  onWhen(value: string) {\n    this.when = value;\n  }\n\n  onWhenModal(value: string) {\n    this.whenModal = value;\n  }\n}\n\n// time-picker.component.html\n<datetime-picker\n  label="Reminder time"\n  mode="time"\n  minuteInterval="5"\n  [value]="at"\n  (change)="onAt($event)"\n></datetime-picker>\n<p>Time value (ISO): {{ at }}</p>\n<datetime-picker label="Date" mode="date" [value]="day" (change)="onDay($event)"></datetime-picker>\n<p>Date value (ISO): {{ day }}</p>\n<datetime-picker\n  label="Date and time (modal)"\n  [value]="whenModal"\n  (change)="onWhenModal($event)"\n></datetime-picker>\n<p>Modal datetime value (ISO): {{ whenModal }}</p>\n<datetime-picker\n  label="Date and time (sheet)"\n  presentation="sheet"\n  [value]="when"\n  (change)="onWhen($event)"\n></datetime-picker>\n<p>Sheet datetime value (ISO): {{ when }}</p>',
+      intro: 'Time mode shows hour, minute, and AM/PM wheels, the iOS form: hours run 1 to 12, and the AM/PM wheel does the rest. Datetime is the default mode, and it never mixes date and time in one panel: it opens the date modal first, year, month, and day wheels, with a Next button, then the time modal, with Back and Done. The date wheels are the Apple Calendar form: three separate wheels, each under its own precise control, one notch per flick, in large type. Years run 25 each way from the value. minuteInterval snaps the minutes: 5 gives the quarter hour steps most schedules want, and a value between steps opens on the nearest one. Both modes emit the same local ISO string shape, YYYY-MM-DDTHH:mm:00. Every picker opens centred in a modal; there is no other container. Rolling any wheel ticks a small haptic for each row that passes the centre, the iOS wheel feel. The demo walks the three in order: the time picker, a date picker that picks a date and nothing else, then datetime in the modal.',
+      code: '<datetime-picker [value]="whenModal" (change)="onWhenModal($event)">',
+      implementation: '// time-picker.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-time-picker-demo\',\n  templateUrl: \'./time-picker.component.html\',\n})\nexport class TimePickerDemoComponent {\n  at = \'2026-11-13T09:00:00\';\n  day = \'2026-11-13T09:00:00\';\n  whenModal = \'2026-11-13T09:00:00\';\n\n  onAt(value: string) {\n    this.at = value;\n  }\n\n  onDay(value: string) {\n    this.day = value;\n  }\n\n  onWhenModal(value: string) {\n    this.whenModal = value;\n  }\n}\n\n// time-picker.component.html\n<datetime-picker\n  label="Reminder time"\n  mode="time"\n  minuteInterval="5"\n  [value]="at"\n  (change)="onAt($event)"\n></datetime-picker>\n<p>Time value (ISO): {{ at }}</p>\n<datetime-picker label="Date" mode="date" [value]="day" (change)="onDay($event)"></datetime-picker>\n<p>Date value (ISO): {{ day }}</p>\n<datetime-picker\n  label="Date and time (modal)"\n  [value]="whenModal"\n  (change)="onWhenModal($event)"\n></datetime-picker>\n<p>Modal datetime value (ISO): {{ whenModal }}</p>',
       tip: 'Use minuteInterval="5" unless the exact minute matters. A wheel of sixty minutes is slow to spin; a wheel of twelve steps respects the learner time, and schedules rarely need more.',
     },
     {
@@ -3748,16 +3748,12 @@ export function DatePickerDemo() {
 export function TimePickerDemo() {
   const [at, setAt] = useState('2026-11-13T09:00:00');
   const [day, setDay] = useState('2026-11-13T09:00:00');
-  const [when, setWhen] = useState('2026-11-13T09:00:00');
   const [whenModal, setWhenModal] = useState('2026-11-13T09:00:00');
   const onAt = (value: string) => {
     setAt(value);
   };
   const onDay = (value: string) => {
     setDay(value);
-  };
-  const onWhen = (value: string) => {
-    setWhen(value);
   };
   const onWhenModal = (value: string) => {
     setWhenModal(value);
@@ -3770,8 +3766,6 @@ export function TimePickerDemo() {
       <RgText variant="bodyLarge">Date value (ISO): {day}</RgText>
       <RgDateTimePicker label="Date and time (modal)" value={whenModal} onChange={($event) => onWhenModal($event)} />
       <RgText variant="bodyLarge">Modal datetime value (ISO): {whenModal}</RgText>
-      <RgDateTimePicker presentation="sheet" label="Date and time (sheet)" value={when} onChange={($event) => onWhen($event)} />
-      <RgText variant="bodyLarge">Sheet datetime value (ISO): {when}</RgText>
     </>
   );
 }
