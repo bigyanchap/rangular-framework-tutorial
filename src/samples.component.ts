@@ -7,9 +7,10 @@ import { ShellService } from './shell.service';
  * Rangular pieces the lessons teach, each on its own screen.
  * The list is cards, one per sample, with a summary of what
  * the sample does and a chevron at the right; tapping a card
- * routes to the sample itself. This tab replaced the About
- * tab in the samples overhaul (2026-11-20): working software
- * says more about the framework than a page about it.
+ * routes to the sample itself. This tab took the fourth
+ * tab slot in the overhaul of 2026-11-20 (About lives in
+ * the drawer): working software says more about the
+ * framework than a page about it.
  */
 @Component({
   selector: 'app-samples',
@@ -43,11 +44,11 @@ export class SamplesComponent {
     this.router.navigate(['/samples/alarm']);
   }
 
-  goMario() {
-    this.router.navigate(['/samples/mario']);
+  goBreakout() {
+    this.router.navigate(['/samples/breakout']);
   }
 
-  goHabit() {
-    this.router.navigate(['/samples/habit']);
+  goTodo() {
+    this.router.navigate(['/samples/todo']);
   }
 }

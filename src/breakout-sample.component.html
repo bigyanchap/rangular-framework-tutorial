@@ -1,0 +1,21 @@
+<section>
+  <appbar pin tone="tint" title="Breakout" back (back)="goBack()"></appbar>
+  <card class="readout">
+    <h3>Score {{ game.score }} · Lives {{ game.lives }}</h3>
+    <p>{{ game.stateLine }}</p>
+    <p>Work the paddle with the arrow keys: tap one to start moving, tap it again to stop. Where the ball lands on the paddle sets its angle.</p>
+  </card>
+  <section class="stage">
+    <section *ngFor="let row of game.view" class="trow">
+      <section *ngFor="let c of row" class="cell" [class.b1]="c === '1'" [class.b2]="c === '2'" [class.b3]="c === '3'" [class.b4]="c === '4'" [class.b5]="c === '5'" [class.b6]="c === '6'" [class.ball]="c === 'B'" [class.paddle]="c === 'P'">
+        <section *ngIf="c === '1' || c === '2' || c === '3' || c === '4' || c === '5' || c === '6'" class="gloss"></section>
+      </section>
+    </section>
+  </section>
+  <section class="keys-row">
+    <app-device-key glyph="<" label="left" (pressed)="goLeft()"></app-device-key>
+    <app-device-key glyph="^" label="launch" (pressed)="launch()"></app-device-key>
+    <app-device-key glyph=">" label="right" (pressed)="goRight()"></app-device-key>
+  </section>
+  <button variant="text" (click)="restart()">Restart game</button>
+</section>

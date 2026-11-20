@@ -1,16 +1,55 @@
 <section>
   <appbar pin tone="tint" title="Alarm" back (back)="goBack()"></appbar>
-  <card *ngIf="alarm.ringing" class="readout">
-    <h3 class="state-line">Your alarm is ringing</h3>
-    <p class="big-time">{{ alarm.time }}</p>
-    <button color="danger" (click)="stopRinging()">Stop</button>
-  </card>
-  <card class="readout">
-    <p class="big-time">{{ alarm.enabled ? alarm.time : picked }}</p>
-    <p *ngIf="alarm.enabled" class="state-line">Alarm is on for {{ alarm.time }}. It rings here while the app is open, and as a notification when it is not.</p>
-    <p *ngIf="!alarm.enabled" class="state-line">Alarm is off. Pick a time and set it.</p>
-  </card>
-  <datetime-picker label="Alarm time" mode="time" minuteInterval="1" [value]="picked" (change)="onTime($event)"></datetime-picker>
-  <button (click)="setAlarm()">Set alarm</button>
-  <button *ngIf="alarm.enabled" variant="text" color="danger" (click)="turnOff()">Turn off</button>
+  <section *ngIf="alarm.ringing" class="ringing">
+    <p class="ring-label">ALARM</p>
+    <p class="ring-time">{{ timeLabel }}</p>
+    <h3>{{ alarm.title }}</h3>
+    <progress-bar [value]="alarm.ringProgress * 100"></progress-bar>
+    <p>The tone plays until you stop it.</p>
+    <section class="ring-actions">
+      <section class="round-btn" (click)="stop()">
+        <section class="stop-square"></section>
+      </section>
+      <button color="neutral" (click)="snooze()">Snooze 5 min</button>
+    </section>
+  </section>
+  <section *ngIf="!alarm.ringing">
+    <card class="alarm-card">
+      <section class="card-main">
+        <h3>{{ alarm.title }}</h3>
+        <section class="time-row">
+          <p class="big-time">{{ timeLabel }}</p>
+          <section class="badge">
+            <p class="badge-text">{{ daysLabel }}</p>
+          </section>
+        </section>
+        <section class="tag-row">
+          <section class="tone-tag">
+            <icon name="bell"></icon>
+            <p class="tone-name">Alarm tone</p>
+            <p class="tone-dur">(0:08)</p>
+          </section>
+        </section>
+      </section>
+      <section class="switch" [class.switch-on]="alarm.enabled" (click)="toggleAlarm()">
+        <section class="knob"></section>
+      </section>
+    </card>
+    <card class="settings">
+      <h3>When</h3>
+      <datetime-picker label="Alarm time" mode="time" minuteInterval="1" [value]="picked" (change)="onTime($event)"></datetime-picker>
+      <h3>Repeat</h3>
+      <section class="days-row">
+        <section *ngFor="let d of dayIdx" class="day-chip" [class.day-on]="alarm.days.indexOf(d) >= 0" (click)="toggleDay(d)">
+          <p class="day-text" [class.day-text-on]="alarm.days.indexOf(d) >= 0">{{ dayNames[d] }}</p>
+        </section>
+      </section>
+      <h3>Title</h3>
+      <input label="Alarm title" placeholder="Wake up" [(ngModel)]="titleDraft" (change)="applyTitle($event)">
+      <h3>Volume</h3>
+      <slider min="0" max="100" step="5" [value]="volumePct" (change)="onVolume($event)"></slider>
+      <p>Volume is {{ volumePct }} percent. It sets how loud the tone plays on this screen; a system notification uses your device volume.</p>
+    </card>
+    <p class="foot-note">One alarm and one tone, kept on this device. With the app open, the alarm rings here on this page. With the app closed, the system delivers it as a notification that plays the same tone.</p>
+  </section>
 </section>

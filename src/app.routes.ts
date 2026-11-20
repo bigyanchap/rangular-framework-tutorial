@@ -7,8 +7,8 @@ import { LessonComponent } from './lesson.component';
 import { SamplesComponent } from './samples.component';
 import { AboutComponent } from './about.component';
 import { AlarmSampleComponent } from './alarm-sample.component';
-import { MarioSampleComponent } from './mario-sample.component';
-import { HabitSampleComponent } from './habit-sample.component';
+import { BreakoutSampleComponent } from './breakout-sample.component';
+import { TodoSampleComponent } from './todo-sample.component';
 import { NotFoundComponent } from './not-found.component';
 
 export const routes: Routes = [
@@ -21,8 +21,10 @@ export const routes: Routes = [
   { path: 'lesson/:id', component: LessonComponent },
   { path: 'samples', component: SamplesComponent },
   { path: 'samples/alarm', component: AlarmSampleComponent },
-  { path: 'samples/mario', component: MarioSampleComponent },
-  { path: 'samples/habit', component: HabitSampleComponent },
+  { path: 'samples/breakout', component: BreakoutSampleComponent },
+  { path: 'samples/mario', redirectTo: 'samples/breakout' },
+  { path: 'samples/todo', component: TodoSampleComponent },
+  { path: 'samples/habit', redirectTo: 'samples/todo' },
   { path: 'about', component: AboutComponent },
   { path: '**', component: NotFoundComponent },
 ];

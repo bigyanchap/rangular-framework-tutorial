@@ -1,0 +1,53 @@
+<section>
+  <appbar pin tone="tint" title="Todo list" back (back)="goBack()"></appbar>
+  <section class="hero-base">
+    <section class="hero-face">
+      <p class="hero-count">{{ leftCount }} of {{ totalCount }} tasks left</p>
+      <progress-bar [value]="percent"></progress-bar>
+      <p>{{ stateLine }}</p>
+    </section>
+  </section>
+  <section class="chips-row">
+    <section class="chip" [class.chip-on]="filter === 'all'" (click)="pickFilter('all')">
+      <p class="chip-text" [class.chip-text-on]="filter === 'all'">All · {{ totalCount }}</p>
+    </section>
+    <section class="chip" [class.chip-on]="filter === 'active'" (click)="pickFilter('active')">
+      <p class="chip-text" [class.chip-text-on]="filter === 'active'">Active · {{ leftCount }}</p>
+    </section>
+    <section class="chip" [class.chip-on]="filter === 'done'" (click)="pickFilter('done')">
+      <p class="chip-text" [class.chip-text-on]="filter === 'done'">Done · {{ doneCount }}</p>
+    </section>
+  </section>
+  <p *ngIf="rows.length === 0">Nothing in this view. Switch the filter, or add a task below.</p>
+  <card *ngFor="let t of rows" class="task-card">
+    <section class="check-hit" (click)="toggle(t)">
+      <section class="check" [class.check-done]="t.done">
+        <icon *ngIf="t.done" name="check" color="onPrimary"></icon>
+      </section>
+    </section>
+    <section class="task-main">
+      <p class="task-text" [class.task-done]="t.done">{{ t.text }}</p>
+      <section class="meta-row">
+        <section class="dot" [class.p-high]="t.prio === 2" [class.p-med]="t.prio === 1" [class.p-low]="t.prio === 0"></section>
+        <p class="prio-text">{{ t.prio === 2 ? 'High priority' : t.prio === 1 ? 'Medium priority' : 'Low priority' }}</p>
+      </section>
+    </section>
+    <button variant="text" color="danger" (click)="remove(t)">Remove</button>
+  </card>
+  <card class="add-card">
+    <h3>Add a task</h3>
+    <input label="Task" placeholder="What needs doing?" [(ngModel)]="draft">
+    <section class="chips-row">
+      <section class="chip" [class.chip-on]="draftPrio === 0" (click)="setPrio(0)">
+        <p class="chip-text" [class.chip-text-on]="draftPrio === 0">Low</p>
+      </section>
+      <section class="chip" [class.chip-on]="draftPrio === 1" (click)="setPrio(1)">
+        <p class="chip-text" [class.chip-text-on]="draftPrio === 1">Medium</p>
+      </section>
+      <section class="chip" [class.chip-on]="draftPrio === 2" (click)="setPrio(2)">
+        <p class="chip-text" [class.chip-text-on]="draftPrio === 2">High</p>
+      </section>
+    </section>
+    <button (click)="add()">Add task</button>
+  </card>
+</section>

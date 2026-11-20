@@ -1417,153 +1417,226 @@ export class ActivityLogService extends ReactiveService {
 }
 
 export class AlarmService extends ReactiveService {
+  storageKey = 'rangular-tutorial.alarm.v1';
   time = '07:00';
+  title = 'Wake up';
+  days: number[] = [0, 1, 2, 3, 4, 5, 6];
+  volume = 0.8;
   enabled = false;
   ringing = false;
-  storageKey = 'rangular-tutorial.alarm.v1';
-  notificationId = '';
+  ringProgress = 0;
   player: any = null;
-  listener: any = null;
+  ringTimer: any = null;
+  ringStart = 0;
+  loaded = false;
+  waiters: any[] = [];
   constructor() {
     super();
+    AsyncStorage.getItem(this.storageKey).then((raw) => {
+  if (raw) {
+    const s = JSON.parse(raw);
+    this.time = (s.time ? s.time : '07:00');
+    this.__notify();
+    this.title = (s.title ? s.title : 'Wake up');
+    this.__notify();
+    this.days = (s.days && s.days.length ? s.days : [0, 1, 2, 3, 4, 5, 6]);
+    this.__notify();
+    this.volume = (s.volume === undefined ? 0.8 : s.volume);
+    this.__notify();
+    this.enabled = (s.enabled ? true : false);
+    this.__notify();
+  }
+  this.loaded = true;
+  this.__notify();
+  this.waiters.forEach((cb) => cb());
+  this.waiters = [];
+  this.__notify();
+  if (this.enabled) {
+    this.arm();
+  }
+}, () => {
+  this.loaded = true;
+  this.__notify();
+  this.waiters.forEach((cb) => cb());
+  this.waiters = [];
+  this.__notify();
+});
     if (Platform.OS !== 'web') {
-      Notifications.setNotificationHandler({ handleNotification: () => ({ shouldShowBanner: true, shouldShowList: true, shouldPlaySound: false, shouldSetBadge: false }) });
-      this.listener = Notifications.addNotificationReceivedListener(() => {
+      Notifications.setNotificationHandler({ handleNotification: () => Promise.resolve({ shouldShowBanner: true, shouldShowList: true, shouldPlaySound: false, shouldSetBadge: false }) });
+      Notifications.addNotificationReceivedListener(() => {
   if (this.enabled) {
     this.fire();
   }
 });
-      this.__notify();
-    }
-    AsyncStorage.getItem(this.storageKey).then((raw) => {
-  if (raw) {
-    const saved = JSON.parse(raw);
-    if (saved.time !== undefined) {
-      this.time = saved.time;
-      this.__notify();
-    }
-    if (saved.enabled === true) {
-      this.enabled = true;
-      this.__notify();
-      this.arm();
     }
   }
+  whenLoaded(cb: () => void) {
+    if (this.loaded) {
+      cb();
+    } else {
+      this.waiters = this.waiters.concat([cb]);
+      this.__notify();
+    }
+  }
+  persist() {
+    AsyncStorage.setItem(this.storageKey, JSON.stringify({ time: this.time, title: this.title, days: this.days, volume: this.volume, enabled: this.enabled })).then(() => {
+
 }, () => {
 
 });
   }
-  save() {
-    AsyncStorage.setItem(this.storageKey, JSON.stringify({ time: this.time, enabled: this.enabled }));
+  quiet(p: any) {
+    p.then(() => {
+
+}, () => {
+
+});
+  }
+  parts() {
+    const bits = this.time.split(':');
+    return { hour: Number(bits[0]), minute: Number(bits[1]) };
+  }
+  content() {
+    return { title: this.title, body: 'Your alarm is ringing.', sound: 'alarm-tone.wav' };
   }
   arm() {
     if (Platform.OS === 'web') {
       return;
     }
-    const parts = this.time.split(':');
-    Notifications.requestPermissionsAsync().then(() => {
-  Notifications.cancelAllScheduledNotificationsAsync().then(() => {
-  Notifications.scheduleNotificationAsync({ content: { title: 'Alarm', body: 'Your alarm is ringing.', sound: 'alarm-tone.wav' }, trigger: { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour: parseInt(parts[0], 10), minute: parseInt(parts[1], 10) } }).then((id) => {
-  this.notificationId = id;
-  this.__notify();
-}, () => {
-
-});
-}, () => {
-
-});
-}, () => {
-
+    const t = this.parts();
+    this.quiet(Notifications.cancelAllScheduledNotificationsAsync().then(() => {
+  if (this.days.length === 7) {
+    this.quiet(Notifications.scheduleNotificationAsync({ content: this.content(), trigger: { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour: t.hour, minute: t.minute } }));
+  } else {
+    this.days.forEach((d) => {
+  this.quiet(Notifications.scheduleNotificationAsync({ content: this.content(), trigger: { type: Notifications.SchedulableTriggerInputTypes.WEEKLY, weekday: d + 1, hour: t.hour, minute: t.minute } }));
 });
   }
-  setAlarm(time: string) {
-    this.time = time;
-    this.__notify();
-    this.enabled = true;
-    this.__notify();
-    this.save();
-    this.arm();
+}));
   }
-  cancel() {
-    this.enabled = false;
+  disarm() {
+    if (Platform.OS === 'web') {
+      return;
+    }
+    this.quiet(Notifications.cancelAllScheduledNotificationsAsync());
+  }
+  setEnabled(on: boolean) {
+    this.enabled = on;
     this.__notify();
-    if (Platform.OS !== 'web') {
-      Notifications.cancelAllScheduledNotificationsAsync().then(() => {
-
-}, () => {
-
-});
-      this.notificationId = '';
+    this.persist();
+    if (on) {
+      this.arm();
+    } else {
+      this.disarm();
+    }
+  }
+  setTime(t: string) {
+    this.time = t;
+    this.__notify();
+    this.persist();
+    if (this.enabled) {
+      this.arm();
+    }
+  }
+  setTitle(t: string) {
+    this.title = (t ? t : 'Alarm');
+    this.__notify();
+    this.persist();
+    if (this.enabled) {
+      this.arm();
+    }
+  }
+  toggleDay(d: number) {
+    if (this.days.indexOf(d) >= 0) {
+      if (this.days.length > 1) {
+        this.days = this.days.filter((x) => x !== d);
+        this.__notify();
+      }
+    } else {
+      this.days = this.days.concat([d]).sort();
       this.__notify();
     }
-    this.save();
+    this.persist();
+    if (this.enabled) {
+      this.arm();
+    }
+  }
+  setVolume(pct: number) {
+    this.volume = pct / 100;
+    this.__notify();
+    this.persist();
+  }
+  tone() {
+    return require('../assets/alarm-tone.wav');
   }
   fire() {
     this.ringing = true;
     this.__notify();
-    this.player = createAudioPlayer(toneSource);
+    this.ringStart = Date.now();
     this.__notify();
+    this.ringProgress = 0;
+    this.__notify();
+    if (!this.player) {
+      this.player = createAudioPlayer(this.tone());
+      this.__notify();
+    }
     this.player.loop = true;
+    this.player.volume = this.volume;
     this.player.play();
+    if (this.ringTimer) {
+      clearInterval(this.ringTimer);
+    }
+    this.ringTimer = setInterval(() => {
+  this.ringProgress = ((Date.now() - this.ringStart) % 8000) / 8000;
+  this.__notify();
+}, 250);
+    this.__notify();
   }
-  stop() {
+  stopRing() {
     this.ringing = false;
     this.__notify();
-    this.enabled = false;
+    this.ringProgress = 0;
+    this.__notify();
+    if (this.ringTimer) {
+      clearInterval(this.ringTimer);
+    }
+    this.ringTimer = null;
     this.__notify();
     if (this.player) {
       this.player.pause();
-      this.player.remove();
-      this.player = null;
-      this.__notify();
     }
-    if (Platform.OS !== 'web') {
-      Notifications.cancelAllScheduledNotificationsAsync().then(() => {
-
-}, () => {
-
-});
-      this.notificationId = '';
-      this.__notify();
+  }
+  snooze() {
+    this.stopRing();
+    if (Platform.OS === 'web') {
+      return;
     }
-    this.save();
+    this.quiet(Notifications.scheduleNotificationAsync({ content: this.content(), trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 300 } }));
   }
 }
 
-export class MarioService extends ReactiveService {
-  levelRows: string[] = [
-    '                                                                                          ',
-    '                                                                                          ',
-    '                                                                                     F|   ',
-    '                                                     o                                |   ',
-    '                               oooo                 ===                               |   ',
-    '               B?B         oo     #         oo               BB?BBB    #              |   ',
-    '                     ==   ===    ##           PP   =   =               ##             |   ',
-    '            PP                  ###       PP  PP              oooo     ###            |   ',
-    '            PP                 ####       PP  PP                       ####           |   ',
-    '#######################  ###########################   #####################  ############',
-    '#######################  ###########################   #####################  ############',
-  ];
-  rowIdx = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-  colIdx = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
+export class BreakoutService extends ReactiveService {
+  rowIdx = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29];
+  colIdx = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
   grid: string[][] = [];
   view: string[][] = [];
-  px = 2;
-  py = 8;
-  vy = 0;
-  run = 0;
-  grounded = true;
-  enemies: any[] = [];
-  coins = 0;
+  bx = 12;
+  by = 26;
+  vx = 4.5;
+  vy = -11;
+  px = 9.5;
+  dir = 0;
+  score = 0;
   lives = 3;
-  state = 'playing';
-  stateLine = 'Reach the flag.';
+  bricksLeft = 72;
+  state = 'ready';
+  stateLine = 'Tap launch to start.';
   timer: any = null;
   start() {
     if (this.timer) {
       return;
     }
     this.buildLevel();
-    this.resetEnemies();
     this.render();
     this.timer = setInterval(() => this.tick(), 50);
     this.__notify();
@@ -1576,288 +1649,256 @@ export class MarioService extends ReactiveService {
     this.__notify();
   }
   buildLevel() {
-    this.grid = this.levelRows.map((r) => r.split(''));
+    this.grid = this.rowIdx.map((r) => this.colIdx.map((c) => {
+  if (r >= 4 && r <= 9) {
+    return String(r - 3);
+  }
+  return ' ';
+}));
+    this.__notify();
+    this.bricksLeft = 72;
     this.__notify();
   }
-  resetEnemies() {
-    this.enemies = [{ x: 28, min: 26, max: 29, dir: -1, alive: true }, { x: 44, min: 44, max: 45, dir: 1, alive: true }, { x: 68, min: 66, max: 69, dir: -1, alive: true }, { x: 78, min: 78, max: 79, dir: 1, alive: true }];
+  resetBall() {
+    this.px = 9.5;
     this.__notify();
-  }
-  solidAt(c: number, r: number) {
-    if (c < 0 || c >= 90) {
-      return true;
-    }
-    if (r < 0 || r >= 11) {
-      return false;
-    }
-    const ch = this.grid[r][c];
-    return ch === '#' || ch === 'B' || ch === '?' || ch === 'P' || ch === '=';
-  }
-  boxHitsSolid(x: number, y: number) {
-    const c0 = Math.floor(x + 0.05);
-    const c1 = Math.floor(x + 0.95);
-    const r0 = Math.floor(y + 0.05);
-    const r1 = Math.floor(y + 0.95);
-    const cols = (c1 === c0 ? [c0] : [c0, c1]);
-    const rows = (r1 === r0 ? [r0] : [r0, r1]);
-    let hit = false;
-    cols.forEach((c) => {
-  rows.forEach((r) => {
-  if (this.solidAt(c, r)) {
-    hit = true;
-  }
-});
-});
-    return hit;
+    this.bx = this.px + 2.5;
+    this.__notify();
+    this.by = 26;
+    this.__notify();
+    this.vx = 4.5;
+    this.__notify();
+    this.vy = -11;
+    this.__notify();
+    this.dir = 0;
+    this.__notify();
   }
   tick() {
-    if (this.state !== 'playing') {
+    if (this.state !== 'playing' && this.state !== 'ready') {
       return;
     }
     const dt = 0.05;
-    const vx = this.run * 5.5;
-    if (vx !== 0) {
-      const nx = this.px + vx * dt;
-      if (!this.boxHitsSolid(nx, this.py)) {
-        this.px = nx;
+    if (this.dir !== 0) {
+      this.px = this.px + this.dir * 16 * dt;
+      this.__notify();
+      if (this.px < 0) {
+        this.px = 0;
+        this.__notify();
+      }
+      if (this.px > 19) {
+        this.px = 19;
         this.__notify();
       }
     }
-    this.vy = Math.min(this.vy + 30 * dt, 18);
+    if (this.state === 'ready') {
+      this.bx = this.px + 2.5;
+      this.__notify();
+      this.by = 26;
+      this.__notify();
+      this.render();
+      return;
+    }
+    const prevBx = this.bx;
+    const prevBy = this.by;
+    this.bx = this.bx + this.vx * dt;
     this.__notify();
-    const ny = this.py + this.vy * dt;
-    if (this.boxHitsSolid(this.px, ny)) {
-      if (this.vy > 0) {
-        this.py = Math.floor(ny + 0.95) - 1 + 0.001;
+    this.by = this.by + this.vy * dt;
+    this.__notify();
+    if (this.bx < 0.5) {
+      this.bx = 0.5;
+      this.__notify();
+      this.vx = Math.abs(this.vx);
+      this.__notify();
+    }
+    if (this.bx > 22.5) {
+      this.bx = 22.5;
+      this.__notify();
+      this.vx = -Math.abs(this.vx);
+      this.__notify();
+    }
+    if (this.by < 0.5) {
+      this.by = 0.5;
+      this.__notify();
+      this.vy = Math.abs(this.vy);
+      this.__notify();
+    }
+    if (this.by > 29.5) {
+      this.lives = this.lives - 1;
+      this.__notify();
+      if (this.lives <= 0) {
+        this.state = 'over';
         this.__notify();
-        this.grounded = true;
+        this.stateLine = 'Game over. Restart and go again.';
         this.__notify();
       } else {
-        this.py = Math.floor(ny) + 1;
+        this.state = 'ready';
         this.__notify();
-      }
-      this.vy = 0;
-      this.__notify();
-    } else {
-      this.py = ny;
-      this.__notify();
-      this.grounded = this.boxHitsSolid(this.px, this.py + 0.06);
-      this.__notify();
-      if (this.grounded) {
-        this.vy = 0;
+        this.stateLine = 'The ball got past you. ' + this.lives + ((this.lives === 1 ? ' life' : ' lives')) + ' left. Tap launch.';
         this.__notify();
+        this.resetBall();
       }
-    }
-    this.enemies = this.enemies.map((e) => {
-  if (!e.alive) {
-    return e;
-  }
-  let x = e.x + e.dir * 2.2 * dt;
-  let dir = e.dir;
-  if (x < e.min) {
-    x = e.min;
-    dir = 1;
-  }
-  if (x > e.max) {
-    x = e.max;
-    dir = -1;
-  }
-  return { x, min: e.min, max: e.max, dir, alive: true };
-});
-    this.__notify();
-    const cc = Math.floor(this.px + 0.5);
-    const cr = Math.floor(this.py + 0.5);
-    if (cr >= 0 && cr < 11 && cc >= 0 && cc < 90 && this.grid[cr][cc] === 'o') {
-      this.grid[cr][cc] = ' ';
-      this.coins = this.coins + 1;
-      this.__notify();
-    }
-    this.enemies.forEach((e) => {
-  if (!e.alive || this.state !== 'playing') {
-    return;
-  }
-  const overlap = this.px + 0.9 > e.x && this.px < e.x + 0.9 && this.py + 0.9 > 8 && this.py < 9;
-  if (overlap) {
-    if (this.vy > 2 && this.py + 1 <= 8.6) {
-      e.alive = false;
-      this.vy = -8;
-      this.__notify();
-    } else {
-      this.die();
-    }
-  }
-});
-    if (this.state !== 'playing') {
       this.render();
       return;
     }
-    if (this.py > 10.4) {
-      this.die();
-      this.render();
-      return;
+    if (this.vy > 0 && this.by >= 26.3 && this.by <= 27.8 && this.bx >= this.px - 0.5 && this.bx <= this.px + 5.5) {
+      this.by = 26.3;
+      this.__notify();
+      this.vy = -Math.abs(this.vy);
+      this.__notify();
+      const off = (this.bx - (this.px + 2.5)) / 3;
+      this.vx = Math.max(-9, Math.min(9, off * 7));
+      this.__notify();
+      if (this.vx === 0) {
+        this.vx = 2;
+        this.__notify();
+      }
     }
-    if (this.px >= 85.1) {
-      this.state = 'won';
-      this.__notify();
-      this.stateLine = 'You reached the flag. Level complete.';
-      this.__notify();
+    const cc = Math.floor(this.bx);
+    const cr = Math.floor(this.by);
+    if (cr >= 0 && cr < 30 && cc >= 0 && cc < 24) {
+      const ch = this.grid[cr][cc];
+      if (ch !== ' ') {
+        const c0 = cc - (cc % 2);
+        this.grid[cr][c0] = ' ';
+        this.grid[cr][c0 + 1] = ' ';
+        this.bricksLeft = this.bricksLeft - 1;
+        this.__notify();
+        this.score = this.score + 10;
+        this.__notify();
+        if (Math.floor(prevBy) !== cr) {
+          this.vy = -this.vy;
+          this.__notify();
+        } else if (Math.floor(prevBx) !== cc) {
+          this.vx = -this.vx;
+          this.__notify();
+        } else {
+          this.vy = -this.vy;
+          this.__notify();
+        }
+        if (this.bricksLeft <= 0) {
+          this.state = 'won';
+          this.__notify();
+          this.stateLine = 'You cleared the whole wall. Beautiful.';
+          this.__notify();
+        }
+      }
     }
     this.render();
   }
-  die() {
-    this.lives = this.lives - 1;
-    this.__notify();
-    if (this.lives <= 0) {
-      this.state = 'over';
-      this.__notify();
-      this.stateLine = 'Game over. Restart and try again.';
-      this.__notify();
-      return;
-    }
-    this.stateLine = 'Ouch. ' + this.lives + ((this.lives === 1 ? ' life' : ' lives')) + ' left.';
-    this.__notify();
-    this.px = 2;
-    this.__notify();
-    this.py = 8;
-    this.__notify();
-    this.vy = 0;
-    this.__notify();
-    this.run = 0;
-    this.__notify();
-    this.resetEnemies();
-  }
   render() {
-    let cam = Math.floor(this.px) - 6;
-    if (cam < 0) {
-      cam = 0;
-    }
-    if (cam > 72) {
-      cam = 72;
-    }
-    this.view = this.rowIdx.map((r) => this.colIdx.map((dc) => {
-  const c = cam + dc;
+    this.view = this.rowIdx.map((r) => this.colIdx.map((c) => {
   let ch = this.grid[r][c];
-  this.enemies.forEach((e) => {
-  if (e.alive && Math.floor(e.x) === c && r === 8) {
-    ch = 'E';
+  if (r === 27 && c >= Math.floor(this.px) && c <= Math.floor(this.px) + 4) {
+    ch = 'P';
   }
-});
-  if (Math.floor(this.px) === c && Math.floor(this.py) === r) {
-    ch = 'X';
+  if (Math.floor(this.bx) === c && Math.floor(this.by) === r) {
+    ch = 'B';
   }
   return ch;
 }));
     this.__notify();
   }
   goLeft() {
-    this.run = (this.run === -1 ? 0 : -1);
+    this.dir = (this.dir === -1 ? 0 : -1);
     this.__notify();
   }
   goRight() {
-    this.run = (this.run === 1 ? 0 : 1);
+    this.dir = (this.dir === 1 ? 0 : 1);
     this.__notify();
   }
-  jump() {
-    if (this.state === 'playing' && this.grounded) {
-      this.vy = -15;
+  launch() {
+    if (this.state === 'ready') {
+      this.state = 'playing';
       this.__notify();
-      this.grounded = false;
+      this.stateLine = 'Clear every brick.';
+      this.__notify();
+      this.vy = -11;
+      this.__notify();
+      this.vx = (this.dir !== 0 ? this.dir * 5 : 4.5);
       this.__notify();
     }
   }
   restart() {
     this.buildLevel();
-    this.resetEnemies();
-    this.px = 2;
-    this.__notify();
-    this.py = 8;
-    this.__notify();
-    this.vy = 0;
-    this.__notify();
-    this.run = 0;
-    this.__notify();
-    this.coins = 0;
+    this.score = 0;
     this.__notify();
     this.lives = 3;
     this.__notify();
-    this.state = 'playing';
+    this.state = 'ready';
     this.__notify();
-    this.stateLine = 'Reach the flag.';
+    this.stateLine = 'Tap launch to start.';
     this.__notify();
+    this.resetBall();
     this.render();
   }
 }
 
-export class HabitService extends ReactiveService {
-  names: string[] = [
-    'Morning workout',
-    'Read for 20 minutes',
-    'Write code for one hour',
-    'No phone after 9 pm',
-    'Drink two litres of water',
-  ];
-  doneToday: boolean[] = [false, false, false, false, false];
-  storageKey = 'rangular-tutorial.habits.v1';
+export class TodoService extends ReactiveService {
+  storageKey = 'rangular-tutorial.todos.v1';
+  items: any[] = [];
   loaded = false;
   waiters: any[] = [];
+  seq = 0;
   constructor() {
     super();
     AsyncStorage.getItem(this.storageKey).then((raw) => {
   if (raw) {
-    const saved = JSON.parse(raw);
-    if (saved.names !== undefined && saved.names.length > 0) {
-      this.names = saved.names;
-      this.__notify();
-      this.doneToday = this.names.map(() => false);
-      this.__notify();
-    }
-    if (saved.day === this.dayKey() && saved.done !== undefined) {
-      this.doneToday = this.names.map((_, i) => saved.done[i] === true);
-      this.__notify();
-    }
+    this.items = JSON.parse(raw);
+    this.__notify();
+  } else {
+    this.items = [{ id: 1, text: 'Design the new landing page', prio: 2, done: false }, { id: 2, text: 'Review the open pull requests', prio: 1, done: false }, { id: 3, text: 'Book flights for the team offsite', prio: 0, done: true }];
+    this.__notify();
+    this.persist();
   }
   this.loaded = true;
   this.__notify();
-  const pending = this.waiters;
+  this.waiters.forEach((cb) => cb());
   this.waiters = [];
   this.__notify();
-  pending.forEach((cb) => cb());
 }, () => {
   this.loaded = true;
   this.__notify();
+  this.waiters.forEach((cb) => cb());
+  this.waiters = [];
+  this.__notify();
 });
-  }
-  dayKey() {
-    return 'day-' + Math.floor(Date.now() / 86400000);
   }
   whenLoaded(cb: () => void) {
     if (this.loaded) {
       cb();
     } else {
-      this.waiters.push(cb);
+      this.waiters = this.waiters.concat([cb]);
+      this.__notify();
     }
   }
-  save() {
-    AsyncStorage.setItem(this.storageKey, JSON.stringify({ names: this.names, day: this.dayKey(), done: this.doneToday }));
+  persist() {
+    AsyncStorage.setItem(this.storageKey, JSON.stringify(this.items)).then(() => {
+
+}, () => {
+
+});
   }
-  toggle(i: number) {
-    this.doneToday = this.doneToday.map((d, j) => ((j === i ? !d : d)));
+  add(text: string, prio: number) {
+    const trimmed = text.trim();
+    if (!trimmed) {
+      return;
+    }
+    this.seq = (this.seq + 1) % 10;
     this.__notify();
-    this.save();
+    const id = Date.now() * 10 + this.seq;
+    this.items = [{ id, text: trimmed, prio, done: false }].concat(this.items);
+    this.__notify();
+    this.persist();
   }
-  add(name: string) {
-    this.names = [...this.names, name];
+  toggle(id: number) {
+    this.items = this.items.map((t) => ((t.id === id ? { id: t.id, text: t.text, prio: t.prio, done: !t.done } : t)));
     this.__notify();
-    this.doneToday = [...this.doneToday, false];
-    this.__notify();
-    this.save();
+    this.persist();
   }
-  remove(i: number) {
-    this.names = this.names.filter((_, j) => j !== i);
+  remove(id: number) {
+    this.items = this.items.filter((t) => t.id !== id);
     this.__notify();
-    this.doneToday = this.doneToday.filter((_, j) => j !== i);
-    this.__notify();
-    this.save();
+    this.persist();
   }
 }
 
@@ -1890,10 +1931,10 @@ __container.register(MinutesService, new MinutesService());
 __container.register(UserService, new UserService(__container.get<HttpClient>(HttpClient)));
 __container.register(ActivityLogService, new ActivityLogService());
 __container.register(AlarmService, new AlarmService());
-__container.register(MarioService, new MarioService());
-__container.register(HabitService, new HabitService());
+__container.register(BreakoutService, new BreakoutService());
+__container.register(TodoService, new TodoService());
 
-const __navigator = new RgNavigator([{"path":"","redirectTo":"splash"},{"path":"splash"},{"path":"home"},{"path":"saved"},{"path":"history"},{"path":"progress","redirectTo":"history"},{"path":"lesson/:id"},{"path":"samples"},{"path":"samples/alarm"},{"path":"samples/mario"},{"path":"samples/habit"},{"path":"about"},{"path":"**"}]);
+const __navigator = new RgNavigator([{"path":"","redirectTo":"splash"},{"path":"splash"},{"path":"home"},{"path":"saved"},{"path":"history"},{"path":"progress","redirectTo":"history"},{"path":"lesson/:id"},{"path":"samples"},{"path":"samples/alarm"},{"path":"samples/breakout"},{"path":"samples/mario","redirectTo":"samples/breakout"},{"path":"samples/todo"},{"path":"samples/habit","redirectTo":"samples/todo"},{"path":"about"},{"path":"**"}]);
 const __router = new Router(__navigator);
 
 const __snackBar = new SnackBar();
@@ -6127,11 +6168,11 @@ export function Samples() {
   const goAlarm = () => {
     router.navigate(['/samples/alarm']);
   };
-  const goMario = () => {
-    router.navigate(['/samples/mario']);
+  const goBreakout = () => {
+    router.navigate(['/samples/breakout']);
   };
-  const goHabit = () => {
-    router.navigate(['/samples/habit']);
+  const goTodo = () => {
+    router.navigate(['/samples/todo']);
   };
   useEffect(() => {
     ngOnInit();
@@ -6151,25 +6192,25 @@ export function Samples() {
         <RgSection style={styles.samplesSampleRow}>
           <RgSection style={styles.samplesSampleMain}>
             <RgText variant="title">Alarm</RgText>
-            <RgText variant="bodyLarge">A working alarm clock. Pick a time, switch it on, and it rings with its tone: on this screen while the app is open, and as a system notification when it is not.</RgText>
+            <RgText variant="bodyLarge">An alarm in the style of Awaken Me: a title, repeat days, volume, and its own tone. It rings on this page while the app is open, and as a system notification when it is not.</RgText>
           </RgSection>
           <RgIcon name="chevron-right" />
         </RgSection>
       </RgCard>
-      <RgCard onPress={() => goMario()}>
+      <RgCard onPress={() => goBreakout()}>
         <RgSection style={styles.samplesSampleRow}>
           <RgSection style={styles.samplesSampleMain}>
-            <RgText variant="title">Platformer</RgText>
-            <RgText variant="bodyLarge">A small Mario style platform game: run, jump, gather coins, dodge the walkers, and reach the flag. One level, drawn and animated entirely with bindings.</RgText>
+            <RgText variant="title">Breakout</RgText>
+            <RgText variant="bodyLarge">The Atari classic: a paddle, a ball, and six rows of shiny bricks to clear. Real bounce physics, angle off the paddle, three lives, drawn and animated entirely with bindings.</RgText>
           </RgSection>
           <RgIcon name="chevron-right" />
         </RgSection>
       </RgCard>
-      <RgCard onPress={() => goHabit()}>
+      <RgCard onPress={() => goTodo()}>
         <RgSection style={styles.samplesSampleRow}>
           <RgSection style={styles.samplesSampleMain}>
-            <RgText variant="title">Habit tracker</RgText>
-            <RgText variant="bodyLarge">A daily checklist for the habits you choose. Tick each one off as the day goes, and start fresh tomorrow. Your list and your ticks stay on this device.</RgText>
+            <RgText variant="title">Todo list</RgText>
+            <RgText variant="bodyLarge">A task list with priorities, filters and a progress header. Add what needs doing, tick it off as you go, and watch the day clear. Your tasks stay on this device.</RgText>
           </RgSection>
           <RgIcon name="chevron-right" />
         </RgSection>
@@ -6239,20 +6280,64 @@ export function AlarmSample() {
   useSyncExternalStore((cb) => alarm.__subscribe(cb), () => alarm.__getVersion());
   const router = __router;
   const [picked, setPicked] = useState('07:00');
+  const [titleDraft, setTitleDraft] = useState('Wake up');
+  const [volumePct, setVolumePct] = useState(80);
+  const [timeLabel, setTimeLabel] = useState('7:00 AM');
+  const [daysLabel, setDaysLabel] = useState('Every day');
+  const dayIdx = [0, 1, 2, 3, 4, 5, 6];
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const ngOnInit = () => {
-    setPicked(alarm.time);
+    alarm.whenLoaded(() => {
+  setPicked(alarm.time);
+  setTitleDraft(alarm.title);
+  setVolumePct(Math.round(alarm.volume * 100));
+  refresh();
+});
   };
-  const onTime = (value: string) => {
-    setPicked(value);
+  const refresh = () => {
+    const bits = alarm.time.split(':');
+    let h = Number(bits[0]);
+    const suffix = (h >= 12 ? 'PM' : 'AM');
+    h = h % 12;
+    if (h === 0) {
+      h = 12;
+    }
+    setTimeLabel(h + ':' + bits[1] + ' ' + suffix);
+    if (alarm.days.length === 7) {
+      setDaysLabel('Every day');
+    } else if (alarm.days.join(',') === '1,2,3,4,5') {
+      setDaysLabel('Weekdays');
+    } else if (alarm.days.join(',') === '0,6') {
+      setDaysLabel('Weekends');
+    } else {
+      setDaysLabel(alarm.days.map((d) => dayNames[d]).join(' '));
+    }
   };
-  const setAlarm = () => {
-    alarm.setAlarm(picked);
+  const toggleAlarm = () => {
+    alarm.setEnabled(!alarm.enabled);
   };
-  const turnOff = () => {
-    alarm.cancel();
+  const onTime = (ev: string) => {
+    setPicked(ev);
+    alarm.setTime(ev);
+    refresh();
   };
-  const stopRinging = () => {
-    alarm.stop();
+  const toggleDay = (d: number) => {
+    alarm.toggleDay(d);
+    refresh();
+  };
+  const applyTitle = (v: string) => {
+    setTitleDraft(v);
+    alarm.setTitle(v);
+  };
+  const onVolume = (ev: number) => {
+    setVolumePct(ev);
+    alarm.setVolume(ev);
+  };
+  const stop = () => {
+    alarm.stopRing();
+  };
+  const snooze = () => {
+    alarm.snooze();
   };
   const goBack = () => {
     router.navigate(['/samples']);
@@ -6264,32 +6349,69 @@ export function AlarmSample() {
     <RgSection>
       <RgAppbar tone="tint" title="Alarm" pin back onBack={() => goBack()} />
       {alarm.ringing && (
-        <RgCard style={styles.alarmSampleReadout}>
-          <RgText variant="title" style={styles.alarmSampleStateLine}>Your alarm is ringing</RgText>
-          <RgText variant="bodyLarge" style={styles.alarmSampleBigTime}>{alarm.time}</RgText>
-          <RgButton color="danger" onPress={() => stopRinging()}>Stop</RgButton>
-        </RgCard>
+        <RgSection style={styles.alarmSampleRinging}>
+          <RgText variant="bodyLarge" style={styles.alarmSampleRingLabel}>ALARM</RgText>
+          <RgText variant="bodyLarge" style={styles.alarmSampleRingTime}>{timeLabel}</RgText>
+          <RgText variant="title">{alarm.title}</RgText>
+          <RgProgressBar value={(alarm.ringProgress * 100)} />
+          <RgText variant="bodyLarge">The tone plays until you stop it.</RgText>
+          <RgSection style={styles.alarmSampleRingActions}>
+            <RgSection onPress={() => stop()} style={styles.alarmSampleRoundBtn}>
+              <RgSection style={styles.alarmSampleStopSquare} />
+            </RgSection>
+            <RgButton color="neutral" onPress={() => snooze()}>Snooze 5 min</RgButton>
+          </RgSection>
+        </RgSection>
       )}
-      <RgCard style={styles.alarmSampleReadout}>
-        <RgText variant="bodyLarge" style={styles.alarmSampleBigTime}>{(alarm.enabled ? alarm.time : picked)}</RgText>
-        {alarm.enabled && (
-          <RgText variant="bodyLarge" style={styles.alarmSampleStateLine}>Alarm is on for {alarm.time}. It rings here while the app is open, and as a notification when it is not.</RgText>
-        )}
-        {!alarm.enabled && (
-          <RgText variant="bodyLarge" style={styles.alarmSampleStateLine}>Alarm is off. Pick a time and set it.</RgText>
-        )}
-      </RgCard>
-      <RgDateTimePicker mode="time" minuteInterval={1} label="Alarm time" value={picked} onChange={($event) => onTime($event)} />
-      <RgButton onPress={() => setAlarm()}>Set alarm</RgButton>
-      {alarm.enabled && (
-        <RgButton variant="text" color="danger" onPress={() => turnOff()}>Turn off</RgButton>
+      {!alarm.ringing && (
+        <RgSection>
+          <RgCard style={styles.alarmSampleAlarmCard}>
+            <RgSection style={styles.alarmSampleCardMain}>
+              <RgText variant="title">{alarm.title}</RgText>
+              <RgSection style={styles.alarmSampleTimeRow}>
+                <RgText variant="bodyLarge" style={styles.alarmSampleBigTime}>{timeLabel}</RgText>
+                <RgSection style={styles.alarmSampleBadge}>
+                  <RgText variant="bodyLarge" style={styles.alarmSampleBadgeText}>{daysLabel}</RgText>
+                </RgSection>
+              </RgSection>
+              <RgSection style={styles.alarmSampleTagRow}>
+                <RgSection style={styles.alarmSampleToneTag}>
+                  <RgIcon name="bell" />
+                  <RgText variant="bodyLarge" style={styles.alarmSampleToneName}>Alarm tone</RgText>
+                  <RgText variant="bodyLarge" style={styles.alarmSampleToneDur}>(0:08)</RgText>
+                </RgSection>
+              </RgSection>
+            </RgSection>
+            <RgSection onPress={() => toggleAlarm()} style={[styles.alarmSampleSwitch, alarm.enabled ? styles.alarmSampleSwitchOn : undefined]}>
+              <RgSection style={styles.alarmSampleKnob} />
+            </RgSection>
+          </RgCard>
+          <RgCard style={styles.alarmSampleSettings}>
+            <RgText variant="title">When</RgText>
+            <RgDateTimePicker mode="time" minuteInterval={1} label="Alarm time" value={picked} onChange={($event) => onTime($event)} />
+            <RgText variant="title">Repeat</RgText>
+            <RgSection style={styles.alarmSampleDaysRow}>
+              {dayIdx.map((d, index) => (
+                <RgSection key={d?.id ?? index} onPress={() => toggleDay(d)} style={[styles.alarmSampleDayChip, (alarm.days.indexOf(d) >= 0) ? styles.alarmSampleDayOn : undefined]}>
+                  <RgText variant="bodyLarge" style={[styles.alarmSampleDayText, (alarm.days.indexOf(d) >= 0) ? styles.alarmSampleDayTextOn : undefined]}>{dayNames[d]}</RgText>
+                </RgSection>
+              ))}
+            </RgSection>
+            <RgText variant="title">Title</RgText>
+            <RgInput label="Alarm title" placeholder="Wake up" value={titleDraft} onChangeText={($event) => { setTitleDraft($event); applyTitle($event); }} />
+            <RgText variant="title">Volume</RgText>
+            <RgSlider min={0} max={100} step={5} value={volumePct} onChange={($event) => onVolume($event)} />
+            <RgText variant="bodyLarge">Volume is {volumePct} percent. It sets how loud the tone plays on this screen; a system notification uses your device volume.</RgText>
+          </RgCard>
+          <RgText variant="bodyLarge" style={styles.alarmSampleFootNote}>One alarm and one tone, kept on this device. With the app open, the alarm rings here on this page. With the app closed, the system delivers it as a notification that plays the same tone.</RgText>
+        </RgSection>
       )}
     </RgSection>
   );
 }
 
-export function MarioSample() {
-  const game = __container.get<MarioService>(MarioService);
+export function BreakoutSample() {
+  const game = __container.get<BreakoutService>(BreakoutService);
   useSyncExternalStore((cb) => game.__subscribe(cb), () => game.__getVersion());
   const router = __router;
   const ngOnInit = () => {
@@ -6304,8 +6426,8 @@ export function MarioSample() {
   const goRight = () => {
     game.goRight();
   };
-  const jump = () => {
-    game.jump();
+  const launch = () => {
+    game.launch();
   };
   const restart = () => {
     game.restart();
@@ -6321,75 +6443,97 @@ export function MarioSample() {
   }, []);
   return (
     <RgSection>
-      <RgAppbar tone="tint" title="Platformer" pin back onBack={() => goBack()} />
-      <RgCard style={styles.marioSampleReadout}>
-        <RgText variant="title">Coins {game.coins} · Lives {game.lives}</RgText>
+      <RgAppbar tone="tint" title="Breakout" pin back onBack={() => goBack()} />
+      <RgCard style={styles.breakoutSampleReadout}>
+        <RgText variant="title">Score {game.score} · Lives {game.lives}</RgText>
         <RgText variant="bodyLarge">{game.stateLine}</RgText>
-        <RgText variant="bodyLarge">Tap an arrow to run that way. Tap it again to stop. Jump with the up key. Stomp a walker by landing on it.</RgText>
+        <RgText variant="bodyLarge">Work the paddle with the arrow keys: tap one to start moving, tap it again to stop. Where the ball lands on the paddle sets its angle.</RgText>
       </RgCard>
-      <RgSection style={styles.marioSampleStage}>
+      <RgSection style={styles.breakoutSampleStage}>
         {game.view.map((row, index) => (
-          <RgSection key={row?.id ?? index} style={styles.marioSampleTrow}>
+          <RgSection key={row?.id ?? index} style={styles.breakoutSampleTrow}>
             {row.map((c, index) => (
-              <RgSection key={c?.id ?? index} style={[styles.marioSampleCell, styles.marioSampleSky, (c === '#') ? styles.marioSampleGround : undefined, (c === 'B') ? styles.marioSampleBrick : undefined, (c === '?') ? styles.marioSampleQblock : undefined, (c === 'P') ? styles.marioSamplePipe : undefined, (c === '=') ? styles.marioSamplePlat : undefined, (c === 'o') ? styles.marioSampleCoin : undefined, (c === '|') ? styles.marioSamplePole : undefined, (c === 'F') ? styles.marioSampleFlag : undefined, (c === 'E') ? styles.marioSampleEnemy : undefined, (c === 'X') ? styles.marioSamplePlayer : undefined]}>
-                {(c === 'X') && (
-                  <RgSection>
-                    <RgSection style={styles.marioSampleCap} />
-                    <RgSection style={styles.marioSampleFace} />
-                  </RgSection>
+              <RgSection key={c?.id ?? index} style={[styles.breakoutSampleCell, (c === '1') ? styles.breakoutSampleB1 : undefined, (c === '2') ? styles.breakoutSampleB2 : undefined, (c === '3') ? styles.breakoutSampleB3 : undefined, (c === '4') ? styles.breakoutSampleB4 : undefined, (c === '5') ? styles.breakoutSampleB5 : undefined, (c === '6') ? styles.breakoutSampleB6 : undefined, (c === 'B') ? styles.breakoutSampleBall : undefined, (c === 'P') ? styles.breakoutSamplePaddle : undefined]}>
+                {((((((c === '1') || (c === '2')) || (c === '3')) || (c === '4')) || (c === '5')) || (c === '6')) && (
+                  <RgSection style={styles.breakoutSampleGloss} />
                 )}
               </RgSection>
             ))}
           </RgSection>
         ))}
       </RgSection>
-      <RgSection style={styles.marioSampleKeysRow}>
+      <RgSection style={styles.breakoutSampleKeysRow}>
         <DeviceKey glyph="<" label="left" onPressed={($event) => goLeft()} />
-        <DeviceKey glyph="^" label="jump" onPressed={($event) => jump()} />
+        <DeviceKey glyph="^" label="launch" onPressed={($event) => launch()} />
         <DeviceKey glyph=">" label="right" onPressed={($event) => goRight()} />
       </RgSection>
-      <RgButton variant="text" onPress={() => restart()}>Restart level</RgButton>
+      <RgButton variant="text" onPress={() => restart()}>Restart game</RgButton>
     </RgSection>
   );
 }
 
-export function HabitSample() {
-  const habits = __container.get<HabitService>(HabitService);
-  useSyncExternalStore((cb) => habits.__subscribe(cb), () => habits.__getVersion());
+export function TodoSample() {
+  const todos = __container.get<TodoService>(TodoService);
+  useSyncExternalStore((cb) => todos.__subscribe(cb), () => todos.__getVersion());
   const router = __router;
+  const [draft, setDraft] = useState('');
+  const [draftPrio, setDraftPrio] = useState(1);
+  const [filter, setFilter] = useState('all');
   const [rows, setRows] = useState([]);
+  const [leftCount, setLeftCount] = useState(0);
   const [doneCount, setDoneCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const [percent, setPercent] = useState(0);
-  const [newName, setNewName] = useState('');
+  const [stateLine, setStateLine] = useState('');
   const ngOnInit = () => {
-    refresh();
-    habits.whenLoaded(() => refresh());
+    todos.whenLoaded(() => refresh('all'));
   };
-  const refresh = () => {
-    let __shadowRows = rows;
+  const refresh = (f: string) => {
+    let __shadowTotalCount = totalCount;
     let __shadowDoneCount = doneCount;
-    __shadowRows = habits.names.map((name, i) => ({ name, done: habits.doneToday[i] === true }));
-    setRows(__shadowRows);
-    __shadowDoneCount = __shadowRows.filter((r) => r.done).length;
+    let __shadowLeftCount = leftCount;
+    const all = todos.items;
+    __shadowTotalCount = all.length;
+    setTotalCount(__shadowTotalCount);
+    __shadowDoneCount = all.filter((t) => t.done).length;
     setDoneCount(__shadowDoneCount);
-    setPercent((__shadowRows.length === 0 ? 0 : Math.round((__shadowDoneCount * 100) / __shadowRows.length)));
+    __shadowLeftCount = __shadowTotalCount - __shadowDoneCount;
+    setLeftCount(__shadowLeftCount);
+    setPercent((__shadowTotalCount === 0 ? 0 : Math.round((__shadowDoneCount * 100) / __shadowTotalCount)));
+    if (__shadowTotalCount === 0) {
+      setStateLine('Nothing here yet. Add your first task below.');
+    } else if (__shadowLeftCount === 0) {
+      setStateLine('Everything is done. A clean page.');
+    } else {
+      setStateLine(__shadowLeftCount + ((__shadowLeftCount === 1 ? ' task' : ' tasks')) + ' still to go.');
+    }
+    if (f === 'active') {
+      setRows(all.filter((t) => !t.done));
+    } else if (f === 'done') {
+      setRows(all.filter((t) => t.done));
+    } else {
+      setRows(all);
+    }
   };
-  const toggle = (i: number) => {
-    habits.toggle(i);
-    refresh();
+  const pickFilter = (f: string) => {
+    setFilter(f);
+    refresh(f);
+  };
+  const setPrio = (p: number) => {
+    setDraftPrio(p);
   };
   const add = () => {
-    const name = newName.trim();
-    if (name === '') {
-      return;
-    }
-    habits.add(name);
-    setNewName('');
-    refresh();
+    todos.add(draft, draftPrio);
+    setDraft('');
+    refresh(filter);
   };
-  const remove = (i: number) => {
-    habits.remove(i);
-    refresh();
+  const toggle = (t: any) => {
+    todos.toggle(t.id);
+    refresh(filter);
+  };
+  const remove = (t: any) => {
+    todos.remove(t.id);
+    refresh(filter);
   };
   const goBack = () => {
     router.navigate(['/samples']);
@@ -6399,30 +6543,63 @@ export function HabitSample() {
   }, []);
   return (
     <RgSection>
-      <RgAppbar tone="tint" title="Habit tracker" pin back onBack={() => goBack()} />
-      <RgCard style={styles.habitSampleReadout}>
-        <RgText variant="title">{doneCount} of {rows.length} done today</RgText>
-        <RgProgressBar value={percent} />
-        <RgText variant="bodyLarge">A new day starts unticked. Nothing carries over, and nothing is owed.</RgText>
-      </RgCard>
-      {rows.map((r, i) => (
-        <RgSection key={r?.id ?? i} style={styles.habitSampleHabitRow}>
-          <RgSection onPress={() => toggle(i)} style={styles.habitSampleCheckHit}>
-            <RgSection style={[styles.habitSampleCheck, r.done ? styles.habitSampleCheckOn : undefined]}>
-              {r.done && (
-                <RgIcon name="check" size={20} color="onPrimary" />
+      <RgAppbar tone="tint" title="Todo list" pin back onBack={() => goBack()} />
+      <RgSection style={styles.todoSampleHeroBase}>
+        <RgSection style={styles.todoSampleHeroFace}>
+          <RgText variant="bodyLarge" style={styles.todoSampleHeroCount}>{leftCount} of {totalCount} tasks left</RgText>
+          <RgProgressBar value={percent} />
+          <RgText variant="bodyLarge">{stateLine}</RgText>
+        </RgSection>
+      </RgSection>
+      <RgSection style={styles.todoSampleChipsRow}>
+        <RgSection onPress={() => pickFilter('all')} style={[styles.todoSampleChip, (filter === 'all') ? styles.todoSampleChipOn : undefined]}>
+          <RgText variant="bodyLarge" style={[styles.todoSampleChipText, (filter === 'all') ? styles.todoSampleChipTextOn : undefined]}>All · {totalCount}</RgText>
+        </RgSection>
+        <RgSection onPress={() => pickFilter('active')} style={[styles.todoSampleChip, (filter === 'active') ? styles.todoSampleChipOn : undefined]}>
+          <RgText variant="bodyLarge" style={[styles.todoSampleChipText, (filter === 'active') ? styles.todoSampleChipTextOn : undefined]}>Active · {leftCount}</RgText>
+        </RgSection>
+        <RgSection onPress={() => pickFilter('done')} style={[styles.todoSampleChip, (filter === 'done') ? styles.todoSampleChipOn : undefined]}>
+          <RgText variant="bodyLarge" style={[styles.todoSampleChipText, (filter === 'done') ? styles.todoSampleChipTextOn : undefined]}>Done · {doneCount}</RgText>
+        </RgSection>
+      </RgSection>
+      {(rows.length === 0) && (
+        <RgText variant="bodyLarge">Nothing in this view. Switch the filter, or add a task below.</RgText>
+      )}
+      {rows.map((t, index) => (
+        <RgCard key={t?.id ?? index} style={styles.todoSampleTaskCard}>
+          <RgSection onPress={() => toggle(t)} style={styles.todoSampleCheckHit}>
+            <RgSection style={[styles.todoSampleCheck, t.done ? styles.todoSampleCheckDone : undefined]}>
+              {t.done && (
+                <RgIcon name="check" color="onPrimary" />
               )}
             </RgSection>
           </RgSection>
-          <RgText variant="bodyLarge" style={styles.habitSampleHabitName}>{r.name}</RgText>
-          <RgButton variant="text" onPress={() => remove(i)}>Remove</RgButton>
-        </RgSection>
+          <RgSection style={styles.todoSampleTaskMain}>
+            <RgText variant="bodyLarge" style={[styles.todoSampleTaskText, t.done ? styles.todoSampleTaskDone : undefined]}>{t.text}</RgText>
+            <RgSection style={styles.todoSampleMetaRow}>
+              <RgSection style={[styles.todoSampleDot, (t.prio === 2) ? styles.todoSamplePHigh : undefined, (t.prio === 1) ? styles.todoSamplePMed : undefined, (t.prio === 0) ? styles.todoSamplePLow : undefined]} />
+              <RgText variant="bodyLarge" style={styles.todoSamplePrioText}>{((t.prio === 2) ? 'High priority' : ((t.prio === 1) ? 'Medium priority' : 'Low priority'))}</RgText>
+            </RgSection>
+          </RgSection>
+          <RgButton variant="text" color="danger" onPress={() => remove(t)}>Remove</RgButton>
+        </RgCard>
       ))}
-      {(rows.length === 0) && (
-        <RgText variant="bodyLarge">No habits yet. Add your first one below.</RgText>
-      )}
-      <RgInput label="New habit" placeholder="e.g. Walk for 15 minutes" value={newName} onChangeText={($event) => setNewName($event)} />
-      <RgButton disabled={(newName === '')} onPress={() => add()}>Add habit</RgButton>
+      <RgCard style={styles.todoSampleAddCard}>
+        <RgText variant="title">Add a task</RgText>
+        <RgInput label="Task" placeholder="What needs doing?" value={draft} onChangeText={($event) => setDraft($event)} />
+        <RgSection style={styles.todoSampleChipsRow}>
+          <RgSection onPress={() => setPrio(0)} style={[styles.todoSampleChip, (draftPrio === 0) ? styles.todoSampleChipOn : undefined]}>
+            <RgText variant="bodyLarge" style={[styles.todoSampleChipText, (draftPrio === 0) ? styles.todoSampleChipTextOn : undefined]}>Low</RgText>
+          </RgSection>
+          <RgSection onPress={() => setPrio(1)} style={[styles.todoSampleChip, (draftPrio === 1) ? styles.todoSampleChipOn : undefined]}>
+            <RgText variant="bodyLarge" style={[styles.todoSampleChipText, (draftPrio === 1) ? styles.todoSampleChipTextOn : undefined]}>Medium</RgText>
+          </RgSection>
+          <RgSection onPress={() => setPrio(2)} style={[styles.todoSampleChip, (draftPrio === 2) ? styles.todoSampleChipOn : undefined]}>
+            <RgText variant="bodyLarge" style={[styles.todoSampleChipText, (draftPrio === 2) ? styles.todoSampleChipTextOn : undefined]}>High</RgText>
+          </RgSection>
+        </RgSection>
+        <RgButton onPress={() => add()}>Add task</RgButton>
+      </RgCard>
     </RgSection>
   );
 }
@@ -6538,14 +6715,14 @@ export default function App() {
               <AlarmSample key={__route.path} />
             </ActivatedRouteContext.Provider>
           )}
-          {__route.routePath === "samples/mario" && (
+          {__route.routePath === "samples/breakout" && (
             <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
-              <MarioSample key={__route.path} />
+              <BreakoutSample key={__route.path} />
             </ActivatedRouteContext.Provider>
           )}
-          {__route.routePath === "samples/habit" && (
+          {__route.routePath === "samples/todo" && (
             <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
-              <HabitSample key={__route.path} />
+              <TodoSample key={__route.path} />
             </ActivatedRouteContext.Provider>
           )}
           {__route.routePath === "about" && (
@@ -6612,33 +6789,68 @@ const styles = StyleSheet.create({
   aboutHeroMark: {"width":48,"height":48,"alignItems":"center","justifyContent":"center"},
   aboutHeroTitle: {"color":"#ffffff"},
   aboutHeroText: {"color":"#d3e3fd"},
-  alarmSampleReadout: {"backgroundColor":"#fdf6ec","borderColor":"#a06a35","borderRadius":16,"padding":16},
-  alarmSampleBigTime: {"fontSize":32,"fontWeight":700,"textAlign":"center"},
-  alarmSampleStateLine: {"textAlign":"center"},
-  marioSampleReadout: {"backgroundColor":"#fdf6ec","borderColor":"#a06a35","borderRadius":16,"padding":16},
-  marioSampleStage: {"alignItems":"center","padding":8},
-  marioSampleTrow: {"flexDirection":"row","justifyContent":"center","gap":0},
-  marioSampleCell: {"width":17,"height":17},
-  marioSampleSky: {"backgroundColor":"#bfe3f2"},
-  marioSampleGround: {"backgroundColor":"#9c6642"},
-  marioSampleBrick: {"backgroundColor":"#c1553b"},
-  marioSampleQblock: {"backgroundColor":"#e8a91c"},
-  marioSamplePipe: {"backgroundColor":"#3f9e4d"},
-  marioSamplePlat: {"backgroundColor":"#7a4a21"},
-  marioSampleCoin: {"backgroundColor":"#f5c542","borderRadius":9999,"borderWidth":2,"borderColor":"#b8860b"},
-  marioSamplePole: {"backgroundColor":"#2e7d32"},
-  marioSampleFlag: {"backgroundColor":"#2e7d32","borderRadius":8},
-  marioSampleEnemy: {"backgroundColor":"#6d3b1f","borderRadius":8},
-  marioSamplePlayer: {"backgroundColor":"#d43a2f","borderRadius":8},
-  marioSampleCap: {"backgroundColor":"#8f1d14","height":5,"borderRadius":8},
-  marioSampleFace: {"backgroundColor":"#f2c49b","height":6,"borderRadius":8,"margin":4},
-  marioSampleKeysRow: {"flexDirection":"row","gap":8,"justifyContent":"center","padding":12},
-  habitSampleReadout: {"backgroundColor":"#fdf6ec","borderColor":"#a06a35","borderRadius":16,"padding":16},
-  habitSampleHabitRow: {"flexDirection":"row","alignItems":"center","gap":12,"padding":8},
-  habitSampleCheckHit: {"width":44,"height":44,"alignItems":"center","justifyContent":"center"},
-  habitSampleCheck: {"width":34,"height":34,"borderRadius":8,"borderWidth":2,"borderColor":"#a06a35","alignItems":"center","justifyContent":"center"},
-  habitSampleCheckOn: {"backgroundColor":"#a06a35"},
-  habitSampleHabitName: {"flex":1,"fontSize":16},
+  alarmSampleAlarmCard: {"flexDirection":"row","gap":12,"padding":16},
+  alarmSampleCardMain: {"flex":1,"gap":4},
+  alarmSampleTimeRow: {"flexDirection":"row","alignItems":"center","gap":8},
+  alarmSampleBigTime: {"fontSize":32,"fontWeight":700},
+  alarmSampleBadge: {"backgroundColor":"#fdf6ec","borderWidth":1,"borderColor":"#d8c9ae","borderRadius":8,"padding":4},
+  alarmSampleBadgeText: {"fontSize":12,"fontWeight":700,"color":"#a06a35"},
+  alarmSampleTagRow: {"flexDirection":"row"},
+  alarmSampleToneTag: {"flexDirection":"row","alignItems":"center","gap":4,"backgroundColor":"#fdf6ec","borderRadius":8,"padding":4},
+  alarmSampleToneName: {"fontSize":12,"fontWeight":500},
+  alarmSampleToneDur: {"fontSize":12,"color":"#6b5d43"},
+  alarmSampleSwitch: {"width":60,"height":44,"borderRadius":9999,"backgroundColor":"#d8c9ae","flexDirection":"row","alignItems":"center","padding":4},
+  alarmSampleSwitchOn: {"backgroundColor":"#a06a35","justifyContent":"flex-end"},
+  alarmSampleKnob: {"width":34,"height":34,"borderRadius":9999,"backgroundColor":"#ffffff"},
+  alarmSampleSettings: {"gap":12,"padding":16},
+  alarmSampleDaysRow: {"flexDirection":"row","gap":4},
+  alarmSampleDayChip: {"flex":1,"height":44,"borderRadius":12,"borderWidth":1,"borderColor":"#a06a35","alignItems":"center","justifyContent":"center"},
+  alarmSampleDayOn: {"backgroundColor":"#a06a35"},
+  alarmSampleDayText: {"fontSize":12,"fontWeight":700,"color":"#a06a35"},
+  alarmSampleDayTextOn: {"color":"#ffffff"},
+  alarmSampleRinging: {"alignItems":"center","gap":16,"padding":24},
+  alarmSampleRingLabel: {"fontSize":12,"fontWeight":700,"color":"#a06a35"},
+  alarmSampleRingTime: {"fontSize":32,"fontWeight":700},
+  alarmSampleRingActions: {"flexDirection":"row","gap":16,"alignItems":"center"},
+  alarmSampleRoundBtn: {"width":56,"height":56,"borderRadius":9999,"backgroundColor":"#b3261e","alignItems":"center","justifyContent":"center"},
+  alarmSampleStopSquare: {"width":20,"height":20,"borderRadius":8,"backgroundColor":"#ffffff"},
+  alarmSampleFootNote: {"color":"#6b5d43"},
+  breakoutSampleReadout: {"backgroundColor":"#fdf6ec","borderColor":"#a06a35","borderRadius":16,"padding":16},
+  breakoutSampleStage: {"backgroundColor":"#171d33","borderRadius":16,"padding":8,"alignItems":"center","gap":0},
+  breakoutSampleTrow: {"flexDirection":"row","justifyContent":"center","gap":0},
+  breakoutSampleCell: {"width":13,"height":13},
+  breakoutSampleB1: {"backgroundColor":"#e5484d"},
+  breakoutSampleB2: {"backgroundColor":"#f76b15"},
+  breakoutSampleB3: {"backgroundColor":"#ffd60a"},
+  breakoutSampleB4: {"backgroundColor":"#46a758"},
+  breakoutSampleB5: {"backgroundColor":"#3e9bff"},
+  breakoutSampleB6: {"backgroundColor":"#8e4ec6"},
+  breakoutSampleGloss: {"height":6,"backgroundColor":"#ffffff","opacity":0.35},
+  breakoutSampleBall: {"backgroundColor":"#ffffff","borderRadius":9999},
+  breakoutSamplePaddle: {"backgroundColor":"#f5c542","borderRadius":9999},
+  breakoutSampleKeysRow: {"flexDirection":"row","gap":8,"justifyContent":"center","padding":12},
+  todoSampleHeroBase: {"backgroundColor":"#a06a35","borderRadius":16,"paddingBottom":4},
+  todoSampleHeroFace: {"backgroundColor":"#fdf6ec","borderRadius":16,"padding":16,"gap":8},
+  todoSampleHeroCount: {"fontSize":24,"fontWeight":700},
+  todoSampleChipsRow: {"flexDirection":"row","gap":8},
+  todoSampleChip: {"borderWidth":1,"borderColor":"#a06a35","borderRadius":9999,"padding":8},
+  todoSampleChipOn: {"backgroundColor":"#a06a35"},
+  todoSampleChipText: {"fontSize":12,"fontWeight":700,"color":"#a06a35"},
+  todoSampleChipTextOn: {"color":"#ffffff"},
+  todoSampleTaskCard: {"flexDirection":"row","alignItems":"center","gap":8,"padding":12},
+  todoSampleCheckHit: {"width":44,"height":44,"alignItems":"center","justifyContent":"center"},
+  todoSampleCheck: {"width":34,"height":34,"borderRadius":8,"borderWidth":2,"borderColor":"#a06a35","alignItems":"center","justifyContent":"center"},
+  todoSampleCheckDone: {"backgroundColor":"#a06a35"},
+  todoSampleTaskMain: {"flex":1,"gap":4},
+  todoSampleTaskText: {"fontSize":16},
+  todoSampleTaskDone: {"color":"#6b5d43","opacity":0.65},
+  todoSampleMetaRow: {"flexDirection":"row","alignItems":"center","gap":4},
+  todoSampleDot: {"width":12,"height":12,"borderRadius":9999},
+  todoSamplePHigh: {"backgroundColor":"#b3261e"},
+  todoSamplePMed: {"backgroundColor":"#e8a91c"},
+  todoSamplePLow: {"backgroundColor":"#46a758"},
+  todoSamplePrioText: {"fontSize":12,"color":"#6b5d43"},
+  todoSampleAddCard: {"gap":12,"padding":16},
   drawerHead: {"padding":16},
   drawerMark: {"width":48,"height":48,"borderRadius":9999,"backgroundColor":"#0b57d0","alignItems":"center","justifyContent":"center"},
 });
