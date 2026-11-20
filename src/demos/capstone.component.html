@@ -10,9 +10,9 @@
 <input label="Activity" placeholder="e.g. Reading" [(ngModel)]="name">
 <p>Minutes: {{ minutes === 0 ? 'not picked yet' : minutes }}</p>
 <section class="btnrow">
-  <button class="sq" (click)="pickMinutes(10)">10</button>
-  <button class="sq" (click)="pickMinutes(15)">15</button>
-  <button class="sq" (click)="pickMinutes(20)">20</button>
-  <button class="sq" (click)="pickMinutes(30)">30</button>
+  <app-device-key glyph="10" label="minutes" [compact]="true" (pressed)="pickMinutes(10)"></app-device-key>
+  <app-device-key glyph="15" label="minutes" [compact]="true" (pressed)="pickMinutes(15)"></app-device-key>
+  <app-device-key glyph="20" label="minutes" [compact]="true" (pressed)="pickMinutes(20)"></app-device-key>
+  <app-device-key glyph="30" label="minutes" [compact]="true" (pressed)="pickMinutes(30)"></app-device-key>
 </section>
 <button (click)="add()" [disabled]="name === '' || minutes === 0">Add to the log</button>

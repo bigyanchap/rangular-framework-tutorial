@@ -1,3 +1,4 @@
-<app-flower-pick *ngFor="let f of flowers" [name]="f" (picked)="recordPick($event)"></app-flower-pick>
 <p>Picked {{ pickCount }} times</p>
 <p *ngIf="lastPicked">Last picked: {{ lastPicked }}</p>
+<p *ngIf="!lastPicked">No picks yet. Pick a flower below and the count lands here.</p>
+<app-flower-pick *ngFor="let f of flowers" [name]="f" (picked)="recordPick($event)"></app-flower-pick>

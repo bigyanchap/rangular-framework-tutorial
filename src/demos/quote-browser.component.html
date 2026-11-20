@@ -1,5 +1,5 @@
 <section class="btnrow">
-  <button class="sq" *ngFor="let q of quotes; let i = index" (click)="save(q)">Save {{ i + 1 }}</button>
+  <app-device-key *ngFor="let q of quotes; let i = index" [glyph]="(i + 1) + ''" label="save" (pressed)="save(q)"></app-device-key>
 </section>
 <label>The quotes</label>
 <p *ngFor="let q of quotes; let i = index">{{ i + 1 }}. {{ q }}</p>

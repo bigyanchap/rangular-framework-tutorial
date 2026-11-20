@@ -1,6 +1,6 @@
 <label>Add minutes</label>
 <section class="btnrow">
-  <button class="sq" (click)="add15()">+15</button>
-  <button class="sq" (click)="add30()">+30</button>
-  <button class="sq" (click)="reset()">Reset</button>
+  <app-device-key glyph="+15" label="minutes" (pressed)="add15()"></app-device-key>
+  <app-device-key glyph="+30" label="minutes" (pressed)="add30()"></app-device-key>
+  <app-device-key glyph="reset" label="to zero" (pressed)="reset()"></app-device-key>
 </section>

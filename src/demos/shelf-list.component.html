@@ -1,5 +1,11 @@
-<label>The shelf, as the list renders it</label>
+<section class="panel">
+  <label>The shelf, as the list renders it</label>
+  <p>Local changes in this component: {{ taps }}</p>
+  <p>The key under this panel makes one. It changes nothing in the service.</p>
+</section>
+<section class="btnrow">
+  <app-device-key glyph="tap" label="local change" (pressed)="tap()"></app-device-key>
+</section>
 <list>
   <row *ngFor="let item of shelf.items" [title]="item"></row>
 </list>
-<button (click)="tap()">A local change in this component (taps: {{ taps }})</button>

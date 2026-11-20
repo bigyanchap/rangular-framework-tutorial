@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { ActivityLogService } from './activity-log.service';
+import { DeviceKeyComponent } from './device-key.component';
 
 /**
- * Capstone part 1's quick add: three honest square buttons
+ * Capstone part 1's quick add: three honest device keys
  * under the log panel, each one a single call into the log
  * service. No form yet: this lesson builds the data layer
  * and its simplest writer.
@@ -12,7 +13,6 @@ import { ActivityLogService } from './activity-log.service';
   templateUrl: './log-quick-add.component.html',
   styles: [`
     .btnrow { flex-direction: row; gap: 8px; }
-    .sq { width: 84px; height: 84px; border-radius: 16px; }
   `],
 })
 export class LogQuickAddComponent {

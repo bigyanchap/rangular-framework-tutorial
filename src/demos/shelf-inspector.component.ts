@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { ShelfService } from './shelf.service';
+import { DeviceKeyComponent } from './device-key.component';
 
 /**
  * Lesson 53's inspector: a separate component that shows the
  * array inside the service, exactly as it is, in a panel at
- * the top of the demo. Its square buttons are the demo's two
+ * the top of the demo. Its device keys are the demo's two
  * adds. The quiet add also bumps this component's own reads
  * counter, a local assignment, so this component renders
  * again and reads the array fresh: the expansion is visible
@@ -18,7 +19,6 @@ import { ShelfService } from './shelf.service';
   styles: [`
     .panel { border-width: 1px; border-color: #a06a35; border-radius: 12px; padding: 12px; background-color: #fdf6ec; }
     .btnrow { flex-direction: row; gap: 8px; }
-    .sq { width: 84px; height: 84px; border-radius: 16px; }
   `],
 })
 export class ShelfInspectorComponent {

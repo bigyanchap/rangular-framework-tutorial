@@ -1,3 +1,6 @@
+<button (click)="addWednesday()">Add 5 minutes to Wednesday</button>
+<label>Try it: Wednesday minutes</label>
+<slider min="0" max="60" step="1" [value]="wed" (change)="onWed($event)"></slider>
 <label>Minutes per day, as bars</label>
 <chart type="bar" [data]="week"></chart>
 <label>The same week, as a line</label>
@@ -5,7 +8,4 @@
 <label>The same week, as shares</label>
 <chart type="pie" [data]="week"></chart>
 <p>Total: {{ total }} minutes across four days.</p>
-<button (click)="addWednesday()">Add 5 minutes to Wednesday</button>
-<label>Try it: Wednesday minutes</label>
-<slider min="0" max="60" step="1" [value]="wed" (change)="onWed($event)"></slider>
 <button variant="text" (click)="reset()">Reset the week</button>

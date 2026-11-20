@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
 import { SnackBar } from '@angular/material/snack-bar';
 import { FavouritesService } from './favourites.service';
+import { DeviceKeyComponent } from './device-key.component';
 
 /**
  * Lesson 54's browser: three quotes of its own, listed under
- * a row of square Save buttons, one per quote, under the
- * saved panel. Saving asks the favourites service to keep
- * the quote and confirms with a toast. The browser keeps no
+ * a row of device keys, one per quote, under the saved
+ * panel. Saving asks the favourites service to keep the
+ * quote and confirms with a toast. The browser keeps no
  * list of what was saved.
  */
 @Component({
@@ -14,7 +15,6 @@ import { FavouritesService } from './favourites.service';
   templateUrl: './quote-browser.component.html',
   styles: [`
     .btnrow { flex-direction: row; gap: 8px; }
-    .sq { width: 84px; height: 84px; border-radius: 16px; }
   `],
 })
 export class QuoteBrowserComponent {

@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { MinutesService } from './minutes.service';
+import { DeviceKeyComponent } from './device-key.component';
 
 /**
- * Lesson 55's stepper: square buttons under the display. It
+ * Lesson 55's stepper: device keys under the display. It
  * only changes the value in the service. It displays nothing
  * itself.
  */
@@ -11,7 +12,6 @@ import { MinutesService } from './minutes.service';
   templateUrl: './minutes-stepper.component.html',
   styles: [`
     .btnrow { flex-direction: row; gap: 8px; }
-    .sq { width: 84px; height: 84px; border-radius: 16px; }
   `],
 })
 export class MinutesStepperComponent {

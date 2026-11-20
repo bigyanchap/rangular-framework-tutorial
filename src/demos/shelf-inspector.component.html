@@ -4,6 +4,6 @@
   <p>{{ shelf.items.length }} on the shelf. Fresh reads by this panel: {{ reads }}</p>
 </section>
 <section class="btnrow">
-  <button class="sq" (click)="quiet()">Add quietly</button>
-  <button class="sq" (click)="proper()">Add properly</button>
+  <app-device-key glyph="push" label="quietly" (pressed)="quiet()"></app-device-key>
+  <app-device-key glyph="assign" label="properly" (pressed)="proper()"></app-device-key>
 </section>
