@@ -9,3 +9,6 @@
 <list>
   <row *ngFor="let item of shelf.items" [title]="item"></row>
 </list>
+<section class="btnrow">
+  <app-device-key [square]="true" glyph="assign" label="properly" (pressed)="proper()"></app-device-key>
+</section>

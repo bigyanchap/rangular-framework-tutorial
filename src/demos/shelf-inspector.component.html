@@ -1,9 +1,9 @@
 <section class="panel">
   <label>Inside the service: the array itself</label>
-  <p>items: {{ itemsText() }}</p>
+  <p>items in array:</p>
+  <p>[{{ itemsText() }}]</p>
   <p>{{ shelf.items.length }} on the shelf. Fresh reads by this panel: {{ reads }}</p>
 </section>
 <section class="btnrow">
   <app-device-key [square]="true" glyph="push" label="quietly" (pressed)="quiet()"></app-device-key>
-  <app-device-key [square]="true" glyph="assign" label="properly" (pressed)="proper()"></app-device-key>
 </section>
