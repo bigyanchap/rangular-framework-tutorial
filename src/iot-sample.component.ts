@@ -20,8 +20,8 @@ import { IotService } from './iot.service';
     .dev-row { flex-direction: row; align-items: center; gap: 12px; }
     .dev-main { flex: 1; gap: 4px; }
     .dev-name { font-size: 16px; }
-    .dev-state { font-size: 12px; color: #6b5d43; }
-    .hist { font-size: 12px; color: #6b5d43; }
+    .dev-state { font-size: 12px; color: #5f6368; }
+    .hist { font-size: 12px; color: #5f6368; }
   `],
 })
 export class IotSampleComponent {

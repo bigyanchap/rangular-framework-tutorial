@@ -1,5 +1,5 @@
 <section>
-  <appbar pin tone="tint" title="Todo list" back (back)="goBack()"></appbar>
+  <appbar pin tone="tint" title="Todo list" back (back)="goBack()" actionIcon="plus" (action)="openAdd()"></appbar>
   <section class="chips-row">
     <section class="chip" [class.chip-on]="filter === 'all'" (click)="pickFilter('all')">
       <p class="chip-text" [class.chip-text-on]="filter === 'all'">All · {{ totalCount }}</p>
@@ -27,20 +27,25 @@
     </section>
     <button variant="text" color="danger" (click)="remove(t)">Remove</button>
   </card>
-  <card class="add-card">
-    <h3>Add a task</h3>
-    <input label="Task" placeholder="What needs doing?" [(ngModel)]="draft">
-    <section class="chips-row">
-      <section class="chip" [class.chip-on]="draftPrio === 0" (click)="setPrio(0)">
-        <p class="chip-text" [class.chip-text-on]="draftPrio === 0">Low</p>
+  <sheet [open]="addOpen" (close)="closeAdd()">
+    <section class="sheet-wrap">
+      <h3>Add a task</h3>
+      <input label="Task" placeholder="What needs doing?" [(ngModel)]="draft">
+      <section class="chips-row">
+        <section class="chip" [class.chip-on]="draftPrio === 0" (click)="setPrio(0)">
+          <p class="chip-text" [class.chip-text-on]="draftPrio === 0">Low</p>
+        </section>
+        <section class="chip" [class.chip-on]="draftPrio === 1" (click)="setPrio(1)">
+          <p class="chip-text" [class.chip-text-on]="draftPrio === 1">Medium</p>
+        </section>
+        <section class="chip" [class.chip-on]="draftPrio === 2" (click)="setPrio(2)">
+          <p class="chip-text" [class.chip-text-on]="draftPrio === 2">High</p>
+        </section>
       </section>
-      <section class="chip" [class.chip-on]="draftPrio === 1" (click)="setPrio(1)">
-        <p class="chip-text" [class.chip-text-on]="draftPrio === 1">Medium</p>
-      </section>
-      <section class="chip" [class.chip-on]="draftPrio === 2" (click)="setPrio(2)">
-        <p class="chip-text" [class.chip-text-on]="draftPrio === 2">High</p>
-      </section>
+      <actions>
+        <button variant="text" (click)="closeAdd()">Cancel</button>
+        <button (click)="add()">Add task</button>
+      </actions>
     </section>
-    <button (click)="add()">Add task</button>
-  </card>
+  </sheet>
 </section>

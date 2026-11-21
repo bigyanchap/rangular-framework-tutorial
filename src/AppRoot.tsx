@@ -5865,7 +5865,7 @@ export function Samples() {
         <RgSection style={styles.samplesSampleRow}>
           <RgSection style={styles.samplesSampleMain}>
             <RgText variant="title">Todo list</RgText>
-            <RgText variant="bodyLarge">A task list with priorities, filters and a progress header. Add what needs doing, tick it off as you go, and watch the day clear. Your tasks stay on this device.</RgText>
+            <RgText variant="bodyLarge">A task list with priorities and filters, in this app's own colours. Add what needs doing from the plus at the top, tick it off as you go, and watch the day clear. Your tasks stay on this device.</RgText>
           </RgSection>
           <RgIcon name="chevron-right" />
         </RgSection>
@@ -6001,6 +6001,7 @@ export function TodoSample() {
   const [draft, setDraft] = useState('');
   const [draftPrio, setDraftPrio] = useState(1);
   const [filter, setFilter] = useState('all');
+  const [addOpen, setAddOpen] = useState(false);
   const [rows, setRows] = useState([]);
   const [leftCount, setLeftCount] = useState(0);
   const [doneCount, setDoneCount] = useState(0);
@@ -6032,11 +6033,21 @@ export function TodoSample() {
   const setPrio = (p: number) => {
     setDraftPrio(p);
   };
+  const openAdd = () => {
+    setAddOpen(true);
+  };
+  const closeAdd = () => {
+    setAddOpen(false);
+  };
   const add = () => {
+    if (!draft.trim()) {
+      return;
+    }
     const f = (filter === 'done' ? 'all' : filter);
     todos.add(draft, draftPrio);
     setDraft('');
     setFilter(f);
+    setAddOpen(false);
     refresh(f);
   };
   const toggle = (t: any) => {
@@ -6055,7 +6066,7 @@ export function TodoSample() {
   }, []);
   return (
     <RgSection>
-      <RgAppbar tone="tint" title="Todo list" pin back onBack={() => goBack()} />
+      <RgAppbar tone="tint" title="Todo list" actionIcon="plus" pin back onBack={() => goBack()} onAction={() => openAdd()} />
       <RgSection style={styles.todoSampleChipsRow}>
         <RgSection onPress={() => pickFilter('all')} style={[styles.todoSampleChip, (filter === 'all') ? styles.todoSampleChipOn : undefined]}>
           <RgText variant="bodyLarge" style={[styles.todoSampleChipText, (filter === 'all') ? styles.todoSampleChipTextOn : undefined]}>All · {totalCount}</RgText>
@@ -6089,22 +6100,27 @@ export function TodoSample() {
           <RgButton variant="text" color="danger" onPress={() => remove(t)}>Remove</RgButton>
         </RgCard>
       ))}
-      <RgCard style={styles.todoSampleAddCard}>
-        <RgText variant="title">Add a task</RgText>
-        <RgInput label="Task" placeholder="What needs doing?" value={draft} onChangeText={($event) => setDraft($event)} />
-        <RgSection style={styles.todoSampleChipsRow}>
-          <RgSection onPress={() => setPrio(0)} style={[styles.todoSampleChip, (draftPrio === 0) ? styles.todoSampleChipOn : undefined]}>
-            <RgText variant="bodyLarge" style={[styles.todoSampleChipText, (draftPrio === 0) ? styles.todoSampleChipTextOn : undefined]}>Low</RgText>
+      <RgSheet open={addOpen} onClose={() => closeAdd()}>
+        <RgSection style={styles.todoSampleSheetWrap}>
+          <RgText variant="title">Add a task</RgText>
+          <RgInput label="Task" placeholder="What needs doing?" value={draft} onChangeText={($event) => setDraft($event)} />
+          <RgSection style={styles.todoSampleChipsRow}>
+            <RgSection onPress={() => setPrio(0)} style={[styles.todoSampleChip, (draftPrio === 0) ? styles.todoSampleChipOn : undefined]}>
+              <RgText variant="bodyLarge" style={[styles.todoSampleChipText, (draftPrio === 0) ? styles.todoSampleChipTextOn : undefined]}>Low</RgText>
+            </RgSection>
+            <RgSection onPress={() => setPrio(1)} style={[styles.todoSampleChip, (draftPrio === 1) ? styles.todoSampleChipOn : undefined]}>
+              <RgText variant="bodyLarge" style={[styles.todoSampleChipText, (draftPrio === 1) ? styles.todoSampleChipTextOn : undefined]}>Medium</RgText>
+            </RgSection>
+            <RgSection onPress={() => setPrio(2)} style={[styles.todoSampleChip, (draftPrio === 2) ? styles.todoSampleChipOn : undefined]}>
+              <RgText variant="bodyLarge" style={[styles.todoSampleChipText, (draftPrio === 2) ? styles.todoSampleChipTextOn : undefined]}>High</RgText>
+            </RgSection>
           </RgSection>
-          <RgSection onPress={() => setPrio(1)} style={[styles.todoSampleChip, (draftPrio === 1) ? styles.todoSampleChipOn : undefined]}>
-            <RgText variant="bodyLarge" style={[styles.todoSampleChipText, (draftPrio === 1) ? styles.todoSampleChipTextOn : undefined]}>Medium</RgText>
-          </RgSection>
-          <RgSection onPress={() => setPrio(2)} style={[styles.todoSampleChip, (draftPrio === 2) ? styles.todoSampleChipOn : undefined]}>
-            <RgText variant="bodyLarge" style={[styles.todoSampleChipText, (draftPrio === 2) ? styles.todoSampleChipTextOn : undefined]}>High</RgText>
-          </RgSection>
+          <RgActions>
+            <RgButton variant="text" onPress={() => closeAdd()}>Cancel</RgButton>
+            <RgButton onPress={() => add()}>Add task</RgButton>
+          </RgActions>
         </RgSection>
-        <RgButton onPress={() => add()}>Add task</RgButton>
-      </RgCard>
+      </RgSheet>
     </RgSection>
   );
 }
@@ -6293,27 +6309,27 @@ const styles = StyleSheet.create({
   iotSampleDevRow: {"flexDirection":"row","alignItems":"center","gap":12},
   iotSampleDevMain: {"flex":1,"gap":4},
   iotSampleDevName: {"fontSize":16},
-  iotSampleDevState: {"fontSize":12,"color":"#6b5d43"},
-  iotSampleHist: {"fontSize":12,"color":"#6b5d43"},
+  iotSampleDevState: {"fontSize":12,"color":"#5f6368"},
+  iotSampleHist: {"fontSize":12,"color":"#5f6368"},
   todoSampleChipsRow: {"flexDirection":"row","gap":8},
-  todoSampleChip: {"borderWidth":1,"borderColor":"#a06a35","borderRadius":9999,"padding":8},
-  todoSampleChipOn: {"backgroundColor":"#a06a35"},
-  todoSampleChipText: {"fontSize":12,"fontWeight":700,"color":"#a06a35"},
+  todoSampleChip: {"borderWidth":1,"borderColor":"#0b57d0","borderRadius":9999,"padding":8},
+  todoSampleChipOn: {"backgroundColor":"#0b57d0"},
+  todoSampleChipText: {"fontSize":12,"fontWeight":700,"color":"#0b57d0"},
   todoSampleChipTextOn: {"color":"#ffffff"},
   todoSampleTaskCard: {"flexDirection":"row","alignItems":"center","gap":8,"padding":12},
   todoSampleCheckHit: {"width":44,"height":44,"alignItems":"center","justifyContent":"center"},
-  todoSampleCheck: {"width":34,"height":34,"borderRadius":8,"borderWidth":2,"borderColor":"#a06a35","alignItems":"center","justifyContent":"center"},
-  todoSampleCheckDone: {"backgroundColor":"#a06a35"},
+  todoSampleCheck: {"width":34,"height":34,"borderRadius":8,"borderWidth":2,"borderColor":"#34a853","alignItems":"center","justifyContent":"center"},
+  todoSampleCheckDone: {"backgroundColor":"#34a853"},
   todoSampleTaskMain: {"flex":1,"gap":4},
   todoSampleTaskText: {"fontSize":16},
-  todoSampleTaskDone: {"color":"#6b5d43","opacity":0.65},
+  todoSampleTaskDone: {"color":"#5f6368","opacity":0.65},
   todoSampleMetaRow: {"flexDirection":"row","alignItems":"center","gap":4},
   todoSampleDot: {"width":12,"height":12,"borderRadius":9999},
   todoSamplePHigh: {"backgroundColor":"#b3261e"},
-  todoSamplePMed: {"backgroundColor":"#e8a91c"},
-  todoSamplePLow: {"backgroundColor":"#46a758"},
-  todoSamplePrioText: {"fontSize":12,"color":"#6b5d43"},
-  todoSampleAddCard: {"gap":12,"padding":16},
+  todoSamplePMed: {"backgroundColor":"#f9ab00"},
+  todoSamplePLow: {"backgroundColor":"#34a853"},
+  todoSamplePrioText: {"fontSize":12,"color":"#5f6368"},
+  todoSampleSheetWrap: {"gap":12,"paddingBottom":24},
   drawerHead: {"padding":16},
   drawerMark: {"width":48,"height":48,"borderRadius":9999,"backgroundColor":"#0b57d0","alignItems":"center","justifyContent":"center"},
 });
