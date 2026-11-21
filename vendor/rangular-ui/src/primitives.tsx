@@ -5112,7 +5112,7 @@ export function RgColorPicker({ value, label, placeholder, disabled, onChange, s
           </View>
           <View style={[styles.colorDot, { backgroundColor: draftHex }]} />
         </View>
-        <RgButton variant="text" onPress={commit}>Use this colour</RgButton>
+        <RgButton onPress={commit}>Use this colour</RgButton>
       </RgSheet>
     </View>
   );
