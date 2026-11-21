@@ -20,9 +20,11 @@
     </section>
     <section class="task-main">
       <p class="task-text" [class.task-done]="t.done">{{ t.text }}</p>
+      <p *ngIf="t.desc" class="task-desc" [class.task-done]="t.done">{{ t.desc }}</p>
       <section class="meta-row">
         <section class="dot" [class.p-high]="t.prio === 2" [class.p-med]="t.prio === 1" [class.p-low]="t.prio === 0"></section>
         <p class="prio-text">{{ t.prio === 2 ? 'High priority' : t.prio === 1 ? 'Medium priority' : 'Low priority' }}</p>
+        <p *ngIf="t.dueText" class="due-text" [class.due-over]="t.overdue">{{ t.dueText }}</p>
       </section>
     </section>
     <button variant="text" color="danger" (click)="remove(t)">Remove</button>
@@ -31,6 +33,12 @@
     <section class="sheet-wrap">
       <h3>Add a task</h3>
       <input label="Task" placeholder="What needs doing?" [(ngModel)]="draft">
+      <input label="Description" placeholder="A few details (optional)" [(ngModel)]="draftDesc">
+      <section class="due-row">
+        <p class="due-label">Deadline</p>
+        <switch [checked]="draftDueOn" (change)="setDueOn($event)"></switch>
+      </section>
+      <datetime-picker *ngIf="draftDueOn" label="Due date" mode="date" [value]="draftDue" (change)="setDue($event)"></datetime-picker>
       <section class="chips-row">
         <section class="chip" [class.chip-on]="draftPrio === 0" (click)="setPrio(0)">
           <p class="chip-text" [class.chip-text-on]="draftPrio === 0">Low</p>

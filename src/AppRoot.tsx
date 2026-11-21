@@ -1696,6 +1696,7 @@ export class AlarmService extends ReactiveService {
 
 export class TodoService extends ReactiveService {
   storageKey = 'rangular-tutorial.todos.v1';
+  monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   items: any[] = [];
   loaded = false;
   waiters: any[] = [];
@@ -1704,10 +1705,10 @@ export class TodoService extends ReactiveService {
     super();
     AsyncStorage.getItem(this.storageKey).then((raw) => {
   if (raw) {
-    this.items = JSON.parse(raw);
+    this.items = JSON.parse(raw).map((t: any) => ({ id: t.id, text: t.text, prio: t.prio, done: t.done, desc: (t.desc ? t.desc : ''), due: (t.due ? t.due : '') }));
     this.__notify();
   } else {
-    this.items = [{ id: 1, text: 'Design the new landing page', prio: 2, done: false }, { id: 2, text: 'Review the open pull requests', prio: 1, done: false }, { id: 3, text: 'Book flights for the team offsite', prio: 0, done: true }];
+    this.items = [{ id: 1, text: 'Design the new landing page', prio: 2, done: false, desc: 'Hero, pricing and the signup section, in the new brand colours.', due: this.keyPlus(2) + 'T00:00:00' }, { id: 2, text: 'Review the open pull requests', prio: 1, done: false, desc: 'Start with the two oldest ones.', due: '' }, { id: 3, text: 'Book flights for the team offsite', prio: 0, done: true, desc: '', due: this.keyPlus(-3) + 'T00:00:00' }];
     this.__notify();
     this.persist();
   }
@@ -1739,7 +1740,7 @@ export class TodoService extends ReactiveService {
 
 });
   }
-  add(text: string, prio: number) {
+  add(text: string, prio: number, desc: string, due: string) {
     const trimmed = text.trim();
     if (!trimmed) {
       return;
@@ -1747,14 +1748,53 @@ export class TodoService extends ReactiveService {
     this.seq = (this.seq + 1) % 10;
     this.__notify();
     const id = Date.now() * 10 + this.seq;
-    this.items = this.items.concat([{ id, text: trimmed, prio, done: false }]);
+    this.items = this.items.concat([{ id, text: trimmed, prio, done: false, desc: desc.trim(), due }]);
     this.__notify();
     this.persist();
   }
   toggle(id: number) {
-    this.items = this.items.map((t) => ((t.id === id ? { id: t.id, text: t.text, prio: t.prio, done: !t.done } : t)));
+    this.items = this.items.map((t) => ((t.id === id ? { id: t.id, text: t.text, prio: t.prio, done: !t.done, desc: t.desc, due: t.due } : t)));
     this.__notify();
     this.persist();
+  }
+  pad2(n: number) {
+    return (n < 10 ? '0' + n : String(n));
+  }
+  keyPlus(days: number) {
+    const z = Math.floor(Date.now() / 86400000) + days + 719468;
+    const era = Math.floor(z / 146097);
+    const doe = z - era * 146097;
+    const yoe = Math.floor((doe - Math.floor(doe / 1460) + Math.floor(doe / 36524) - Math.floor(doe / 146096)) / 365);
+    const y = yoe + era * 400;
+    const doy = doe - (365 * yoe + Math.floor(yoe / 4) - Math.floor(yoe / 100));
+    const mp = Math.floor((5 * doy + 2) / 153);
+    const d = doy - Math.floor((153 * mp + 2) / 5) + 1;
+    const m = mp + ((mp < 10 ? 3 : -9));
+    const year = (m <= 2 ? y + 1 : y);
+    return year + '-' + this.pad2(m) + '-' + this.pad2(d);
+  }
+  todayIso() {
+    return this.keyPlus(0) + 'T00:00:00';
+  }
+  dueInfo(due: string, done: boolean) {
+    if (!due) {
+      return { text: '', overdue: false };
+    }
+    const key = due.slice(0, 10);
+    const label = Number(key.slice(8, 10)) + ' ' + this.monthNames[Number(key.slice(5, 7)) - 1];
+    if (key === this.keyPlus(0)) {
+      return { text: 'Due today', overdue: false };
+    }
+    if (key === this.keyPlus(1)) {
+      return { text: 'Due tomorrow', overdue: false };
+    }
+    if (key < this.keyPlus(0)) {
+      if (done) {
+        return { text: 'Due ' + label, overdue: false };
+      }
+      return { text: 'Overdue · ' + label, overdue: true };
+    }
+    return { text: 'Due ' + label, overdue: false };
   }
   remove(id: number) {
     this.items = this.items.filter((t) => t.id !== id);
@@ -6429,6 +6469,9 @@ export function TodoSample() {
   useSyncExternalStore((cb) => todos.__subscribe(cb), () => todos.__getVersion());
   const router = __router;
   const [draft, setDraft] = useState('');
+  const [draftDesc, setDraftDesc] = useState('');
+  const [draftDueOn, setDraftDueOn] = useState(false);
+  const [draftDue, setDraftDue] = useState('');
   const [draftPrio, setDraftPrio] = useState(1);
   const [filter, setFilter] = useState('all');
   const [addOpen, setAddOpen] = useState(false);
@@ -6438,6 +6481,10 @@ export function TodoSample() {
   const [totalCount, setTotalCount] = useState(0);
   const ngOnInit = () => {
     todos.whenLoaded(() => refresh('all'));
+  };
+  const rowOf = (t: any) => {
+    const info = todos.dueInfo(t.due, t.done);
+    return { id: t.id, text: t.text, prio: t.prio, done: t.done, desc: t.desc, due: t.due, dueText: info.text, overdue: info.overdue };
   };
   const refresh = (f: string) => {
     let __shadowTotalCount = totalCount;
@@ -6449,11 +6496,11 @@ export function TodoSample() {
     setDoneCount(__shadowDoneCount);
     setLeftCount(__shadowTotalCount - __shadowDoneCount);
     if (f === 'active') {
-      setRows(all.filter((t) => !t.done));
+      setRows(all.filter((t) => !t.done).map((t) => rowOf(t)));
     } else if (f === 'done') {
-      setRows(all.filter((t) => t.done));
+      setRows(all.filter((t) => t.done).map((t) => rowOf(t)));
     } else {
-      setRows(all);
+      setRows(all.map((t) => rowOf(t)));
     }
   };
   const pickFilter = (f: string) => {
@@ -6464,7 +6511,14 @@ export function TodoSample() {
     setDraftPrio(p);
   };
   const openAdd = () => {
+    setDraftDue(todos.todayIso());
     setAddOpen(true);
+  };
+  const setDueOn = (v: boolean) => {
+    setDraftDueOn(v);
+  };
+  const setDue = (iso: string) => {
+    setDraftDue(iso);
   };
   const closeAdd = () => {
     setAddOpen(false);
@@ -6474,8 +6528,10 @@ export function TodoSample() {
       return;
     }
     const f = (filter === 'done' ? 'all' : filter);
-    todos.add(draft, draftPrio);
+    todos.add(draft, draftPrio, draftDesc, (draftDueOn ? draftDue : ''));
     setDraft('');
+    setDraftDesc('');
+    setDraftDueOn(false);
     setFilter(f);
     setAddOpen(false);
     refresh(f);
@@ -6522,9 +6578,15 @@ export function TodoSample() {
           </RgSection>
           <RgSection style={styles.todoSampleTaskMain}>
             <RgText variant="bodyLarge" style={[styles.todoSampleTaskText, t.done ? styles.todoSampleTaskDone : undefined]}>{t.text}</RgText>
+            {t.desc && (
+              <RgText variant="bodyLarge" style={[styles.todoSampleTaskDesc, t.done ? styles.todoSampleTaskDone : undefined]}>{t.desc}</RgText>
+            )}
             <RgSection style={styles.todoSampleMetaRow}>
               <RgSection style={[styles.todoSampleDot, (t.prio === 2) ? styles.todoSamplePHigh : undefined, (t.prio === 1) ? styles.todoSamplePMed : undefined, (t.prio === 0) ? styles.todoSamplePLow : undefined]} />
               <RgText variant="bodyLarge" style={styles.todoSamplePrioText}>{((t.prio === 2) ? 'High priority' : ((t.prio === 1) ? 'Medium priority' : 'Low priority'))}</RgText>
+              {t.dueText && (
+                <RgText variant="bodyLarge" style={[styles.todoSampleDueText, t.overdue ? styles.todoSampleDueOver : undefined]}>{t.dueText}</RgText>
+              )}
             </RgSection>
           </RgSection>
           <RgButton variant="text" color="danger" onPress={() => remove(t)}>Remove</RgButton>
@@ -6534,6 +6596,14 @@ export function TodoSample() {
         <RgSection style={styles.todoSampleSheetWrap}>
           <RgText variant="title">Add a task</RgText>
           <RgInput label="Task" placeholder="What needs doing?" value={draft} onChangeText={($event) => setDraft($event)} />
+          <RgInput label="Description" placeholder="A few details (optional)" value={draftDesc} onChangeText={($event) => setDraftDesc($event)} />
+          <RgSection style={styles.todoSampleDueRow}>
+            <RgText variant="bodyLarge" style={styles.todoSampleDueLabel}>Deadline</RgText>
+            <RgSwitch checked={draftDueOn} onChange={($event) => setDueOn($event)} />
+          </RgSection>
+          {draftDueOn && (
+            <RgDateTimePicker mode="date" label="Due date" value={draftDue} onChange={($event) => setDue($event)} />
+          )}
           <RgSection style={styles.todoSampleChipsRow}>
             <RgSection onPress={() => setPrio(0)} style={[styles.todoSampleChip, (draftPrio === 0) ? styles.todoSampleChipOn : undefined]}>
               <RgText variant="bodyLarge" style={[styles.todoSampleChipText, (draftPrio === 0) ? styles.todoSampleChipTextOn : undefined]}>Low</RgText>
@@ -6785,6 +6855,11 @@ const styles = StyleSheet.create({
   todoSamplePMed: {"backgroundColor":"#f9ab00"},
   todoSamplePLow: {"backgroundColor":"#34a853"},
   todoSamplePrioText: {"fontSize":12,"color":"#5f6368"},
+  todoSampleTaskDesc: {"fontSize":14,"color":"#5f6368"},
+  todoSampleDueText: {"fontSize":12,"color":"#5f6368"},
+  todoSampleDueOver: {"color":"#b3261e","fontWeight":700},
+  todoSampleDueRow: {"flexDirection":"row","alignItems":"center","justifyContent":"space-between"},
+  todoSampleDueLabel: {"fontSize":14,"fontWeight":700},
   todoSampleSheetWrap: {"gap":12,"paddingBottom":24},
   drawerHead: {"padding":16},
   drawerMark: {"width":48,"height":48,"borderRadius":9999,"backgroundColor":"#0b57d0","alignItems":"center","justifyContent":"center"},
