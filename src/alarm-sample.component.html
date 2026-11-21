@@ -1,34 +1,34 @@
 <section>
   <appbar pin tone="tint" title="Alarm" back (back)="goBack()"></appbar>
   <section *ngIf="alarm.ringing">
-    <card class="ring-card">
+    <section class="ring-band">
       <p class="ring-label">ALARM</p>
       <p class="ring-time">{{ ringLabel }}</p>
-      <h3>{{ alarm.title }}</h3>
+      <p class="ring-title">{{ alarm.title }}</p>
       <section class="ring-actions">
         <button color="danger" (click)="stop()">Stop</button>
         <button color="neutral" (click)="snooze()">Snooze 5 min</button>
       </section>
-    </card>
+    </section>
   </section>
   <section *ngIf="!alarm.ringing">
-    <card class="alarm-card">
-      <section class="alarm-top">
-        <section class="alarm-main">
-          <h3>{{ cardTitle }}</h3>
-          <p class="alarm-time">{{ timeLabel }}</p>
-          <p class="badge">{{ daysLabel }}</p>
-        </section>
-        <switch [checked]="draftEnabled" (change)="onSwitch($event)"></switch>
+    <section class="band">
+      <section class="band-top">
+        <p class="eyebrow">ALARM</p>
+        <switch color="success" [checked]="draftEnabled" (change)="onSwitch($event)"></switch>
       </section>
-    </card>
+      <p class="band-time">{{ timeLabel }}</p>
+      <p class="band-sub">{{ bandSub }}</p>
+    </section>
     <card class="settings-card">
-      <label>When</label>
-      <datetime-picker label="Time" mode="time" [value]="draftTime" (change)="setTime($event)"></datetime-picker>
-      <section class="repeat-row" (click)="openRepeat()">
-        <p class="repeat-label">Repeat</p>
-        <p class="badge">{{ daysLabel }}</p>
-        <icon name="chevron-right"></icon>
+      <datetime-picker label="When" mode="time" [value]="draftTime" (change)="setTime($event)"></datetime-picker>
+      <section class="set-row" (click)="openRepeat()">
+        <section class="set-ic"><icon name="calendar" color="primary"></icon></section>
+        <section class="set-main">
+          <p class="set-label">Repeat</p>
+          <p class="set-value">{{ daysLabel }}</p>
+        </section>
+        <section class="set-chev"><icon name="chevron-right" color="primary"></icon></section>
       </section>
       <input label="Alarm title" placeholder="Wake up" [(ngModel)]="titleDraft" (change)="applyTitle($event)">
       <p *ngIf="titleDraft.length > 40">{{ 50 - titleDraft.length }} characters left.</p>

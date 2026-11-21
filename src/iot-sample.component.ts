@@ -17,6 +17,10 @@ import { IotService } from './iot.service';
   templateUrl: './iot-sample.component.html',
   styles: [`
     .room-card { gap: 8px; padding: 16px; }
+    .room-head { flex-direction: row; align-items: center; gap: 12px; }
+    .room-title { flex: 1; }
+    .count-pill { background-color: #e8f0fe; border-radius: 9999px; padding: 8px; }
+    .count-text { font-size: 12px; font-weight: 700; color: #0b57d0; }
     .dev-row { flex-direction: row; align-items: center; gap: 12px; }
     .dev-main { flex: 1; gap: 4px; }
     .dev-name { font-size: 16px; }

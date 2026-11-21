@@ -5,9 +5,11 @@ import { ShellService } from './shell.service';
 /**
  * The Samples tab: small, complete apps built with the same
  * Rangular pieces the lessons teach, each on its own screen.
- * The list is cards, one per sample, with a summary of what
- * the sample does and a chevron at the right; tapping a card
- * routes to the sample itself. This tab took the fourth
+ * The list is cards, one per sample: an icon in a tinted
+ * circle at the left, a summary of what the sample does,
+ * and a chevron in a tinted circle at the right, the row
+ * language of the samples dress-up of 2026-11-21; tapping
+ * a card routes to the sample itself. This tab took the fourth
  * tab slot in the overhaul of 2026-11-20 (About lives in
  * the drawer): working software says more about the
  * framework than a page about it.
@@ -16,8 +18,10 @@ import { ShellService } from './shell.service';
   selector: 'app-samples',
   templateUrl: './samples.component.html',
   styles: [`
-    .sample-row { flex-direction: row; align-items: center; gap: 12px; }
+    .sample-row { flex-direction: row; align-items: flex-start; gap: 12px; }
     .sample-main { flex: 1; }
+    .sample-ic { width: 44px; height: 44px; border-radius: 9999px; background-color: #e8f0fe; align-items: center; justify-content: center; }
+    .sample-chev { width: 28px; height: 28px; border-radius: 9999px; background-color: #e8f0fe; align-items: center; justify-content: center; }
   `],
 })
 export class SamplesComponent {

@@ -222,8 +222,8 @@ export class LessonService extends ReactiveService {
       minutes: '4 min',
       intro: 'The switch and the checkbox are the two on-off controls. Both follow the contract you will see on every Rangular control: the value goes in with [checked], and changes come out through (change), with the new value in $event. Your handler stores the value, and the control renders from the field. The demo is a small settings panel: a switch for Wi-Fi, checkboxes for notifications and sounds, and a summary line that counts what is on. The demo ends with one switch twice: with the haptic attribute a toggle answers with a light tap you can feel, and without it the same switch stays silent.',
       code: '<switch [checked]="wifiOn" (change)="onWifi($event)">Wi-Fi</switch>\n<switch haptic [checked]="feelOn" (change)="onFeel($event)">With haptic</switch>',
-      implementation: '// switch-checkbox.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-switch-checkbox-demo\',\n  templateUrl: \'./switch-checkbox.component.html\',\n})\nexport class SwitchCheckboxDemoComponent {\n  wifiOn = true;\n  notifications = false;\n  sounds = true;\n  hapticOn = true;\n  silentOn = false;\n\n  onWifi(value: boolean) {\n    this.wifiOn = value;\n  }\n\n  onNotifications(value: boolean) {\n    this.notifications = value;\n  }\n\n  onSounds(value: boolean) {\n    this.sounds = value;\n  }\n\n  onHaptic(value: boolean) {\n    this.hapticOn = value;\n  }\n\n  onSilent(value: boolean) {\n    this.silentOn = value;\n  }\n\n  onCount() {\n    return (this.wifiOn ? 1 : 0) + (this.notifications ? 1 : 0) + (this.sounds ? 1 : 0);\n  }\n}\n\n// switch-checkbox.component.html\n<switch [checked]="wifiOn" (change)="onWifi($event)">\n  Wi-Fi\n</switch>\n<p>Wi-Fi is {{ wifiOn ? \'on\' : \'off\' }}</p>\n<checkbox [checked]="notifications" (change)="onNotifications($event)">\n  Notifications\n</checkbox>\n<p>Notifications are {{ notifications ? \'on\' : \'off\' }}</p>\n<checkbox [checked]="sounds" (change)="onSounds($event)">\n  Sounds\n</checkbox>\n<p>Sounds are {{ sounds ? \'on\' : \'off\' }}</p>\n<p>{{ onCount() }} of the 3 settings are on.</p>\n<p>One switch, two feels. The first switch carries the haptic attribute, so a toggle answers with a light tap you can feel. The second is the same switch without it, and stays silent.</p>\n<switch haptic [checked]="hapticOn" (change)="onHaptic($event)">\n  With haptic\n</switch>\n<switch [checked]="silentOn" (change)="onSilent($event)">\n  Without haptic\n</switch>',
-      tip: 'A switch means a setting that takes effect at once. A checkbox means a choice in a list, often one of several. Pick by meaning, and let the (change) handler do nothing but store the value and let the bindings react. Add haptic to a switch when the toggle should be felt as well as seen; leave it off for quiet forms.',
+      implementation: '// switch-checkbox.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-switch-checkbox-demo\',\n  templateUrl: \'./switch-checkbox.component.html\',\n})\nexport class SwitchCheckboxDemoComponent {\n  wifiOn = true;\n  notifications = false;\n  sounds = true;\n  hapticOn = true;\n  silentOn = false;\n  greenOn = true;\n\n  onWifi(value: boolean) {\n    this.wifiOn = value;\n  }\n\n  onNotifications(value: boolean) {\n    this.notifications = value;\n  }\n\n  onSounds(value: boolean) {\n    this.sounds = value;\n  }\n\n  onHaptic(value: boolean) {\n    this.hapticOn = value;\n  }\n\n  onSilent(value: boolean) {\n    this.silentOn = value;\n  }\n\n  onGreen(value: boolean) {\n    this.greenOn = value;\n  }\n\n  onCount() {\n    return (this.wifiOn ? 1 : 0) + (this.notifications ? 1 : 0) + (this.sounds ? 1 : 0);\n  }\n}\n\n// switch-checkbox.component.html\n<switch [checked]="wifiOn" (change)="onWifi($event)">\n  Wi-Fi\n</switch>\n<p>Wi-Fi is {{ wifiOn ? \'on\' : \'off\' }}</p>\n<checkbox [checked]="notifications" (change)="onNotifications($event)">\n  Notifications\n</checkbox>\n<p>Notifications are {{ notifications ? \'on\' : \'off\' }}</p>\n<checkbox [checked]="sounds" (change)="onSounds($event)">\n  Sounds\n</checkbox>\n<p>Sounds are {{ sounds ? \'on\' : \'off\' }}</p>\n<p>{{ onCount() }} of the 3 settings are on.</p>\n<p>One switch, two feels. The first switch carries the haptic attribute, so a toggle answers with a light tap you can feel. The second is the same switch without it, and stays silent.</p>\n<switch haptic [checked]="hapticOn" (change)="onHaptic($event)">\n  With haptic\n</switch>\n<switch [checked]="silentOn" (change)="onSilent($event)">\n  Without haptic\n</switch>\n<p>A switch can carry a colour role: the success role paints it green when on, and off is the same grey as every switch.</p>\n<switch color="success" [checked]="greenOn" (change)="onGreen($event)">\n  Green when on\n</switch>\n<p>The green switch is {{ greenOn ? \'on\' : \'off\' }}</p>',
+            tip: 'A switch means a setting that takes effect at once. A checkbox means a choice in a list, often one of several. Pick by meaning, and let the (change) handler do nothing but store the value and let the bindings react. Add haptic to a switch when the toggle should be felt as well as seen; leave it off for quiet forms.',
     },
     {
       id: 19,
@@ -3437,6 +3437,7 @@ export function SwitchCheckboxDemo() {
   const [sounds, setSounds] = useState(true);
   const [hapticOn, setHapticOn] = useState(true);
   const [silentOn, setSilentOn] = useState(false);
+  const [greenOn, setGreenOn] = useState(true);
   const onWifi = (value: boolean) => {
     setWifiOn(value);
   };
@@ -3451,6 +3452,9 @@ export function SwitchCheckboxDemo() {
   };
   const onSilent = (value: boolean) => {
     setSilentOn(value);
+  };
+  const onGreen = (value: boolean) => {
+    setGreenOn(value);
   };
   const onCount = () => {
     return ((wifiOn ? 1 : 0)) + ((notifications ? 1 : 0)) + ((sounds ? 1 : 0));
@@ -3467,6 +3471,9 @@ export function SwitchCheckboxDemo() {
       <RgText variant="bodyLarge">One switch, two feels. The first switch carries the haptic attribute, so a toggle answers with a light tap you can feel. The second is the same switch without it, and stays silent.</RgText>
       <RgSwitch haptic checked={hapticOn} onChange={($event) => onHaptic($event)}>With haptic</RgSwitch>
       <RgSwitch checked={silentOn} onChange={($event) => onSilent($event)}>Without haptic</RgSwitch>
+      <RgText variant="bodyLarge">A switch can carry a colour role: the success role paints it green when on, and off is the same grey as every switch.</RgText>
+      <RgSwitch color="success" checked={greenOn} onChange={($event) => onGreen($event)}>Green when on</RgSwitch>
+      <RgText variant="bodyLarge">The green switch is {(greenOn ? 'on' : 'off')}</RgText>
     </>
   );
 }
@@ -6128,29 +6135,44 @@ export function Samples() {
       <RgText variant="bodyLarge">Small, complete apps, each built with the pieces the lessons teach. Open one and use it.</RgText>
       <RgCard onPress={() => goTodo()}>
         <RgSection style={styles.samplesSampleRow}>
+          <RgSection style={styles.samplesSampleIc}>
+            <RgIcon name="check" color="primary" />
+          </RgSection>
           <RgSection style={styles.samplesSampleMain}>
             <RgText variant="title">Todo list</RgText>
             <RgText variant="bodyLarge">A task list with priorities and filters, in this app's own colours. Add what needs doing from the plus at the top, tick it off as you go, and watch the day clear. Your tasks stay on this device.</RgText>
           </RgSection>
-          <RgIcon name="chevron-right" />
+          <RgSection style={styles.samplesSampleChev}>
+            <RgIcon name="chevron-right" color="primary" />
+          </RgSection>
         </RgSection>
       </RgCard>
       <RgCard onPress={() => goIot()}>
         <RgSection style={styles.samplesSampleRow}>
+          <RgSection style={styles.samplesSampleIc}>
+            <RgIcon name="home" color="primary" />
+          </RgSection>
           <RgSection style={styles.samplesSampleMain}>
             <RgText variant="title">Internet of Things Sample</RgText>
             <RgText variant="bodyLarge">A small smart home that lives in this app: a card for each room, a switch for every device, some devices on a timer, and a short history of what changed. The switches change this page only. No real device is controlled.</RgText>
           </RgSection>
-          <RgIcon name="chevron-right" />
+          <RgSection style={styles.samplesSampleChev}>
+            <RgIcon name="chevron-right" color="primary" />
+          </RgSection>
         </RgSection>
       </RgCard>
       <RgCard onPress={() => goAlarm()}>
         <RgSection style={styles.samplesSampleRow}>
+          <RgSection style={styles.samplesSampleIc}>
+            <RgIcon name="alarm" color="primary" />
+          </RgSection>
           <RgSection style={styles.samplesSampleMain}>
             <RgText variant="title">Alarm</RgText>
             <RgText variant="bodyLarge">One alarm with a time wheel, repeat days and a title, in this app's own colours. It rings on its page while the app is open. No notification and no sound file: the simple version.</RgText>
           </RgSection>
-          <RgIcon name="chevron-right" />
+          <RgSection style={styles.samplesSampleChev}>
+            <RgIcon name="chevron-right" color="primary" />
+          </RgSection>
         </RgSection>
       </RgCard>
       <RgText variant="bodyLarge">Every sample on this page was built with Rangular, and so was this entire app: each screen began as Angular code and was compiled by the Rangular framework into the React Native app you are holding.</RgText>
@@ -6267,7 +6289,12 @@ export function IotSample() {
       <RgAppbar tone="tint" title="Internet of Things Sample" pin back onBack={() => goBack()} />
       {roomViews.map((room, index) => (
         <RgCard key={room?.id ?? index} style={styles.iotSampleRoomCard}>
-          <RgText variant="title">{room.title}</RgText>
+          <RgSection style={styles.iotSampleRoomHead}>
+            <RgText variant="title" style={styles.iotSampleRoomTitle}>{room.title}</RgText>
+            <RgSection style={styles.iotSampleCountPill}>
+              <RgText variant="bodyLarge" style={styles.iotSampleCountText}>{room.devices.length} devices</RgText>
+            </RgSection>
+          </RgSection>
           {room.devices.map((d, index) => (
             <RgSection key={d?.id ?? index}>
               <RgSection style={styles.iotSampleDevRow}>
@@ -6275,7 +6302,7 @@ export function IotSample() {
                   <RgText variant="bodyLarge" style={styles.iotSampleDevName}>{d.name}</RgText>
                   <RgText variant="bodyLarge" style={styles.iotSampleDevState}>{d.state}</RgText>
                 </RgSection>
-                <RgSwitch checked={d.on} onChange={($event) => toggle(room, d)} />
+                <RgSwitch color="success" checked={d.on} onChange={($event) => toggle(room, d)} />
               </RgSection>
               {d.timed && (
                 <RgSection style={styles.iotSampleWinRow}>
@@ -6316,6 +6343,7 @@ export function AlarmSample() {
   const [timeLabel, setTimeLabel] = useState('');
   const [ringLabel, setRingLabel] = useState('');
   const [daysLabel, setDaysLabel] = useState('');
+  const [bandSub, setBandSub] = useState('');
   const [repeatOpen, setRepeatOpen] = useState(false);
   const [dayRows, setDayRows] = useState([]);
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -6336,8 +6364,11 @@ export function AlarmSample() {
     setDraftEnabled(enabled);
     setTimeLabel(fmtTime(time));
     setRingLabel(fmtTime(alarm.timeIso));
-    setCardTitle((title === '' ? 'Alarm' : title));
-    setDaysLabel(computeDaysLabel(days));
+    const ct = (title === '' ? 'Alarm' : title);
+    const dl = computeDaysLabel(days);
+    setCardTitle(ct);
+    setDaysLabel(dl);
+    setBandSub(ct + ' · ' + dl);
     setDayRows([0, 1, 2, 3, 4, 5, 6].map((d) => ({ d, name: dayFullNames[d], on: days.indexOf(d) >= 0 })));
     setDirty(time.slice(11) !== alarm.timeIso.slice(11) || title !== alarm.title || days.join(',') !== alarm.days.join(',') || enabled !== alarm.enabled);
   };
@@ -6412,36 +6443,40 @@ export function AlarmSample() {
       <RgAppbar tone="tint" title="Alarm" pin back onBack={() => goBack()} />
       {alarm.ringing && (
         <RgSection>
-          <RgCard style={styles.alarmSampleRingCard}>
+          <RgSection style={styles.alarmSampleRingBand}>
             <RgText variant="bodyLarge" style={styles.alarmSampleRingLabel}>ALARM</RgText>
             <RgText variant="bodyLarge" style={styles.alarmSampleRingTime}>{ringLabel}</RgText>
-            <RgText variant="title">{alarm.title}</RgText>
+            <RgText variant="bodyLarge" style={styles.alarmSampleRingTitle}>{alarm.title}</RgText>
             <RgSection style={styles.alarmSampleRingActions}>
               <RgButton color="danger" onPress={() => stop()}>Stop</RgButton>
               <RgButton color="neutral" onPress={() => snooze()}>Snooze 5 min</RgButton>
             </RgSection>
-          </RgCard>
+          </RgSection>
         </RgSection>
       )}
       {!alarm.ringing && (
         <RgSection>
-          <RgCard style={styles.alarmSampleAlarmCard}>
-            <RgSection style={styles.alarmSampleAlarmTop}>
-              <RgSection style={styles.alarmSampleAlarmMain}>
-                <RgText variant="title">{cardTitle}</RgText>
-                <RgText variant="bodyLarge" style={styles.alarmSampleAlarmTime}>{timeLabel}</RgText>
-                <RgText variant="bodyLarge" style={styles.alarmSampleBadge}>{daysLabel}</RgText>
-              </RgSection>
-              <RgSwitch checked={draftEnabled} onChange={($event) => onSwitch($event)} />
+          <RgSection style={styles.alarmSampleBand}>
+            <RgSection style={styles.alarmSampleBandTop}>
+              <RgText variant="bodyLarge" style={styles.alarmSampleEyebrow}>ALARM</RgText>
+              <RgSwitch color="success" checked={draftEnabled} onChange={($event) => onSwitch($event)} />
             </RgSection>
-          </RgCard>
+            <RgText variant="bodyLarge" style={styles.alarmSampleBandTime}>{timeLabel}</RgText>
+            <RgText variant="bodyLarge" style={styles.alarmSampleBandSub}>{bandSub}</RgText>
+          </RgSection>
           <RgCard style={styles.alarmSampleSettingsCard}>
-            <RgText variant="label">When</RgText>
-            <RgDateTimePicker mode="time" label="Time" value={draftTime} onChange={($event) => setTime($event)} />
-            <RgSection onPress={() => openRepeat()} style={styles.alarmSampleRepeatRow}>
-              <RgText variant="bodyLarge" style={styles.alarmSampleRepeatLabel}>Repeat</RgText>
-              <RgText variant="bodyLarge" style={styles.alarmSampleBadge}>{daysLabel}</RgText>
-              <RgIcon name="chevron-right" />
+            <RgDateTimePicker mode="time" label="When" value={draftTime} onChange={($event) => setTime($event)} />
+            <RgSection onPress={() => openRepeat()} style={styles.alarmSampleSetRow}>
+              <RgSection style={styles.alarmSampleSetIc}>
+                <RgIcon name="calendar" color="primary" />
+              </RgSection>
+              <RgSection style={styles.alarmSampleSetMain}>
+                <RgText variant="bodyLarge" style={styles.alarmSampleSetLabel}>Repeat</RgText>
+                <RgText variant="bodyLarge" style={styles.alarmSampleSetValue}>{daysLabel}</RgText>
+              </RgSection>
+              <RgSection style={styles.alarmSampleSetChev}>
+                <RgIcon name="chevron-right" color="primary" />
+              </RgSection>
             </RgSection>
             <RgInput label="Alarm title" placeholder="Wake up" value={titleDraft} onChangeText={($event) => { setTitleDraft($event); applyTitle($event); }} />
             {(titleDraft.length > 40) && (
@@ -6642,8 +6677,10 @@ export function TodoSample() {
               <RgText variant="bodyLarge" style={[styles.todoSampleTaskDesc, t.done ? styles.todoSampleTaskDone : undefined]}>{t.desc}</RgText>
             )}
             <RgSection style={styles.todoSampleMetaRow}>
-              <RgSection style={[styles.todoSampleDot, (t.prio === 2) ? styles.todoSamplePHigh : undefined, (t.prio === 1) ? styles.todoSamplePMed : undefined, (t.prio === 0) ? styles.todoSamplePLow : undefined]} />
-              <RgText variant="bodyLarge" style={styles.todoSamplePrioText}>{((t.prio === 2) ? 'High priority' : ((t.prio === 1) ? 'Medium priority' : 'Low priority'))}</RgText>
+              <RgSection style={[styles.todoSamplePrioPill, (t.prio === 2) ? styles.todoSamplePpHigh : undefined, (t.prio === 1) ? styles.todoSamplePpMed : undefined, (t.prio === 0) ? styles.todoSamplePpLow : undefined]}>
+                <RgSection style={[styles.todoSampleDot, (t.prio === 2) ? styles.todoSamplePHigh : undefined, (t.prio === 1) ? styles.todoSamplePMed : undefined, (t.prio === 0) ? styles.todoSamplePLow : undefined]} />
+                <RgText variant="bodyLarge" style={styles.todoSamplePrioText}>{((t.prio === 2) ? 'High priority' : ((t.prio === 1) ? 'Medium priority' : 'Low priority'))}</RgText>
+              </RgSection>
               {t.dueText && (
                 <RgText variant="bodyLarge" style={[styles.todoSampleDueText, t.overdue ? styles.todoSampleDueOver : undefined]}>{t.dueText}</RgText>
               )}
@@ -6664,8 +6701,11 @@ export function TodoSample() {
           <RgInput label="Task" placeholder="What needs doing?" value={draft} onChangeText={($event) => setDraft($event)} />
           <RgInput label="Description" placeholder="A few details (optional)" value={draftDesc} onChangeText={($event) => setDraftDesc($event)} />
           <RgSection style={styles.todoSampleDueRow}>
+            <RgSection style={styles.todoSampleDueIc}>
+              <RgIcon name="calendar" color="primary" />
+            </RgSection>
             <RgText variant="bodyLarge" style={styles.todoSampleDueLabel}>Deadline</RgText>
-            <RgSwitch checked={draftDueOn} onChange={($event) => setDueOn($event)} />
+            <RgSwitch color="success" checked={draftDueOn} onChange={($event) => setDueOn($event)} />
           </RgSection>
           {draftDueOn && (
             <RgDateTimePicker mode="date" label="Due date" value={draftDue} onChange={($event) => setDue($event)} />
@@ -6884,13 +6924,19 @@ const styles = StyleSheet.create({
   logListPanel: {"borderWidth":1,"borderColor":"#a06a35","borderRadius":12,"padding":12,"backgroundColor":"#fdf6ec"},
   capstoneDemoPanel: {"borderWidth":1,"borderColor":"#a06a35","borderRadius":12,"padding":12,"backgroundColor":"#fdf6ec"},
   capstoneDemoBtnrow: {"flexDirection":"row","gap":8},
-  samplesSampleRow: {"flexDirection":"row","alignItems":"center","gap":12},
+  samplesSampleRow: {"flexDirection":"row","alignItems":"flex-start","gap":12},
   samplesSampleMain: {"flex":1},
+  samplesSampleIc: {"width":44,"height":44,"borderRadius":9999,"backgroundColor":"#e8f0fe","alignItems":"center","justifyContent":"center"},
+  samplesSampleChev: {"width":28,"height":28,"borderRadius":9999,"backgroundColor":"#e8f0fe","alignItems":"center","justifyContent":"center"},
   aboutHero: {"backgroundColor":"#0b57d0","borderWidth":0,"borderRadius":16,"padding":16},
   aboutHeroMark: {"width":48,"height":48,"alignItems":"center","justifyContent":"center"},
   aboutHeroTitle: {"color":"#ffffff"},
   aboutHeroText: {"color":"#d3e3fd"},
   iotSampleRoomCard: {"gap":8,"padding":16},
+  iotSampleRoomHead: {"flexDirection":"row","alignItems":"center","gap":12},
+  iotSampleRoomTitle: {"flex":1},
+  iotSampleCountPill: {"backgroundColor":"#e8f0fe","borderRadius":9999,"padding":8},
+  iotSampleCountText: {"fontSize":12,"fontWeight":700,"color":"#0b57d0"},
   iotSampleDevRow: {"flexDirection":"row","alignItems":"center","gap":12},
   iotSampleDevMain: {"flex":1,"gap":4},
   iotSampleDevName: {"fontSize":16},
@@ -6898,22 +6944,27 @@ const styles = StyleSheet.create({
   iotSampleWinPick: {"flex":1},
   iotSampleDevState: {"fontSize":12,"color":"#5f6368"},
   iotSampleHist: {"fontSize":12,"color":"#5f6368"},
-  alarmSampleAlarmCard: {"gap":8,"padding":16},
-  alarmSampleAlarmTop: {"flexDirection":"row","alignItems":"center","gap":12},
-  alarmSampleAlarmMain: {"flex":1,"gap":4},
-  alarmSampleAlarmTime: {"fontSize":32,"lineHeight":40,"fontWeight":700},
-  alarmSampleBadge: {"fontSize":12,"fontWeight":700,"color":"#0b57d0"},
+  alarmSampleBand: {"backgroundColor":"#0b57d0","borderRadius":16,"padding":16,"gap":8},
+  alarmSampleBandTop: {"flexDirection":"row","alignItems":"center","gap":12},
+  alarmSampleEyebrow: {"flex":1,"fontSize":12,"fontWeight":700,"letterSpacing":1,"color":"#ffffff"},
+  alarmSampleBandTime: {"fontSize":32,"lineHeight":40,"fontWeight":700,"color":"#ffffff"},
+  alarmSampleBandSub: {"fontSize":14,"color":"#d3e3fd"},
   alarmSampleSettingsCard: {"gap":12,"padding":16},
-  alarmSampleRepeatRow: {"flexDirection":"row","alignItems":"center","gap":8},
-  alarmSampleRepeatLabel: {"flex":1,"fontSize":16},
+  alarmSampleSetRow: {"flexDirection":"row","alignItems":"center","gap":12},
+  alarmSampleSetIc: {"width":32,"height":32,"borderRadius":9999,"backgroundColor":"#e8f0fe","alignItems":"center","justifyContent":"center"},
+  alarmSampleSetMain: {"flex":1,"gap":4},
+  alarmSampleSetLabel: {"fontSize":12,"color":"#5f6368"},
+  alarmSampleSetValue: {"fontSize":16,"fontWeight":600},
+  alarmSampleSetChev: {"width":28,"height":28,"borderRadius":9999,"backgroundColor":"#e8f0fe","alignItems":"center","justifyContent":"center"},
   alarmSampleDayRow: {"flexDirection":"row","alignItems":"center","gap":12,"padding":8},
   alarmSampleDayName: {"flex":1,"fontSize":16},
   alarmSampleCheck: {"width":34,"height":34,"borderRadius":8,"borderWidth":2,"borderColor":"#34a853","alignItems":"center","justifyContent":"center"},
   alarmSampleCheckDone: {"backgroundColor":"#34a853"},
   alarmSampleNote: {"fontSize":12,"color":"#5f6368"},
-  alarmSampleRingCard: {"gap":12,"padding":16,"alignItems":"center"},
-  alarmSampleRingLabel: {"fontSize":12,"fontWeight":700,"color":"#b3261e"},
-  alarmSampleRingTime: {"fontSize":32,"lineHeight":40,"fontWeight":700},
+  alarmSampleRingBand: {"backgroundColor":"#0b57d0","borderRadius":16,"padding":16,"gap":12,"alignItems":"center"},
+  alarmSampleRingLabel: {"fontSize":12,"fontWeight":700,"letterSpacing":1,"color":"#d3e3fd"},
+  alarmSampleRingTime: {"fontSize":32,"lineHeight":40,"fontWeight":700,"color":"#ffffff"},
+  alarmSampleRingTitle: {"fontSize":16,"fontWeight":600,"color":"#ffffff"},
   alarmSampleRingActions: {"flexDirection":"row","gap":12},
   todoSampleChipsRow: {"flexDirection":"row","gap":8},
   todoSampleChip: {"borderWidth":1,"borderColor":"#0b57d0","borderRadius":9999,"padding":8},
@@ -6933,11 +6984,16 @@ const styles = StyleSheet.create({
   todoSamplePMed: {"backgroundColor":"#f9ab00"},
   todoSamplePLow: {"backgroundColor":"#34a853"},
   todoSamplePrioText: {"fontSize":12,"color":"#5f6368"},
+  todoSamplePrioPill: {"flexDirection":"row","alignItems":"center","gap":4,"padding":4,"borderRadius":9999},
+  todoSamplePpHigh: {"backgroundColor":"#fdecea"},
+  todoSamplePpMed: {"backgroundColor":"#fef7e0"},
+  todoSamplePpLow: {"backgroundColor":"#e6f4ea"},
   todoSampleTaskDesc: {"fontSize":14,"color":"#5f6368"},
   todoSampleDueText: {"fontSize":12,"color":"#5f6368"},
   todoSampleDueOver: {"color":"#b3261e","fontWeight":700},
-  todoSampleDueRow: {"flexDirection":"row","alignItems":"center","justifyContent":"space-between"},
-  todoSampleDueLabel: {"fontSize":14,"fontWeight":700},
+  todoSampleDueRow: {"flexDirection":"row","alignItems":"center","gap":12},
+  todoSampleDueIc: {"width":32,"height":32,"borderRadius":9999,"backgroundColor":"#e8f0fe","alignItems":"center","justifyContent":"center"},
+  todoSampleDueLabel: {"flex":1,"fontSize":14,"fontWeight":700},
   todoSampleMoreHit: {"width":44,"height":44,"alignItems":"center","justifyContent":"center"},
   todoSampleMoreDots: {"gap":4,"alignItems":"center"},
   todoSampleMoreDot: {"width":4,"height":4,"borderRadius":9999,"backgroundColor":"#5f6368"},

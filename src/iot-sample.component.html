@@ -1,14 +1,17 @@
 <section>
   <appbar pin tone="tint" title="Internet of Things Sample" back (back)="goBack()"></appbar>
   <card *ngFor="let room of roomViews" class="room-card">
-    <h3>{{ room.title }}</h3>
+    <section class="room-head">
+      <h3 class="room-title">{{ room.title }}</h3>
+      <section class="count-pill"><p class="count-text">{{ room.devices.length }} devices</p></section>
+    </section>
     <section *ngFor="let d of room.devices">
       <section class="dev-row">
         <section class="dev-main">
           <p class="dev-name">{{ d.name }}</p>
           <p class="dev-state">{{ d.state }}</p>
         </section>
-        <switch [checked]="d.on" (change)="toggle(room, d)"></switch>
+        <switch color="success" [checked]="d.on" (change)="toggle(room, d)"></switch>
       </section>
       <section *ngIf="d.timed" class="win-row">
         <section class="win-pick">

@@ -8,3 +8,6 @@
 <p>One switch, two feels. The first switch carries the haptic attribute, so a toggle answers with a light tap you can feel. The second is the same switch without it, and stays silent.</p>
 <switch haptic [checked]="hapticOn" (change)="onHaptic($event)">With haptic</switch>
 <switch [checked]="silentOn" (change)="onSilent($event)">Without haptic</switch>
+<p>A switch can carry a colour role: the success role paints it green when on, and off is the same grey as every switch.</p>
+<switch color="success" [checked]="greenOn" (change)="onGreen($event)">Green when on</switch>
+<p>The green switch is {{ greenOn ? 'on' : 'off' }}</p>

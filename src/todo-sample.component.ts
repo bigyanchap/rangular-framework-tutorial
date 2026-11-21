@@ -44,11 +44,16 @@ import { TodoService } from './todo.service';
     .p-med { background-color: #f9ab00; }
     .p-low { background-color: #34a853; }
     .prio-text { font-size: 12px; color: #5f6368; }
+    .prio-pill { flex-direction: row; align-items: center; gap: 4px; padding: 4px; border-radius: 9999px; }
+    .pp-high { background-color: #fdecea; }
+    .pp-med { background-color: #fef7e0; }
+    .pp-low { background-color: #e6f4ea; }
     .task-desc { font-size: 14px; color: #5f6368; }
     .due-text { font-size: 12px; color: #5f6368; }
     .due-over { color: #b3261e; font-weight: 700; }
-    .due-row { flex-direction: row; align-items: center; justify-content: space-between; }
-    .due-label { font-size: 14px; font-weight: 700; }
+    .due-row { flex-direction: row; align-items: center; gap: 12px; }
+    .due-ic { width: 32px; height: 32px; border-radius: 9999px; background-color: #e8f0fe; align-items: center; justify-content: center; }
+    .due-label { flex: 1; font-size: 14px; font-weight: 700; }
     .more-hit { width: 44px; height: 44px; align-items: center; justify-content: center; }
     .more-dots { gap: 4px; align-items: center; }
     .more-dot { width: 4px; height: 4px; border-radius: 9999px; background-color: #5f6368; }
