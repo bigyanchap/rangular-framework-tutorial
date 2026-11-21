@@ -981,12 +981,12 @@ export class LessonService extends ReactiveService {
     },
     {
       id: 94,
-      title: 'Editor: marked text, honestly',
+      title: 'Editor: notes as blocks',
       subtitle: 'Bold with stars and lists with dashes, not a WYSIWYG',
       minutes: '5 min',
-      intro: 'The editor edits marked up text. Its value is plain text carrying light marks: a word wrapped in double stars is bold, a word in single stars is italic, and a line that starts with a dash and a space is a list entry. The editor shows the marks at work and offers a small toolbar that applies them to the current selection. The scope limit, stated plainly: this is a marked text field with helpers, not a WYSIWYG engine where formatting hides behind the words, and the stored value is the marked text itself, marks included, so what you save is exactly what you see here. The binding is the usual contract, [value] in and (change) out. The demo seeds the field with all three marks; type in it, and add one more list line with the button, while the count line reports the stored length.',
+      intro: 'The editor edits a note made of blocks. Its value is still one string, and each line of the string is one block: a line that starts with a hash and a space is a title, two hashes a heading, a greater than sign a quote, a dash with a checkbox a checklist item, a dash a bullet, a number and a dot a numbered line, and a plain line is body text. Inside a block, a word wrapped in double stars is bold, in single stars italic, in double plus signs underline, and in double tildes struck through.\nThe editor is one framed unit. Inside the frame, at the top, sit the style chips, Title, Heading, Body, Quote, Checklist and List, and right below them the parameter tools: Aa, B, I, U, S, the checklist, bullet and numbered tools, and the grip. The I of the italic tool wears a serif face, the way word processors draw it. The blocks live under the controls, inside the same frame. At rest every block shows its styles, bold as bold and a checklist item with its amber ring, and tapping the ring ticks the item. Tapping a block opens it for editing, and only there do its marks show, as the source of the styles you see at rest.\nEvery button toggles. Press Bold on a bold word and the marks come off; press it again and they return. The style chips set the kind of the block you are editing, and the checklist, bullet and numbered tools toggle their kind off again. Enter starts the next block, the grip steps a block up or down, and the row at the bottom of the frame adds a block. The binding is the usual contract, [value] in and (change) out. The demo seeds the note with every block kind; the button under the editor appends one more bullet block, and the count line reports how many blocks the note holds.',
       code: '<editor [value]="notes" (change)="onNotes($event)"></editor>',
-      implementation: '// editor.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-editor-demo\',\n  templateUrl: \'./editor.component.html\',\n})\nexport class EditorDemoComponent {\n  notes = \'Saw the **sunrise** again, and the air was *clear*.\n- Walked the river road\n- Took photos\';\n\n  onNotes(v: string) {\n    this.notes = v;\n  }\n\n  addLine() {\n    this.notes = this.notes + \'\n- Evening walk\';\n  }\n}\n\n// editor.component.html\n<editor [value]="notes" (change)="onNotes($event)"></editor>\n<p>The stored text is {{ notes.length }} characters long, marks included.</p>\n<button (click)="addLine()">\n  Add an evening walk line\n</button>',
+      implementation: '// editor.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-editor-demo\',\n  templateUrl: \'./editor.component.html\',\n})\nexport class EditorDemoComponent {\n  notes = \'# Morning pages\nSaw the **sunrise** again, and the air was *clear* and ++quiet++.\n- [x] Walked the river road\n- [ ] Took photos\n- Evening walk\n1. Read one chapter\';\n\n  onNotes(v: string) {\n    this.notes = v;\n  }\n\n  addLine() {\n    this.notes = this.notes + \'\n- Evening walk\';\n  }\n\n  blockCount() {\n    return this.notes.split(\'\n\').length;\n  }\n}\n\n// editor.component.html\n<editor [value]="notes" (change)="onNotes($event)"></editor>\n<button (click)="addLine()">\n  Add a list line\n</button>\n<p>The note holds {{ blockCount() }} blocks.</p>',
       tip: 'Store the marked text exactly as the editor holds it, and let the same marks render wherever the text is shown. Converting to another format on save and back on load is where simple formatting goes to die.',
     },
     {
@@ -2055,7 +2055,7 @@ export function Home() {
                 ))}
               </RgList>
             </RgSection>
-            <RgText variant="bodyLarge">97 lessons · Rangular framework 0.4.8</RgText>
+            <RgText variant="bodyLarge">97 lessons · Rangular framework 0.5.0</RgText>
             <RgButton color="danger" onPress={() => askReset()}>Reset all checks</RgButton>
           </RgSection>
         )}
@@ -2942,7 +2942,7 @@ export function Lesson() {
       )}
       {!!((lessonId === 94)) && (
         <RgCard style={styles.lessonDemoCard}>
-          <RgText variant="label">Live demo: notes with marks</RgText>
+          <RgText variant="label">Live demo: notes as blocks</RgText>
           <EditorDemo />
         </RgCard>
       )}
@@ -6104,18 +6104,21 @@ export function ChartsDemo() {
 }
 
 export function EditorDemo() {
-  const [notes, setNotes] = useState('Saw the **sunrise** again, and the air was *clear*.\n- Walked the river road\n- Took photos');
+  const [notes, setNotes] = useState('# Morning pages\nSaw the **sunrise** again, and the air was *clear* and ++quiet++.\n- [x] Walked the river road\n- [ ] Took photos\n- Evening walk\n1. Read one chapter');
   const onNotes = (v: string) => {
     setNotes(v);
   };
   const addLine = () => {
     setNotes(notes + '\n- Evening walk');
   };
+  const blockCount = () => {
+    return notes.split('\n').length;
+  };
   return (
     <>
       <RgEditor value={notes} onChange={($event) => onNotes($event)} />
-      <RgText variant="bodyLarge">The stored text is {notes.length} characters long, marks included.</RgText>
-      <RgButton onPress={() => addLine()}>Add an evening walk line</RgButton>
+      <RgButton onPress={() => addLine()}>Add a list line</RgButton>
+      <RgText variant="bodyLarge">The note holds {blockCount()} blocks.</RgText>
     </>
   );
 }

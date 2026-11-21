@@ -1,19 +1,19 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 94's live demo: the marked text editor. The
- * seed value carries the three marks: double stars for
- * bold, a single star for italic, and a dash line for a
- * list entry. The button appends one more list line by
- * assignment, and the count line reports the length of
- * the stored text, marks included.
+ * Lesson 94's live demo: the block editor. The seed value
+ * carries one block per line: a title, a body line with three
+ * inline marks, two checklist items, a bullet and a numbered
+ * line. The button appends one more bullet block by
+ * assignment, and the count line reports how many blocks the
+ * note holds.
  */
 @Component({
   selector: 'app-editor-demo',
   templateUrl: './editor.component.html',
 })
 export class EditorDemoComponent {
-  notes = 'Saw the **sunrise** again, and the air was *clear*.\n- Walked the river road\n- Took photos';
+  notes = '# Morning pages\nSaw the **sunrise** again, and the air was *clear* and ++quiet++.\n- [x] Walked the river road\n- [ ] Took photos\n- Evening walk\n1. Read one chapter';
 
   onNotes(v: string) {
     this.notes = v;
@@ -21,5 +21,9 @@ export class EditorDemoComponent {
 
   addLine() {
     this.notes = this.notes + '\n- Evening walk';
+  }
+
+  blockCount() {
+    return this.notes.split('\n').length;
   }
 }
