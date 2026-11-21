@@ -1420,7 +1420,7 @@ export class ActivityLogService extends ReactiveService {
 }
 
 export class IotService extends ReactiveService {
-  storageKey = 'rangular-tutorial.iot.v3';
+  storageKey = 'rangular-tutorial.iot.v4';
   rooms: any[] = [];
   loaded = false;
   waiters: any[] = [];
@@ -1433,7 +1433,7 @@ export class IotService extends ReactiveService {
     this.__notify();
   } else {
     const now = Date.now();
-    this.rooms = [{ title: 'Living room', devices: [{ name: 'Ceiling light', on: true }, { name: 'Fan', on: false }, { name: 'Television', on: false }], history: [{ text: 'Ceiling light turned on', at: now - 42 * 60000 }] }, { title: 'Kitchen', devices: [{ name: 'Kettle', on: false }, { name: 'Exhaust fan', on: true }, { name: 'Under-cabinet light', on: true }], history: [{ text: 'Exhaust fan turned on', at: now - 18 * 60000 }] }, { title: 'Bedroom', devices: [{ name: 'Bedside lamp', on: false }, { name: 'Air conditioner', on: false }, { name: 'Ceiling light', on: true }], history: [] }, { title: 'Outdoor', devices: [{ name: 'Water pump', on: true, fromIso: '2026-11-13T06:00:00', toIso: '2026-11-13T07:00:00' }, { name: 'Garden lights', on: true, fromIso: '2026-11-13T18:30:00', toIso: '2026-11-13T22:00:00' }, { name: 'Porch light', on: false }], history: [{ text: 'Water pump timer turned on', at: now - 180 * 60000 }] }];
+    this.rooms = [{ title: 'Living room', devices: [{ name: 'Ceiling light', on: true }, { name: 'Fan', on: false }, { name: 'Television', on: false }], history: [{ text: 'Ceiling light turned on', at: now - 42 * 60000 }] }, { title: 'Kitchen', devices: [{ name: 'Kettle', on: false }, { name: 'Exhaust fan', on: true }, { name: 'Under-cabinet light', on: true }], history: [{ text: 'Exhaust fan turned on', at: now - 18 * 60000 }] }, { title: 'Bedroom', devices: [{ name: 'Bedside lamp', on: false }, { name: 'Air conditioner', on: false }, { name: 'Ceiling light', on: true }], history: [] }, { title: 'Outdoor', devices: [{ name: 'Water pump', on: true, fromIso: '2026-11-13T06:00:00', toIso: '2026-11-13T07:00:00' }, { name: 'Garden lights', on: true, fromIso: '2026-11-13T18:30:00', toIso: '2026-11-13T22:00:00' }, { name: 'Porch light', on: false }], history: [{ text: 'Water pump timer turned on', at: now - 180 * 60000 }] }, { title: 'Electronics Project Room', devices: [{ name: 'Notifier Pager Esp32', on: false }, { name: 'Water Heater NodeMCU', on: true, fromIso: '2026-11-13T05:30:00', toIso: '2026-11-13T06:30:00' }], history: [] }];
     this.__notify();
     this.persist();
   }

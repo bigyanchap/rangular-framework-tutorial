@@ -8,17 +8,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
  * in that room's history, newest first, four lines kept:
  * a fifth change deletes the oldest line, and a longer
  * saved history is cut back to four when it loads. Some
- * devices, the outdoor ones, run on a timer instead: the
- * row names the hours, its switch turns the timer on or
- * off, and From and To pickers on the page set the hours.
- * Nothing here talks to a real device: the state
- * is kept on this phone, and the switches change this
- * page only. First run seeds four rooms so the page has
- * life at once; after that, the home is the reader's own.
+ * devices run on a timer instead: the row names the
+ * hours, its switch turns the timer on or off, and From
+ * and To pickers on the page set the hours. Nothing here
+ * talks to a real device: the state is kept on this
+ * phone, and the switches change this page only. First
+ * run seeds five rooms so the page has life at once;
+ * after that, the home is the reader's own.
  */
 @Injectable({ providedIn: 'root' })
 export class IotService {
-  storageKey = 'rangular-tutorial.iot.v3';
+  storageKey = 'rangular-tutorial.iot.v4';
   rooms: any[] = [];
   loaded = false;
   waiters: any[] = [];
@@ -66,6 +66,14 @@ export class IotService {
               { name: 'Porch light', on: false },
             ],
             history: [{ text: 'Water pump timer turned on', at: now - 180 * 60000 }],
+          },
+          {
+            title: 'Electronics Project Room',
+            devices: [
+              { name: 'Notifier Pager Esp32', on: false },
+              { name: 'Water Heater NodeMCU', on: true, fromIso: '2026-11-13T05:30:00', toIso: '2026-11-13T06:30:00' },
+            ],
+            history: [],
           },
         ];
         this.persist();
