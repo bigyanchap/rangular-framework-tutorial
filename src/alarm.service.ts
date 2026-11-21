@@ -27,6 +27,8 @@ export class AlarmService {
   enabled = false;
   ringing = false;
   target = 0;
+  targetDateIso = '';
+  dayFullNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   timer: any = null;
 
   constructor() {
@@ -67,10 +69,10 @@ export class AlarmService {
    * from the date in the string itself, so a UTC date here
    * still lands the ring on the right local day.
    */
-  dayKey(offset: number) {
-    const z = this.dayNumber(offset) + 719468;
-    const era = Math.floor(z / 146097);
-    const doe = z - era * 146097;
+  civilKey(z: number) {
+    const zz = z + 719468;
+    const era = Math.floor(zz / 146097);
+    const doe = zz - era * 146097;
     const yoe = Math.floor((doe - Math.floor(doe / 1460) + Math.floor(doe / 36524) - Math.floor(doe / 146096)) / 365);
     const y = yoe + era * 400;
     const doy = doe - (365 * yoe + Math.floor(yoe / 4) - Math.floor(yoe / 100));
@@ -79,6 +81,10 @@ export class AlarmService {
     const m = mp + (mp < 10 ? 3 : -9);
     const year = m <= 2 ? y + 1 : y;
     return year + '-' + this.pad2(m) + '-' + this.pad2(d);
+  }
+
+  dayKey(offset: number) {
+    return this.civilKey(this.dayNumber(offset));
   }
 
   rebase() {
@@ -101,6 +107,7 @@ export class AlarmService {
 
   arm() {
     this.rebase();
+    this.targetDateIso = '';
     if (!this.enabled || this.days.length === 0) {
       this.target = 0;
       return;
@@ -110,15 +117,42 @@ export class AlarmService {
       this.target = 0;
       return;
     }
-    const startWeekday = (this.daysFromCivil(Number(this.timeIso.slice(0, 4)), Number(this.timeIso.slice(5, 7)), Number(this.timeIso.slice(8, 10))) + 4) % 7;
+    const y = Number(this.timeIso.slice(0, 4));
+    const m = Number(this.timeIso.slice(5, 7));
+    const d = Number(this.timeIso.slice(8, 10));
+    const startWeekday = (this.daysFromCivil(y, m, d) + 4) % 7;
     const now = Date.now();
     this.target = 0;
     [0, 1, 2, 3, 4, 5, 6, 7].forEach((k) => {
       if (this.target > 0) return;
       if (this.days.indexOf((startWeekday + k) % 7) < 0) return;
       const cand = base + k * 86400000;
-      if (cand > now) this.target = cand;
+      if (cand > now) {
+        this.target = cand;
+        this.targetDateIso = this.civilKey(this.daysFromCivil(y, m, d) + k);
+      }
     });
+  }
+
+  /**
+   * The day word for the save toast: 'today', 'tomorrow'
+   * or 'on Monday', from the exact civil date arm() found
+   * for the next ring, compared with the rebased date.
+   * Empty when nothing is scheduled.
+   */
+  nextDayWord() {
+    if (this.target <= 0 || this.targetDateIso === '') return '';
+    const ty = Number(this.targetDateIso.slice(0, 4));
+    const tm = Number(this.targetDateIso.slice(5, 7));
+    const td = Number(this.targetDateIso.slice(8, 10));
+    const by = Number(this.timeIso.slice(0, 4));
+    const bm = Number(this.timeIso.slice(5, 7));
+    const bd = Number(this.timeIso.slice(8, 10));
+    const targetDay = this.daysFromCivil(ty, tm, td);
+    const diff = targetDay - this.daysFromCivil(by, bm, bd);
+    if (diff <= 0) return 'today';
+    if (diff === 1) return 'tomorrow';
+    return 'on ' + this.dayFullNames[(targetDay + 4) % 7];
   }
 
   tick() {
@@ -146,32 +180,23 @@ export class AlarmService {
     this.target = Date.now() + 300000;
   }
 
-  setEnabled(on: boolean) {
-    this.enabled = on;
-    if (!on && this.ringing) {
+  /**
+   * The one write path. The page edits a draft and calls
+   * save() once, so nothing is stored and nothing is
+   * scheduled while the user is still editing. Saving
+   * stores the values and arms the alarm: the scheduling
+   * starts at the save. Saving with the switch off while
+   * the alarm rings also stops the ring, as the old
+   * switch did.
+   */
+  save(timeIso: string, title: string, days: number[], enabled: boolean) {
+    this.timeIso = timeIso;
+    this.title = title ? title.slice(0, 50) : 'Alarm';
+    this.days = days.slice();
+    this.enabled = enabled;
+    if (!enabled && this.ringing) {
       this.ringing = false;
       Vibration.cancel();
-    }
-    this.persist();
-    this.arm();
-  }
-
-  setTime(iso: string) {
-    this.timeIso = iso;
-    this.persist();
-    this.arm();
-  }
-
-  setTitle(t: string) {
-    this.title = t ? t.slice(0, 50) : 'Alarm';
-    this.persist();
-  }
-
-  toggleDay(d: number) {
-    if (this.days.indexOf(d) >= 0) {
-      this.days = this.days.filter((x) => x !== d);
-    } else {
-      this.days = this.days.concat([d]);
     }
     this.persist();
     this.arm();

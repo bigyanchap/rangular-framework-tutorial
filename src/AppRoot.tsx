@@ -1520,6 +1520,8 @@ export class AlarmService extends ReactiveService {
   enabled = false;
   ringing = false;
   target = 0;
+  targetDateIso = '';
+  dayFullNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   timer: any = null;
   constructor() {
     super();
@@ -1555,10 +1557,10 @@ export class AlarmService extends ReactiveService {
   pad2(n: number) {
     return (n < 10 ? '0' + n : String(n));
   }
-  dayKey(offset: number) {
-    const z = this.dayNumber(offset) + 719468;
-    const era = Math.floor(z / 146097);
-    const doe = z - era * 146097;
+  civilKey(z: number) {
+    const zz = z + 719468;
+    const era = Math.floor(zz / 146097);
+    const doe = zz - era * 146097;
     const yoe = Math.floor((doe - Math.floor(doe / 1460) + Math.floor(doe / 36524) - Math.floor(doe / 146096)) / 365);
     const y = yoe + era * 400;
     const doy = doe - (365 * yoe + Math.floor(yoe / 4) - Math.floor(yoe / 100));
@@ -1567,6 +1569,9 @@ export class AlarmService extends ReactiveService {
     const m = mp + ((mp < 10 ? 3 : -9));
     const year = (m <= 2 ? y + 1 : y);
     return year + '-' + this.pad2(m) + '-' + this.pad2(d);
+  }
+  dayKey(offset: number) {
+    return this.civilKey(this.dayNumber(offset));
   }
   rebase() {
     const today = this.dayKey(0);
@@ -1587,6 +1592,8 @@ export class AlarmService extends ReactiveService {
   }
   arm() {
     this.rebase();
+    this.targetDateIso = '';
+    this.__notify();
     if (!this.enabled || this.days.length === 0) {
       this.target = 0;
       this.__notify();
@@ -1598,7 +1605,10 @@ export class AlarmService extends ReactiveService {
       this.__notify();
       return;
     }
-    const startWeekday = (this.daysFromCivil(Number(this.timeIso.slice(0, 4)), Number(this.timeIso.slice(5, 7)), Number(this.timeIso.slice(8, 10))) + 4) % 7;
+    const y = Number(this.timeIso.slice(0, 4));
+    const m = Number(this.timeIso.slice(5, 7));
+    const d = Number(this.timeIso.slice(8, 10));
+    const startWeekday = (this.daysFromCivil(y, m, d) + 4) % 7;
     const now = Date.now();
     this.target = 0;
     this.__notify();
@@ -1613,8 +1623,30 @@ export class AlarmService extends ReactiveService {
   if (cand > now) {
     this.target = cand;
     this.__notify();
+    this.targetDateIso = this.civilKey(this.daysFromCivil(y, m, d) + k);
+    this.__notify();
   }
 });
+  }
+  nextDayWord() {
+    if (this.target <= 0 || this.targetDateIso === '') {
+      return '';
+    }
+    const ty = Number(this.targetDateIso.slice(0, 4));
+    const tm = Number(this.targetDateIso.slice(5, 7));
+    const td = Number(this.targetDateIso.slice(8, 10));
+    const by = Number(this.timeIso.slice(0, 4));
+    const bm = Number(this.timeIso.slice(5, 7));
+    const bd = Number(this.timeIso.slice(8, 10));
+    const targetDay = this.daysFromCivil(ty, tm, td);
+    const diff = targetDay - this.daysFromCivil(by, bm, bd);
+    if (diff <= 0) {
+      return 'today';
+    }
+    if (diff === 1) {
+      return 'tomorrow';
+    }
+    return 'on ' + this.dayFullNames[(targetDay + 4) % 7];
   }
   tick() {
     if (this.enabled && !this.ringing && this.target > 0 && Date.now() >= this.target) {
@@ -1641,35 +1673,19 @@ export class AlarmService extends ReactiveService {
     this.target = Date.now() + 300000;
     this.__notify();
   }
-  setEnabled(on: boolean) {
-    this.enabled = on;
+  save(timeIso: string, title: string, days: number[], enabled: boolean) {
+    this.timeIso = timeIso;
     this.__notify();
-    if (!on && this.ringing) {
+    this.title = (title ? title.slice(0, 50) : 'Alarm');
+    this.__notify();
+    this.days = days.slice();
+    this.__notify();
+    this.enabled = enabled;
+    this.__notify();
+    if (!enabled && this.ringing) {
       this.ringing = false;
       this.__notify();
       Vibration.cancel();
-    }
-    this.persist();
-    this.arm();
-  }
-  setTime(iso: string) {
-    this.timeIso = iso;
-    this.__notify();
-    this.persist();
-    this.arm();
-  }
-  setTitle(t: string) {
-    this.title = (t ? t.slice(0, 50) : 'Alarm');
-    this.__notify();
-    this.persist();
-  }
-  toggleDay(d: number) {
-    if (this.days.indexOf(d) >= 0) {
-      this.days = this.days.filter((x) => x !== d);
-      this.__notify();
-    } else {
-      this.days = this.days.concat([d]);
-      this.__notify();
     }
     this.persist();
     this.arm();
@@ -6231,21 +6247,40 @@ export function AlarmSample() {
   const alarm = __container.get<AlarmService>(AlarmService);
   useSyncExternalStore((cb) => alarm.__subscribe(cb), () => alarm.__getVersion());
   const router = __router;
+  const snack = __snackBar;
   const [titleDraft, setTitleDraft] = useState('');
+  const [draftTime, setDraftTime] = useState('');
+  const [draftDays, setDraftDays] = useState([]);
+  const [draftEnabled, setDraftEnabled] = useState(false);
+  const [dirty, setDirty] = useState(false);
+  const [cardTitle, setCardTitle] = useState('');
   const [timeLabel, setTimeLabel] = useState('');
+  const [ringLabel, setRingLabel] = useState('');
   const [daysLabel, setDaysLabel] = useState('');
   const [repeatOpen, setRepeatOpen] = useState(false);
   const [dayRows, setDayRows] = useState([]);
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const dayFullNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const ngOnInit = () => {
-    setTitleDraft(alarm.title);
-    refresh();
+    copyDrafts();
+  };
+  const copyDrafts = () => {
+    applyDraft(alarm.timeIso, alarm.title, alarm.days.slice(), alarm.enabled);
   };
   const refresh = () => {
-    setTimeLabel(fmtTime(alarm.timeIso));
-    setDaysLabel(computeDaysLabel());
-    setDayRows([0, 1, 2, 3, 4, 5, 6].map((d) => ({ d, name: dayFullNames[d], on: alarm.days.indexOf(d) >= 0 })));
+    applyDraft(draftTime, titleDraft, draftDays, draftEnabled);
+  };
+  const applyDraft = (time: string, title: string, days: number[], enabled: boolean) => {
+    setDraftTime(time);
+    setTitleDraft(title);
+    setDraftDays(days);
+    setDraftEnabled(enabled);
+    setTimeLabel(fmtTime(time));
+    setRingLabel(fmtTime(alarm.timeIso));
+    setCardTitle((title === '' ? 'Alarm' : title));
+    setDaysLabel(computeDaysLabel(days));
+    setDayRows([0, 1, 2, 3, 4, 5, 6].map((d) => ({ d, name: dayFullNames[d], on: days.indexOf(d) >= 0 })));
+    setDirty(time.slice(11) !== alarm.timeIso.slice(11) || title !== alarm.title || days.join(',') !== alarm.days.join(',') || enabled !== alarm.enabled);
   };
   const fmtTime = (iso: string) => {
     const h = Number(iso.slice(11, 13));
@@ -6253,8 +6288,7 @@ export function AlarmSample() {
     const h12 = (h % 12 === 0 ? 12 : h % 12);
     return h12 + ':' + iso.slice(14, 16) + ' ' + suffix;
   };
-  const computeDaysLabel = () => {
-    const days = alarm.days;
+  const computeDaysLabel = (days: number[]) => {
     if (days.length === 0) {
       return 'Never';
     }
@@ -6270,18 +6304,25 @@ export function AlarmSample() {
     return dayNames.filter((n, i) => days.indexOf(i) >= 0).join(', ');
   };
   const setTime = (iso: string) => {
-    alarm.setTime(iso);
-    refresh();
+    applyDraft(iso, titleDraft, draftDays, draftEnabled);
   };
   const applyTitle = (v: string) => {
-    let __shadowTitleDraft = titleDraft;
-    __shadowTitleDraft = v.slice(0, 50);
-    setTitleDraft(__shadowTitleDraft);
-    alarm.setTitle(__shadowTitleDraft);
-    refresh();
+    applyDraft(draftTime, v.slice(0, 50), draftDays, draftEnabled);
   };
   const toggleDay = (d: number) => {
-    alarm.toggleDay(d);
+    const next = (draftDays.indexOf(d) >= 0 ? draftDays.filter((x) => x !== d) : draftDays.concat([d]));
+    applyDraft(draftTime, titleDraft, next, draftEnabled);
+  };
+  const save = () => {
+    alarm.save(draftTime, titleDraft, draftDays, draftEnabled);
+    if (!alarm.enabled) {
+      snack.open('Alarm saved. It is off.');
+    } else if (alarm.days.length === 0) {
+      snack.open('Alarm saved. Pick at least one day to make it ring.');
+    } else {
+      snack.open('Alarm saved. It will ring ' + alarm.nextDayWord() + ' at ' + fmtTime(alarm.timeIso) + '.');
+    }
+    copyDrafts();
     refresh();
   };
   const openRepeat = () => {
@@ -6291,8 +6332,7 @@ export function AlarmSample() {
     setRepeatOpen(false);
   };
   const onSwitch = (v: boolean) => {
-    alarm.setEnabled(v);
-    refresh();
+    applyDraft(draftTime, titleDraft, draftDays, v);
   };
   const stop = () => {
     alarm.stopRing();
@@ -6315,7 +6355,7 @@ export function AlarmSample() {
         <RgSection>
           <RgCard style={styles.alarmSampleRingCard}>
             <RgText variant="bodyLarge" style={styles.alarmSampleRingLabel}>ALARM</RgText>
-            <RgText variant="bodyLarge" style={styles.alarmSampleRingTime}>{timeLabel}</RgText>
+            <RgText variant="bodyLarge" style={styles.alarmSampleRingTime}>{ringLabel}</RgText>
             <RgText variant="title">{alarm.title}</RgText>
             <RgSection style={styles.alarmSampleRingActions}>
               <RgButton color="danger" onPress={() => stop()}>Stop</RgButton>
@@ -6329,16 +6369,16 @@ export function AlarmSample() {
           <RgCard style={styles.alarmSampleAlarmCard}>
             <RgSection style={styles.alarmSampleAlarmTop}>
               <RgSection style={styles.alarmSampleAlarmMain}>
-                <RgText variant="title">{alarm.title}</RgText>
+                <RgText variant="title">{cardTitle}</RgText>
                 <RgText variant="bodyLarge" style={styles.alarmSampleAlarmTime}>{timeLabel}</RgText>
                 <RgText variant="bodyLarge" style={styles.alarmSampleBadge}>{daysLabel}</RgText>
               </RgSection>
-              <RgSwitch checked={alarm.enabled} onChange={($event) => onSwitch($event)} />
+              <RgSwitch checked={draftEnabled} onChange={($event) => onSwitch($event)} />
             </RgSection>
           </RgCard>
           <RgCard style={styles.alarmSampleSettingsCard}>
             <RgText variant="label">When</RgText>
-            <RgDateTimePicker mode="time" label="Time" value={alarm.timeIso} onChange={($event) => setTime($event)} />
+            <RgDateTimePicker mode="time" label="Time" value={draftTime} onChange={($event) => setTime($event)} />
             <RgSection onPress={() => openRepeat()} style={styles.alarmSampleRepeatRow}>
               <RgText variant="bodyLarge" style={styles.alarmSampleRepeatLabel}>Repeat</RgText>
               <RgText variant="bodyLarge" style={styles.alarmSampleBadge}>{daysLabel}</RgText>
@@ -6348,8 +6388,11 @@ export function AlarmSample() {
             {(titleDraft.length > 40) && (
               <RgText variant="bodyLarge">{(50 - titleDraft.length)} characters left.</RgText>
             )}
+            {dirty && (
+              <RgButton onPress={() => save()}>Save alarm</RgButton>
+            )}
           </RgCard>
-          <RgText variant="bodyLarge" style={styles.alarmSampleNote}>It rings on this page while the app is open, with vibration. It does not ring when the app is closed.</RgText>
+          <RgText variant="bodyLarge" style={styles.alarmSampleNote}>It rings on this page while the app is open, with vibration.</RgText>
         </RgSection>
       )}
       <RgDialog title="Repeat" open={repeatOpen} onClose={() => closeRepeat()}>

@@ -3,7 +3,7 @@
   <section *ngIf="alarm.ringing">
     <card class="ring-card">
       <p class="ring-label">ALARM</p>
-      <p class="ring-time">{{ timeLabel }}</p>
+      <p class="ring-time">{{ ringLabel }}</p>
       <h3>{{ alarm.title }}</h3>
       <section class="ring-actions">
         <button color="danger" (click)="stop()">Stop</button>
@@ -15,16 +15,16 @@
     <card class="alarm-card">
       <section class="alarm-top">
         <section class="alarm-main">
-          <h3>{{ alarm.title }}</h3>
+          <h3>{{ cardTitle }}</h3>
           <p class="alarm-time">{{ timeLabel }}</p>
           <p class="badge">{{ daysLabel }}</p>
         </section>
-        <switch [checked]="alarm.enabled" (change)="onSwitch($event)"></switch>
+        <switch [checked]="draftEnabled" (change)="onSwitch($event)"></switch>
       </section>
     </card>
     <card class="settings-card">
       <label>When</label>
-      <datetime-picker label="Time" mode="time" [value]="alarm.timeIso" (change)="setTime($event)"></datetime-picker>
+      <datetime-picker label="Time" mode="time" [value]="draftTime" (change)="setTime($event)"></datetime-picker>
       <section class="repeat-row" (click)="openRepeat()">
         <p class="repeat-label">Repeat</p>
         <p class="badge">{{ daysLabel }}</p>
@@ -32,8 +32,9 @@
       </section>
       <input label="Alarm title" placeholder="Wake up" [(ngModel)]="titleDraft" (change)="applyTitle($event)">
       <p *ngIf="titleDraft.length > 40">{{ 50 - titleDraft.length }} characters left.</p>
+      <button *ngIf="dirty" (click)="save()">Save alarm</button>
     </card>
-    <p class="note">It rings on this page while the app is open, with vibration. It does not ring when the app is closed.</p>
+    <p class="note">It rings on this page while the app is open, with vibration.</p>
   </section>
   <dialog [open]="repeatOpen" (close)="closeRepeat()" title="Repeat">
     <section *ngFor="let r of dayRows" class="day-row" (click)="toggleDay(r.d)">
