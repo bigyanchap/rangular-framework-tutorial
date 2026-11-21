@@ -115,20 +115,18 @@ export class BookmarksService {
           this.saveQueued = true;
         } else {
           this.saving = true;
+          const stmts: any[] = [];
+          this.bookmarkIds.forEach((id) => {
+            stmts.push({ sql: 'INSERT OR REPLACE INTO bookmarks (lesson_id) VALUES (?)', params: [id] });
+          });
+          this.completions.forEach((c) => {
+            stmts.push({ sql: 'INSERT OR REPLACE INTO completions (lesson_id, day) VALUES (?, ?)', params: [c.id, c.day] });
+          });
+          stmts.push({ sql: 'INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', params: ['lastLessonId', String(this.lastLessonId)] });
+          stmts.push({ sql: 'INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', params: ['recentIds', JSON.stringify(this.recentIds)] });
+          stmts.push({ sql: 'INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', params: ['howToSeen', String(this.howToSeen)] });
           this.db.execAsync('DELETE FROM bookmarks; DELETE FROM completions; DELETE FROM settings').then(() => {
-            this.bookmarkIds.forEach((id) => {
-              this.db.runAsync('INSERT OR REPLACE INTO bookmarks (lesson_id) VALUES (?)', id).then(() => {}, () => {});
-            });
-            this.completions.forEach((c) => {
-              this.db.runAsync('INSERT OR REPLACE INTO completions (lesson_id, day) VALUES (?, ?)', c.id, c.day).then(() => {}, () => {});
-            });
-            this.db.runAsync('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', 'lastLessonId', String(this.lastLessonId)).then(() => {}, () => {});
-            this.db.runAsync('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', 'recentIds', JSON.stringify(this.recentIds)).then(() => {}, () => {});
-            this.db.runAsync('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', 'howToSeen', String(this.howToSeen)).then(() => {
-              this.finishSave();
-            }, () => {
-              this.finishSave();
-            });
+            this.runStatements(stmts, 0);
           }, () => {
             this.finishSave();
           });
@@ -145,6 +143,36 @@ export class BookmarksService {
           howToSeen: this.howToSeen,
         }),
       );
+    }
+  }
+
+  /**
+   * One statement of a save, then the next: runStatements
+   * waits for each insert to land before firing the one
+   * after it, and finishSave is called only when the last
+   * insert has landed. The first version of this save fired
+   * every insert at once and treated one insert settling as
+   * the whole save being done; on a phone that could lose
+   * the rows written last, the settings rows, while the
+   * bookmarks written first survived: the Reset all checks
+   * save lost the visit history that way (his report,
+   * 2026-11-21). The statement list is built from the fields
+   * at the moment save() is called, so a pass writes one
+   * consistent snapshot.
+   */
+  runStatements(stmts: any[], i: number) {
+    if (i >= stmts.length) {
+      this.finishSave();
+    } else {
+      const st = stmts[i];
+      const p = st.params.length > 1
+        ? this.db.runAsync(st.sql, st.params[0], st.params[1])
+        : this.db.runAsync(st.sql, st.params[0]);
+      p.then(() => {
+        this.runStatements(stmts, i + 1);
+      }, () => {
+        this.runStatements(stmts, i + 1);
+      });
     }
   }
 
