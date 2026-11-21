@@ -1,4 +1,4 @@
-<p>Pull the list down to refresh it. Each refresh puts a fresh note on top.</p>
+<p>Pull the page down to refresh the list. Each refresh puts a fresh note on top.</p>
 <list [refreshing]="refreshing" (refresh)="reload()">
   <row *ngFor="let n of notes" [title]="n.title" [detail]="n.detail"></row>
 </list>
