@@ -1,10 +1,33 @@
-<p>One message, waiting in your inbox. The button opens the actions you can take on it.</p>
-<button (click)="openMenu()">Message actions</button>
+<p>One chat message. The three dots at its left open the actions you can take on it.</p>
+<section class="chat-row" *ngIf="!deleted && !editing">
+  <section class="dots-hit" (click)="openMenu()">
+    <section class="dots">
+      <section class="dot"></section>
+      <section class="dot"></section>
+      <section class="dot"></section>
+    </section>
+  </section>
+  <section class="bubble">
+    <p class="chat-name">Asha</p>
+    <p class="chat-text">{{ message }}</p>
+    <p class="chat-time">9:41 AM</p>
+  </section>
+</section>
+<section *ngIf="editing">
+  <input label="Message" [(ngModel)]="draft">
+  <section class="edit-actions">
+    <button (click)="saveEdit()">Save</button>
+    <button variant="text" (click)="cancelEdit()">Cancel</button>
+  </section>
+</section>
+<section class="chat-row" *ngIf="deleted">
+  <p class="gone">This message was deleted.</p>
+  <button variant="text" (click)="restore()">Bring it back</button>
+</section>
 <menu [open]="menuOpen" (close)="closeMenu()">
-  <menu-item icon="edit" (click)="act('Rename')">Rename</menu-item>
-  <menu-item icon="share" (click)="act('Share')">Share</menu-item>
+  <menu-item icon="edit" (click)="startEdit()">Edit</menu-item>
   <divider></divider>
-  <menu-item icon="delete" (click)="act('Delete')">Delete</menu-item>
+  <menu-item icon="delete" (click)="remove()">Delete</menu-item>
 </menu>
-<p *ngIf="lastAction">Last action: {{ lastAction }}</p>
-<p *ngIf="!lastAction">No action chosen yet. Open the menu and pick one.</p>
+<p class="status" *ngIf="status">{{ status }}</p>
+<p class="status" *ngIf="!status">No action chosen yet. Open the menu and pick one.</p>

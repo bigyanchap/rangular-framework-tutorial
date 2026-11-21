@@ -726,7 +726,7 @@ export class LessonService extends ReactiveService {
       minutes: '4 min',
       intro: 'A menu is a small panel of actions for one thing: one message, one file, one row. In Angular Material it is mat-menu. Here it is an overlay with the same contract as the sheet and the dialog: [open] shows it, driven by a boolean field of yours, and (close) fires when the backdrop is tapped or an item is chosen. Inside, only menu-item rows and dividers belong. Each item can lead with an icon and carries its own (click); choosing it runs the handler and then closes the menu, the way Material menus dismiss on a pick. One honest difference: the panel hangs at the top right of the screen, the Material overflow position. It does not anchor to the button that opened it, and no version here tracks which button that was.',
       code: '<menu [open]="menuOpen" (close)="closeMenu()">',
-      implementation: '// menu.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-menu-demo\',\n  templateUrl: \'./menu.component.html\',\n})\nexport class MenuDemoComponent {\n  menuOpen = false;\n  lastAction = \'\';\n\n  openMenu() {\n    this.menuOpen = true;\n  }\n\n  closeMenu() {\n    this.menuOpen = false;\n  }\n\n  act(name: string) {\n    this.lastAction = name;\n  }\n}\n\n// menu.component.html\n<p>One message, waiting in your inbox. The button opens the actions you can take on it.</p>\n<button (click)="openMenu()">\n  Message actions\n</button>\n<menu [open]="menuOpen" (close)="closeMenu()">\n  <menu-item icon="edit" (click)="act(\'Rename\')">\n    Rename\n  </menu-item>\n  <menu-item icon="share" (click)="act(\'Share\')">\n    Share\n  </menu-item>\n  <divider></divider>\n  <menu-item icon="delete" (click)="act(\'Delete\')">\n    Delete\n  </menu-item>\n</menu>\n<p *ngIf="lastAction">Last action: {{ lastAction }}</p>\n<p *ngIf="!lastAction">No action chosen yet. Open the menu and pick one.</p>',
+      implementation: '// menu.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-menu-demo\',\n  templateUrl: \'./menu.component.html\',\n  styles: [`\n    .chat-row { flex-direction: row; align-items: center; gap: 8px; }\n    .dots-hit { width: 44px; height: 44px; align-items: center; justify-content: center; }\n    .dots { gap: 4px; align-items: center; }\n    .dot { width: 4px; height: 4px; border-radius: 9999px; background-color: #5f6368; }\n    .bubble { flex: 1; background-color: #e8f0fe; border-radius: 16px; padding: 12px; gap: 4px; }\n    .chat-name { font-size: 12px; font-weight: 700; color: #0b57d0; }\n    .chat-text { font-size: 16px; line-height: 22px; }\n    .chat-time { font-size: 12px; color: #5f6368; }\n    .gone { flex: 1; font-size: 14px; color: #5f6368; }\n    .edit-actions { flex-direction: row; gap: 12px; }\n    .status { font-size: 14px; color: #5f6368; }\n  `],\n})\nexport class MenuDemoComponent {\n  message = \'Are we still meeting at the park tomorrow morning?\';\n  draft = \'\';\n  menuOpen = false;\n  editing = false;\n  deleted = false;\n  status = \'\';\n\n  openMenu() {\n    this.menuOpen = true;\n  }\n\n  closeMenu() {\n    this.menuOpen = false;\n  }\n\n  startEdit() {\n    this.draft = this.message;\n    this.editing = true;\n  }\n\n  cancelEdit() {\n    this.editing = false;\n  }\n\n  saveEdit() {\n    this.message = this.draft;\n    this.editing = false;\n    this.status = \'The message was edited.\';\n  }\n\n  remove() {\n    this.deleted = true;\n    this.editing = false;\n    this.status = \'The message was deleted.\';\n  }\n\n  restore() {\n    this.deleted = false;\n    this.status = \'\';\n  }\n}\n\n// menu.component.html\n<p>One chat message. The three dots at its left open the actions you can take on it.</p>\n<section class="chat-row" *ngIf="!deleted && !editing">\n  <section class="dots-hit" (click)="openMenu()">\n    <section class="dots">\n      <section class="dot"></section>\n      <section class="dot"></section>\n      <section class="dot"></section>\n    </section>\n  </section>\n  <section class="bubble">\n    <p class="chat-name">Asha</p>\n    <p class="chat-text">{{ message }}</p>\n    <p class="chat-time">9:41 AM</p>\n  </section>\n</section>\n<section *ngIf="editing">\n  <input label="Message" [(ngModel)]="draft">\n  <section class="edit-actions">\n    <button (click)="saveEdit()">\n      Save\n    </button>\n    <button variant="text" (click)="cancelEdit()">\n      Cancel\n    </button>\n  </section>\n</section>\n<section class="chat-row" *ngIf="deleted">\n  <p class="gone">This message was deleted.</p>\n  <button variant="text" (click)="restore()">\n    Bring it back\n  </button>\n</section>\n<menu [open]="menuOpen" (close)="closeMenu()">\n  <menu-item icon="edit" (click)="startEdit()">\n    Edit\n  </menu-item>\n  <divider></divider>\n  <menu-item icon="delete" (click)="remove()">\n    Delete\n  </menu-item>\n</menu>\n<p class="status" *ngIf="status">{{ status }}</p>\n<p class="status" *ngIf="!status">No action chosen yet. Open the menu and pick one.</p>',
       tip: 'Keep the open state in one boolean and change it only inside methods. Event bindings never hold assignments, so (close) calls a closeMenu() method, never (close)="menuOpen = false". And give the item that destroys something a divider above it, as the demo does: the eye should slow down before Delete.',
     },
     {
@@ -2055,7 +2055,7 @@ export function Home() {
                 ))}
               </RgList>
             </RgSection>
-            <RgText variant="bodyLarge">97 lessons · Rangular framework 0.3.6</RgText>
+            <RgText variant="bodyLarge">97 lessons · Rangular framework 0.3.7</RgText>
             <RgButton color="danger" onPress={() => askReset()}>Reset all checks</RgButton>
           </RgSection>
         )}
@@ -5236,32 +5236,83 @@ export function CapstoneDemo() {
 }
 
 export function MenuDemo() {
+  const [message, setMessage] = useState('Are we still meeting at the park tomorrow morning?');
+  const [draft, setDraft] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
-  const [lastAction, setLastAction] = useState('');
+  const [editing, setEditing] = useState(false);
+  const [deleted, setDeleted] = useState(false);
+  const [status, setStatus] = useState('');
   const openMenu = () => {
     setMenuOpen(true);
   };
   const closeMenu = () => {
     setMenuOpen(false);
   };
-  const act = (name: string) => {
-    setLastAction(name);
+  const startEdit = () => {
+    setDraft(message);
+    setEditing(true);
+  };
+  const cancelEdit = () => {
+    setEditing(false);
+  };
+  const saveEdit = () => {
+    setMessage(draft);
+    setEditing(false);
+    setStatus('The message was edited.');
+  };
+  const remove = () => {
+    setDeleted(true);
+    setEditing(false);
+    setStatus('The message was deleted.');
+  };
+  const restore = () => {
+    setDeleted(false);
+    setStatus('');
   };
   return (
     <>
-      <RgText variant="bodyLarge">One message, waiting in your inbox. The button opens the actions you can take on it.</RgText>
-      <RgButton onPress={() => openMenu()}>Message actions</RgButton>
-      <RgMenu open={menuOpen} onClose={() => closeMenu()}>
-        <RgMenuItem icon="edit" onPress={() => act('Rename')}>Rename</RgMenuItem>
-        <RgMenuItem icon="share" onPress={() => act('Share')}>Share</RgMenuItem>
-        <RgDivider />
-        <RgMenuItem icon="delete" onPress={() => act('Delete')}>Delete</RgMenuItem>
-      </RgMenu>
-      {lastAction && (
-        <RgText variant="bodyLarge">Last action: {lastAction}</RgText>
+      <RgText variant="bodyLarge">One chat message. The three dots at its left open the actions you can take on it.</RgText>
+      {(!deleted && !editing) && (
+        <RgSection style={styles.menuDemoChatRow}>
+          <RgSection onPress={() => openMenu()} style={styles.menuDemoDotsHit}>
+            <RgSection style={styles.menuDemoDots}>
+              <RgSection style={styles.menuDemoDot} />
+              <RgSection style={styles.menuDemoDot} />
+              <RgSection style={styles.menuDemoDot} />
+            </RgSection>
+          </RgSection>
+          <RgSection style={styles.menuDemoBubble}>
+            <RgText variant="bodyLarge" style={styles.menuDemoChatName}>Asha</RgText>
+            <RgText variant="bodyLarge" style={styles.menuDemoChatText}>{message}</RgText>
+            <RgText variant="bodyLarge" style={styles.menuDemoChatTime}>9:41 AM</RgText>
+          </RgSection>
+        </RgSection>
       )}
-      {!lastAction && (
-        <RgText variant="bodyLarge">No action chosen yet. Open the menu and pick one.</RgText>
+      {editing && (
+        <RgSection>
+          <RgInput label="Message" value={draft} onChangeText={($event) => setDraft($event)} />
+          <RgSection style={styles.menuDemoEditActions}>
+            <RgButton onPress={() => saveEdit()}>Save</RgButton>
+            <RgButton variant="text" onPress={() => cancelEdit()}>Cancel</RgButton>
+          </RgSection>
+        </RgSection>
+      )}
+      {deleted && (
+        <RgSection style={styles.menuDemoChatRow}>
+          <RgText variant="bodyLarge" style={styles.menuDemoGone}>This message was deleted.</RgText>
+          <RgButton variant="text" onPress={() => restore()}>Bring it back</RgButton>
+        </RgSection>
+      )}
+      <RgMenu open={menuOpen} onClose={() => closeMenu()}>
+        <RgMenuItem icon="edit" onPress={() => startEdit()}>Edit</RgMenuItem>
+        <RgDivider />
+        <RgMenuItem icon="delete" onPress={() => remove()}>Delete</RgMenuItem>
+      </RgMenu>
+      {status && (
+        <RgText variant="bodyLarge" style={styles.menuDemoStatus}>{status}</RgText>
+      )}
+      {!status && (
+        <RgText variant="bodyLarge" style={styles.menuDemoStatus}>No action chosen yet. Open the menu and pick one.</RgText>
       )}
     </>
   );
@@ -6919,6 +6970,17 @@ const styles = StyleSheet.create({
   logListPanel: {"borderWidth":1,"borderColor":"#a06a35","borderRadius":12,"padding":12,"backgroundColor":"#fdf6ec"},
   capstoneDemoPanel: {"borderWidth":1,"borderColor":"#a06a35","borderRadius":12,"padding":12,"backgroundColor":"#fdf6ec"},
   capstoneDemoBtnrow: {"flexDirection":"row","gap":8},
+  menuDemoChatRow: {"flexDirection":"row","alignItems":"center","gap":8},
+  menuDemoDotsHit: {"width":44,"height":44,"alignItems":"center","justifyContent":"center"},
+  menuDemoDots: {"gap":4,"alignItems":"center"},
+  menuDemoDot: {"width":4,"height":4,"borderRadius":9999,"backgroundColor":"#5f6368"},
+  menuDemoBubble: {"flex":1,"backgroundColor":"#e8f0fe","borderRadius":16,"padding":12,"gap":4},
+  menuDemoChatName: {"fontSize":12,"fontWeight":700,"color":"#0b57d0"},
+  menuDemoChatText: {"fontSize":16,"lineHeight":22},
+  menuDemoChatTime: {"fontSize":12,"color":"#5f6368"},
+  menuDemoGone: {"flex":1,"fontSize":14,"color":"#5f6368"},
+  menuDemoEditActions: {"flexDirection":"row","gap":12},
+  menuDemoStatus: {"fontSize":14,"color":"#5f6368"},
   samplesSampleRow: {"flexDirection":"row","alignItems":"flex-start","gap":12},
   samplesSampleMain: {"flex":1},
   samplesSampleIc: {"width":44,"height":44,"borderRadius":9999,"backgroundColor":"#e8f0fe","alignItems":"center","justifyContent":"center"},
