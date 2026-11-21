@@ -7,6 +7,7 @@ import { LessonComponent } from './lesson.component';
 import { SamplesComponent } from './samples.component';
 import { AboutComponent } from './about.component';
 import { IotSampleComponent } from './iot-sample.component';
+import { AlarmSampleComponent } from './alarm-sample.component';
 import { TodoSampleComponent } from './todo-sample.component';
 import { NotFoundComponent } from './not-found.component';
 
@@ -20,6 +21,7 @@ export const routes: Routes = [
   { path: 'lesson/:id', component: LessonComponent },
   { path: 'samples', component: SamplesComponent },
   { path: 'samples/iot', component: IotSampleComponent },
+  { path: 'samples/alarm', component: AlarmSampleComponent },
   { path: 'samples/breakout', redirectTo: 'samples' },
   { path: 'samples/mario', redirectTo: 'samples' },
   { path: 'samples/todo', component: TodoSampleComponent },

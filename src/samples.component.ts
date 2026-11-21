@@ -47,4 +47,8 @@ export class SamplesComponent {
   goTodo() {
     this.router.navigate(['/samples/todo']);
   }
+
+  goAlarm() {
+    this.router.navigate(['/samples/alarm']);
+  }
 }

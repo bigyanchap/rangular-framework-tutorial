@@ -5,15 +5,19 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
  * The IoT sample's store: a small smart home that lives
  * entirely in this app. Each room is a card of devices,
  * every device is on or off, and every flip leaves a line
- * in that room's history, newest first, four lines kept.
- * Nothing here talks to a real device: the state is kept
- * on this phone, and the switches change this page only.
- * First run seeds three rooms so the page has life at
- * once; after that, the home is entirely the reader's own.
+ * in that room's history, newest first, four lines kept:
+ * a fifth change deletes the oldest line, and a longer
+ * saved history is cut back to four when it loads. Some
+ * devices, the outdoor ones, run on a timer instead: the
+ * row names the hours, and its switch turns the timer on
+ * or off. Nothing here talks to a real device: the state
+ * is kept on this phone, and the switches change this
+ * page only. First run seeds four rooms so the page has
+ * life at once; after that, the home is the reader's own.
  */
 @Injectable({ providedIn: 'root' })
 export class IotService {
-  storageKey = 'rangular-tutorial.iot.v1';
+  storageKey = 'rangular-tutorial.iot.v2';
   rooms: any[] = [];
   loaded = false;
   waiters: any[] = [];
@@ -21,7 +25,8 @@ export class IotService {
   constructor() {
     AsyncStorage.getItem(this.storageKey).then((raw) => {
       if (raw) {
-        this.rooms = JSON.parse(raw);
+        const saved = JSON.parse(raw);
+        this.rooms = saved.map((room: any) => ({ title: room.title, devices: room.devices, history: room.history.slice(0, 4) }));
       } else {
         const now = Date.now();
         this.rooms = [
@@ -52,6 +57,15 @@ export class IotService {
             ],
             history: [],
           },
+          {
+            title: 'Outdoor',
+            devices: [
+              { name: 'Water pump', on: true, window: '6:00 AM to 7:00 AM' },
+              { name: 'Garden lights', on: true, window: '6:30 PM to 10:00 PM' },
+              { name: 'Porch light', on: false },
+            ],
+            history: [{ text: 'Water pump timer turned on', at: now - 180 * 60000 }],
+          },
         ];
         this.persist();
       }
@@ -78,9 +92,10 @@ export class IotService {
     const now = Date.now();
     this.rooms = this.rooms.map((room) => {
       if (room.title !== roomTitle) return room;
-      const devices = room.devices.map((d: any) => (d.name === deviceName ? { name: d.name, on: !d.on } : d));
+      const devices = room.devices.map((d: any) => (d.name === deviceName ? { name: d.name, on: !d.on, window: d.window } : d));
       const flipped = devices.find((d: any) => d.name === deviceName);
-      const line = deviceName + (flipped && flipped.on ? ' turned on' : ' turned off');
+      const timed = flipped && flipped.window ? ' timer' : '';
+      const line = deviceName + timed + (flipped && flipped.on ? ' turned on' : ' turned off');
       const history = [{ text: line, at: now }].concat(room.history).slice(0, 4);
       return { title: room.title, devices, history };
     });

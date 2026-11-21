@@ -39,7 +39,11 @@ export class IotSampleComponent {
   refresh() {
     this.roomViews = this.iot.rooms.map((room) => ({
       title: room.title,
-      devices: room.devices,
+      devices: room.devices.map((d: any) => ({
+        name: d.name,
+        on: d.on,
+        state: d.window ? d.window + (d.on ? ' · Timer on' : ' · Timer off') : d.on ? 'On' : 'Off',
+      })),
       history: room.history.map((h: any) => ({ text: h.text, ago: this.ago(h.at) })),
     }));
   }

@@ -5,7 +5,7 @@ import { ActivatedRouteContext, RgAccordion, RgActions, RgAppbar, RgAvatar, RgAv
 import { ActivatedRoute, Container, FormArray, FormBuilder, FormControl, FormGroup, HttpClient, ReactiveService, RgNavigator, Router, SnackBar, Validators, pipe, validateValue } from '@rangular-framework/runtime';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SQLite from 'expo-sqlite';
-import { Platform } from 'react-native';
+import { Platform, Vibration } from 'react-native';
 
 export class ShellService extends ReactiveService {
   drawerOpen = false;
@@ -1420,7 +1420,7 @@ export class ActivityLogService extends ReactiveService {
 }
 
 export class IotService extends ReactiveService {
-  storageKey = 'rangular-tutorial.iot.v1';
+  storageKey = 'rangular-tutorial.iot.v2';
   rooms: any[] = [];
   loaded = false;
   waiters: any[] = [];
@@ -1428,11 +1428,12 @@ export class IotService extends ReactiveService {
     super();
     AsyncStorage.getItem(this.storageKey).then((raw) => {
   if (raw) {
-    this.rooms = JSON.parse(raw);
+    const saved = JSON.parse(raw);
+    this.rooms = saved.map((room: any) => ({ title: room.title, devices: room.devices, history: room.history.slice(0, 4) }));
     this.__notify();
   } else {
     const now = Date.now();
-    this.rooms = [{ title: 'Living room', devices: [{ name: 'Ceiling light', on: true }, { name: 'Fan', on: false }, { name: 'Television', on: false }], history: [{ text: 'Ceiling light turned on', at: now - 42 * 60000 }] }, { title: 'Kitchen', devices: [{ name: 'Kettle', on: false }, { name: 'Exhaust fan', on: true }, { name: 'Under-cabinet light', on: true }], history: [{ text: 'Exhaust fan turned on', at: now - 18 * 60000 }] }, { title: 'Bedroom', devices: [{ name: 'Bedside lamp', on: false }, { name: 'Air conditioner', on: false }, { name: 'Ceiling light', on: true }], history: [] }];
+    this.rooms = [{ title: 'Living room', devices: [{ name: 'Ceiling light', on: true }, { name: 'Fan', on: false }, { name: 'Television', on: false }], history: [{ text: 'Ceiling light turned on', at: now - 42 * 60000 }] }, { title: 'Kitchen', devices: [{ name: 'Kettle', on: false }, { name: 'Exhaust fan', on: true }, { name: 'Under-cabinet light', on: true }], history: [{ text: 'Exhaust fan turned on', at: now - 18 * 60000 }] }, { title: 'Bedroom', devices: [{ name: 'Bedside lamp', on: false }, { name: 'Air conditioner', on: false }, { name: 'Ceiling light', on: true }], history: [] }, { title: 'Outdoor', devices: [{ name: 'Water pump', on: true, window: '6:00 AM to 7:00 AM' }, { name: 'Garden lights', on: true, window: '6:30 PM to 10:00 PM' }, { name: 'Porch light', on: false }], history: [{ text: 'Water pump timer turned on', at: now - 180 * 60000 }] }];
     this.__notify();
     this.persist();
   }
@@ -1470,14 +1471,151 @@ export class IotService extends ReactiveService {
   if (room.title !== roomTitle) {
     return room;
   }
-  const devices = room.devices.map((d: any) => ((d.name === deviceName ? { name: d.name, on: !d.on } : d)));
+  const devices = room.devices.map((d: any) => ((d.name === deviceName ? { name: d.name, on: !d.on, window: d.window } : d)));
   const flipped = devices.find((d: any) => d.name === deviceName);
-  const line = deviceName + ((flipped && flipped.on ? ' turned on' : ' turned off'));
+  const timed = (flipped && flipped.window ? ' timer' : '');
+  const line = deviceName + timed + ((flipped && flipped.on ? ' turned on' : ' turned off'));
   const history = [{ text: line, at: now }].concat(room.history).slice(0, 4);
   return { title: room.title, devices, history };
 });
     this.__notify();
     this.persist();
+  }
+}
+
+export class AlarmService extends ReactiveService {
+  storageKey = 'rangular-tutorial.alarm.v2';
+  timeIso = '2026-11-13T07:00:00';
+  title = 'Wake up';
+  days: number[] = [0, 1, 2, 3, 4, 5, 6];
+  enabled = false;
+  ringing = false;
+  target = 0;
+  timer: any = null;
+  constructor() {
+    super();
+    AsyncStorage.getItem(this.storageKey).then((raw) => {
+  if (raw) {
+    const saved = JSON.parse(raw);
+    this.timeIso = saved.timeIso;
+    this.__notify();
+    this.title = saved.title;
+    this.__notify();
+    this.days = saved.days;
+    this.__notify();
+    this.enabled = saved.enabled === true;
+    this.__notify();
+  }
+  this.arm();
+}, () => {
+  this.arm();
+});
+    this.timer = setInterval(() => this.tick(), 1000);
+    this.__notify();
+  }
+  persist() {
+    AsyncStorage.setItem(this.storageKey, JSON.stringify({ timeIso: this.timeIso, title: this.title, days: this.days, enabled: this.enabled })).then(() => {
+
+}, () => {
+
+});
+  }
+  daysFromCivil(y: number, m: number, d: number) {
+    const yy = (m <= 2 ? y - 1 : y);
+    const era = Math.floor(yy / 400);
+    const yoe = yy - era * 400;
+    const mp = (m > 2 ? m - 3 : m + 9);
+    const doy = Math.floor((153 * mp + 2) / 5) + d - 1;
+    const doe = yoe * 365 + Math.floor(yoe / 4) - Math.floor(yoe / 100) + doy;
+    return era * 146097 + doe - 719468;
+  }
+  arm() {
+    if (!this.enabled || this.days.length === 0) {
+      this.target = 0;
+      this.__notify();
+      return;
+    }
+    const base = Date.parse(this.timeIso);
+    if (!base) {
+      this.target = 0;
+      this.__notify();
+      return;
+    }
+    const startWeekday = (this.daysFromCivil(Number(this.timeIso.slice(0, 4)), Number(this.timeIso.slice(5, 7)), Number(this.timeIso.slice(8, 10))) + 4) % 7;
+    const now = Date.now();
+    this.target = 0;
+    this.__notify();
+    [0, 1, 2, 3, 4, 5, 6, 7].forEach((k) => {
+  if (this.target > 0) {
+    return;
+  }
+  if (this.days.indexOf((startWeekday + k) % 7) < 0) {
+    return;
+  }
+  const cand = base + k * 86400000;
+  if (cand > now) {
+    this.target = cand;
+    this.__notify();
+  }
+});
+  }
+  tick() {
+    if (this.enabled && !this.ringing && this.target > 0 && Date.now() >= this.target) {
+      this.fire();
+    }
+  }
+  fire() {
+    this.ringing = true;
+    this.__notify();
+    if (Platform.OS !== 'web') {
+      Vibration.vibrate([500, 500], true);
+    }
+  }
+  stopRing() {
+    this.ringing = false;
+    this.__notify();
+    Vibration.cancel();
+    this.arm();
+  }
+  snooze() {
+    this.ringing = false;
+    this.__notify();
+    Vibration.cancel();
+    this.target = Date.now() + 300000;
+    this.__notify();
+  }
+  setEnabled(on: boolean) {
+    this.enabled = on;
+    this.__notify();
+    if (!on && this.ringing) {
+      this.ringing = false;
+      this.__notify();
+      Vibration.cancel();
+    }
+    this.persist();
+    this.arm();
+  }
+  setTime(iso: string) {
+    this.timeIso = iso;
+    this.__notify();
+    this.persist();
+    this.arm();
+  }
+  setTitle(t: string) {
+    this.title = (t ? t.slice(0, 50) : 'Alarm');
+    this.__notify();
+    this.persist();
+  }
+  toggleDay(d: number) {
+    if (this.days.indexOf(d) >= 0) {
+      this.days = this.days.filter((x) => x !== d);
+      this.__notify();
+    } else {
+      this.days = this.days.concat([d]);
+      this.__notify();
+    }
+    this.persist();
+    this.arm();
   }
 }
 
@@ -1579,9 +1717,10 @@ __container.register(MinutesService, new MinutesService());
 __container.register(UserService, new UserService(__container.get<HttpClient>(HttpClient)));
 __container.register(ActivityLogService, new ActivityLogService());
 __container.register(IotService, new IotService());
+__container.register(AlarmService, new AlarmService());
 __container.register(TodoService, new TodoService());
 
-const __navigator = new RgNavigator([{"path":"","redirectTo":"splash"},{"path":"splash"},{"path":"home"},{"path":"saved"},{"path":"history"},{"path":"progress","redirectTo":"history"},{"path":"lesson/:id"},{"path":"samples"},{"path":"samples/iot"},{"path":"samples/breakout","redirectTo":"samples"},{"path":"samples/mario","redirectTo":"samples"},{"path":"samples/todo"},{"path":"samples/habit","redirectTo":"samples/todo"},{"path":"about"},{"path":"**"}]);
+const __navigator = new RgNavigator([{"path":"","redirectTo":"splash"},{"path":"splash"},{"path":"home"},{"path":"saved"},{"path":"history"},{"path":"progress","redirectTo":"history"},{"path":"lesson/:id"},{"path":"samples"},{"path":"samples/iot"},{"path":"samples/alarm"},{"path":"samples/breakout","redirectTo":"samples"},{"path":"samples/mario","redirectTo":"samples"},{"path":"samples/todo"},{"path":"samples/habit","redirectTo":"samples/todo"},{"path":"about"},{"path":"**"}]);
 const __router = new Router(__navigator);
 
 const __snackBar = new SnackBar();
@@ -5838,6 +5977,9 @@ export function Samples() {
   const goTodo = () => {
     router.navigate(['/samples/todo']);
   };
+  const goAlarm = () => {
+    router.navigate(['/samples/alarm']);
+  };
   useEffect(() => {
     ngOnInit();
   }, []);
@@ -5852,20 +5994,29 @@ export function Samples() {
         <RgNavItem icon="play" label="Samples" />
       </RgBottomNav>
       <RgText variant="bodyLarge">Small, complete apps, each built with the pieces the lessons teach. Open one and use it.</RgText>
-      <RgCard onPress={() => goIot()}>
-        <RgSection style={styles.samplesSampleRow}>
-          <RgSection style={styles.samplesSampleMain}>
-            <RgText variant="title">IoT project</RgText>
-            <RgText variant="bodyLarge">A small smart home that lives in this app: a card for each room, a switch for every device, and a short history of what changed. The switches change this page only. No real device is controlled.</RgText>
-          </RgSection>
-          <RgIcon name="chevron-right" />
-        </RgSection>
-      </RgCard>
       <RgCard onPress={() => goTodo()}>
         <RgSection style={styles.samplesSampleRow}>
           <RgSection style={styles.samplesSampleMain}>
             <RgText variant="title">Todo list</RgText>
             <RgText variant="bodyLarge">A task list with priorities and filters, in this app's own colours. Add what needs doing from the plus at the top, tick it off as you go, and watch the day clear. Your tasks stay on this device.</RgText>
+          </RgSection>
+          <RgIcon name="chevron-right" />
+        </RgSection>
+      </RgCard>
+      <RgCard onPress={() => goIot()}>
+        <RgSection style={styles.samplesSampleRow}>
+          <RgSection style={styles.samplesSampleMain}>
+            <RgText variant="title">Internet of Things Sample</RgText>
+            <RgText variant="bodyLarge">A small smart home that lives in this app: a card for each room, a switch for every device, some devices on a timer, and a short history of what changed. The switches change this page only. No real device is controlled.</RgText>
+          </RgSection>
+          <RgIcon name="chevron-right" />
+        </RgSection>
+      </RgCard>
+      <RgCard onPress={() => goAlarm()}>
+        <RgSection style={styles.samplesSampleRow}>
+          <RgSection style={styles.samplesSampleMain}>
+            <RgText variant="title">Alarm</RgText>
+            <RgText variant="bodyLarge">One alarm with a time wheel, repeat days and a title, in this app's own colours. It rings on its page while the app is open. No notification and no sound file: the simple version.</RgText>
           </RgSection>
           <RgIcon name="chevron-right" />
         </RgSection>
@@ -5939,7 +6090,7 @@ export function IotSample() {
     iot.whenLoaded(() => refresh());
   };
   const refresh = () => {
-    setRoomViews(iot.rooms.map((room) => ({ title: room.title, devices: room.devices, history: room.history.map((h: any) => ({ text: h.text, ago: ago(h.at) })) })));
+    setRoomViews(iot.rooms.map((room) => ({ title: room.title, devices: room.devices.map((d: any) => ({ name: d.name, on: d.on, state: (d.window ? d.window + ((d.on ? ' · Timer on' : ' · Timer off')) : (d.on ? 'On' : 'Off')) })), history: room.history.map((h: any) => ({ text: h.text, ago: ago(h.at) })) })));
   };
   const ago = (at: number) => {
     const mins = Math.floor((Date.now() - at) / 60000);
@@ -5967,8 +6118,7 @@ export function IotSample() {
   }, []);
   return (
     <RgSection>
-      <RgAppbar tone="tint" title="IoT project" pin back onBack={() => goBack()} />
-      <RgText variant="bodyLarge">A small smart home that lives in this app. Flip a switch and the room remembers. No real device is controlled, and nothing leaves this phone.</RgText>
+      <RgAppbar tone="tint" title="Internet of Things Sample" pin back onBack={() => goBack()} />
       {roomViews.map((room, index) => (
         <RgCard key={room?.id ?? index} style={styles.iotSampleRoomCard}>
           <RgText variant="title">{room.title}</RgText>
@@ -5976,7 +6126,7 @@ export function IotSample() {
             <RgSection key={d?.id ?? index} style={styles.iotSampleDevRow}>
               <RgSection style={styles.iotSampleDevMain}>
                 <RgText variant="bodyLarge" style={styles.iotSampleDevName}>{d.name}</RgText>
-                <RgText variant="bodyLarge" style={styles.iotSampleDevState}>{(d.on ? 'On' : 'Off')}</RgText>
+                <RgText variant="bodyLarge" style={styles.iotSampleDevState}>{d.state}</RgText>
               </RgSection>
               <RgSwitch checked={d.on} onChange={($event) => toggle(room, d)} />
             </RgSection>
@@ -5990,6 +6140,130 @@ export function IotSample() {
           ))}
         </RgCard>
       ))}
+    </RgSection>
+  );
+}
+
+export function AlarmSample() {
+  const alarm = __container.get<AlarmService>(AlarmService);
+  useSyncExternalStore((cb) => alarm.__subscribe(cb), () => alarm.__getVersion());
+  const router = __router;
+  const [titleDraft, setTitleDraft] = useState('');
+  const [timeLabel, setTimeLabel] = useState('');
+  const [daysLabel, setDaysLabel] = useState('');
+  const [dayChips, setDayChips] = useState([]);
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const ngOnInit = () => {
+    setTitleDraft(alarm.title);
+    refresh();
+  };
+  const refresh = () => {
+    setTimeLabel(fmtTime(alarm.timeIso));
+    setDaysLabel(computeDaysLabel());
+    setDayChips([0, 1, 2, 3, 4, 5, 6].map((d) => ({ d, name: dayNames[d], on: alarm.days.indexOf(d) >= 0 })));
+  };
+  const fmtTime = (iso: string) => {
+    const h = Number(iso.slice(11, 13));
+    const suffix = (h >= 12 ? 'PM' : 'AM');
+    const h12 = (h % 12 === 0 ? 12 : h % 12);
+    return h12 + ':' + iso.slice(14, 16) + ' ' + suffix;
+  };
+  const computeDaysLabel = () => {
+    const days = alarm.days;
+    if (days.length === 0) {
+      return 'Never';
+    }
+    if (days.length === 7) {
+      return 'Every day';
+    }
+    if (days.length === 5 && days.indexOf(1) >= 0 && days.indexOf(5) >= 0 && days.indexOf(0) < 0 && days.indexOf(6) < 0) {
+      return 'Weekdays';
+    }
+    if (days.length === 2 && days.indexOf(0) >= 0 && days.indexOf(6) >= 0) {
+      return 'Weekends';
+    }
+    return dayNames.filter((n, i) => days.indexOf(i) >= 0).join(', ');
+  };
+  const setTime = (iso: string) => {
+    alarm.setTime(iso);
+    refresh();
+  };
+  const applyTitle = (v: string) => {
+    let __shadowTitleDraft = titleDraft;
+    __shadowTitleDraft = v.slice(0, 50);
+    setTitleDraft(__shadowTitleDraft);
+    alarm.setTitle(__shadowTitleDraft);
+    refresh();
+  };
+  const toggleDay = (d: number) => {
+    alarm.toggleDay(d);
+    refresh();
+  };
+  const onSwitch = (v: boolean) => {
+    alarm.setEnabled(v);
+    refresh();
+  };
+  const stop = () => {
+    alarm.stopRing();
+    refresh();
+  };
+  const snooze = () => {
+    alarm.snooze();
+    refresh();
+  };
+  const goBack = () => {
+    router.navigate(['/samples']);
+  };
+  useEffect(() => {
+    ngOnInit();
+  }, []);
+  return (
+    <RgSection>
+      <RgAppbar tone="tint" title="Alarm" pin back onBack={() => goBack()} />
+      {alarm.ringing && (
+        <RgSection>
+          <RgCard style={styles.alarmSampleRingCard}>
+            <RgText variant="bodyLarge" style={styles.alarmSampleRingLabel}>ALARM</RgText>
+            <RgText variant="bodyLarge" style={styles.alarmSampleRingTime}>{timeLabel}</RgText>
+            <RgText variant="title">{alarm.title}</RgText>
+            <RgSection style={styles.alarmSampleRingActions}>
+              <RgButton color="danger" onPress={() => stop()}>Stop</RgButton>
+              <RgButton color="neutral" onPress={() => snooze()}>Snooze 5 min</RgButton>
+            </RgSection>
+          </RgCard>
+        </RgSection>
+      )}
+      {!alarm.ringing && (
+        <RgSection>
+          <RgCard style={styles.alarmSampleAlarmCard}>
+            <RgSection style={styles.alarmSampleAlarmTop}>
+              <RgSection style={styles.alarmSampleAlarmMain}>
+                <RgText variant="title">{alarm.title}</RgText>
+                <RgText variant="bodyLarge" style={styles.alarmSampleAlarmTime}>{timeLabel}</RgText>
+                <RgText variant="bodyLarge" style={styles.alarmSampleBadge}>{daysLabel}</RgText>
+              </RgSection>
+              <RgSwitch checked={alarm.enabled} onChange={($event) => onSwitch($event)} />
+            </RgSection>
+          </RgCard>
+          <RgCard style={styles.alarmSampleSettingsCard}>
+            <RgText variant="label">When</RgText>
+            <RgDateTimePicker mode="time" label="Time" value={alarm.timeIso} onChange={($event) => setTime($event)} />
+            <RgText variant="label">Repeat</RgText>
+            <RgSection style={styles.alarmSampleChipsRow}>
+              {dayChips.map((c, index) => (
+                <RgSection key={c?.id ?? index} onPress={() => toggleDay(c.d)} style={[styles.alarmSampleChip, c.on ? styles.alarmSampleChipOn : undefined]}>
+                  <RgText variant="bodyLarge" style={[styles.alarmSampleChipText, c.on ? styles.alarmSampleChipTextOn : undefined]}>{c.name}</RgText>
+                </RgSection>
+              ))}
+            </RgSection>
+            <RgInput label="Alarm title" placeholder="Wake up" value={titleDraft} onChangeText={($event) => { setTitleDraft($event); applyTitle($event); }} />
+            {(titleDraft.length > 40) && (
+              <RgText variant="bodyLarge">{(50 - titleDraft.length)} characters left.</RgText>
+            )}
+          </RgCard>
+          <RgText variant="bodyLarge" style={styles.alarmSampleNote}>It rings on this page while the app is open, with vibration. It does not ring when the app is closed.</RgText>
+        </RgSection>
+      )}
     </RgSection>
   );
 }
@@ -6236,6 +6510,11 @@ export default function App() {
               <IotSample key={__route.path} />
             </ActivatedRouteContext.Provider>
           )}
+          {__route.routePath === "samples/alarm" && (
+            <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
+              <AlarmSample key={__route.path} />
+            </ActivatedRouteContext.Provider>
+          )}
           {__route.routePath === "samples/todo" && (
             <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
               <TodoSample key={__route.path} />
@@ -6311,6 +6590,22 @@ const styles = StyleSheet.create({
   iotSampleDevName: {"fontSize":16},
   iotSampleDevState: {"fontSize":12,"color":"#5f6368"},
   iotSampleHist: {"fontSize":12,"color":"#5f6368"},
+  alarmSampleAlarmCard: {"gap":8,"padding":16},
+  alarmSampleAlarmTop: {"flexDirection":"row","alignItems":"center","gap":12},
+  alarmSampleAlarmMain: {"flex":1,"gap":4},
+  alarmSampleAlarmTime: {"fontSize":32,"fontWeight":700},
+  alarmSampleBadge: {"fontSize":12,"fontWeight":700,"color":"#0b57d0"},
+  alarmSampleSettingsCard: {"gap":12,"padding":16},
+  alarmSampleChipsRow: {"flexDirection":"row","gap":8},
+  alarmSampleChip: {"borderWidth":1,"borderColor":"#0b57d0","borderRadius":9999,"padding":8},
+  alarmSampleChipOn: {"backgroundColor":"#0b57d0"},
+  alarmSampleChipText: {"fontSize":12,"fontWeight":700,"color":"#0b57d0"},
+  alarmSampleChipTextOn: {"color":"#ffffff"},
+  alarmSampleNote: {"fontSize":12,"color":"#5f6368"},
+  alarmSampleRingCard: {"gap":12,"padding":16,"alignItems":"center"},
+  alarmSampleRingLabel: {"fontSize":12,"fontWeight":700,"color":"#b3261e"},
+  alarmSampleRingTime: {"fontSize":32,"fontWeight":700},
+  alarmSampleRingActions: {"flexDirection":"row","gap":12},
   todoSampleChipsRow: {"flexDirection":"row","gap":8},
   todoSampleChip: {"borderWidth":1,"borderColor":"#0b57d0","borderRadius":9999,"padding":8},
   todoSampleChipOn: {"backgroundColor":"#0b57d0"},
