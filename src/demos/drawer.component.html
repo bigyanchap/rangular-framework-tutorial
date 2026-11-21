@@ -1,9 +1,35 @@
 <p>You are reading: {{ section }}</p>
 <button (click)="openNav()">Open the drawer</button>
 <drawer [open]="navOpen" (close)="closeNav()">
-  <h3>Mailbox</h3>
-  <p>Pick a section. The drawer closes and the line above follows your pick.</p>
-  <button variant="text" (click)="go('Inbox')">Inbox</button>
-  <button variant="text" (click)="go('Starred')">Starred</button>
-  <button variant="text" (click)="go('Sent')">Sent</button>
+  <section class="head">
+    <section class="head-main">
+      <section class="avatar">
+        <p class="avatar-letter">M</p>
+      </section>
+      <section>
+        <h3 class="title">Mailbox</h3>
+        <p class="sub">Your mail, in one place</p>
+      </section>
+    </section>
+    <icon-button name="close" (click)="closeNav()"></icon-button>
+  </section>
+  <section class="nav">
+    <section class="nav-row" [class.nav-on]="section === 'Inbox'" (click)="go('Inbox')">
+      <icon name="mail" [color]="section === 'Inbox' ? 'primary' : 'textMuted'"></icon>
+      <p class="nav-label" [class.nav-label-on]="section === 'Inbox'">Inbox</p>
+      <section class="count">
+        <p class="count-text">3</p>
+      </section>
+    </section>
+    <section class="nav-row" [class.nav-on]="section === 'Starred'" (click)="go('Starred')">
+      <icon name="star" [color]="section === 'Starred' ? 'primary' : 'textMuted'"></icon>
+      <p class="nav-label" [class.nav-label-on]="section === 'Starred'">Starred</p>
+    </section>
+    <section class="nav-row" [class.nav-on]="section === 'Sent'" (click)="go('Sent')">
+      <icon name="send" [color]="section === 'Sent' ? 'primary' : 'textMuted'"></icon>
+      <p class="nav-label" [class.nav-label-on]="section === 'Sent'">Sent</p>
+    </section>
+  </section>
+  <divider></divider>
+  <p class="foot">Pick a section. The drawer closes and the line above follows your pick.</p>
 </drawer>
