@@ -1986,18 +1986,18 @@ export function Home() {
       <RgSection>
         <RgCard onPress={() => goLastVisited()} style={styles.homePathCard}>
           <RgText variant="title">Last visited</RgText>
-          {lastLesson && (
+          {!!(lastLesson) && (
             <RgText variant="bodyLarge">Lesson {lastLesson.id} · {lastLesson.title}</RgText>
           )}
-          {!lastLesson && (
+          {!!(!lastLesson) && (
             <RgText variant="bodyLarge">No lesson opened yet. Start with Lesson 1, and your place will wait for you here.</RgText>
           )}
-          {lastLesson && (
+          {!!(lastLesson) && (
             <RgText variant="bodyLarge" style={styles.homePathContinue}>Tap to pick it up again</RgText>
           )}
         </RgCard>
         <RgInput variant="search" placeholder="Search 97 lessons" onChangeText={($event) => onQuery($event)} value={query} />
-        {searching && (
+        {!!(searching) && (
           <RgSection>
             <RgSection label="Search results" plain meta={(results.length + ' found')}>
               <RgList>
@@ -2005,13 +2005,13 @@ export function Home() {
                   <RgRow key={l?.id ?? index} avatar avatarTone={tileTone(l)} avatarText={tileText(l)} title={l.title} subtitle={l.subtitle} time={l.minutes} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
                 ))}
               </RgList>
-              {(query && (results.length === 0)) && (
+              {!!((query && (results.length === 0))) && (
                 <RgText variant="bodyLarge">No lesson matches that search. Try a shorter word.</RgText>
               )}
             </RgSection>
           </RgSection>
         )}
-        {!searching && (
+        {!!(!searching) && (
           <RgSection>
             <RgSection label="Getting started" plain meta={starterMeta}>
               <RgList>
@@ -2055,7 +2055,7 @@ export function Home() {
                 ))}
               </RgList>
             </RgSection>
-            <RgText variant="bodyLarge">97 lessons · Rangular framework 0.4.4</RgText>
+            <RgText variant="bodyLarge">97 lessons · Rangular framework 0.4.5</RgText>
             <RgButton color="danger" onPress={() => askReset()}>Reset all checks</RgButton>
           </RgSection>
         )}
@@ -2120,14 +2120,14 @@ export function Saved() {
         <RgNavItem icon="play" label="Samples" />
       </RgBottomNav>
       <RgText variant="bodyLarge">Lessons you bookmarked, kept on this device.</RgText>
-      {(savedLessons.length > 0) && (
+      {!!((savedLessons.length > 0)) && (
         <RgList>
           {savedLessons.map((l, index) => (
             <RgRow key={l?.id ?? index} avatarTone="varied" avatar avatarText={l.id} title={l.title} subtitle={l.subtitle} time={l.minutes} actionIcon={(isSaved(l.id) ? 'bookmark' : 'bookmark-outline')} onAction={() => toggleBookmark(l.id)} onPress={() => __router.navigate(['/lesson', l.id])} />
           ))}
         </RgList>
       )}
-      {(savedLessons.length === 0) && (
+      {!!((savedLessons.length === 0)) && (
         <RgEmptyState icon="bookmark" title="No saved lessons yet" text="Tap the bookmark icon on any lesson and it will wait for you here." />
       )}
     </RgSection>
@@ -2204,14 +2204,14 @@ export function History() {
         <RgNavItem icon="play" label="Samples" />
       </RgBottomNav>
       <RgSection label="Recently visited" plain>
-        {(recentLessons.length > 0) && (
+        {!!((recentLessons.length > 0)) && (
           <RgList>
             {recentLessons.map((l, index) => (
               <RgRow key={l?.id ?? index} avatarTone="varied" avatar avatarText={l.id} title={l.title} subtitle={l.subtitle} time={l.minutes} onPress={() => __router.navigate(['/lesson', l.id])} />
             ))}
           </RgList>
         )}
-        {(recentLessons.length === 0) && (
+        {!!((recentLessons.length === 0)) && (
           <RgText variant="bodyLarge">No lessons visited yet. Open any lesson and it will wait for you here.</RgText>
         )}
       </RgSection>
@@ -2358,630 +2358,630 @@ export function Lesson() {
   return (
     <RgSection>
       <RgAppbar tone="tint" pin back title={barTitle} progress={progressPct} actionIcon={(lesson ? (bookmarked ? 'bookmark' : 'bookmark-outline') : '')} onBack={() => goHome()} onAction={() => toggleBookmark()} />
-      {lesson && (
+      {!!(lesson) && (
         <RgSection>
           <RgText variant="bodyLarge" style={styles.lessonEyebrow}>LESSON {lesson.id} · {sectionName}</RgText>
           <RgText variant="heading">{lesson.title}</RgText>
           <RgText variant="bodyLarge">{lesson.intro}</RgText>
-          {lesson.command && (
+          {!!(lesson.command) && (
             <RgSection style={styles.lessonCmdLine}>
               <RgText variant="bodyLarge" style={styles.lessonCmdText}>{lesson.command}</RgText>
             </RgSection>
           )}
-          {lesson.introAfter && (
+          {!!(lesson.introAfter) && (
             <RgText variant="bodyLarge">{lesson.introAfter}</RgText>
           )}
-          {lesson.diagram && (
+          {!!(lesson.diagram) && (
             <RgText variant="label">Block diagram</RgText>
           )}
-          {lesson.diagram && (
+          {!!(lesson.diagram) && (
             <RgCode>{lesson.diagram}</RgCode>
           )}
         </RgSection>
       )}
-      {!lesson && (
+      {!!(!lesson) && (
         <RgText variant="bodyLarge">This lesson could not be found.</RgText>
       )}
-      {hasCode && (
+      {!!(hasCode) && (
         <RgSection>
           <RgText variant="label">Code</RgText>
           <RgCode>{lesson.code}</RgCode>
         </RgSection>
       )}
-      {(lessonId === 2) && (
+      {!!((lessonId === 2)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: your first component</RgText>
           <Hello />
         </RgCard>
       )}
-      {(lessonId === 3) && (
+      {!!((lessonId === 3)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: interpolation</RgText>
           <InterpolationDemo />
         </RgCard>
       )}
-      {(lessonId === 4) && (
+      {!!((lessonId === 4)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: event binding</RgText>
           <EventsDemo />
         </RgCard>
       )}
-      {(lessonId === 5) && (
+      {!!((lessonId === 5)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: property binding and ngIf</RgText>
           <BindingsDemo />
         </RgCard>
       )}
-      {(lessonId === 6) && (
+      {!!((lessonId === 6)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: ngFor and lists</RgText>
           <ListsDemo />
         </RgCard>
       )}
-      {(lessonId === 7) && (
+      {!!((lessonId === 7)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: ngIf in depth</RgText>
           <NgifDemo />
         </RgCard>
       )}
-      {(lessonId === 8) && (
+      {!!((lessonId === 8)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: class and style bindings</RgText>
           <ClassStyleDemo />
         </RgCard>
       )}
-      {(lessonId === 9) && (
+      {!!((lessonId === 9)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: child components</RgText>
           <ChildDemo />
         </RgCard>
       )}
-      {(lessonId === 10) && (
+      {!!((lessonId === 10)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: inputs</RgText>
           <InputsDemo />
         </RgCard>
       )}
-      {(lessonId === 11) && (
+      {!!((lessonId === 11)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: outputs and EventEmitter</RgText>
           <OutputsDemo />
         </RgCard>
       )}
-      {(lessonId === 12) && (
+      {!!((lessonId === 12)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: component lifecycle</RgText>
           <LifecycleDemo />
         </RgCard>
       )}
-      {(lessonId === 13) && (
+      {!!((lessonId === 13)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: content projection</RgText>
           <ProjectionDemo />
         </RgCard>
       )}
-      {(lessonId === 14) && (
+      {!!((lessonId === 14)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: template reference variables</RgText>
           <RefsDemo />
         </RgCard>
       )}
-      {(lessonId === 15) && (
+      {!!((lessonId === 15)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: built in pipes</RgText>
           <PipesDemo />
         </RgCard>
       )}
-      {(lessonId === 16) && (
+      {!!((lessonId === 16)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: custom pipes</RgText>
           <CustomPipesDemo />
         </RgCard>
       )}
-      {(lessonId === 17) && (
+      {!!((lessonId === 17)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: attribute directives</RgText>
           <DirectivesDemo />
         </RgCard>
       )}
-      {(lessonId === 18) && (
+      {!!((lessonId === 18)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: switch and checkbox</RgText>
           <SwitchCheckboxDemo />
         </RgCard>
       )}
-      {(lessonId === 19) && (
+      {!!((lessonId === 19)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: radio groups and switchers</RgText>
           <RadioSwitcherDemo />
         </RgCard>
       )}
-      {(lessonId === 20) && (
+      {!!((lessonId === 20)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: icons</RgText>
           <IconsDemo />
         </RgCard>
       )}
-      {(lessonId === 21) && (
+      {!!((lessonId === 21)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: cards, lists, and rows</RgText>
           <LayoutDemo />
         </RgCard>
       )}
-      {(lessonId === 22) && (
+      {!!((lessonId === 22)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: tabs and accordion</RgText>
           <TabsDemo />
         </RgCard>
       )}
-      {(lessonId === 23) && (
+      {!!((lessonId === 23)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: tables and data display</RgText>
           <TablesDemo />
         </RgCard>
       )}
-      {(lessonId === 24) && (
+      {!!((lessonId === 24)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: chips, badges, and progress</RgText>
           <ChipsDemo />
         </RgCard>
       )}
-      {(lessonId === 25) && (
+      {!!((lessonId === 25)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: theming with design tokens</RgText>
           <ThemingDemo />
         </RgCard>
       )}
-      {(lessonId === 26) && (
+      {!!((lessonId === 26)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: template driven forms with ngModel</RgText>
           <NgmodelDemo />
         </RgCard>
       )}
-      {(lessonId === 27) && (
+      {!!((lessonId === 27)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the input block</RgText>
           <InputTypesDemo />
         </RgCard>
       )}
-      {(lessonId === 28) && (
+      {!!((lessonId === 28)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: required, minlength, maxlength</RgText>
           <ValidatorsBasicDemo />
         </RgCard>
       )}
-      {(lessonId === 29) && (
+      {!!((lessonId === 29)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: email and pattern validators</RgText>
           <ValidatorsShapeDemo />
         </RgCard>
       )}
-      {(lessonId === 30) && (
+      {!!((lessonId === 30)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: form state</RgText>
           <FormStateDemo />
         </RgCard>
       )}
-      {(lessonId === 31) && (
+      {!!((lessonId === 31)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: showing errors well</RgText>
           <ErrorDisplayDemo />
         </RgCard>
       )}
-      {(lessonId === 32) && (
+      {!!((lessonId === 32)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: submitting a form</RgText>
           <SubmitDemo />
         </RgCard>
       )}
-      {(lessonId === 33) && (
+      {!!((lessonId === 33)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: FormControl</RgText>
           <FormControlDemo />
         </RgCard>
       )}
-      {(lessonId === 34) && (
+      {!!((lessonId === 34)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: FormGroup</RgText>
           <FormGroupDemo />
         </RgCard>
       )}
-      {(lessonId === 35) && (
+      {!!((lessonId === 35)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: FormBuilder</RgText>
           <FormBuilderDemo />
         </RgCard>
       )}
-      {(lessonId === 36) && (
+      {!!((lessonId === 36)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: FormArray</RgText>
           <FormArrayDemo />
         </RgCard>
       )}
-      {(lessonId === 37) && (
+      {!!((lessonId === 37)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: reactive validators and group state</RgText>
           <ReactiveStateDemo />
         </RgCard>
       )}
-      {(lessonId === 38) && (
+      {!!((lessonId === 38)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: setting values from code</RgText>
           <SetValueDemo />
         </RgCard>
       )}
-      {(lessonId === 41) && (
+      {!!((lessonId === 41)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: date pickers</RgText>
           <DatePickerDemo />
         </RgCard>
       )}
-      {(lessonId === 42) && (
+      {!!((lessonId === 42)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: time and datetime pickers</RgText>
           <TimePickerDemo />
         </RgCard>
       )}
-      {(lessonId === 43) && (
+      {!!((lessonId === 43)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: bottom sheets</RgText>
           <SheetDemo />
         </RgCard>
       )}
-      {(lessonId === 44) && (
+      {!!((lessonId === 44)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: dialogs</RgText>
           <DialogDemo />
         </RgCard>
       )}
-      {(lessonId === 45) && (
+      {!!((lessonId === 45)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: SnackBar messages with actions</RgText>
           <SnackbarDemo />
         </RgCard>
       )}
-      {(lessonId === 46) && (
+      {!!((lessonId === 46)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: autocomplete inputs</RgText>
           <AutocompleteDemo />
         </RgCard>
       )}
-      {(lessonId === 47) && (
+      {!!((lessonId === 47)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: sliders</RgText>
           <SliderDemo />
         </RgCard>
       )}
-      {(lessonId === 39) && (
+      {!!((lessonId === 39)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: choice controls in a form</RgText>
           <ChoiceFormDemo />
         </RgCard>
       )}
-      {(lessonId === 40) && (
+      {!!((lessonId === 40)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a complete form, sign up</RgText>
           <SignupDemo />
         </RgCard>
       )}
-      {(lessonId === 48) && (
+      {!!((lessonId === 48)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a first service</RgText>
           <ServiceBasicsDemo />
         </RgCard>
       )}
-      {(lessonId === 49) && (
+      {!!((lessonId === 49)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: constructor injection</RgText>
           <InjectionDemo />
         </RgCard>
       )}
-      {(lessonId === 50) && (
+      {!!((lessonId === 50)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: one shared instance</RgText>
           <SingletonDemo />
         </RgCard>
       )}
-      {(lessonId === 51) && (
+      {!!((lessonId === 51)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: services using services</RgText>
           <ContainerDemo />
         </RgCard>
       )}
-      {(lessonId === 52) && (
+      {!!((lessonId === 52)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: sharing state between siblings</RgText>
           <SharingDemo />
         </RgCard>
       )}
-      {(lessonId === 53) && (
+      {!!((lessonId === 53)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: assign, do not mutate</RgText>
           <ReactivityDemo />
         </RgCard>
       )}
-      {(lessonId === 54) && (
+      {!!((lessonId === 54)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a service as the store</RgText>
           <StoreDemo />
         </RgCard>
       )}
-      {(lessonId === 55) && (
+      {!!((lessonId === 55)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: fields and derived values</RgText>
           <SignalsDemo />
         </RgCard>
       )}
-      {(lessonId === 56) && (
+      {!!((lessonId === 56)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: this app's route table</RgText>
           <RoutesTableDemo />
         </RgCard>
       )}
-      {(lessonId === 57) && (
+      {!!((lessonId === 57)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: routerLink, string and array</RgText>
           <RouterLinkDemo />
         </RgCard>
       )}
-      {(lessonId === 58) && (
+      {!!((lessonId === 58)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: links with parameters</RgText>
           <RouteParamsDemo />
         </RgCard>
       )}
-      {(lessonId === 59) && (
+      {!!((lessonId === 59)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: reading this lesson's route</RgText>
           <ActivatedRouteDemo />
         </RgCard>
       )}
-      {(lessonId === 60) && (
+      {!!((lessonId === 60)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: navigate from code</RgText>
           <ProgrammaticNavDemo />
         </RgCard>
       )}
-      {(lessonId === 61) && (
+      {!!((lessonId === 61)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the edges of the route table</RgText>
           <RedirectsDemo />
         </RgCard>
       )}
-      {(lessonId === 62) && (
+      {!!((lessonId === 62)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the check before you navigate</RgText>
           <RouteGateDemo />
         </RgCard>
       )}
-      {(lessonId === 63) && (
+      {!!((lessonId === 63)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a real GET request</RgText>
           <HttpBasicsDemo />
         </RgCard>
       )}
-      {(lessonId === 64) && (
+      {!!((lessonId === 64)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: loading, error, and data</RgText>
           <HttpStatesDemo />
         </RgCard>
       )}
-      {(lessonId === 65) && (
+      {!!((lessonId === 65)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: HTTP behind a service</RgText>
           <DataServiceDemo />
         </RgCard>
       )}
-      {(lessonId === 66) && (
+      {!!((lessonId === 66)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the activity log, data layer</RgText>
           <CapstoneDataDemo />
         </RgCard>
       )}
-      {(lessonId === 67) && (
+      {!!((lessonId === 67)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the activity log, whole</RgText>
           <CapstoneDemo />
         </RgCard>
       )}
-      {(lessonId === 68) && (
+      {!!((lessonId === 68)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a menu of actions</RgText>
           <MenuDemo />
         </RgCard>
       )}
-      {(lessonId === 69) && (
+      {!!((lessonId === 69)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a drawer with destinations</RgText>
           <DrawerDemo />
         </RgCard>
       )}
-      {(lessonId === 70) && (
+      {!!((lessonId === 70)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: picking a city</RgText>
           <SelectDemo />
         </RgCard>
       )}
-      {(lessonId === 71) && (
+      {!!((lessonId === 71)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a select inside a form</RgText>
           <SelectFormDemo />
         </RgCard>
       )}
-      {(lessonId === 72) && (
+      {!!((lessonId === 72)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: scheduling in three steps</RgText>
           <StepperDemo />
         </RgCard>
       )}
-      {(lessonId === 73) && (
+      {!!((lessonId === 73)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: tiles in two and three columns</RgText>
           <GridDemo />
         </RgCard>
       )}
-      {(lessonId === 74) && (
+      {!!((lessonId === 74)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: uneven tiles, staggered</RgText>
           <MasonryDemo />
         </RgCard>
       )}
-      {(lessonId === 75) && (
+      {!!((lessonId === 75)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a folder tree</RgText>
           <TreeDemo />
         </RgCard>
       )}
-      {(lessonId === 76) && (
+      {!!((lessonId === 76)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: hints on long press</RgText>
           <TooltipDemo />
         </RgCard>
       )}
-      {(lessonId === 77) && (
+      {!!((lessonId === 77)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: groups held apart by lines</RgText>
           <DividerDemo />
         </RgCard>
       )}
-      {(lessonId === 78) && (
+      {!!((lessonId === 78)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: sorting that leaves the array alone</RgText>
           <TablesDepthDemo />
         </RgCard>
       )}
-      {(lessonId === 79) && (
+      {!!((lessonId === 79)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: three destinations at the bottom</RgText>
           <BottomNavDemo />
         </RgCard>
       )}
-      {(lessonId === 80) && (
+      {!!((lessonId === 80)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: pull the list</RgText>
           <RefreshDemo />
         </RgCard>
       )}
-      {(lessonId === 81) && (
+      {!!((lessonId === 81)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: scroll for the next page</RgText>
           <InfiniteScrollDemo />
         </RgCard>
       )}
-      {(lessonId === 82) && (
+      {!!((lessonId === 82)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the skeleton and the card</RgText>
           <SkeletonDemo />
         </RgCard>
       )}
-      {(lessonId === 83) && (
+      {!!((lessonId === 83)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: swipe a row</RgText>
           <RowActionsDemo />
         </RgCard>
       )}
-      {(lessonId === 84) && (
+      {!!((lessonId === 84)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: pick a photo, pick documents</RgText>
           <FilePickerDemo />
         </RgCard>
       )}
-      {(lessonId === 85) && (
+      {!!((lessonId === 85)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: two masked fields</RgText>
           <MaskDemo />
         </RgCard>
       )}
-      {(lessonId === 86) && (
+      {!!((lessonId === 86)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: rate the session</RgText>
           <RatingDemo />
         </RgCard>
       )}
-      {(lessonId === 87) && (
+      {!!((lessonId === 87)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the six digit code</RgText>
           <OtpDemo />
         </RgCard>
       )}
-      {(lessonId === 88) && (
+      {!!((lessonId === 88)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: three pages</RgText>
           <CarouselDemo />
         </RgCard>
       )}
-      {(lessonId === 89) && (
+      {!!((lessonId === 89)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: one morning on a rail</RgText>
           <TimelineDemo />
         </RgCard>
       )}
-      {(lessonId === 90) && (
+      {!!((lessonId === 90)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a month to tap</RgText>
           <CalendarDemo />
         </RgCard>
       )}
-      {(lessonId === 91) && (
+      {!!((lessonId === 91)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: people in circles</RgText>
           <AvatarsDemo />
         </RgCard>
       )}
-      {(lessonId === 92) && (
+      {!!((lessonId === 92)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: an inbox that starts empty</RgText>
           <EmptyStateDemo />
         </RgCard>
       )}
-      {(lessonId === 93) && (
+      {!!((lessonId === 93)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: one week, three drawings</RgText>
           <ChartsDemo />
         </RgCard>
       )}
-      {(lessonId === 94) && (
+      {!!((lessonId === 94)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: notes with marks</RgText>
           <EditorDemo />
         </RgCard>
       )}
-      {(lessonId === 95) && (
+      {!!((lessonId === 95)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: a photo that opens</RgText>
           <ImageDemo />
         </RgCard>
       )}
-      {(lessonId === 96) && (
+      {!!((lessonId === 96)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: pick a colour</RgText>
           <ColorPickerDemo />
         </RgCard>
       )}
-      {(lessonId === 97) && (
+      {!!((lessonId === 97)) && (
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the path to here</RgText>
           <BreadcrumbsDemo />
         </RgCard>
       )}
-      {lesson && (
+      {!!(lesson) && (
         <RgCard style={styles.lessonTipCard}>
           <RgText variant="label">Best practice</RgText>
           <RgText variant="bodyLarge">{lesson.tip}</RgText>
-          {lesson.tipDiagram && (
+          {!!(lesson.tipDiagram) && (
             <RgCode>{lesson.tipDiagram}</RgCode>
           )}
-          {lesson.tipCode && (
+          {!!(lesson.tipCode) && (
             <RgCode>{lesson.tipCode}</RgCode>
           )}
         </RgCard>
       )}
-      {(lesson && lesson.implementation) && (
+      {!!((lesson && lesson.implementation)) && (
         <RgSection>
           <RgText variant="label">Implementations</RgText>
           {implBlocks.map((block, index) => (
             <RgSection key={block?.id ?? index}>
-              {block.name && (
+              {!!(block.name) && (
                 <RgText variant="label">{block.name}</RgText>
               )}
               <RgCode>{block.code}</RgCode>
@@ -2989,13 +2989,13 @@ export function Lesson() {
           ))}
         </RgSection>
       )}
-      {(lesson && lesson.note) && (
+      {!!((lesson && lesson.note)) && (
         <RgSection>
           <RgText variant="label">Note</RgText>
           <RgText variant="bodyLarge">{lesson.note}</RgText>
         </RgSection>
       )}
-      {lesson && (
+      {!!(lesson) && (
         <RgActions>
           <RgButton variant="text" disabled={(lessonId <= 1)} onPress={() => prevLesson()}>Previous</RgButton>
           <RgButton onPress={() => markDoneNext()}>{nextLabel}</RgButton>
@@ -3060,10 +3060,10 @@ export function BindingsDemo() {
       <RgText variant="display">{count}</RgText>
       <RgButton onPress={() => increment()}>Increment</RgButton>
       <RgButton disabled={(count === 0)} onPress={() => reset()}>Reset</RgButton>
-      {(count >= 5) && (
+      {!!((count >= 5)) && (
         <RgText variant="bodyLarge">Past five. Keep going.</RgText>
       )}
-      {(count === 0) && (
+      {!!((count === 0)) && (
         <RgText variant="bodyLarge">Reset is disabled while the count is zero. That is property binding at work.</RgText>
       )}
     </>
@@ -3092,7 +3092,7 @@ export function ListsDemo() {
           <RgRow key={item?.id ?? i} title={item} detail={('Item ' + (i + 1))} />
         ))}
       </RgList>
-      {(items.length === 0) && (
+      {!!((items.length === 0)) && (
         <RgText variant="bodyLarge">The list is empty. ngFor over an empty array renders nothing.</RgText>
       )}
       <RgText variant="bodyLarge">{items.length} items in the array, {items.length} rows on screen.</RgText>
@@ -3110,13 +3110,13 @@ export function NgifDemo() {
   };
   return (
     <>
-      {signedIn && (
+      {!!(signedIn) && (
         <RgSection>
           <RgText variant="title">Welcome back</RgText>
           <RgText variant="bodyLarge">You are signed in, so this panel renders. Its opposite below does not.</RgText>
         </RgSection>
       )}
-      {!signedIn && (
+      {!!(!signedIn) && (
         <RgSection>
           <RgText variant="title">Please sign in</RgText>
           <RgText variant="bodyLarge">You are signed out, so this panel renders instead. Together the two panels are the else pattern.</RgText>
@@ -3140,13 +3140,13 @@ export function ClassStyleDemo() {
   };
   return (
     <>
-      {(look === 'sunny') && (
+      {!!((look === 'sunny')) && (
         <RgText variant="bodyLarge" style={styles.classStyleDemoLookSunny}>The garden in the sun.</RgText>
       )}
-      {(look === 'rainy') && (
+      {!!((look === 'rainy')) && (
         <RgText variant="bodyLarge" style={styles.classStyleDemoLookRainy}>The garden in the rain.</RgText>
       )}
-      {(look === 'big') && (
+      {!!((look === 'big')) && (
         <RgText variant="bodyLarge" style={styles.classStyleDemoLookBig}>The garden, up close.</RgText>
       )}
       <RgButton onPress={() => show('sunny')}>Sunny</RgButton>
@@ -3230,10 +3230,10 @@ export function OutputsDemo() {
   return (
     <>
       <RgText variant="bodyLarge">Picked {pickCount} times</RgText>
-      {lastPicked && (
+      {!!(lastPicked) && (
         <RgText variant="bodyLarge">Last picked: {lastPicked}</RgText>
       )}
-      {!lastPicked && (
+      {!!(!lastPicked) && (
         <RgText variant="bodyLarge">No picks yet. Pick a flower below and the count lands here.</RgText>
       )}
       {flowers.map((f, index) => (
@@ -3265,11 +3265,11 @@ export function LifecycleDemo() {
   return (
     <>
       <RgButton onPress={() => toggle()}>{(show ? 'Remove the stamp' : 'Show the stamp')}</RgButton>
-      {show && (
+      {!!(show) && (
         <Stamp />
       )}
       <RgText variant="label">The lifecycle log</RgText>
-      {(log.entries.length === 0) && (
+      {!!((log.entries.length === 0)) && (
         <RgText variant="bodyLarge">No calls yet. Show the stamp and watch this log.</RgText>
       )}
       {log.entries.map((entry, index) => (
@@ -3318,7 +3318,7 @@ export function ProjectionDemo() {
         <RgText variant="bodyLarge">Same frame, different filling. The button below is projected too.</RgText>
         <RgButton onPress={() => note()}>Note it</RgButton>
       </Panel>
-      {(noted > 0) && (
+      {!!((noted > 0)) && (
         <RgText variant="bodyLarge">Noted {noted} times, by a parent method.</RgText>
       )}
     </>
@@ -3343,10 +3343,10 @@ export function RefsDemo() {
       <RgInput label="Your name" placeholder="Type at least 3 characters" value={name} onChangeText={($event) => setName($event)} onBlur={() => setNameFieldTouched(true)} />
       <RgText variant="bodyLarge">Valid: {(nameFieldModel.valid ? 'yes' : 'no')}</RgText>
       <RgText variant="bodyLarge">Touched: {(nameFieldModel.touched ? 'yes' : 'no')}</RgText>
-      {(nameFieldModel.invalid && nameFieldModel.touched) && (
+      {!!((nameFieldModel.invalid && nameFieldModel.touched)) && (
         <RgText variant="bodyLarge">The name is required and needs at least 3 characters.</RgText>
       )}
-      {nameFieldModel.valid && (
+      {!!(nameFieldModel.valid) && (
         <RgText variant="bodyLarge">The ref says the name is good.</RgText>
       )}
     </>
@@ -3488,12 +3488,12 @@ export function RadioSwitcherDemo() {
         <RgOption value="list">List</RgOption>
         <RgOption value="stats">Statistics</RgOption>
       </RgSwitcher>
-      {(view === 'list') && (
+      {!!((view === 'list')) && (
         <RgSection>
           <RgText variant="bodyLarge">List view: Morning run, Team standup, Deep work.</RgText>
         </RgSection>
       )}
-      {(view === 'stats') && (
+      {!!((view === 'stats')) && (
         <RgSection>
           <RgText variant="bodyLarge">Statistics view: 3 blocks done this week.</RgText>
         </RgSection>
@@ -3504,13 +3504,13 @@ export function RadioSwitcherDemo() {
         <RgRadio value="m">Medium</RgRadio>
         <RgRadio value="l">Large</RgRadio>
       </RgRadioGroup>
-      {(size === 's') && (
+      {!!((size === 's')) && (
         <RgText variant="bodyLarge" style={styles.radioSwitcherDemoSampleS}>A line of text at the chosen size.</RgText>
       )}
-      {(size === 'm') && (
+      {!!((size === 'm')) && (
         <RgText variant="bodyLarge" style={styles.radioSwitcherDemoSampleM}>A line of text at the chosen size.</RgText>
       )}
-      {(size === 'l') && (
+      {!!((size === 'l')) && (
         <RgText variant="bodyLarge" style={styles.radioSwitcherDemoSampleL}>A line of text at the chosen size.</RgText>
       )}
     </>
@@ -3552,7 +3552,7 @@ export function IconsDemo() {
         <RgIconButton name="share" onPress={() => tapIcon('share')} />
         <RgIconButton name="delete" onPress={() => tapIcon('delete')} />
       </RgSection>
-      {lastTap && (
+      {!!(lastTap) && (
         <RgText variant="bodyLarge">Last tapped: {lastTap}</RgText>
       )}
     </>
@@ -3680,7 +3680,7 @@ export function ChipsDemo() {
           <RgChip key={f?.id ?? index} removable onRemove={() => removeFilter(f)}>{f}</RgChip>
         ))}
       </RgChips>
-      {(filters.length === 0) && (
+      {!!((filters.length === 0)) && (
         <RgText variant="bodyLarge">All removable filters are gone.</RgText>
       )}
       <RgText variant="label">Mail</RgText>
@@ -3691,7 +3691,7 @@ export function ChipsDemo() {
       <RgButton disabled={(storageUsed === 0)} onPress={() => less()}>Use 10 less</RgButton>
       <RgButton disabled={(storageUsed === 100)} onPress={() => more()}>Use 10 more</RgButton>
       <RgSwitch checked={syncing} onChange={($event) => onSync($event)}>Syncing</RgSwitch>
-      {syncing && (
+      {!!(syncing) && (
         <RgSection>
           <RgSpinner />
           <RgText variant="bodyLarge">Syncing now. While the work has no number, a spinner speaks.</RgText>
@@ -3723,7 +3723,7 @@ export function ThemingDemo() {
           <RgText variant="title">{panelLine}</RgText>
           <RgText variant="bodyLarge">This card, this text, and the button all read their colours from token roles, so the one theme attribute re-skins them together.</RgText>
           <RgButton onPress={() => tap()}>Tap inside the theme</RgButton>
-          {(taps > 0) && (
+          {!!((taps > 0)) && (
             <RgText variant="bodyLarge">Tapped {taps} times</RgText>
           )}
         </RgCard>
@@ -3746,7 +3746,7 @@ export function NgmodelDemo() {
       <RgText variant="bodyLarge">Name field: {name}</RgText>
       <RgText variant="bodyLarge">City field: {city}</RgText>
       <RgButton disabled={(!name || !city)} onPress={() => greet()}>Say hello</RgButton>
-      {greeting && (
+      {!!(greeting) && (
         <RgText variant="bodyLarge">{greeting}</RgText>
       )}
     </>
@@ -3786,16 +3786,16 @@ export function ValidatorsBasicDemo() {
     <>
       <RgInput label="Username" placeholder="3 to 8 characters" value={username} onChangeText={($event) => setUsername($event)} onBlur={() => setNameFieldTouched(true)} />
       <RgText variant="bodyLarge">Characters: {username.length} (3 to 8 allowed)</RgText>
-      {((nameFieldModel.errors && nameFieldModel.errors.required) && nameFieldModel.touched) && (
+      {!!(((nameFieldModel.errors && nameFieldModel.errors.required) && nameFieldModel.touched)) && (
         <RgText variant="bodyLarge">A username is required.</RgText>
       )}
-      {(nameFieldModel.errors && nameFieldModel.errors.minlength) && (
+      {!!((nameFieldModel.errors && nameFieldModel.errors.minlength)) && (
         <RgText variant="bodyLarge">Too short: {nameFieldModel.errors.minlength.actualLength} of {nameFieldModel.errors.minlength.requiredLength} characters so far.</RgText>
       )}
-      {(nameFieldModel.errors && nameFieldModel.errors.maxlength) && (
+      {!!((nameFieldModel.errors && nameFieldModel.errors.maxlength)) && (
         <RgText variant="bodyLarge">Too long: maxlength is {nameFieldModel.errors.maxlength.requiredLength} characters.</RgText>
       )}
-      {nameFieldModel.valid && (
+      {!!(nameFieldModel.valid) && (
         <RgText variant="bodyLarge">The username is good.</RgText>
       )}
     </>
@@ -3814,17 +3814,17 @@ export function ValidatorsShapeDemo() {
   return (
     <>
       <RgInput keyboardType="email-address" label="Email" placeholder="you@example.com" value={email} onChangeText={($event) => setEmail($event)} onBlur={() => setEmailFieldTouched(true)} />
-      {((emailFieldModel.errors && emailFieldModel.errors.email) && emailFieldModel.touched) && (
+      {!!(((emailFieldModel.errors && emailFieldModel.errors.email) && emailFieldModel.touched)) && (
         <RgText variant="bodyLarge">That is not an email shape.</RgText>
       )}
-      {emailFieldModel.valid && (
+      {!!(emailFieldModel.valid) && (
         <RgText variant="bodyLarge">The email shape is good.</RgText>
       )}
       <RgInput label="Four digit code" placeholder="e.g. 2026" value={code} onChangeText={($event) => setCode($event)} onBlur={() => setCodeFieldTouched(true)} />
-      {((codeFieldModel.errors && codeFieldModel.errors.pattern) && codeFieldModel.touched) && (
+      {!!(((codeFieldModel.errors && codeFieldModel.errors.pattern) && codeFieldModel.touched)) && (
         <RgText variant="bodyLarge">The code must be exactly four digits. You typed: {codeFieldModel.errors.pattern.actualValue}</RgText>
       )}
-      {codeFieldModel.valid && (
+      {!!(codeFieldModel.valid) && (
         <RgText variant="bodyLarge">The code shape is good.</RgText>
       )}
     </>
@@ -3847,18 +3847,18 @@ export function FormStateDemo() {
         <RgText variant="bodyLarge">Value: {nameFieldModel.value}</RgText>
         <RgText variant="bodyLarge">Valid: {(nameFieldModel.valid ? 'yes' : 'no')}</RgText>
         <RgText variant="bodyLarge">Touched: {(nameFieldModel.touched ? 'yes' : 'no')}</RgText>
-        {nameFieldModel.errors && (
+        {!!(nameFieldModel.errors) && (
           <RgText variant="bodyLarge">Errors: {pipe('json', nameFieldModel.errors)}</RgText>
         )}
-        {!nameFieldModel.errors && (
+        {!!(!nameFieldModel.errors) && (
           <RgText variant="bodyLarge">Errors: none</RgText>
         )}
-        {(nameFieldModel.invalid && nameFieldModel.touched) && (
+        {!!((nameFieldModel.invalid && nameFieldModel.touched)) && (
           <RgText variant="bodyLarge">The error line appears once the field is touched.</RgText>
         )}
         <RgButton onPress={() => { setNameFieldTouched(true); attempt(); }}>Try to submit</RgButton>
       </RgSection>
-      {attempted && (
+      {!!(attempted) && (
         <RgText variant="bodyLarge">Submit attempted. The field is touched now, even if you never tapped into it.</RgText>
       )}
     </>
@@ -3878,7 +3878,7 @@ export function ErrorDisplayDemo() {
     <>
       <RgInput keyboardType="email-address" label="Email" placeholder="you@example.com" value={email} onChangeText={($event) => setEmail($event)} onBlur={() => setEmailFieldTouched(true)} error={((emailFieldModel.invalid && emailFieldModel.touched) ? 'Enter a valid email address.' : '')} />
       <RgInput secure label="Password" placeholder="At least 6 characters" value={password} onChangeText={($event) => setPassword($event)} onBlur={() => setPasswordFieldTouched(true)} />
-      {(passwordFieldModel.invalid && passwordFieldModel.touched) && (
+      {!!((passwordFieldModel.invalid && passwordFieldModel.touched)) && (
         <RgText variant="bodyLarge">Password is required and needs at least 6 characters.</RgText>
       )}
       <RgText variant="bodyLarge" style={(emailFieldModel.valid && passwordFieldModel.valid) ? styles.errorDisplayDemoReady : undefined}>Watch this line: it turns green and bold when both fields are valid.</RgText>
@@ -3908,17 +3908,17 @@ export function SubmitDemo() {
     <>
       <RgSection>
         <RgInput label="Name" placeholder="Your name" value={name} onChangeText={($event) => setName($event)} onBlur={() => setNameFieldTouched(true)} />
-        {(nameFieldModel.invalid && nameFieldModel.touched) && (
+        {!!((nameFieldModel.invalid && nameFieldModel.touched)) && (
           <RgText variant="bodyLarge">Name is required and needs at least 3 characters.</RgText>
         )}
         <RgInput keyboardType="email-address" label="Email" placeholder="you@example.com" value={email} onChangeText={($event) => setEmail($event)} onBlur={() => setEmailFieldTouched(true)} />
-        {(emailFieldModel.invalid && emailFieldModel.touched) && (
+        {!!((emailFieldModel.invalid && emailFieldModel.touched)) && (
           <RgText variant="bodyLarge">Enter a valid email address.</RgText>
         )}
         <RgButton disabled={(nameFieldModel.invalid || emailFieldModel.invalid)} onPress={() => { setNameFieldTouched(true); setEmailFieldTouched(true); save(); }}>Save</RgButton>
         <RgButton onPress={() => clear()}>Clear</RgButton>
       </RgSection>
-      {savedLine && (
+      {!!(savedLine) && (
         <RgText variant="bodyLarge">Saved: {savedLine}</RgText>
       )}
     </>
@@ -3958,7 +3958,7 @@ export function FormControlDemo() {
         <RgButton onPress={() => clear()}>Clear</RgButton>
         <RgButton disabled={inviteFormRef.current.invalid} onPress={() => { inviteFormRef.current.markAllAsTouched(); setFormVersion((v) => v + 1); apply(); }}>Apply code</RgButton>
       </RgSection>
-      {applied && (
+      {!!(applied) && (
         <RgText variant="bodyLarge">Applied code: {applied}</RgText>
       )}
     </>
@@ -3986,18 +3986,18 @@ export function FormGroupDemo() {
     <>
       <RgSection>
         <RgInput label="Name" placeholder="Your name" value={profileFormRef.current.get('name').value} onChangeText={($event) => profileFormRef.current.get('name').setValue($event)} onBlur={() => { profileFormRef.current.get('name').markAsTouched(); setFormVersion((v) => v + 1); }} />
-        {(profileFormRef.current.get('name').invalid && profileFormRef.current.get('name').touched) && (
+        {!!((profileFormRef.current.get('name').invalid && profileFormRef.current.get('name').touched)) && (
           <RgText variant="bodyLarge">Name is required.</RgText>
         )}
         <RgInput label="Email" placeholder="you@example.com" value={profileFormRef.current.get('email').value} onChangeText={($event) => profileFormRef.current.get('email').setValue($event)} onBlur={() => { profileFormRef.current.get('email').markAsTouched(); setFormVersion((v) => v + 1); }} />
-        {(profileFormRef.current.get('email').invalid && profileFormRef.current.get('email').touched) && (
+        {!!((profileFormRef.current.get('email').invalid && profileFormRef.current.get('email').touched)) && (
           <RgText variant="bodyLarge">Enter a valid email address.</RgText>
         )}
         <RgInput label="City" placeholder="Optional" value={profileFormRef.current.get('city').value} onChangeText={($event) => profileFormRef.current.get('city').setValue($event)} onBlur={() => { profileFormRef.current.get('city').markAsTouched(); setFormVersion((v) => v + 1); }} />
         <RgText variant="bodyLarge">Group value: {pipe('json', profileFormRef.current.value)}</RgText>
         <RgButton disabled={profileFormRef.current.invalid} onPress={() => { profileFormRef.current.markAllAsTouched(); setFormVersion((v) => v + 1); save(); }}>Save profile</RgButton>
       </RgSection>
-      {summary && (
+      {!!(summary) && (
         <RgText variant="bodyLarge">Saved: {summary}</RgText>
       )}
     </>
@@ -4026,18 +4026,18 @@ export function FormBuilderDemo() {
     <>
       <RgSection>
         <RgInput label="Name" placeholder="Your name" value={signupFormRef.current.get('name').value} onChangeText={($event) => signupFormRef.current.get('name').setValue($event)} onBlur={() => { signupFormRef.current.get('name').markAsTouched(); setFormVersion((v) => v + 1); }} />
-        {(signupFormRef.current.get('name').invalid && signupFormRef.current.get('name').touched) && (
+        {!!((signupFormRef.current.get('name').invalid && signupFormRef.current.get('name').touched)) && (
           <RgText variant="bodyLarge">Name is required.</RgText>
         )}
         <RgInput label="Email" placeholder="you@example.com" value={signupFormRef.current.get('email').value} onChangeText={($event) => signupFormRef.current.get('email').setValue($event)} onBlur={() => { signupFormRef.current.get('email').markAsTouched(); setFormVersion((v) => v + 1); }} />
-        {(signupFormRef.current.get('email').invalid && signupFormRef.current.get('email').touched) && (
+        {!!((signupFormRef.current.get('email').invalid && signupFormRef.current.get('email').touched)) && (
           <RgText variant="bodyLarge">Enter a valid email address.</RgText>
         )}
         <RgInput label="City" placeholder="Your city" value={signupFormRef.current.get('city').value} onChangeText={($event) => signupFormRef.current.get('city').setValue($event)} onBlur={() => { signupFormRef.current.get('city').markAsTouched(); setFormVersion((v) => v + 1); }} />
         <RgText variant="bodyLarge">Group value: {pipe('json', signupFormRef.current.value)}</RgText>
         <RgButton disabled={signupFormRef.current.invalid} onPress={() => { signupFormRef.current.markAllAsTouched(); setFormVersion((v) => v + 1); save(); }}>Create account</RgButton>
       </RgSection>
-      {summary && (
+      {!!(summary) && (
         <RgText variant="bodyLarge">Saved: {summary}</RgText>
       )}
     </>
@@ -4073,14 +4073,14 @@ export function FormArrayDemo() {
     <>
       <RgSection>
         <RgInput label="Team name" placeholder="Red Tigers" value={teamFormRef.current.get('team').value} onChangeText={($event) => teamFormRef.current.get('team').setValue($event)} onBlur={() => { teamFormRef.current.get('team').markAsTouched(); setFormVersion((v) => v + 1); }} />
-        {(teamFormRef.current.get('team').invalid && teamFormRef.current.get('team').touched) && (
+        {!!((teamFormRef.current.get('team').invalid && teamFormRef.current.get('team').touched)) && (
           <RgText variant="bodyLarge">Team name is required.</RgText>
         )}
         <RgSection>
           {teamFormRef.current.get('members').controls.map((m, i) => (
             <RgSection key={m?.id ?? i}>
               <RgInput label="Member" placeholder="Member name" value={teamFormRef.current.get('members').at(i).value} onChangeText={($event) => teamFormRef.current.get('members').at(i).setValue($event)} onBlur={() => { teamFormRef.current.get('members').at(i).markAsTouched?.(); setFormVersion((v) => v + 1); }} />
-              {(teamFormRef.current.get('members').at(i).invalid && teamFormRef.current.get('members').at(i).touched) && (
+              {!!((teamFormRef.current.get('members').at(i).invalid && teamFormRef.current.get('members').at(i).touched)) && (
                 <RgText variant="bodyLarge">Member name is required.</RgText>
               )}
               <RgButton onPress={() => removeMember(i)}>Remove</RgButton>
@@ -4091,7 +4091,7 @@ export function FormArrayDemo() {
         <RgText variant="bodyLarge">Group value: {pipe('json', teamFormRef.current.value)}</RgText>
         <RgButton disabled={teamFormRef.current.invalid} onPress={() => { teamFormRef.current.markAllAsTouched(); setFormVersion((v) => v + 1); save(); }}>Save team</RgButton>
       </RgSection>
-      {summary && (
+      {!!(summary) && (
         <RgText variant="bodyLarge">Saved: {summary}</RgText>
       )}
     </>
@@ -4118,22 +4118,22 @@ export function ReactiveStateDemo() {
     <>
       <RgSection>
         <RgInput label="Name" placeholder="Your name" value={profileFormRef.current.get('name').value} onChangeText={($event) => profileFormRef.current.get('name').setValue($event)} onBlur={() => { profileFormRef.current.get('name').markAsTouched(); setFormVersion((v) => v + 1); }} />
-        {(profileFormRef.current.get('name').invalid && profileFormRef.current.get('name').touched) && (
+        {!!((profileFormRef.current.get('name').invalid && profileFormRef.current.get('name').touched)) && (
           <RgText variant="bodyLarge">Name is required.</RgText>
         )}
         <RgInput label="Email" placeholder="you@example.com" value={profileFormRef.current.get('email').value} onChangeText={($event) => profileFormRef.current.get('email').setValue($event)} onBlur={() => { profileFormRef.current.get('email').markAsTouched(); setFormVersion((v) => v + 1); }} />
-        {(profileFormRef.current.get('email').invalid && profileFormRef.current.get('email').touched) && (
+        {!!((profileFormRef.current.get('email').invalid && profileFormRef.current.get('email').touched)) && (
           <RgText variant="bodyLarge">Enter a valid email address.</RgText>
         )}
         <RgText variant="bodyLarge">Group valid: {(profileFormRef.current.valid ? 'yes' : 'no')}</RgText>
         <RgText variant="bodyLarge">Group touched: {(profileFormRef.current.touched ? 'yes' : 'no')}</RgText>
         <RgText variant="bodyLarge">Group dirty: {(profileFormRef.current.dirty ? 'yes' : 'no')}</RgText>
-        {profileFormRef.current.get('email').errors && (
+        {!!(profileFormRef.current.get('email').errors) && (
           <RgText variant="bodyLarge">Email errors: {pipe('json', profileFormRef.current.get('email').errors)}</RgText>
         )}
         <RgButton disabled={profileFormRef.current.invalid} onPress={() => { profileFormRef.current.markAllAsTouched(); setFormVersion((v) => v + 1); save(); }}>Save</RgButton>
       </RgSection>
-      {saved && (
+      {!!(saved) && (
         <RgText variant="bodyLarge">Saved. The submit marked every control touched before the handler ran.</RgText>
       )}
     </>
@@ -4253,13 +4253,13 @@ export function SheetDemo() {
   };
   return (
     <>
-      {!alarm && (
+      {!!(!alarm) && (
         <RgText variant="bodyLarge">No alarm yet.</RgText>
       )}
-      {alarm && (
+      {!!(alarm) && (
         <RgText variant="bodyLarge">Alarm set: {alarm}</RgText>
       )}
-      {alarm && (
+      {!!(alarm) && (
         <RgText variant="bodyLarge">Time (ISO): {time}</RgText>
       )}
       <RgButton onPress={() => openSheet()}>Set an alarm</RgButton>
@@ -4316,16 +4316,16 @@ export function DialogDemo() {
   };
   return (
     <>
-      {!noteDeleted && (
+      {!!(!noteDeleted) && (
         <RgText variant="bodyLarge">Note: Book the meeting room for Saturday.</RgText>
       )}
-      {noteDeleted && (
+      {!!(noteDeleted) && (
         <RgText variant="bodyLarge">The note was deleted.</RgText>
       )}
-      {!noteDeleted && (
+      {!!(!noteDeleted) && (
         <RgButton onPress={() => openConfirm()}>Delete the note</RgButton>
       )}
-      {noteDeleted && (
+      {!!(noteDeleted) && (
         <RgButton onPress={() => restore()}>Restore the note</RgButton>
       )}
       <RgDialog title="Delete this note?" open={confirmOpen} onClose={() => closeConfirm()}>
@@ -4336,7 +4336,7 @@ export function DialogDemo() {
         </RgActions>
       </RgDialog>
       <RgButton onPress={() => openRegister()}>Create an account</RgButton>
-      {registered && (
+      {!!(registered) && (
         <RgText variant="bodyLarge">Registered: {registered}</RgText>
       )}
       <RgDialog title="Create your account" open={registerOpen} onClose={() => closeRegister()}>
@@ -4370,17 +4370,17 @@ export function SnackbarDemo() {
   };
   return (
     <>
-      {!noteDeleted && (
+      {!!(!noteDeleted) && (
         <RgText variant="bodyLarge">Note: Water the plants on Friday.</RgText>
       )}
-      {noteDeleted && (
+      {!!(noteDeleted) && (
         <RgText variant="bodyLarge">The note was deleted.</RgText>
       )}
-      {restored && (
+      {!!(restored) && (
         <RgText variant="bodyLarge">Delete undone. The note is back.</RgText>
       )}
       <RgButton onPress={() => save()}>Save</RgButton>
-      {!noteDeleted && (
+      {!!(!noteDeleted) && (
         <RgButton onPress={() => deleteNote()}>Delete the note</RgButton>
       )}
     </>
@@ -4398,7 +4398,7 @@ export function AutocompleteDemo() {
     <>
       <RgInput label="Move to folder" placeholder="Type a folder name" value={folder} onChangeText={($event) => setFolder($event)} onOptionSelected={($event) => onPick($event)} options={folders} />
       <RgText variant="bodyLarge">Field value: {folder}</RgText>
-      {picked && (
+      {!!(picked) && (
         <RgText variant="bodyLarge">Last pick from the list: {picked}</RgText>
       )}
       <RgText variant="bodyLarge">Try typing in, st, or tr, then tap a suggestion.</RgText>
@@ -4464,7 +4464,7 @@ export function ChoiceFormDemo() {
         </RgRadioGroup>
         <RgButton disabled={!name} onPress={() => save()}>Save preferences</RgButton>
       </RgSection>
-      {submitted && (
+      {!!(submitted) && (
         <RgSection>
           <RgText variant="bodyLarge">Saved preferences for {name}:</RgText>
           <RgText variant="bodyLarge">Wi-Fi: {(wifi ? 'on' : 'off')}</RgText>
@@ -4504,21 +4504,21 @@ export function SignupDemo() {
     <>
       <RgSection>
         <RgInput label="Full name" placeholder="e.g. Maya Sharma" value={name} onChangeText={($event) => setName($event)} onBlur={() => setNameFieldTouched(true)} />
-        {(nameFieldModel.invalid && nameFieldModel.touched) && (
+        {!!((nameFieldModel.invalid && nameFieldModel.touched)) && (
           <RgText variant="bodyLarge">Name is required and needs at least 3 characters.</RgText>
         )}
         <RgInput keyboardType="email-address" label="Email" placeholder="you@example.com" value={email} onChangeText={($event) => setEmail($event)} onBlur={() => setEmailFieldTouched(true)} />
-        {(emailFieldModel.invalid && emailFieldModel.touched) && (
+        {!!((emailFieldModel.invalid && emailFieldModel.touched)) && (
           <RgText variant="bodyLarge">Enter a valid email address.</RgText>
         )}
         <RgInput secure label="Password" placeholder="At least 6 characters" value={password} onChangeText={($event) => setPassword($event)} onBlur={() => setPasswordFieldTouched(true)} />
-        {(passwordFieldModel.invalid && passwordFieldModel.touched) && (
+        {!!((passwordFieldModel.invalid && passwordFieldModel.touched)) && (
           <RgText variant="bodyLarge">Password is required and needs at least 6 characters.</RgText>
         )}
         <RgCheckbox checked={terms} onChange={($event) => onTerms($event)}>I accept the terms</RgCheckbox>
         <RgButton disabled={(((nameFieldModel.invalid || emailFieldModel.invalid) || passwordFieldModel.invalid) || !terms)} onPress={() => { setNameFieldTouched(true); setEmailFieldTouched(true); setPasswordFieldTouched(true); save(); }}>Create account</RgButton>
       </RgSection>
-      {submitted && (
+      {!!(submitted) && (
         <RgText variant="bodyLarge">Welcome aboard, {name}. Your account was created.</RgText>
       )}
     </>
@@ -4553,7 +4553,7 @@ export function InjectionDemo() {
     <>
       <RgText variant="bodyLarge">The tally stands at {tally.count}.</RgText>
       <RgButton onPress={() => tallyAndRecord()}>Add one and record it</RgButton>
-      {(trail.lines.length === 0) && (
+      {!!((trail.lines.length === 0)) && (
         <RgText variant="bodyLarge">The trail is empty. One tap writes into both services.</RgText>
       )}
       {trail.lines.map((line, index) => (
@@ -4595,13 +4595,13 @@ export function NoteReader() {
   return (
     <>
       <RgText variant="label">The notebook, read by a second component</RgText>
-      {(notebook.lines.length === 0) && (
+      {!!((notebook.lines.length === 0)) && (
         <RgText variant="bodyLarge">Nothing yet. Add a line below and watch it land here.</RgText>
       )}
       {notebook.lines.map((line, index) => (
         <RgText key={line?.id ?? index} variant="bodyLarge">{line}</RgText>
       ))}
-      {(notebook.lines.length > 0) && (
+      {!!((notebook.lines.length > 0)) && (
         <RgText variant="bodyLarge">{notebook.lines.length} lines in the one notebook.</RgText>
       )}
     </>
@@ -4723,7 +4723,7 @@ export function DeviceKey({ glyph = '', label = '', compact = false, onPressed }
     <RgSection style={[styles.deviceKeyBase, compact ? styles.deviceKeyBaseCompact : undefined, dipped ? styles.deviceKeyBaseDipped : undefined]}>
       <RgSection onPress={() => press()} style={styles.deviceKeyFace}>
         <RgText variant="bodyLarge" style={styles.deviceKeyGlyph}>{glyph}</RgText>
-        {(label !== '') && (
+        {!!((label !== '')) && (
           <RgText variant="bodyLarge" style={styles.deviceKeyKlabel}>{label}</RgText>
         )}
       </RgSection>
@@ -4803,13 +4803,13 @@ export function FavouriteList() {
   return (
     <RgSection style={styles.favouriteListPanel}>
       <RgText variant="label">Your saved quotes, read from the same service</RgText>
-      {(favourites.saved.length === 0) && (
+      {!!((favourites.saved.length === 0)) && (
         <RgText variant="bodyLarge">None saved yet. Save one below and it lands here at once.</RgText>
       )}
       {favourites.saved.map((q, index) => (
         <RgText key={q?.id ?? index} variant="bodyLarge">{q}</RgText>
       ))}
-      {(favourites.saved.length > 0) && (
+      {!!((favourites.saved.length > 0)) && (
         <RgText variant="bodyLarge">{favourites.saved.length} saved. Saving the same quote twice keeps one copy.</RgText>
       )}
       <RgButton disabled={(favourites.saved.length === 0)} onPress={() => clear()}>Clear the saved quotes</RgButton>
@@ -4996,10 +4996,10 @@ export function RouteGateDemo() {
     <>
       <RgSwitch checked={signedIn} onChange={($event) => onSignedIn($event)}>Signed in</RgSwitch>
       <RgText variant="bodyLarge">{(signedIn ? 'You are signed in.' : 'You are signed out.')}</RgText>
-      {signedIn && (
+      {!!(signedIn) && (
         <RgButton onPress={() => openDiary()}>Open my diary</RgButton>
       )}
-      {!signedIn && (
+      {!!(!signedIn) && (
         <RgButton onPress={() => warn()}>Open my diary</RgButton>
       )}
       <RgText variant="bodyLarge">One button, two handlers, chosen by the check. In this tutorial the History screen plays the diary, so you can watch the navigation happen.</RgText>
@@ -5030,23 +5030,23 @@ export function HttpBasicsDemo() {
   return (
     <>
       <RgButton disabled={loading} onPress={() => load()}>Load one user</RgButton>
-      {loading && (
+      {!!(loading) && (
         <RgSpinner />
       )}
-      {loading && (
+      {!!(loading) && (
         <RgText variant="bodyLarge">Loading...</RgText>
       )}
-      {failed && (
+      {!!(failed) && (
         <RgText variant="bodyLarge">{failed}</RgText>
       )}
-      {name && (
+      {!!(name) && (
         <RgSection>
           <RgText variant="bodyLarge">Name: {name}</RgText>
           <RgText variant="bodyLarge">Email: {email}</RgText>
           <RgText variant="bodyLarge">City: {city}</RgText>
         </RgSection>
       )}
-      {((!name && !loading) && !failed) && (
+      {!!(((!name && !loading) && !failed)) && (
         <RgText variant="bodyLarge">Nothing loaded yet. Tap the button and the request travels.</RgText>
       )}
     </>
@@ -5078,16 +5078,16 @@ export function HttpStatesDemo() {
   return (
     <>
       <RgButton disabled={loading} onPress={() => load()}>Reload the users</RgButton>
-      {loading && (
+      {!!(loading) && (
         <RgSpinner />
       )}
-      {loading && (
+      {!!(loading) && (
         <RgText variant="bodyLarge">Loading the user list...</RgText>
       )}
-      {failed && (
+      {!!(failed) && (
         <RgText variant="bodyLarge">{failed}</RgText>
       )}
-      {failed && (
+      {!!(failed) && (
         <RgButton onPress={() => load()}>Retry</RgButton>
       )}
       <RgList>
@@ -5095,7 +5095,7 @@ export function HttpStatesDemo() {
           <RgRow key={u?.id ?? index} title={u.name} subtitle={u.email} />
         ))}
       </RgList>
-      {(users.length > 0) && (
+      {!!((users.length > 0)) && (
         <RgText variant="bodyLarge">{users.length} users loaded.</RgText>
       )}
     </>
@@ -5119,16 +5119,16 @@ export function DataServiceDemo() {
   }, []);
   return (
     <>
-      {user.loading && (
+      {!!(user.loading) && (
         <RgSpinner />
       )}
-      {user.loading && (
+      {!!(user.loading) && (
         <RgText variant="bodyLarge">Loading user {user.which}...</RgText>
       )}
-      {user.failed && (
+      {!!(user.failed) && (
         <RgText variant="bodyLarge">{user.failed}</RgText>
       )}
-      {user.name && (
+      {!!(user.name) && (
         <RgSection>
           <RgText variant="bodyLarge">Name: {user.name}</RgText>
           <RgText variant="bodyLarge">Email: {user.email}</RgText>
@@ -5178,7 +5178,7 @@ export function LogList() {
   return (
     <RgSection style={styles.logListPanel}>
       <RgText variant="label">The log, read from the service</RgText>
-      {(log.entries.length === 0) && (
+      {!!((log.entries.length === 0)) && (
         <RgText variant="bodyLarge">Nothing logged yet. Tap a button below and the first entry lands here at once.</RgText>
       )}
       {log.entries.map((e, index) => (
@@ -5211,7 +5211,7 @@ export function CapstoneDemo() {
     <>
       <RgSection style={styles.capstoneDemoPanel}>
         <RgText variant="label">The log, read from the service</RgText>
-        {(log.entries.length === 0) && (
+        {!!((log.entries.length === 0)) && (
           <RgText variant="bodyLarge">The log is empty. Add your first activity below.</RgText>
         )}
         {log.entries.map((e, index) => (
@@ -5272,7 +5272,7 @@ export function MenuDemo() {
   return (
     <>
       <RgText variant="bodyLarge">One chat message. The three dots at its left open the actions you can take on it.</RgText>
-      {(!deleted && !editing) && (
+      {!!((!deleted && !editing)) && (
         <RgSection style={styles.menuDemoChatRow}>
           <RgSection onPress={() => openMenu()} style={styles.menuDemoDotsHit}>
             <RgIcon name="more-vert" color="textMuted" />
@@ -5284,7 +5284,7 @@ export function MenuDemo() {
           </RgSection>
         </RgSection>
       )}
-      {editing && (
+      {!!(editing) && (
         <RgSection>
           <RgInput label="Message" value={draft} onChangeText={($event) => setDraft($event)} />
           <RgSection style={styles.menuDemoEditActions}>
@@ -5293,7 +5293,7 @@ export function MenuDemo() {
           </RgSection>
         </RgSection>
       )}
-      {deleted && (
+      {!!(deleted) && (
         <RgSection style={styles.menuDemoChatRow}>
           <RgText variant="bodyLarge" style={styles.menuDemoGone}>This message was deleted.</RgText>
           <RgButton variant="text" onPress={() => restore()}>Bring it back</RgButton>
@@ -5304,10 +5304,10 @@ export function MenuDemo() {
         <RgDivider />
         <RgMenuItem icon="delete" onPress={() => remove()}>Delete</RgMenuItem>
       </RgMenu>
-      {status && (
+      {!!(status) && (
         <RgText variant="bodyLarge" style={styles.menuDemoStatus}>{status}</RgText>
       )}
-      {!status && (
+      {!!(!status) && (
         <RgText variant="bodyLarge" style={styles.menuDemoStatus}>No action chosen yet. Open the menu and pick one.</RgText>
       )}
     </>
@@ -5383,13 +5383,13 @@ export function SelectDemo() {
         <RgOption value="ldn">London</RgOption>
         <RgOption value="syd">Sydney</RgOption>
       </RgSelect>
-      {city && (
+      {!!(city) && (
         <RgText variant="bodyLarge">Selected city code: {city}</RgText>
       )}
-      {!city && (
+      {!!(!city) && (
         <RgText variant="bodyLarge">Nothing picked yet. The field above is showing its placeholder.</RgText>
       )}
-      {city && (
+      {!!(city) && (
         <RgButton onPress={() => clear()}>Clear the choice</RgButton>
       )}
     </>
@@ -5422,10 +5422,10 @@ export function SelectFormDemo() {
         <RgSwitch checked={guided} onChange={($event) => onGuided($event)}>Guided tour</RgSwitch>
         <RgButton disabled={(!name || !city)} onPress={() => save()}>Save the visit</RgButton>
       </RgSection>
-      {savedLine && (
+      {!!(savedLine) && (
         <RgText variant="bodyLarge">{savedLine}</RgText>
       )}
-      {!savedLine && (
+      {!!(!savedLine) && (
         <RgText variant="bodyLarge">The button wakes up when the name is typed and a city is picked.</RgText>
       )}
     </>
@@ -5456,20 +5456,20 @@ export function StepperDemo() {
         <RgButton onPress={() => pick('Evening walk')}>Evening walk</RgButton>
       </RgStep>
       <RgStep label="Time">
-        {activity && (
+        {!!(activity) && (
           <RgText variant="bodyLarge">Activity: {activity}. It sits at 7 am, before the day starts.</RgText>
         )}
-        {!activity && (
+        {!!(!activity) && (
           <RgText variant="bodyLarge">No activity picked yet. Go back one step and pick one.</RgText>
         )}
         <RgButton variant="text" onPress={() => back()}>Back</RgButton>
         <RgButton onPress={() => next()}>Continue</RgButton>
       </RgStep>
       <RgStep label="Done">
-        {activity && (
+        {!!(activity) && (
           <RgText variant="bodyLarge">All set: {activity} is scheduled at 7 am.</RgText>
         )}
-        {!activity && (
+        {!!(!activity) && (
           <RgText variant="bodyLarge">Nothing is scheduled. Pick an activity in the first step.</RgText>
         )}
         <RgButton variant="text" onPress={() => back()}>Back</RgButton>
@@ -5580,10 +5580,10 @@ export function TooltipDemo() {
       <RgButton tooltip="Saves the current list" onPress={() => tap('Save button')}>Save the list</RgButton>
       <RgRow title="Daily report" subtitle="One row, with a hint" tooltip="Opens the full report" onPress={() => tap('Report row')} />
       <RgIconButton name="share" tooltip="Shares this lesson" onPress={() => tap('Share icon')} />
-      {lastTap && (
+      {!!(lastTap) && (
         <RgText variant="bodyLarge">Last tap: {lastTap}</RgText>
       )}
-      {!lastTap && (
+      {!!(!lastTap) && (
         <RgText variant="bodyLarge">Nothing tapped yet.</RgText>
       )}
     </>
@@ -5657,19 +5657,19 @@ export function BottomNavDemo() {
   };
   return (
     <RgScreen>
-      {(tab === 0) && (
+      {!!((tab === 0)) && (
         <RgSection>
           <RgText variant="title">Today</RgText>
           <RgText variant="bodyLarge">The day screen: the run first, then the reading. This panel shows while the first item is picked.</RgText>
         </RgSection>
       )}
-      {(tab === 1) && (
+      {!!((tab === 1)) && (
         <RgSection>
           <RgText variant="title">Mail</RgText>
           <RgText variant="bodyLarge">The mail screen. The badge on the item below says two messages are waiting, and it stays there until the class changes it.</RgText>
         </RgSection>
       )}
-      {(tab === 2) && (
+      {!!((tab === 2)) && (
         <RgSection>
           <RgText variant="title">Profile</RgText>
           <RgText variant="bodyLarge">The profile screen: your name, your streak, your settings. Third item, third panel, same index field.</RgText>
@@ -5714,10 +5714,10 @@ export function RefreshDemo() {
           <RgRow key={n?.id ?? index} title={n.title} detail={n.detail} />
         ))}
       </RgList>
-      {(refreshCount > 0) && (
+      {!!((refreshCount > 0)) && (
         <RgText variant="bodyLarge">Refreshed {refreshCount} times.</RgText>
       )}
-      {(refreshCount === 0) && (
+      {!!((refreshCount === 0)) && (
         <RgText variant="bodyLarge">Not refreshed yet. The count line will stand here after the first pull.</RgText>
       )}
     </>
@@ -5771,10 +5771,10 @@ export function InfiniteScrollDemo() {
           <RgRow key={a?.id ?? index} title={a.title} />
         ))}
       </RgList>
-      {done && (
+      {!!(done) && (
         <RgText variant="bodyLarge">That is the whole list: {items.length} articles.</RgText>
       )}
-      {done && (
+      {!!(done) && (
         <RgButton onPress={() => reset()}>Start the list again</RgButton>
       )}
     </>
@@ -5788,7 +5788,7 @@ export function SkeletonDemo() {
   };
   return (
     <>
-      {loading && (
+      {!!(loading) && (
         <RgCard>
           <RgSkeleton shape="circle" size="48" />
           <RgSkeleton shape="line" width="160" />
@@ -5796,7 +5796,7 @@ export function SkeletonDemo() {
           <RgSkeleton shape="block" height="64" />
         </RgCard>
       )}
-      {!loading && (
+      {!!(!loading) && (
         <RgCard>
           <RgAvatar text="Emma Wilson" size="48" />
           <RgText variant="title">Emma Wilson</RgText>
@@ -5836,10 +5836,10 @@ export function RowActionsDemo() {
           </RgRow>
         ))}
       </RgList>
-      {lastAction && (
+      {!!(lastAction) && (
         <RgText variant="bodyLarge">{lastAction}</RgText>
       )}
-      {(mails.length === 0) && (
+      {!!((mails.length === 0)) && (
         <RgText variant="bodyLarge">The inbox is empty. Every row was deleted by its own swipe action.</RgText>
       )}
     </>
@@ -5858,14 +5858,14 @@ export function FilePickerDemo() {
   return (
     <>
       <RgFilePicker label="Photo" kind="image" onChange={($event) => onPhoto($event)}>Choose a photo</RgFilePicker>
-      {photo && (
+      {!!(photo) && (
         <RgText variant="bodyLarge" style={styles.filePickerDemoPicked}>Picked photo: {photo}</RgText>
       )}
-      {!photo && (
+      {!!(!photo) && (
         <RgText variant="bodyLarge">No photo picked yet. On the phone, the button opens the photo library.</RgText>
       )}
       <RgFilePicker label="Documents" kind="file" multiple onChange={($event) => onDocs($event)}>Choose documents</RgFilePicker>
-      {(docs.length > 0) && (
+      {!!((docs.length > 0)) && (
         <RgSection>
           <RgText variant="bodyLarge" style={styles.filePickerDemoPicked}>Picked documents:</RgText>
           <RgList>
@@ -5875,7 +5875,7 @@ export function FilePickerDemo() {
           </RgList>
         </RgSection>
       )}
-      {(docs.length === 0) && (
+      {!!((docs.length === 0)) && (
         <RgText variant="bodyLarge">No documents picked yet. On the phone, the button opens the document picker.</RgText>
       )}
     </>
@@ -5914,10 +5914,10 @@ export function RatingDemo() {
     <>
       <RgText variant="label">How was the movie?</RgText>
       <RgRating value={score} onChange={($event) => onScore($event)} />
-      {score && (
+      {!!(score) && (
         <RgText variant="bodyLarge">You rated it {score} of 5: {verdict}.</RgText>
       )}
-      {!score && (
+      {!!(!score) && (
         <RgText variant="bodyLarge">No rating yet. Tap a star.</RgText>
       )}
       <RgText variant="label">Try it: set the stars from a value</RgText>
@@ -5938,10 +5938,10 @@ export function OtpDemo() {
     <>
       <RgText variant="label">Enter the six digit code</RgText>
       <RgOtp length="6" value={code} onChange={($event) => onCode($event)} />
-      {(code.length < 6) && (
+      {!!((code.length < 6)) && (
         <RgText variant="bodyLarge">{code.length} of 6 digits so far.</RgText>
       )}
-      {(code.length === 6) && (
+      {!!((code.length === 6)) && (
         <RgText variant="bodyLarge">Code complete: {code}. This is the moment a real app would verify it.</RgText>
       )}
       <RgButton onPress={() => clear()}>Clear the code</RgButton>
@@ -6039,12 +6039,12 @@ export function EmptyStateDemo() {
   };
   return (
     <>
-      {(messages.length === 0) && (
+      {!!((messages.length === 0)) && (
         <RgEmptyState icon="mail" title="No messages" text="When someone writes, it will land here.">
           <RgButton onPress={() => load()}>Load the sample inbox</RgButton>
         </RgEmptyState>
       )}
-      {(messages.length > 0) && (
+      {!!((messages.length > 0)) && (
         <RgSection>
           <RgList>
             {messages.map((m, index) => (
@@ -6381,7 +6381,7 @@ export function IotSample() {
                 </RgSection>
                 <RgSwitch color="success" checked={d.on} onChange={($event) => toggle(room, d)} />
               </RgSection>
-              {d.timed && (
+              {!!(d.timed) && (
                 <RgSection style={styles.iotSampleWinRow}>
                   <RgSection style={styles.iotSampleWinPick}>
                     <RgDateTimePicker mode="time" label="From" value={d.fromIso} onChange={($event) => setFrom(room, d, $event)} />
@@ -6394,7 +6394,7 @@ export function IotSample() {
             </RgSection>
           ))}
           <RgText variant="label">History</RgText>
-          {(room.history.length === 0) && (
+          {!!((room.history.length === 0)) && (
             <RgText variant="bodyLarge" style={styles.iotSampleHist}>No changes yet. Flip a switch above.</RgText>
           )}
           {room.history.map((h, index) => (
@@ -6518,7 +6518,7 @@ export function AlarmSample() {
   return (
     <RgSection>
       <RgAppbar tone="tint" title="Alarm" pin back onBack={() => goBack()} />
-      {alarm.ringing && (
+      {!!(alarm.ringing) && (
         <RgSection>
           <RgSection style={styles.alarmSampleRingBand}>
             <RgText variant="bodyLarge" style={styles.alarmSampleRingLabel}>ALARM</RgText>
@@ -6531,7 +6531,7 @@ export function AlarmSample() {
           </RgSection>
         </RgSection>
       )}
-      {!alarm.ringing && (
+      {!!(!alarm.ringing) && (
         <RgSection>
           <RgSection style={styles.alarmSampleBand}>
             <RgSection style={styles.alarmSampleBandTop}>
@@ -6556,10 +6556,10 @@ export function AlarmSample() {
               </RgSection>
             </RgSection>
             <RgInput label="Alarm title" placeholder="Wake up" value={titleDraft} onChangeText={($event) => { setTitleDraft($event); applyTitle($event); }} />
-            {(titleDraft.length > 40) && (
+            {!!((titleDraft.length > 40)) && (
               <RgText variant="bodyLarge">{(50 - titleDraft.length)} characters left.</RgText>
             )}
-            {dirty && (
+            {!!(dirty) && (
               <RgButton onPress={() => save()}>Save alarm</RgButton>
             )}
           </RgCard>
@@ -6571,7 +6571,7 @@ export function AlarmSample() {
           <RgSection key={r?.id ?? index} onPress={() => toggleDay(r.d)} style={styles.alarmSampleDayRow}>
             <RgText variant="bodyLarge" style={styles.alarmSampleDayName}>{r.name}</RgText>
             <RgSection style={[styles.alarmSampleCheck, r.on ? styles.alarmSampleCheckDone : undefined]}>
-              {r.on && (
+              {!!(r.on) && (
                 <RgIcon name="check" color="onPrimary" />
               )}
             </RgSection>
@@ -6736,21 +6736,21 @@ export function TodoSample() {
           <RgText variant="bodyLarge" style={[styles.todoSampleChipText, (filter === 'done') ? styles.todoSampleChipTextOn : undefined]}>Done · {doneCount}</RgText>
         </RgSection>
       </RgSection>
-      {(rows.length === 0) && (
+      {!!((rows.length === 0)) && (
         <RgText variant="bodyLarge">Nothing in this view. Switch the filter, or add a task below.</RgText>
       )}
       {rows.map((t, index) => (
         <RgCard key={t?.id ?? index} style={styles.todoSampleTaskCard}>
           <RgSection onPress={() => toggle(t)} style={styles.todoSampleCheckHit}>
             <RgSection style={[styles.todoSampleCheck, t.done ? styles.todoSampleCheckDone : undefined]}>
-              {t.done && (
+              {!!(t.done) && (
                 <RgIcon name="check" color="onPrimary" />
               )}
             </RgSection>
           </RgSection>
           <RgSection style={styles.todoSampleTaskMain}>
             <RgText variant="bodyLarge" style={[styles.todoSampleTaskText, t.done ? styles.todoSampleTaskDone : undefined]}>{t.text}</RgText>
-            {t.desc && (
+            {!!(t.desc) && (
               <RgText variant="bodyLarge" style={[styles.todoSampleTaskDesc, t.done ? styles.todoSampleTaskDone : undefined]}>{t.desc}</RgText>
             )}
             <RgSection style={styles.todoSampleMetaRow}>
@@ -6758,7 +6758,7 @@ export function TodoSample() {
                 <RgSection style={[styles.todoSampleDot, (t.prio === 2) ? styles.todoSamplePHigh : undefined, (t.prio === 1) ? styles.todoSamplePMed : undefined, (t.prio === 0) ? styles.todoSamplePLow : undefined]} />
                 <RgText variant="bodyLarge" style={styles.todoSamplePrioText}>{((t.prio === 2) ? 'High priority' : ((t.prio === 1) ? 'Medium priority' : 'Low priority'))}</RgText>
               </RgSection>
-              {t.dueText && (
+              {!!(t.dueText) && (
                 <RgText variant="bodyLarge" style={[styles.todoSampleDueText, t.overdue ? styles.todoSampleDueOver : undefined]}>{t.dueText}</RgText>
               )}
             </RgSection>
@@ -6780,7 +6780,7 @@ export function TodoSample() {
             <RgText variant="bodyLarge" style={styles.todoSampleDueLabel}>Deadline</RgText>
             <RgSwitch color="success" checked={draftDueOn} onChange={($event) => setDueOn($event)} />
           </RgSection>
-          {draftDueOn && (
+          {!!(draftDueOn) && (
             <RgDateTimePicker mode="date" label="Due date" value={draftDue} onChange={($event) => setDue($event)} />
           )}
           <RgSection style={styles.todoSampleChipsRow}>
