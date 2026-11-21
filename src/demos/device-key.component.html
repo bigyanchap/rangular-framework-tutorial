@@ -1,5 +1,5 @@
-<section class="base" [class.base-compact]="compact" [class.base-dipped]="dipped">
-  <section class="face" (click)="press()">
+<section class="base" [class.base-compact]="compact" [class.base-square]="square" [class.base-dipped]="dipped">
+  <section class="face" [class.face-square]="square" (click)="press()">
     <p class="glyph">{{ glyph }}</p>
     <p class="klabel" *ngIf="label !== ''">{{ label }}</p>
   </section>

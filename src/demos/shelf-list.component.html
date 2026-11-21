@@ -4,7 +4,7 @@
   <p>The key under this panel makes one. It changes nothing in the service.</p>
 </section>
 <section class="btnrow">
-  <app-device-key glyph="tap" label="local change" (pressed)="tap()"></app-device-key>
+  <app-device-key [square]="true" glyph="tap" label="local change" (pressed)="tap()"></app-device-key>
 </section>
 <list>
   <row *ngFor="let item of shelf.items" [title]="item"></row>
