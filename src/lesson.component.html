@@ -4,6 +4,10 @@
     <p class="eyebrow">LESSON {{ lesson.id }} · {{ sectionName }}</p>
     <h2>{{ lesson.title }}</h2>
     <p>{{ lesson.intro }}</p>
+    <section *ngIf="lesson.command" class="cmd-line">
+      <p class="cmd-text">{{ lesson.command }}</p>
+    </section>
+    <p *ngIf="lesson.introAfter">{{ lesson.introAfter }}</p>
     <label *ngIf="lesson.diagram">Block diagram</label>
     <code *ngIf="lesson.diagram">{{ lesson.diagram }}</code>
   </section>

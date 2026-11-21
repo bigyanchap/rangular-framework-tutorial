@@ -115,6 +115,8 @@ import { BreadcrumbsDemoComponent } from './demos/breadcrumbs.component';
     .eyebrow { color: #5f6368; font-weight: 700; }
     .tip-card { background-color: #e8f0fe; border-width: 0; }
     .demo-card { background-color: transparent; border-width: 0; padding: 0; }
+    .cmd-line { background-color: #e8f0fe; border-radius: 12px; padding: 12px; }
+    .cmd-text { color: #0b57d0; font-weight: 700; font-size: 16px; letter-spacing: 1px; text-align: center; }
   `],
 })
 export class LessonComponent {

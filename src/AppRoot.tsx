@@ -42,7 +42,9 @@ export class LessonService extends ReactiveService {
       title: 'Introduction',
       subtitle: 'What Rangular is, and what this app is',
       minutes: '3 min',
-      intro: 'Rangular lets you write a mobile app the Angular way. You write components in TypeScript with HTML templates, and Rangular compiles them into React Native code that runs on iOS and Android. This app is the tutorial, and it is itself built with Rangular, so every screen you see is proof the compiler works.\n\nThis is the most important lesson in this tutorial, and the right one to start with. It presents the complete picture of how Rangular works, from the code you write to the app that runs on the phone, and it also serves as the documentation for getting started. Read it once now, and return to it whenever you need the map of the whole system.\n\nEvery component you will meet is three parts in step, each in its own file: a TypeScript class that holds the data, an HTML template that shows it, and a CSS file that gives it its look.\n\nOne command compiles the app: rg build, run in the app folder. The compiler reads your root component, src/app.component.ts, together with every component, template, style and service it imports, and writes a single React Native file, src/AppRoot.tsx. That generated file is where the React Native code lives. App.tsx renders it, and Expo takes it from there to the phone. AppRoot.tsx is generated, so it is never edited by hand: you edit the Angular source and run rg build again.\n\nThe sample below shows all three parts together.',
+      intro: 'Rangular lets you write a mobile app the Angular way. You write components in TypeScript with HTML templates, and Rangular compiles them into React Native code that runs on iOS and Android. This app is the tutorial, and it is itself built with Rangular, so every screen you see is proof the compiler works.\n\nThis is the most important lesson in this tutorial, and the right one to start with. It presents the complete picture of how Rangular works, from the code you write to the app that runs on the phone, and it also serves as the documentation for getting started. Read it once now, and return to it whenever you need the map of the whole system.\n\nEvery component you will meet is three parts in step, each in its own file: a TypeScript class that holds the data, an HTML template that shows it, and a CSS file that gives it its look.\n\nOne command compiles the app. Run it in the app folder:',
+      command: 'rg build',
+      introAfter: 'The compiler reads your root component, src/app.component.ts, together with every component, template, style and service it imports, and writes a single React Native file, src/AppRoot.tsx. That generated file is where the React Native code lives. App.tsx renders it, and Expo takes it from there to the phone. AppRoot.tsx is generated, so it is never edited by hand: you edit the Angular source and run rg build again.\n\nThe sample below shows all three parts together.',
       code: '@Component({\n  selector: \'app-welcome\',\n  templateUrl: \'./welcome.component.html\',\n  styleUrls: [\'./welcome.component.css\'],\n})',
       implementation: '// welcome.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-welcome\',\n  templateUrl: \'./welcome.component.html\',\n  styleUrls: [\'./welcome.component.css\'],\n})\nexport class WelcomeComponent {\n  name = \'friend\';\n}\n\n// welcome.component.html\n<h3 class="warm">\n  Welcome, {{ name }}\n</h3>\n<p class="roomy">A component is three parts in step: the class holds the data, the template shows it, and the styles give it its look.</p>\n\n// welcome.component.css\n.warm { color: #b07d10; font-weight: 700; }\n.roomy { font-size: 20px; }',
       tip: 'Read each lesson, look at its code, then try the live demo on the same screen where the lesson has one. This app itself is the first demo: every screen is real Rangular code running, not a picture.',
@@ -2317,6 +2319,14 @@ export function Lesson() {
           <RgText variant="bodyLarge" style={styles.lessonEyebrow}>LESSON {lesson.id} · {sectionName}</RgText>
           <RgText variant="heading">{lesson.title}</RgText>
           <RgText variant="bodyLarge">{lesson.intro}</RgText>
+          {lesson.command && (
+            <RgSection style={styles.lessonCmdLine}>
+              <RgText variant="bodyLarge" style={styles.lessonCmdText}>{lesson.command}</RgText>
+            </RgSection>
+          )}
+          {lesson.introAfter && (
+            <RgText variant="bodyLarge">{lesson.introAfter}</RgText>
+          )}
           {lesson.diagram && (
             <RgText variant="label">Block diagram</RgText>
           )}
@@ -6695,6 +6705,8 @@ const styles = StyleSheet.create({
   lessonEyebrow: {"color":"#5f6368","fontWeight":700},
   lessonTipCard: {"backgroundColor":"#e8f0fe","borderWidth":0},
   lessonDemoCard: {"backgroundColor":"transparent","borderWidth":0,"padding":0},
+  lessonCmdLine: {"backgroundColor":"#e8f0fe","borderRadius":12,"padding":12},
+  lessonCmdText: {"color":"#0b57d0","fontWeight":700,"fontSize":16,"letterSpacing":1,"textAlign":"center"},
   classStyleDemoLookSunny: {"color":"#b07d10","fontWeight":700},
   classStyleDemoLookRainy: {"color":"#546e7a"},
   classStyleDemoLookBig: {"fontSize":20,"fontWeight":600},
