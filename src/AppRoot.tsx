@@ -1419,221 +1419,65 @@ export class ActivityLogService extends ReactiveService {
   }
 }
 
-export class BreakoutService extends ReactiveService {
-  rowIdx = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29];
-  colIdx = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
-  grid: string[][] = [];
-  view: string[][] = [];
-  bx = 12;
-  by = 26;
-  vx = 4.5;
-  vy = -11;
-  px = 9.5;
-  dir = 0;
-  score = 0;
-  lives = 3;
-  bricksLeft = 72;
-  state = 'ready';
-  stateLine = 'Tap launch to start.';
-  timer: any = null;
-  start() {
-    if (this.timer) {
-      return;
-    }
-    this.buildLevel();
-    this.render();
-    this.timer = setInterval(() => this.tick(), 50);
+export class IotService extends ReactiveService {
+  storageKey = 'rangular-tutorial.iot.v1';
+  rooms: any[] = [];
+  loaded = false;
+  waiters: any[] = [];
+  constructor() {
+    super();
+    AsyncStorage.getItem(this.storageKey).then((raw) => {
+  if (raw) {
+    this.rooms = JSON.parse(raw);
     this.__notify();
+  } else {
+    const now = Date.now();
+    this.rooms = [{ title: 'Living room', devices: [{ name: 'Ceiling light', on: true }, { name: 'Fan', on: false }, { name: 'Television', on: false }], history: [{ text: 'Ceiling light turned on', at: now - 42 * 60000 }] }, { title: 'Kitchen', devices: [{ name: 'Kettle', on: false }, { name: 'Exhaust fan', on: true }, { name: 'Under-cabinet light', on: true }], history: [{ text: 'Exhaust fan turned on', at: now - 18 * 60000 }] }, { title: 'Bedroom', devices: [{ name: 'Bedside lamp', on: false }, { name: 'Air conditioner', on: false }, { name: 'Ceiling light', on: true }], history: [] }];
+    this.__notify();
+    this.persist();
   }
-  stop() {
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
-    this.timer = null;
-    this.__notify();
+  this.loaded = true;
+  this.__notify();
+  this.waiters.forEach((cb) => cb());
+  this.waiters = [];
+  this.__notify();
+}, () => {
+  this.loaded = true;
+  this.__notify();
+  this.waiters.forEach((cb) => cb());
+  this.waiters = [];
+  this.__notify();
+});
   }
-  buildLevel() {
-    this.grid = this.rowIdx.map((r) => this.colIdx.map((c) => {
-  if (r >= 4 && r <= 9) {
-    return String(r - 3);
-  }
-  return ' ';
-}));
-    this.__notify();
-    this.bricksLeft = 72;
-    this.__notify();
-  }
-  resetBall() {
-    this.px = 9.5;
-    this.__notify();
-    this.bx = this.px + 2.5;
-    this.__notify();
-    this.by = 26;
-    this.__notify();
-    this.vx = 4.5;
-    this.__notify();
-    this.vy = -11;
-    this.__notify();
-    this.dir = 0;
-    this.__notify();
-  }
-  tick() {
-    if (this.state !== 'playing' && this.state !== 'ready') {
-      return;
-    }
-    const dt = 0.05;
-    if (this.dir !== 0) {
-      this.px = this.px + this.dir * 16 * dt;
-      this.__notify();
-      if (this.px < 0) {
-        this.px = 0;
-        this.__notify();
-      }
-      if (this.px > 19) {
-        this.px = 19;
-        this.__notify();
-      }
-    }
-    if (this.state === 'ready') {
-      this.bx = this.px + 2.5;
-      this.__notify();
-      this.by = 26;
-      this.__notify();
-      this.render();
-      return;
-    }
-    const prevBx = this.bx;
-    const prevBy = this.by;
-    this.bx = this.bx + this.vx * dt;
-    this.__notify();
-    this.by = this.by + this.vy * dt;
-    this.__notify();
-    if (this.bx < 0.5) {
-      this.bx = 0.5;
-      this.__notify();
-      this.vx = Math.abs(this.vx);
-      this.__notify();
-    }
-    if (this.bx > 22.5) {
-      this.bx = 22.5;
-      this.__notify();
-      this.vx = -Math.abs(this.vx);
-      this.__notify();
-    }
-    if (this.by < 0.5) {
-      this.by = 0.5;
-      this.__notify();
-      this.vy = Math.abs(this.vy);
-      this.__notify();
-    }
-    if (this.by > 29.5) {
-      this.lives = this.lives - 1;
-      this.__notify();
-      if (this.lives <= 0) {
-        this.state = 'over';
-        this.__notify();
-        this.stateLine = 'Game over. Restart and go again.';
-        this.__notify();
-      } else {
-        this.state = 'ready';
-        this.__notify();
-        this.stateLine = 'The ball got past you. ' + this.lives + ((this.lives === 1 ? ' life' : ' lives')) + ' left. Tap launch.';
-        this.__notify();
-        this.resetBall();
-      }
-      this.render();
-      return;
-    }
-    if (this.vy > 0 && this.by >= 26.3 && this.by <= 27.8 && this.bx >= this.px - 0.5 && this.bx <= this.px + 5.5) {
-      this.by = 26.3;
-      this.__notify();
-      this.vy = -Math.abs(this.vy);
-      this.__notify();
-      const off = (this.bx - (this.px + 2.5)) / 3;
-      this.vx = Math.max(-9, Math.min(9, off * 7));
-      this.__notify();
-      if (this.vx === 0) {
-        this.vx = 2;
-        this.__notify();
-      }
-    }
-    const cc = Math.floor(this.bx);
-    const cr = Math.floor(this.by);
-    if (cr >= 0 && cr < 30 && cc >= 0 && cc < 24) {
-      const ch = this.grid[cr][cc];
-      if (ch !== ' ') {
-        const c0 = cc - (cc % 2);
-        this.grid[cr][c0] = ' ';
-        this.grid[cr][c0 + 1] = ' ';
-        this.bricksLeft = this.bricksLeft - 1;
-        this.__notify();
-        this.score = this.score + 10;
-        this.__notify();
-        if (Math.floor(prevBy) !== cr) {
-          this.vy = -this.vy;
-          this.__notify();
-        } else if (Math.floor(prevBx) !== cc) {
-          this.vx = -this.vx;
-          this.__notify();
-        } else {
-          this.vy = -this.vy;
-          this.__notify();
-        }
-        if (this.bricksLeft <= 0) {
-          this.state = 'won';
-          this.__notify();
-          this.stateLine = 'You cleared the whole wall. Beautiful.';
-          this.__notify();
-        }
-      }
-    }
-    this.render();
-  }
-  render() {
-    this.view = this.rowIdx.map((r) => this.colIdx.map((c) => {
-  let ch = this.grid[r][c];
-  if (r === 27 && c >= Math.floor(this.px) && c <= Math.floor(this.px) + 4) {
-    ch = 'P';
-  }
-  if (Math.floor(this.bx) === c && Math.floor(this.by) === r) {
-    ch = 'B';
-  }
-  return ch;
-}));
-    this.__notify();
-  }
-  goLeft() {
-    this.dir = (this.dir === -1 ? 0 : -1);
-    this.__notify();
-  }
-  goRight() {
-    this.dir = (this.dir === 1 ? 0 : 1);
-    this.__notify();
-  }
-  launch() {
-    if (this.state === 'ready') {
-      this.state = 'playing';
-      this.__notify();
-      this.stateLine = 'Clear every brick.';
-      this.__notify();
-      this.vy = -11;
-      this.__notify();
-      this.vx = (this.dir !== 0 ? this.dir * 5 : 4.5);
+  whenLoaded(cb: () => void) {
+    if (this.loaded) {
+      cb();
+    } else {
+      this.waiters = this.waiters.concat([cb]);
       this.__notify();
     }
   }
-  restart() {
-    this.buildLevel();
-    this.score = 0;
+  persist() {
+    AsyncStorage.setItem(this.storageKey, JSON.stringify(this.rooms)).then(() => {
+
+}, () => {
+
+});
+  }
+  toggle(roomTitle: string, deviceName: string) {
+    const now = Date.now();
+    this.rooms = this.rooms.map((room) => {
+  if (room.title !== roomTitle) {
+    return room;
+  }
+  const devices = room.devices.map((d: any) => ((d.name === deviceName ? { name: d.name, on: !d.on } : d)));
+  const flipped = devices.find((d: any) => d.name === deviceName);
+  const line = deviceName + ((flipped && flipped.on ? ' turned on' : ' turned off'));
+  const history = [{ text: line, at: now }].concat(room.history).slice(0, 4);
+  return { title: room.title, devices, history };
+});
     this.__notify();
-    this.lives = 3;
-    this.__notify();
-    this.state = 'ready';
-    this.__notify();
-    this.stateLine = 'Tap launch to start.';
-    this.__notify();
-    this.resetBall();
-    this.render();
+    this.persist();
   }
 }
 
@@ -1690,7 +1534,7 @@ export class TodoService extends ReactiveService {
     this.seq = (this.seq + 1) % 10;
     this.__notify();
     const id = Date.now() * 10 + this.seq;
-    this.items = [{ id, text: trimmed, prio, done: false }].concat(this.items);
+    this.items = this.items.concat([{ id, text: trimmed, prio, done: false }]);
     this.__notify();
     this.persist();
   }
@@ -1734,10 +1578,10 @@ __container.register(FavouritesService, new FavouritesService());
 __container.register(MinutesService, new MinutesService());
 __container.register(UserService, new UserService(__container.get<HttpClient>(HttpClient)));
 __container.register(ActivityLogService, new ActivityLogService());
-__container.register(BreakoutService, new BreakoutService());
+__container.register(IotService, new IotService());
 __container.register(TodoService, new TodoService());
 
-const __navigator = new RgNavigator([{"path":"","redirectTo":"splash"},{"path":"splash"},{"path":"home"},{"path":"saved"},{"path":"history"},{"path":"progress","redirectTo":"history"},{"path":"lesson/:id"},{"path":"samples"},{"path":"samples/breakout"},{"path":"samples/mario","redirectTo":"samples/breakout"},{"path":"samples/todo"},{"path":"samples/habit","redirectTo":"samples/todo"},{"path":"about"},{"path":"**"}]);
+const __navigator = new RgNavigator([{"path":"","redirectTo":"splash"},{"path":"splash"},{"path":"home"},{"path":"saved"},{"path":"history"},{"path":"progress","redirectTo":"history"},{"path":"lesson/:id"},{"path":"samples"},{"path":"samples/iot"},{"path":"samples/breakout","redirectTo":"samples"},{"path":"samples/mario","redirectTo":"samples"},{"path":"samples/todo"},{"path":"samples/habit","redirectTo":"samples/todo"},{"path":"about"},{"path":"**"}]);
 const __router = new Router(__navigator);
 
 const __snackBar = new SnackBar();
@@ -5988,8 +5832,8 @@ export function Samples() {
       router.navigate(['/history']);
     }
   };
-  const goBreakout = () => {
-    router.navigate(['/samples/breakout']);
+  const goIot = () => {
+    router.navigate(['/samples/iot']);
   };
   const goTodo = () => {
     router.navigate(['/samples/todo']);
@@ -6008,11 +5852,11 @@ export function Samples() {
         <RgNavItem icon="play" label="Samples" />
       </RgBottomNav>
       <RgText variant="bodyLarge">Small, complete apps, each built with the pieces the lessons teach. Open one and use it.</RgText>
-      <RgCard onPress={() => goBreakout()}>
+      <RgCard onPress={() => goIot()}>
         <RgSection style={styles.samplesSampleRow}>
           <RgSection style={styles.samplesSampleMain}>
-            <RgText variant="title">Breakout</RgText>
-            <RgText variant="bodyLarge">The Atari classic: a paddle, a ball, and six rows of shiny bricks to clear. Real bounce physics, angle off the paddle, three lives, drawn and animated entirely with bindings.</RgText>
+            <RgText variant="title">IoT project</RgText>
+            <RgText variant="bodyLarge">A small smart home that lives in this app: a card for each room, a switch for every device, and a short history of what changed. The switches change this page only. No real device is controlled.</RgText>
           </RgSection>
           <RgIcon name="chevron-right" />
         </RgSection>
@@ -6086,64 +5930,66 @@ export function About() {
   );
 }
 
-export function BreakoutSample() {
-  const game = __container.get<BreakoutService>(BreakoutService);
-  useSyncExternalStore((cb) => game.__subscribe(cb), () => game.__getVersion());
+export function IotSample() {
+  const iot = __container.get<IotService>(IotService);
+  useSyncExternalStore((cb) => iot.__subscribe(cb), () => iot.__getVersion());
   const router = __router;
+  const [roomViews, setRoomViews] = useState([]);
   const ngOnInit = () => {
-    game.start();
+    iot.whenLoaded(() => refresh());
   };
-  const ngOnDestroy = () => {
-    game.stop();
+  const refresh = () => {
+    setRoomViews(iot.rooms.map((room) => ({ title: room.title, devices: room.devices, history: room.history.map((h: any) => ({ text: h.text, ago: ago(h.at) })) })));
   };
-  const goLeft = () => {
-    game.goLeft();
+  const ago = (at: number) => {
+    const mins = Math.floor((Date.now() - at) / 60000);
+    if (mins <= 0) {
+      return 'just now';
+    }
+    if (mins === 1) {
+      return '1 min ago';
+    }
+    if (mins < 60) {
+      return mins + ' min ago';
+    }
+    const hrs = Math.floor(mins / 60);
+    return (hrs === 1 ? '1 hour ago' : hrs + ' hours ago');
   };
-  const goRight = () => {
-    game.goRight();
-  };
-  const launch = () => {
-    game.launch();
-  };
-  const restart = () => {
-    game.restart();
+  const toggle = (room: any, d: any) => {
+    iot.toggle(room.title, d.name);
+    refresh();
   };
   const goBack = () => {
     router.navigate(['/samples']);
   };
   useEffect(() => {
     ngOnInit();
-    return () => {
-      ngOnDestroy();
-    };
   }, []);
   return (
     <RgSection>
-      <RgAppbar tone="tint" title="Breakout" pin back onBack={() => goBack()} />
-      <RgCard style={styles.breakoutSampleReadout}>
-        <RgText variant="title">Score {game.score} · Lives {game.lives}</RgText>
-        <RgText variant="bodyLarge">{game.stateLine}</RgText>
-        <RgText variant="bodyLarge">Work the paddle with the arrow keys: tap one to start moving, tap it again to stop. Where the ball lands on the paddle sets its angle.</RgText>
-      </RgCard>
-      <RgSection style={styles.breakoutSampleStage}>
-        {game.view.map((row, index) => (
-          <RgSection key={row?.id ?? index} style={styles.breakoutSampleTrow}>
-            {row.map((c, index) => (
-              <RgSection key={c?.id ?? index} style={[styles.breakoutSampleCell, (c === '1') ? styles.breakoutSampleB1 : undefined, (c === '2') ? styles.breakoutSampleB2 : undefined, (c === '3') ? styles.breakoutSampleB3 : undefined, (c === '4') ? styles.breakoutSampleB4 : undefined, (c === '5') ? styles.breakoutSampleB5 : undefined, (c === '6') ? styles.breakoutSampleB6 : undefined, (c === 'B') ? styles.breakoutSampleBall : undefined, (c === 'P') ? styles.breakoutSamplePaddle : undefined]}>
-                {((((((c === '1') || (c === '2')) || (c === '3')) || (c === '4')) || (c === '5')) || (c === '6')) && (
-                  <RgSection style={styles.breakoutSampleGloss} />
-                )}
+      <RgAppbar tone="tint" title="IoT project" pin back onBack={() => goBack()} />
+      <RgText variant="bodyLarge">A small smart home that lives in this app. Flip a switch and the room remembers. No real device is controlled, and nothing leaves this phone.</RgText>
+      {roomViews.map((room, index) => (
+        <RgCard key={room?.id ?? index} style={styles.iotSampleRoomCard}>
+          <RgText variant="title">{room.title}</RgText>
+          {room.devices.map((d, index) => (
+            <RgSection key={d?.id ?? index} style={styles.iotSampleDevRow}>
+              <RgSection style={styles.iotSampleDevMain}>
+                <RgText variant="bodyLarge" style={styles.iotSampleDevName}>{d.name}</RgText>
+                <RgText variant="bodyLarge" style={styles.iotSampleDevState}>{(d.on ? 'On' : 'Off')}</RgText>
               </RgSection>
-            ))}
-          </RgSection>
-        ))}
-      </RgSection>
-      <RgSection style={styles.breakoutSampleKeysRow}>
-        <DeviceKey glyph="<" label="left" onPressed={($event) => goLeft()} />
-        <DeviceKey glyph="^" label="launch" onPressed={($event) => launch()} />
-        <DeviceKey glyph=">" label="right" onPressed={($event) => goRight()} />
-      </RgSection>
-      <RgButton variant="text" onPress={() => restart()}>Restart game</RgButton>
+              <RgSwitch checked={d.on} onChange={($event) => toggle(room, d)} />
+            </RgSection>
+          ))}
+          <RgText variant="label">History</RgText>
+          {(room.history.length === 0) && (
+            <RgText variant="bodyLarge" style={styles.iotSampleHist}>No changes yet. Flip a switch above.</RgText>
+          )}
+          {room.history.map((h, index) => (
+            <RgText key={h?.id ?? index} variant="bodyLarge" style={styles.iotSampleHist}>{h.text} · {h.ago}</RgText>
+          ))}
+        </RgCard>
+      ))}
     </RgSection>
   );
 }
@@ -6159,30 +6005,18 @@ export function TodoSample() {
   const [leftCount, setLeftCount] = useState(0);
   const [doneCount, setDoneCount] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
-  const [percent, setPercent] = useState(0);
-  const [stateLine, setStateLine] = useState('');
   const ngOnInit = () => {
     todos.whenLoaded(() => refresh('all'));
   };
   const refresh = (f: string) => {
     let __shadowTotalCount = totalCount;
     let __shadowDoneCount = doneCount;
-    let __shadowLeftCount = leftCount;
     const all = todos.items;
     __shadowTotalCount = all.length;
     setTotalCount(__shadowTotalCount);
     __shadowDoneCount = all.filter((t) => t.done).length;
     setDoneCount(__shadowDoneCount);
-    __shadowLeftCount = __shadowTotalCount - __shadowDoneCount;
-    setLeftCount(__shadowLeftCount);
-    setPercent((__shadowTotalCount === 0 ? 0 : Math.round((__shadowDoneCount * 100) / __shadowTotalCount)));
-    if (__shadowTotalCount === 0) {
-      setStateLine('Nothing here yet. Add your first task below.');
-    } else if (__shadowLeftCount === 0) {
-      setStateLine('Everything is done. A clean page.');
-    } else {
-      setStateLine(__shadowLeftCount + ((__shadowLeftCount === 1 ? ' task' : ' tasks')) + ' still to go.');
-    }
+    setLeftCount(__shadowTotalCount - __shadowDoneCount);
     if (f === 'active') {
       setRows(all.filter((t) => !t.done));
     } else if (f === 'done') {
@@ -6199,9 +6033,11 @@ export function TodoSample() {
     setDraftPrio(p);
   };
   const add = () => {
+    const f = (filter === 'done' ? 'all' : filter);
     todos.add(draft, draftPrio);
     setDraft('');
-    refresh(filter);
+    setFilter(f);
+    refresh(f);
   };
   const toggle = (t: any) => {
     todos.toggle(t.id);
@@ -6220,13 +6056,6 @@ export function TodoSample() {
   return (
     <RgSection>
       <RgAppbar tone="tint" title="Todo list" pin back onBack={() => goBack()} />
-      <RgSection style={styles.todoSampleHeroBase}>
-        <RgSection style={styles.todoSampleHeroFace}>
-          <RgText variant="bodyLarge" style={styles.todoSampleHeroCount}>{leftCount} of {totalCount} tasks left</RgText>
-          <RgProgressBar value={percent} />
-          <RgText variant="bodyLarge">{stateLine}</RgText>
-        </RgSection>
-      </RgSection>
       <RgSection style={styles.todoSampleChipsRow}>
         <RgSection onPress={() => pickFilter('all')} style={[styles.todoSampleChip, (filter === 'all') ? styles.todoSampleChipOn : undefined]}>
           <RgText variant="bodyLarge" style={[styles.todoSampleChipText, (filter === 'all') ? styles.todoSampleChipTextOn : undefined]}>All · {totalCount}</RgText>
@@ -6386,9 +6215,9 @@ export default function App() {
               <Samples key={__route.path} />
             </ActivatedRouteContext.Provider>
           )}
-          {__route.routePath === "samples/breakout" && (
+          {__route.routePath === "samples/iot" && (
             <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
-              <BreakoutSample key={__route.path} />
+              <IotSample key={__route.path} />
             </ActivatedRouteContext.Provider>
           )}
           {__route.routePath === "samples/todo" && (
@@ -6460,23 +6289,12 @@ const styles = StyleSheet.create({
   aboutHeroMark: {"width":48,"height":48,"alignItems":"center","justifyContent":"center"},
   aboutHeroTitle: {"color":"#ffffff"},
   aboutHeroText: {"color":"#d3e3fd"},
-  breakoutSampleReadout: {"backgroundColor":"#fdf6ec","borderColor":"#a06a35","borderRadius":16,"padding":16},
-  breakoutSampleStage: {"backgroundColor":"#171d33","borderRadius":16,"padding":8,"alignItems":"center","gap":0},
-  breakoutSampleTrow: {"flexDirection":"row","justifyContent":"center","gap":0},
-  breakoutSampleCell: {"width":13,"height":13},
-  breakoutSampleB1: {"backgroundColor":"#e5484d"},
-  breakoutSampleB2: {"backgroundColor":"#f76b15"},
-  breakoutSampleB3: {"backgroundColor":"#ffd60a"},
-  breakoutSampleB4: {"backgroundColor":"#46a758"},
-  breakoutSampleB5: {"backgroundColor":"#3e9bff"},
-  breakoutSampleB6: {"backgroundColor":"#8e4ec6"},
-  breakoutSampleGloss: {"height":6,"backgroundColor":"#ffffff","opacity":0.35},
-  breakoutSampleBall: {"backgroundColor":"#ffffff","borderRadius":9999},
-  breakoutSamplePaddle: {"backgroundColor":"#f5c542","borderRadius":9999},
-  breakoutSampleKeysRow: {"flexDirection":"row","gap":8,"justifyContent":"center","padding":12},
-  todoSampleHeroBase: {"backgroundColor":"#a06a35","borderRadius":16,"paddingBottom":4},
-  todoSampleHeroFace: {"backgroundColor":"#fdf6ec","borderRadius":16,"padding":16,"gap":8},
-  todoSampleHeroCount: {"fontSize":24,"fontWeight":700},
+  iotSampleRoomCard: {"gap":8,"padding":16},
+  iotSampleDevRow: {"flexDirection":"row","alignItems":"center","gap":12},
+  iotSampleDevMain: {"flex":1,"gap":4},
+  iotSampleDevName: {"fontSize":16},
+  iotSampleDevState: {"fontSize":12,"color":"#6b5d43"},
+  iotSampleHist: {"fontSize":12,"color":"#6b5d43"},
   todoSampleChipsRow: {"flexDirection":"row","gap":8},
   todoSampleChip: {"borderWidth":1,"borderColor":"#a06a35","borderRadius":9999,"padding":8},
   todoSampleChipOn: {"backgroundColor":"#a06a35"},

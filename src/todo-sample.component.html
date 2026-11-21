@@ -1,12 +1,5 @@
 <section>
   <appbar pin tone="tint" title="Todo list" back (back)="goBack()"></appbar>
-  <section class="hero-base">
-    <section class="hero-face">
-      <p class="hero-count">{{ leftCount }} of {{ totalCount }} tasks left</p>
-      <progress-bar [value]="percent"></progress-bar>
-      <p>{{ stateLine }}</p>
-    </section>
-  </section>
   <section class="chips-row">
     <section class="chip" [class.chip-on]="filter === 'all'" (click)="pickFilter('all')">
       <p class="chip-text" [class.chip-text-on]="filter === 'all'">All · {{ totalCount }}</p>

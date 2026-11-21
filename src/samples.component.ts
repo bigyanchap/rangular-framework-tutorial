@@ -40,8 +40,8 @@ export class SamplesComponent {
     else if (i === 2) this.router.navigate(['/history']);
   }
 
-  goBreakout() {
-    this.router.navigate(['/samples/breakout']);
+  goIot() {
+    this.router.navigate(['/samples/iot']);
   }
 
   goTodo() {

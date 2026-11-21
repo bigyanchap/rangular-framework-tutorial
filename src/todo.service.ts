@@ -54,7 +54,7 @@ export class TodoService {
     if (!trimmed) return;
     this.seq = (this.seq + 1) % 10;
     const id = Date.now() * 10 + this.seq;
-    this.items = [{ id, text: trimmed, prio, done: false }].concat(this.items);
+    this.items = this.items.concat([{ id, text: trimmed, prio, done: false }]);
     this.persist();
   }
 

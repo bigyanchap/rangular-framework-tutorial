@@ -3,20 +3,17 @@ import { Router } from '@angular/router';
 import { TodoService } from './todo.service';
 
 /**
- * Sample: a todo list with some shine. A gloss header card
- * carries the count and the day's progress; every task is
- * its own card with a priority dot, a big check target and
- * its priority named; filters and the add form use chips in
- * the app's bronze. The list lives in TodoService on this
- * device.
+ * Sample: a todo list with some shine. Every task is its
+ * own card with a priority dot, a big check target and its
+ * priority named; filters and the add form use chips in
+ * the app's bronze. New tasks land at the end of the list,
+ * right above the form, so an added task is seen at once.
+ * The list lives in TodoService on this device.
  */
 @Component({
   selector: 'app-todo-sample',
   templateUrl: './todo-sample.component.html',
   styles: [`
-    .hero-base { background-color: #a06a35; border-radius: 16px; padding-bottom: 4px; }
-    .hero-face { background-color: #fdf6ec; border-radius: 16px; padding: 16px; gap: 8px; }
-    .hero-count { font-size: 24px; font-weight: 700; }
     .chips-row { flex-direction: row; gap: 8px; }
     .chip { border-width: 1px; border-color: #a06a35; border-radius: 9999px; padding: 8px; }
     .chip-on { background-color: #a06a35; }
@@ -46,8 +43,6 @@ export class TodoSampleComponent {
   leftCount = 0;
   doneCount = 0;
   totalCount = 0;
-  percent = 0;
-  stateLine = '';
 
   constructor(
     public todos: TodoService,
@@ -63,10 +58,6 @@ export class TodoSampleComponent {
     this.totalCount = all.length;
     this.doneCount = all.filter((t) => t.done).length;
     this.leftCount = this.totalCount - this.doneCount;
-    this.percent = this.totalCount === 0 ? 0 : Math.round((this.doneCount * 100) / this.totalCount);
-    if (this.totalCount === 0) this.stateLine = 'Nothing here yet. Add your first task below.';
-    else if (this.leftCount === 0) this.stateLine = 'Everything is done. A clean page.';
-    else this.stateLine = this.leftCount + (this.leftCount === 1 ? ' task' : ' tasks') + ' still to go.';
     if (f === 'active') this.rows = all.filter((t) => !t.done);
     else if (f === 'done') this.rows = all.filter((t) => t.done);
     else this.rows = all;
@@ -82,9 +73,11 @@ export class TodoSampleComponent {
   }
 
   add() {
+    const f = this.filter === 'done' ? 'all' : this.filter;
     this.todos.add(this.draft, this.draftPrio);
     this.draft = '';
-    this.refresh(this.filter);
+    this.filter = f;
+    this.refresh(f);
   }
 
   toggle(t: any) {

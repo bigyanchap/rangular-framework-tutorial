@@ -1,0 +1,17 @@
+<section>
+  <appbar pin tone="tint" title="IoT project" back (back)="goBack()"></appbar>
+  <p>A small smart home that lives in this app. Flip a switch and the room remembers. No real device is controlled, and nothing leaves this phone.</p>
+  <card *ngFor="let room of roomViews" class="room-card">
+    <h3>{{ room.title }}</h3>
+    <section *ngFor="let d of room.devices" class="dev-row">
+      <section class="dev-main">
+        <p class="dev-name">{{ d.name }}</p>
+        <p class="dev-state">{{ d.on ? 'On' : 'Off' }}</p>
+      </section>
+      <switch [checked]="d.on" (change)="toggle(room, d)"></switch>
+    </section>
+    <label>History</label>
+    <p *ngIf="room.history.length === 0" class="hist">No changes yet. Flip a switch above.</p>
+    <p *ngFor="let h of room.history" class="hist">{{ h.text }} · {{ h.ago }}</p>
+  </card>
+</section>
