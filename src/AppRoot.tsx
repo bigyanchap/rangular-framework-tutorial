@@ -2061,7 +2061,7 @@ export function Home() {
         )}
       </RgSection>
       <RgDialog title="Are you sure?" open={resetOpen} onClose={() => cancelReset()}>
-        <RgText variant="bodyLarge">This clears the check mark from every lesson you marked done. Your saved lessons and your visit history stay as they are.</RgText>
+        <RgText variant="bodyLarge">This clears the check mark from every lesson you marked done. Your saved lessons stay as they are.</RgText>
         <RgActions>
           <RgButton variant="text" onPress={() => cancelReset()}>Cancel</RgButton>
           <RgButton color="danger" onPress={() => confirmReset()}>Reset all checks</RgButton>

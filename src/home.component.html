@@ -58,7 +58,7 @@
     </section>
   </section>
   <dialog [open]="resetOpen" (close)="cancelReset()" title="Are you sure?">
-    <p>This clears the check mark from every lesson you marked done. Your saved lessons and your visit history stay as they are.</p>
+    <p>This clears the check mark from every lesson you marked done. Your saved lessons stay as they are.</p>
     <actions>
       <button variant="text" (click)="cancelReset()">Cancel</button>
       <button color="danger" (click)="confirmReset()">Reset all checks</button>
