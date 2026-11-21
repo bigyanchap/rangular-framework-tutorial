@@ -24,7 +24,9 @@ type Lesson = {
  * pastel number for the rest. The groups are split from the one
  * lessons array in ngOnInit, because a row carries one
  * structural directive and the split belongs in the class. The
- * search filter lives in the class for the same reason.
+ * search filter lives in the class for the same reason: it
+ * matches the words in a title, subtitle or intro, and the
+ * lesson number too, so typing 41 lands on lesson 41.
  */
 @Component({
   selector: 'app-home',
@@ -113,6 +115,7 @@ export class HomeComponent {
     if (this.searching) {
       this.results = this.lessons.lessons.filter(
         (l: Lesson) =>
+          String(l.id).indexOf(q) === 0 ||
           l.title.toLowerCase().includes(q) ||
           l.subtitle.toLowerCase().includes(q) ||
           l.intro.toLowerCase().includes(q),

@@ -1931,7 +1931,7 @@ export function Home() {
     __shadowSearching = q.length > 0;
     setSearching(__shadowSearching);
     if (__shadowSearching) {
-      setResults(lessons.lessons.filter((l: Lesson) => l.title.toLowerCase().includes(q) || l.subtitle.toLowerCase().includes(q) || l.intro.toLowerCase().includes(q)));
+      setResults(lessons.lessons.filter((l: Lesson) => String(l.id).indexOf(q) === 0 || l.title.toLowerCase().includes(q) || l.subtitle.toLowerCase().includes(q) || l.intro.toLowerCase().includes(q)));
     } else {
       setResults([]);
     }
