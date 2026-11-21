@@ -55,8 +55,6 @@ import { TodoService } from './todo.service';
     .due-ic { width: 32px; height: 32px; border-radius: 9999px; background-color: #e8f0fe; align-items: center; justify-content: center; }
     .due-label { flex: 1; font-size: 14px; font-weight: 700; }
     .more-hit { width: 44px; height: 44px; align-items: center; justify-content: center; }
-    .more-dots { gap: 4px; align-items: center; }
-    .more-dot { width: 4px; height: 4px; border-radius: 9999px; background-color: #5f6368; }
     .sheet-wrap { gap: 12px; padding-bottom: 24px; }
   `],
 })

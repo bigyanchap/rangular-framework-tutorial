@@ -3,7 +3,7 @@
   <bottom-nav haptic [index]="3" (change)="pickTab($event)">
     <nav-item icon="home" label="Learn"></nav-item>
     <nav-item icon="bookmark" label="Saved"></nav-item>
-    <nav-item icon="calendar" label="History"></nav-item>
+    <nav-item icon="history" label="History"></nav-item>
     <nav-item icon="play" label="Samples"></nav-item>
   </bottom-nav>
   <p>Small, complete apps, each built with the pieces the lessons teach. Open one and use it.</p>
@@ -29,7 +29,7 @@
   </card>
   <card (click)="goAlarm()">
     <section class="sample-row">
-      <section class="sample-ic"><icon name="alarm" color="primary"></icon></section>
+      <section class="sample-ic"><icon name="schedule" color="primary"></icon></section>
       <section class="sample-main">
         <h3>Alarm</h3>
         <p>One alarm with a time wheel, repeat days and a title, in this app's own colours. It rings on its page while the app is open. No notification and no sound file: the simple version.</p>

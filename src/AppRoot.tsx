@@ -240,9 +240,9 @@ export class LessonService extends ReactiveService {
       title: 'Icons',
       subtitle: 'One icon block, a fixed set of names',
       minutes: '4 min',
-      intro: 'Icons come from one block, <icon>, and one fixed set of 27 names. The name is checked when you compile: a name outside the set is a compile error, never a blank space on screen. The size rides the scale in steps, and color names a theme role, like primary or error, so icons follow the light and dark themes. The demo shows the full set with labels, a few icons at work with sizes and roles, and icon buttons that report the last tap. An icon button is for one clear action; if the action needs words, use a button.',
+      intro: 'Icons come from one block, <icon>, and one fixed set: the Google Material Symbols set, 78 glyphs in one hand, rounded and filled. You choose by meaning. The set holds the exact glyph for the word you mean, history for a history page, schedule for a time, more-vert for a menu of actions, so a near glyph never stands in for the right one and no shape is ever built by hand. The name is checked when you compile: a name outside the set is a compile error, never a blank space on screen. The size rides the scale in steps, and color names a theme role, like primary or error, so icons follow the light and dark themes. The demo shows the full set with labels, a few icons at work with sizes and roles, and icon buttons that report the last tap. An icon button is for one clear action; if the action needs words, use a button.',
       code: '<icon name="heart" size="28" color="error"></icon>',
-      implementation: '// icons.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-icons-demo\',\n  templateUrl: \'./icons.component.html\',\n  styles: [`\n    .icon-cell { align-items: center; gap: 4px; padding: 8px; }\n    .icon-line { flex-direction: row; align-items: center; gap: 12px; padding: 8px; }\n  `],\n})\nexport class IconsDemoComponent {\n  names = [\'menu\', \'search\', \'close\', \'check\', \'chevron-left\', \'chevron-right\', \'arrow-left\', \'arrow-right\', \'plus\', \'minus\', \'bell\', \'heart\', \'star\', \'settings\', \'home\', \'person\', \'calendar\', \'alarm\', \'play\', \'pause\', \'edit\', \'delete\', \'share\', \'info\', \'warning\', \'mail\', \'sun\', \'code\', \'bookmark\', \'bookmark-outline\'];\n  lastTap = \'\';\n\n  tapIcon(name: string) {\n    this.lastTap = name;\n  }\n}\n\n// icons.component.html\n<label>\n  The set, all 27 names\n</label>\n<div class="icon-cell" *ngFor="let name of names">\n  <icon [name]="name"></icon>\n  <span>{{ name }}</span>\n</div>\n<label>\n  Icons at work\n</label>\n<div class="icon-line">\n  <icon name="bell" color="primary"></icon>\n  <p>Notifications, in the primary role</p>\n</div>\n<div class="icon-line">\n  <icon name="search" size="20"></icon>\n  <p>Search, at size 20</p>\n</div>\n<div class="icon-line">\n  <icon name="heart" size="28" color="error"></icon>\n  <p>Favourites, at size 28 in the error role</p>\n</div>\n<label>\n  Icon buttons\n</label>\n<p>One clear action each, with a 48 square touch target and no words.</p>\n<div class="icon-line">\n  <icon-button name="settings" (click)="tapIcon(\'settings\')"></icon-button>\n  <icon-button name="share" (click)="tapIcon(\'share\')"></icon-button>\n  <icon-button name="delete" (click)="tapIcon(\'delete\')"></icon-button>\n</div>\n<p *ngIf="lastTap">Last tapped: {{ lastTap }}</p>',
+      implementation: '// icons.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-icons-demo\',\n  templateUrl: \'./icons.component.html\',\n  styles: [`\n    .icon-cell { align-items: center; gap: 4px; padding: 8px; }\n    .icon-line { flex-direction: row; align-items: center; gap: 12px; padding: 8px; }\n  `],\n})\nexport class IconsDemoComponent {\n  names = [\'alarm\', \'arrow-down\', \'arrow-left\', \'arrow-right\', \'arrow-up\', \'bell\', \'bookmark\', \'bookmark-outline\', \'calendar\', \'camera\', \'chart\', \'chat\', \'check\', \'check-circle\', \'chevron-down\', \'chevron-left\', \'chevron-right\', \'chevron-up\', \'close\', \'code\', \'copy\', \'dark-mode\', \'delete\', \'download\', \'edit\', \'error\', \'file\', \'filter\', \'folder\', \'group\', \'heart\', \'heart-outline\', \'help\', \'history\', \'home\', \'image\', \'info\', \'language\', \'link\', \'location\', \'lock\', \'login\', \'logout\', \'mail\', \'menu\', \'mic\', \'minus\', \'more-horiz\', \'more-vert\', \'pause\', \'person\', \'play\', \'plus\', \'print\', \'redo\', \'refresh\', \'save\', \'schedule\', \'school\', \'search\', \'send\', \'settings\', \'share\', \'sort\', \'star\', \'star-outline\', \'sun\', \'thumb-up\', \'timer\', \'tune\', \'undo\', \'upload\', \'visibility\', \'visibility-off\', \'volume\', \'warning\', \'wifi\', \'work\'];\n  lastTap = \'\';\n\n  tapIcon(name: string) {\n    this.lastTap = name;\n  }\n}\n\n// icons.component.html\n<label>\n  The set, all 78 names\n</label>\n<div class="icon-cell" *ngFor="let name of names">\n  <icon [name]="name"></icon>\n  <span>{{ name }}</span>\n</div>\n<label>\n  Icons at work\n</label>\n<div class="icon-line">\n  <icon name="bell" color="primary"></icon>\n  <p>Notifications, in the primary role</p>\n</div>\n<div class="icon-line">\n  <icon name="search" size="20"></icon>\n  <p>Search, at size 20</p>\n</div>\n<div class="icon-line">\n  <icon name="heart" size="28" color="error"></icon>\n  <p>Favourites, at size 28 in the error role</p>\n</div>\n<label>\n  Icon buttons\n</label>\n<p>One clear action each, with a 48 square touch target and no words.</p>\n<div class="icon-line">\n  <icon-button name="settings" (click)="tapIcon(\'settings\')"></icon-button>\n  <icon-button name="share" (click)="tapIcon(\'share\')"></icon-button>\n  <icon-button name="delete" (click)="tapIcon(\'delete\')"></icon-button>\n</div>\n<p *ngIf="lastTap">Last tapped: {{ lastTap }}</p>',
       tip: 'Choose icons by meaning, never by decoration. One icon, one clear job. If a learner has to guess what an icon does, the action needs a labelled button instead.',
     },
     {
@@ -726,7 +726,7 @@ export class LessonService extends ReactiveService {
       minutes: '4 min',
       intro: 'A menu is a small panel of actions for one thing: one message, one file, one row. In Angular Material it is mat-menu. Here it is an overlay with the same contract as the sheet and the dialog: [open] shows it, driven by a boolean field of yours, and (close) fires when the backdrop is tapped or an item is chosen. Inside, only menu-item rows and dividers belong. Each item can lead with an icon and carries its own (click); choosing it runs the handler and then closes the menu, the way Material menus dismiss on a pick. The panel opens beside the thing you pressed to open it: to the left of the press and level with it, the way a Material menu hangs from its trigger. A menu opened from code, with no press behind it, hangs at the top right of the screen instead.',
       code: '<menu [open]="menuOpen" (close)="closeMenu()">',
-      implementation: '// menu.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-menu-demo\',\n  templateUrl: \'./menu.component.html\',\n  styles: [`\n    .chat-row { flex-direction: row; align-items: center; gap: 8px; }\n    .dots-hit { width: 44px; height: 44px; align-items: center; justify-content: center; }\n    .dots { gap: 4px; align-items: center; }\n    .dot { width: 4px; height: 4px; border-radius: 9999px; background-color: #5f6368; }\n    .bubble { flex: 1; background-color: #e8f0fe; border-radius: 16px; padding: 12px; gap: 4px; }\n    .chat-name { font-size: 12px; font-weight: 700; color: #0b57d0; }\n    .chat-text { font-size: 16px; line-height: 22px; }\n    .chat-time { font-size: 12px; color: #5f6368; }\n    .gone { flex: 1; font-size: 14px; color: #5f6368; }\n    .edit-actions { flex-direction: row; gap: 12px; }\n    .status { font-size: 14px; color: #5f6368; }\n  `],\n})\nexport class MenuDemoComponent {\n  message = \'Are we still meeting at the park tomorrow morning?\';\n  draft = \'\';\n  menuOpen = false;\n  editing = false;\n  deleted = false;\n  status = \'\';\n\n  openMenu() {\n    this.menuOpen = true;\n  }\n\n  closeMenu() {\n    this.menuOpen = false;\n  }\n\n  startEdit() {\n    this.draft = this.message;\n    this.editing = true;\n  }\n\n  cancelEdit() {\n    this.editing = false;\n  }\n\n  saveEdit() {\n    this.message = this.draft;\n    this.editing = false;\n    this.status = \'The message was edited.\';\n  }\n\n  remove() {\n    this.deleted = true;\n    this.editing = false;\n    this.status = \'The message was deleted.\';\n  }\n\n  restore() {\n    this.deleted = false;\n    this.status = \'\';\n  }\n}\n\n// menu.component.html\n<p>One chat message. The three dots at its left open the actions you can take on it.</p>\n<section class="chat-row" *ngIf="!deleted && !editing">\n  <section class="dots-hit" (click)="openMenu()">\n    <section class="dots">\n      <section class="dot"></section>\n      <section class="dot"></section>\n      <section class="dot"></section>\n    </section>\n  </section>\n  <section class="bubble">\n    <p class="chat-name">Asha</p>\n    <p class="chat-text">{{ message }}</p>\n    <p class="chat-time">9:41 AM</p>\n  </section>\n</section>\n<section *ngIf="editing">\n  <input label="Message" [(ngModel)]="draft">\n  <section class="edit-actions">\n    <button (click)="saveEdit()">\n      Save\n    </button>\n    <button variant="text" (click)="cancelEdit()">\n      Cancel\n    </button>\n  </section>\n</section>\n<section class="chat-row" *ngIf="deleted">\n  <p class="gone">This message was deleted.</p>\n  <button variant="text" (click)="restore()">\n    Bring it back\n  </button>\n</section>\n<menu [open]="menuOpen" (close)="closeMenu()">\n  <menu-item icon="edit" (click)="startEdit()">\n    Edit\n  </menu-item>\n  <divider></divider>\n  <menu-item icon="delete" (click)="remove()">\n    Delete\n  </menu-item>\n</menu>\n<p class="status" *ngIf="status">{{ status }}</p>\n<p class="status" *ngIf="!status">No action chosen yet. Open the menu and pick one.</p>',
+      implementation: '// menu.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-menu-demo\',\n  templateUrl: \'./menu.component.html\',\n  styles: [`\n    .chat-row { flex-direction: row; align-items: center; gap: 8px; }\n    .dots-hit { width: 44px; height: 44px; align-items: center; justify-content: center; }\n    .bubble { flex: 1; background-color: #e8f0fe; border-radius: 16px; padding: 12px; gap: 4px; }\n    .chat-name { font-size: 12px; font-weight: 700; color: #0b57d0; }\n    .chat-text { font-size: 16px; line-height: 22px; }\n    .chat-time { font-size: 12px; color: #5f6368; }\n    .gone { flex: 1; font-size: 14px; color: #5f6368; }\n    .edit-actions { flex-direction: row; gap: 12px; }\n    .status { font-size: 14px; color: #5f6368; }\n  `],\n})\nexport class MenuDemoComponent {\n  message = \'Are we still meeting at the park tomorrow morning?\';\n  draft = \'\';\n  menuOpen = false;\n  editing = false;\n  deleted = false;\n  status = \'\';\n\n  openMenu() {\n    this.menuOpen = true;\n  }\n\n  closeMenu() {\n    this.menuOpen = false;\n  }\n\n  startEdit() {\n    this.draft = this.message;\n    this.editing = true;\n  }\n\n  cancelEdit() {\n    this.editing = false;\n  }\n\n  saveEdit() {\n    this.message = this.draft;\n    this.editing = false;\n    this.status = \'The message was edited.\';\n  }\n\n  remove() {\n    this.deleted = true;\n    this.editing = false;\n    this.status = \'The message was deleted.\';\n  }\n\n  restore() {\n    this.deleted = false;\n    this.status = \'\';\n  }\n}\n\n// menu.component.html\n<p>One chat message. The three dots at its left open the actions you can take on it.</p>\n<section class="chat-row" *ngIf="!deleted && !editing">\n  <section class="dots-hit" (click)="openMenu()">\n    <icon name="more-vert" color="textMuted"></icon>\n  </section>\n  <section class="bubble">\n    <p class="chat-name">Asha</p>\n    <p class="chat-text">{{ message }}</p>\n    <p class="chat-time">9:41 AM</p>\n  </section>\n</section>\n<section *ngIf="editing">\n  <input label="Message" [(ngModel)]="draft">\n  <section class="edit-actions">\n    <button (click)="saveEdit()">\n      Save\n    </button>\n    <button variant="text" (click)="cancelEdit()">\n      Cancel\n    </button>\n  </section>\n</section>\n<section class="chat-row" *ngIf="deleted">\n  <p class="gone">This message was deleted.</p>\n  <button variant="text" (click)="restore()">\n    Bring it back\n  </button>\n</section>\n<menu [open]="menuOpen" (close)="closeMenu()">\n  <menu-item icon="edit" (click)="startEdit()">\n    Edit\n  </menu-item>\n  <divider></divider>\n  <menu-item icon="delete" (click)="remove()">\n    Delete\n  </menu-item>\n</menu>\n<p class="status" *ngIf="status">{{ status }}</p>\n<p class="status" *ngIf="!status">No action chosen yet. Open the menu and pick one.</p>',
       tip: 'Keep the open state in one boolean and change it only inside methods. Event bindings never hold assignments, so (close) calls a closeMenu() method, never (close)="menuOpen = false". And give the item that destroys something a divider above it, as the demo does: the eye should slow down before Delete.',
     },
     {
@@ -1980,7 +1980,7 @@ export function Home() {
       <RgBottomNav haptic index={0} onChange={($event) => pickTab($event)}>
         <RgNavItem icon="home" label="Learn" />
         <RgNavItem icon="bookmark" label="Saved" />
-        <RgNavItem icon="calendar" label="History" />
+        <RgNavItem icon="history" label="History" />
         <RgNavItem icon="play" label="Samples" />
       </RgBottomNav>
       <RgSection>
@@ -2055,7 +2055,7 @@ export function Home() {
                 ))}
               </RgList>
             </RgSection>
-            <RgText variant="bodyLarge">97 lessons · Rangular framework 0.3.10</RgText>
+            <RgText variant="bodyLarge">97 lessons · Rangular framework 0.4.0</RgText>
             <RgButton color="danger" onPress={() => askReset()}>Reset all checks</RgButton>
           </RgSection>
         )}
@@ -2116,7 +2116,7 @@ export function Saved() {
       <RgBottomNav haptic index={1} onChange={($event) => pickTab($event)}>
         <RgNavItem icon="home" label="Learn" />
         <RgNavItem icon="bookmark" label="Saved" />
-        <RgNavItem icon="calendar" label="History" />
+        <RgNavItem icon="history" label="History" />
         <RgNavItem icon="play" label="Samples" />
       </RgBottomNav>
       <RgText variant="bodyLarge">Lessons you bookmarked, kept on this device.</RgText>
@@ -2200,7 +2200,7 @@ export function History() {
       <RgBottomNav haptic index={2} onChange={($event) => pickTab($event)}>
         <RgNavItem icon="home" label="Learn" />
         <RgNavItem icon="bookmark" label="Saved" />
-        <RgNavItem icon="calendar" label="History" />
+        <RgNavItem icon="history" label="History" />
         <RgNavItem icon="play" label="Samples" />
       </RgBottomNav>
       <RgSection label="Recently visited" plain>
@@ -3518,14 +3518,14 @@ export function RadioSwitcherDemo() {
 }
 
 export function IconsDemo() {
-  const names = ['menu', 'search', 'close', 'check', 'chevron-left', 'chevron-right', 'arrow-left', 'arrow-right', 'plus', 'minus', 'bell', 'heart', 'star', 'settings', 'home', 'person', 'calendar', 'alarm', 'play', 'pause', 'edit', 'delete', 'share', 'info', 'warning', 'mail', 'sun', 'code', 'bookmark', 'bookmark-outline'];
+  const names = ['alarm', 'arrow-down', 'arrow-left', 'arrow-right', 'arrow-up', 'bell', 'bookmark', 'bookmark-outline', 'calendar', 'camera', 'chart', 'chat', 'check', 'check-circle', 'chevron-down', 'chevron-left', 'chevron-right', 'chevron-up', 'close', 'code', 'copy', 'dark-mode', 'delete', 'download', 'edit', 'error', 'file', 'filter', 'folder', 'group', 'heart', 'heart-outline', 'help', 'history', 'home', 'image', 'info', 'language', 'link', 'location', 'lock', 'login', 'logout', 'mail', 'menu', 'mic', 'minus', 'more-horiz', 'more-vert', 'pause', 'person', 'play', 'plus', 'print', 'redo', 'refresh', 'save', 'schedule', 'school', 'search', 'send', 'settings', 'share', 'sort', 'star', 'star-outline', 'sun', 'thumb-up', 'timer', 'tune', 'undo', 'upload', 'visibility', 'visibility-off', 'volume', 'warning', 'wifi', 'work'];
   const [lastTap, setLastTap] = useState('');
   const tapIcon = (name: string) => {
     setLastTap(name);
   };
   return (
     <>
-      <RgText variant="label">The set, all 27 names</RgText>
+      <RgText variant="label">The set, all 78 names</RgText>
       {names.map((name, index) => (
         <RgSection key={name?.id ?? index} style={styles.iconsDemoIconCell}>
           <RgIcon name={name} />
@@ -5275,11 +5275,7 @@ export function MenuDemo() {
       {(!deleted && !editing) && (
         <RgSection style={styles.menuDemoChatRow}>
           <RgSection onPress={() => openMenu()} style={styles.menuDemoDotsHit}>
-            <RgSection style={styles.menuDemoDots}>
-              <RgSection style={styles.menuDemoDot} />
-              <RgSection style={styles.menuDemoDot} />
-              <RgSection style={styles.menuDemoDot} />
-            </RgSection>
+            <RgIcon name="more-vert" color="textMuted" />
           </RgSection>
           <RgSection style={styles.menuDemoBubble}>
             <RgText variant="bodyLarge" style={styles.menuDemoChatName}>Asha</RgText>
@@ -6175,7 +6171,7 @@ export function Samples() {
       <RgBottomNav haptic index={3} onChange={($event) => pickTab($event)}>
         <RgNavItem icon="home" label="Learn" />
         <RgNavItem icon="bookmark" label="Saved" />
-        <RgNavItem icon="calendar" label="History" />
+        <RgNavItem icon="history" label="History" />
         <RgNavItem icon="play" label="Samples" />
       </RgBottomNav>
       <RgText variant="bodyLarge">Small, complete apps, each built with the pieces the lessons teach. Open one and use it.</RgText>
@@ -6210,7 +6206,7 @@ export function Samples() {
       <RgCard onPress={() => goAlarm()}>
         <RgSection style={styles.samplesSampleRow}>
           <RgSection style={styles.samplesSampleIc}>
-            <RgIcon name="alarm" color="primary" />
+            <RgIcon name="schedule" color="primary" />
           </RgSection>
           <RgSection style={styles.samplesSampleMain}>
             <RgText variant="title">Alarm</RgText>
@@ -6733,11 +6729,7 @@ export function TodoSample() {
             </RgSection>
           </RgSection>
           <RgSection onPress={() => openMenu(t)} style={styles.todoSampleMoreHit}>
-            <RgSection style={styles.todoSampleMoreDots}>
-              <RgSection style={styles.todoSampleMoreDot} />
-              <RgSection style={styles.todoSampleMoreDot} />
-              <RgSection style={styles.todoSampleMoreDot} />
-            </RgSection>
+            <RgIcon name="more-vert" color="textMuted" />
           </RgSection>
         </RgCard>
       ))}
@@ -6850,7 +6842,7 @@ export default function App() {
           <RgList>
             <RgRow icon="home" title="Learn" selected={(shell.place === 'learn')} onPress={() => goLearn()} />
             <RgRow icon="bookmark" title="Saved lessons" selected={(shell.place === 'saved')} onPress={() => goSaved()} />
-            <RgRow icon="calendar" title="History" selected={(shell.place === 'history')} onPress={() => goHistory()} />
+            <RgRow icon="history" title="History" selected={(shell.place === 'history')} onPress={() => goHistory()} />
             <RgRow icon="info" title="How to use this tutorial" onPress={() => openHowTo()} />
             <RgRow icon="play" title="Samples" selected={(shell.place === 'samples')} onPress={() => goSamples()} />
             <RgRow icon="info" title="About" selected={(shell.place === 'about')} onPress={() => goAbout()} />
@@ -6972,8 +6964,6 @@ const styles = StyleSheet.create({
   capstoneDemoBtnrow: {"flexDirection":"row","gap":8},
   menuDemoChatRow: {"flexDirection":"row","alignItems":"center","gap":8},
   menuDemoDotsHit: {"width":44,"height":44,"alignItems":"center","justifyContent":"center"},
-  menuDemoDots: {"gap":4,"alignItems":"center"},
-  menuDemoDot: {"width":4,"height":4,"borderRadius":9999,"backgroundColor":"#5f6368"},
   menuDemoBubble: {"flex":1,"backgroundColor":"#e8f0fe","borderRadius":16,"padding":12,"gap":4},
   menuDemoChatName: {"fontSize":12,"fontWeight":700,"color":"#0b57d0"},
   menuDemoChatText: {"fontSize":16,"lineHeight":22},
@@ -7052,8 +7042,6 @@ const styles = StyleSheet.create({
   todoSampleDueIc: {"width":32,"height":32,"borderRadius":9999,"backgroundColor":"#e8f0fe","alignItems":"center","justifyContent":"center"},
   todoSampleDueLabel: {"flex":1,"fontSize":14,"fontWeight":700},
   todoSampleMoreHit: {"width":44,"height":44,"alignItems":"center","justifyContent":"center"},
-  todoSampleMoreDots: {"gap":4,"alignItems":"center"},
-  todoSampleMoreDot: {"width":4,"height":4,"borderRadius":9999,"backgroundColor":"#5f6368"},
   todoSampleSheetWrap: {"gap":12,"paddingBottom":24},
   drawerHead: {"padding":16},
   drawerMark: {"width":48,"height":48,"borderRadius":9999,"backgroundColor":"#0b57d0","alignItems":"center","justifyContent":"center"},
