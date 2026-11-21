@@ -63,6 +63,13 @@ export class TodoService {
     this.persist();
   }
 
+  update(id: number, text: string, prio: number, desc: string, due: string) {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    this.items = this.items.map((t) => (t.id === id ? { id: t.id, text: trimmed, prio, done: t.done, desc: desc.trim(), due } : t));
+    this.persist();
+  }
+
   toggle(id: number) {
     this.items = this.items.map((t) => (t.id === id ? { id: t.id, text: t.text, prio: t.prio, done: !t.done, desc: t.desc, due: t.due } : t));
     this.persist();

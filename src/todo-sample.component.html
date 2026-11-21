@@ -27,11 +27,17 @@
         <p *ngIf="t.dueText" class="due-text" [class.due-over]="t.overdue">{{ t.dueText }}</p>
       </section>
     </section>
-    <button variant="text" color="danger" (click)="remove(t)">Remove</button>
+    <section class="more-hit" (click)="openMenu(t)">
+      <section class="more-dots">
+        <section class="more-dot"></section>
+        <section class="more-dot"></section>
+        <section class="more-dot"></section>
+      </section>
+    </section>
   </card>
   <sheet [open]="addOpen" (close)="closeAdd()">
     <section class="sheet-wrap">
-      <h3>Add a task</h3>
+      <h3>{{ editingId > 0 ? 'Edit task' : 'Add a task' }}</h3>
       <input label="Task" placeholder="What needs doing?" [(ngModel)]="draft">
       <input label="Description" placeholder="A few details (optional)" [(ngModel)]="draftDesc">
       <section class="due-row">
@@ -52,8 +58,20 @@
       </section>
       <actions>
         <button variant="text" (click)="closeAdd()">Cancel</button>
-        <button (click)="add()">Add task</button>
+        <button (click)="save()">{{ editingId > 0 ? 'Save changes' : 'Add task' }}</button>
       </actions>
     </section>
   </sheet>
+  <menu [open]="menuOpen" (close)="closeMenu()">
+    <menu-item icon="edit" (click)="startEdit()">Edit</menu-item>
+    <divider></divider>
+    <menu-item icon="delete" (click)="askDelete()">Delete</menu-item>
+  </menu>
+  <dialog [open]="deleteTarget !== null" (close)="cancelDelete()" title="Delete this task?">
+    <p>{{ deleteText }}</p>
+    <actions>
+      <button variant="text" (click)="cancelDelete()">Cancel</button>
+      <button color="danger" (click)="confirmDelete()">Delete</button>
+    </actions>
+  </dialog>
 </section>

@@ -16,7 +16,11 @@ import { TodoService } from './todo.service';
  * behind the Android bar; the sheet's Deadline switch
  * reveals a date picker for the task's due day. New tasks
  * land at the end of the list, so an added task is seen
- * at once. The list lives in TodoService on this device.
+ * at once. Three dots at the right of a card open its
+ * menu: Edit reopens the same sheet with the task filled
+ * in, and Delete asks first, in a dialog that names the
+ * task, before anything is removed. The list lives in
+ * TodoService on this device.
  */
 @Component({
   selector: 'app-todo-sample',
@@ -45,6 +49,9 @@ import { TodoService } from './todo.service';
     .due-over { color: #b3261e; font-weight: 700; }
     .due-row { flex-direction: row; align-items: center; justify-content: space-between; }
     .due-label { font-size: 14px; font-weight: 700; }
+    .more-hit { width: 44px; height: 44px; align-items: center; justify-content: center; }
+    .more-dots { gap: 4px; align-items: center; }
+    .more-dot { width: 4px; height: 4px; border-radius: 9999px; background-color: #5f6368; }
     .sheet-wrap { gap: 12px; padding-bottom: 24px; }
   `],
 })
@@ -56,6 +63,11 @@ export class TodoSampleComponent {
   draftPrio = 1;
   filter = 'all';
   addOpen = false;
+  editingId = 0;
+  menuOpen = false;
+  menuTarget: any = null;
+  deleteTarget: any = null;
+  deleteText = '';
   rows: any[] = [];
   leftCount = 0;
   doneCount = 0;
@@ -95,8 +107,53 @@ export class TodoSampleComponent {
   }
 
   openAdd() {
+    this.editingId = 0;
+    this.draft = '';
+    this.draftDesc = '';
+    this.draftPrio = 1;
+    this.draftDueOn = false;
     this.draftDue = this.todos.todayIso();
     this.addOpen = true;
+  }
+
+  openMenu(t: any) {
+    this.menuTarget = t;
+    this.menuOpen = true;
+  }
+
+  closeMenu() {
+    this.menuOpen = false;
+  }
+
+  startEdit() {
+    const t = this.menuTarget;
+    this.menuOpen = false;
+    if (!t) return;
+    this.editingId = t.id;
+    this.draft = t.text;
+    this.draftDesc = t.desc;
+    this.draftPrio = t.prio;
+    this.draftDueOn = t.due !== '';
+    this.draftDue = t.due !== '' ? t.due : this.todos.todayIso();
+    this.addOpen = true;
+  }
+
+  askDelete() {
+    const t = this.menuTarget;
+    this.menuOpen = false;
+    if (!t) return;
+    this.deleteTarget = t;
+    this.deleteText = 'This deletes ' + t.text + ' for good. There is no undo.';
+  }
+
+  cancelDelete() {
+    this.deleteTarget = null;
+  }
+
+  confirmDelete() {
+    if (this.deleteTarget) this.todos.remove(this.deleteTarget.id);
+    this.deleteTarget = null;
+    this.refresh(this.filter);
   }
 
   setDueOn(v: boolean) {
@@ -111,13 +168,15 @@ export class TodoSampleComponent {
     this.addOpen = false;
   }
 
-  add() {
+  save() {
     if (!this.draft.trim()) return;
     const f = this.filter === 'done' ? 'all' : this.filter;
-    this.todos.add(this.draft, this.draftPrio, this.draftDesc, this.draftDueOn ? this.draftDue : '');
+    if (this.editingId > 0) this.todos.update(this.editingId, this.draft, this.draftPrio, this.draftDesc, this.draftDueOn ? this.draftDue : '');
+    else this.todos.add(this.draft, this.draftPrio, this.draftDesc, this.draftDueOn ? this.draftDue : '');
     this.draft = '';
     this.draftDesc = '';
     this.draftDueOn = false;
+    this.editingId = 0;
     this.filter = f;
     this.addOpen = false;
     this.refresh(f);
@@ -125,11 +184,6 @@ export class TodoSampleComponent {
 
   toggle(t: any) {
     this.todos.toggle(t.id);
-    this.refresh(this.filter);
-  }
-
-  remove(t: any) {
-    this.todos.remove(t.id);
     this.refresh(this.filter);
   }
 

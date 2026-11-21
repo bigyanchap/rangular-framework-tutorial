@@ -1752,6 +1752,15 @@ export class TodoService extends ReactiveService {
     this.__notify();
     this.persist();
   }
+  update(id: number, text: string, prio: number, desc: string, due: string) {
+    const trimmed = text.trim();
+    if (!trimmed) {
+      return;
+    }
+    this.items = this.items.map((t) => ((t.id === id ? { id: t.id, text: trimmed, prio, done: t.done, desc: desc.trim(), due } : t)));
+    this.__notify();
+    this.persist();
+  }
   toggle(id: number) {
     this.items = this.items.map((t) => ((t.id === id ? { id: t.id, text: t.text, prio: t.prio, done: !t.done, desc: t.desc, due: t.due } : t)));
     this.__notify();
@@ -6475,6 +6484,11 @@ export function TodoSample() {
   const [draftPrio, setDraftPrio] = useState(1);
   const [filter, setFilter] = useState('all');
   const [addOpen, setAddOpen] = useState(false);
+  const [editingId, setEditingId] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuTarget, setMenuTarget] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteText, setDeleteText] = useState('');
   const [rows, setRows] = useState([]);
   const [leftCount, setLeftCount] = useState(0);
   const [doneCount, setDoneCount] = useState(0);
@@ -6511,8 +6525,53 @@ export function TodoSample() {
     setDraftPrio(p);
   };
   const openAdd = () => {
+    setEditingId(0);
+    setDraft('');
+    setDraftDesc('');
+    setDraftPrio(1);
+    setDraftDueOn(false);
     setDraftDue(todos.todayIso());
     setAddOpen(true);
+  };
+  const openMenu = (t: any) => {
+    setMenuTarget(t);
+    setMenuOpen(true);
+  };
+  const closeMenu = () => {
+    setMenuOpen(false);
+  };
+  const startEdit = () => {
+    const t = menuTarget;
+    setMenuOpen(false);
+    if (!t) {
+      return;
+    }
+    setEditingId(t.id);
+    setDraft(t.text);
+    setDraftDesc(t.desc);
+    setDraftPrio(t.prio);
+    setDraftDueOn(t.due !== '');
+    setDraftDue((t.due !== '' ? t.due : todos.todayIso()));
+    setAddOpen(true);
+  };
+  const askDelete = () => {
+    const t = menuTarget;
+    setMenuOpen(false);
+    if (!t) {
+      return;
+    }
+    setDeleteTarget(t);
+    setDeleteText('This deletes ' + t.text + ' for good. There is no undo.');
+  };
+  const cancelDelete = () => {
+    setDeleteTarget(null);
+  };
+  const confirmDelete = () => {
+    if (deleteTarget) {
+      todos.remove(deleteTarget.id);
+    }
+    setDeleteTarget(null);
+    refresh(filter);
   };
   const setDueOn = (v: boolean) => {
     setDraftDueOn(v);
@@ -6523,25 +6582,26 @@ export function TodoSample() {
   const closeAdd = () => {
     setAddOpen(false);
   };
-  const add = () => {
+  const save = () => {
     if (!draft.trim()) {
       return;
     }
     const f = (filter === 'done' ? 'all' : filter);
-    todos.add(draft, draftPrio, draftDesc, (draftDueOn ? draftDue : ''));
+    if (editingId > 0) {
+      todos.update(editingId, draft, draftPrio, draftDesc, (draftDueOn ? draftDue : ''));
+    } else {
+      todos.add(draft, draftPrio, draftDesc, (draftDueOn ? draftDue : ''));
+    }
     setDraft('');
     setDraftDesc('');
     setDraftDueOn(false);
+    setEditingId(0);
     setFilter(f);
     setAddOpen(false);
     refresh(f);
   };
   const toggle = (t: any) => {
     todos.toggle(t.id);
-    refresh(filter);
-  };
-  const remove = (t: any) => {
-    todos.remove(t.id);
     refresh(filter);
   };
   const goBack = () => {
@@ -6589,12 +6649,18 @@ export function TodoSample() {
               )}
             </RgSection>
           </RgSection>
-          <RgButton variant="text" color="danger" onPress={() => remove(t)}>Remove</RgButton>
+          <RgSection onPress={() => openMenu(t)} style={styles.todoSampleMoreHit}>
+            <RgSection style={styles.todoSampleMoreDots}>
+              <RgSection style={styles.todoSampleMoreDot} />
+              <RgSection style={styles.todoSampleMoreDot} />
+              <RgSection style={styles.todoSampleMoreDot} />
+            </RgSection>
+          </RgSection>
         </RgCard>
       ))}
       <RgSheet open={addOpen} onClose={() => closeAdd()}>
         <RgSection style={styles.todoSampleSheetWrap}>
-          <RgText variant="title">Add a task</RgText>
+          <RgText variant="title">{((editingId > 0) ? 'Edit task' : 'Add a task')}</RgText>
           <RgInput label="Task" placeholder="What needs doing?" value={draft} onChangeText={($event) => setDraft($event)} />
           <RgInput label="Description" placeholder="A few details (optional)" value={draftDesc} onChangeText={($event) => setDraftDesc($event)} />
           <RgSection style={styles.todoSampleDueRow}>
@@ -6617,10 +6683,22 @@ export function TodoSample() {
           </RgSection>
           <RgActions>
             <RgButton variant="text" onPress={() => closeAdd()}>Cancel</RgButton>
-            <RgButton onPress={() => add()}>Add task</RgButton>
+            <RgButton onPress={() => save()}>{((editingId > 0) ? 'Save changes' : 'Add task')}</RgButton>
           </RgActions>
         </RgSection>
       </RgSheet>
+      <RgMenu open={menuOpen} onClose={() => closeMenu()}>
+        <RgMenuItem icon="edit" onPress={() => startEdit()}>Edit</RgMenuItem>
+        <RgDivider />
+        <RgMenuItem icon="delete" onPress={() => askDelete()}>Delete</RgMenuItem>
+      </RgMenu>
+      <RgDialog title="Delete this task?" open={(deleteTarget !== null)} onClose={() => cancelDelete()}>
+        <RgText variant="bodyLarge">{deleteText}</RgText>
+        <RgActions>
+          <RgButton variant="text" onPress={() => cancelDelete()}>Cancel</RgButton>
+          <RgButton color="danger" onPress={() => confirmDelete()}>Delete</RgButton>
+        </RgActions>
+      </RgDialog>
     </RgSection>
   );
 }
@@ -6860,6 +6938,9 @@ const styles = StyleSheet.create({
   todoSampleDueOver: {"color":"#b3261e","fontWeight":700},
   todoSampleDueRow: {"flexDirection":"row","alignItems":"center","justifyContent":"space-between"},
   todoSampleDueLabel: {"fontSize":14,"fontWeight":700},
+  todoSampleMoreHit: {"width":44,"height":44,"alignItems":"center","justifyContent":"center"},
+  todoSampleMoreDots: {"gap":4,"alignItems":"center"},
+  todoSampleMoreDot: {"width":4,"height":4,"borderRadius":9999,"backgroundColor":"#5f6368"},
   todoSampleSheetWrap: {"gap":12,"paddingBottom":24},
   drawerHead: {"padding":16},
   drawerMark: {"width":48,"height":48,"borderRadius":9999,"backgroundColor":"#0b57d0","alignItems":"center","justifyContent":"center"},
