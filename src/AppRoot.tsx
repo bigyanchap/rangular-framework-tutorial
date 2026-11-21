@@ -1420,7 +1420,7 @@ export class ActivityLogService extends ReactiveService {
 }
 
 export class IotService extends ReactiveService {
-  storageKey = 'rangular-tutorial.iot.v2';
+  storageKey = 'rangular-tutorial.iot.v3';
   rooms: any[] = [];
   loaded = false;
   waiters: any[] = [];
@@ -1433,7 +1433,7 @@ export class IotService extends ReactiveService {
     this.__notify();
   } else {
     const now = Date.now();
-    this.rooms = [{ title: 'Living room', devices: [{ name: 'Ceiling light', on: true }, { name: 'Fan', on: false }, { name: 'Television', on: false }], history: [{ text: 'Ceiling light turned on', at: now - 42 * 60000 }] }, { title: 'Kitchen', devices: [{ name: 'Kettle', on: false }, { name: 'Exhaust fan', on: true }, { name: 'Under-cabinet light', on: true }], history: [{ text: 'Exhaust fan turned on', at: now - 18 * 60000 }] }, { title: 'Bedroom', devices: [{ name: 'Bedside lamp', on: false }, { name: 'Air conditioner', on: false }, { name: 'Ceiling light', on: true }], history: [] }, { title: 'Outdoor', devices: [{ name: 'Water pump', on: true, window: '6:00 AM to 7:00 AM' }, { name: 'Garden lights', on: true, window: '6:30 PM to 10:00 PM' }, { name: 'Porch light', on: false }], history: [{ text: 'Water pump timer turned on', at: now - 180 * 60000 }] }];
+    this.rooms = [{ title: 'Living room', devices: [{ name: 'Ceiling light', on: true }, { name: 'Fan', on: false }, { name: 'Television', on: false }], history: [{ text: 'Ceiling light turned on', at: now - 42 * 60000 }] }, { title: 'Kitchen', devices: [{ name: 'Kettle', on: false }, { name: 'Exhaust fan', on: true }, { name: 'Under-cabinet light', on: true }], history: [{ text: 'Exhaust fan turned on', at: now - 18 * 60000 }] }, { title: 'Bedroom', devices: [{ name: 'Bedside lamp', on: false }, { name: 'Air conditioner', on: false }, { name: 'Ceiling light', on: true }], history: [] }, { title: 'Outdoor', devices: [{ name: 'Water pump', on: true, fromIso: '2026-11-13T06:00:00', toIso: '2026-11-13T07:00:00' }, { name: 'Garden lights', on: true, fromIso: '2026-11-13T18:30:00', toIso: '2026-11-13T22:00:00' }, { name: 'Porch light', on: false }], history: [{ text: 'Water pump timer turned on', at: now - 180 * 60000 }] }];
     this.__notify();
     this.persist();
   }
@@ -1465,15 +1465,44 @@ export class IotService extends ReactiveService {
 
 });
   }
+  fmtTime(iso: string) {
+    const h = Number(iso.slice(11, 13));
+    const suffix = (h >= 12 ? 'PM' : 'AM');
+    const h12 = (h % 12 === 0 ? 12 : h % 12);
+    return h12 + ':' + iso.slice(14, 16) + ' ' + suffix;
+  }
+  setWindow(roomTitle: string, deviceName: string, which: string, iso: string) {
+    const now = Date.now();
+    this.rooms = this.rooms.map((room) => {
+  if (room.title !== roomTitle) {
+    return room;
+  }
+  const devices = room.devices.map((d: any) => {
+  if (d.name !== deviceName) {
+    return d;
+  }
+  if (which === 'from') {
+    return { name: d.name, on: d.on, fromIso: iso, toIso: d.toIso };
+  }
+  return { name: d.name, on: d.on, fromIso: d.fromIso, toIso: iso };
+});
+  const dev = devices.find((d: any) => d.name === deviceName);
+  const line = deviceName + ' time set to ' + this.fmtTime(dev.fromIso) + ' to ' + this.fmtTime(dev.toIso);
+  const history = [{ text: line, at: now }].concat(room.history).slice(0, 4);
+  return { title: room.title, devices, history };
+});
+    this.__notify();
+    this.persist();
+  }
   toggle(roomTitle: string, deviceName: string) {
     const now = Date.now();
     this.rooms = this.rooms.map((room) => {
   if (room.title !== roomTitle) {
     return room;
   }
-  const devices = room.devices.map((d: any) => ((d.name === deviceName ? { name: d.name, on: !d.on, window: d.window } : d)));
+  const devices = room.devices.map((d: any) => ((d.name === deviceName ? { name: d.name, on: !d.on, fromIso: d.fromIso, toIso: d.toIso } : d)));
   const flipped = devices.find((d: any) => d.name === deviceName);
-  const timed = (flipped && flipped.window ? ' timer' : '');
+  const timed = (flipped && flipped.fromIso ? ' timer' : '');
   const line = deviceName + timed + ((flipped && flipped.on ? ' turned on' : ' turned off'));
   const history = [{ text: line, at: now }].concat(room.history).slice(0, 4);
   return { title: room.title, devices, history };
@@ -6090,7 +6119,21 @@ export function IotSample() {
     iot.whenLoaded(() => refresh());
   };
   const refresh = () => {
-    setRoomViews(iot.rooms.map((room) => ({ title: room.title, devices: room.devices.map((d: any) => ({ name: d.name, on: d.on, state: (d.window ? d.window + ((d.on ? ' · Timer on' : ' · Timer off')) : (d.on ? 'On' : 'Off')) })), history: room.history.map((h: any) => ({ text: h.text, ago: ago(h.at) })) })));
+    setRoomViews(iot.rooms.map((room) => ({ title: room.title, devices: room.devices.map((d: any) => ({ name: d.name, on: d.on, timed: (d.fromIso ? true : false), fromIso: d.fromIso, toIso: d.toIso, state: (d.fromIso ? fmtTime(d.fromIso) + ' to ' + fmtTime(d.toIso) + ((d.on ? ' · Timer on' : ' · Timer off')) : (d.on ? 'On' : 'Off')) })), history: room.history.map((h: any) => ({ text: h.text, ago: ago(h.at) })) })));
+  };
+  const fmtTime = (iso: string) => {
+    const h = Number(iso.slice(11, 13));
+    const suffix = (h >= 12 ? 'PM' : 'AM');
+    const h12 = (h % 12 === 0 ? 12 : h % 12);
+    return h12 + ':' + iso.slice(14, 16) + ' ' + suffix;
+  };
+  const setFrom = (room: any, d: any, iso: string) => {
+    iot.setWindow(room.title, d.name, 'from', iso);
+    refresh();
+  };
+  const setTo = (room: any, d: any, iso: string) => {
+    iot.setWindow(room.title, d.name, 'to', iso);
+    refresh();
   };
   const ago = (at: number) => {
     const mins = Math.floor((Date.now() - at) / 60000);
@@ -6123,12 +6166,24 @@ export function IotSample() {
         <RgCard key={room?.id ?? index} style={styles.iotSampleRoomCard}>
           <RgText variant="title">{room.title}</RgText>
           {room.devices.map((d, index) => (
-            <RgSection key={d?.id ?? index} style={styles.iotSampleDevRow}>
-              <RgSection style={styles.iotSampleDevMain}>
-                <RgText variant="bodyLarge" style={styles.iotSampleDevName}>{d.name}</RgText>
-                <RgText variant="bodyLarge" style={styles.iotSampleDevState}>{d.state}</RgText>
+            <RgSection key={d?.id ?? index}>
+              <RgSection style={styles.iotSampleDevRow}>
+                <RgSection style={styles.iotSampleDevMain}>
+                  <RgText variant="bodyLarge" style={styles.iotSampleDevName}>{d.name}</RgText>
+                  <RgText variant="bodyLarge" style={styles.iotSampleDevState}>{d.state}</RgText>
+                </RgSection>
+                <RgSwitch checked={d.on} onChange={($event) => toggle(room, d)} />
               </RgSection>
-              <RgSwitch checked={d.on} onChange={($event) => toggle(room, d)} />
+              {d.timed && (
+                <RgSection style={styles.iotSampleWinRow}>
+                  <RgSection style={styles.iotSampleWinPick}>
+                    <RgDateTimePicker mode="time" label="From" value={d.fromIso} onChange={($event) => setFrom(room, d, $event)} />
+                  </RgSection>
+                  <RgSection style={styles.iotSampleWinPick}>
+                    <RgDateTimePicker mode="time" label="To" value={d.toIso} onChange={($event) => setTo(room, d, $event)} />
+                  </RgSection>
+                </RgSection>
+              )}
             </RgSection>
           ))}
           <RgText variant="label">History</RgText>
@@ -6588,6 +6643,8 @@ const styles = StyleSheet.create({
   iotSampleDevRow: {"flexDirection":"row","alignItems":"center","gap":12},
   iotSampleDevMain: {"flex":1,"gap":4},
   iotSampleDevName: {"fontSize":16},
+  iotSampleWinRow: {"flexDirection":"row","gap":12},
+  iotSampleWinPick: {"flex":1},
   iotSampleDevState: {"fontSize":12,"color":"#5f6368"},
   iotSampleHist: {"fontSize":12,"color":"#5f6368"},
   alarmSampleAlarmCard: {"gap":8,"padding":16},

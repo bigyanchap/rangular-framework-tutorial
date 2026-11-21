@@ -2,12 +2,22 @@
   <appbar pin tone="tint" title="Internet of Things Sample" back (back)="goBack()"></appbar>
   <card *ngFor="let room of roomViews" class="room-card">
     <h3>{{ room.title }}</h3>
-    <section *ngFor="let d of room.devices" class="dev-row">
-      <section class="dev-main">
-        <p class="dev-name">{{ d.name }}</p>
-        <p class="dev-state">{{ d.state }}</p>
+    <section *ngFor="let d of room.devices">
+      <section class="dev-row">
+        <section class="dev-main">
+          <p class="dev-name">{{ d.name }}</p>
+          <p class="dev-state">{{ d.state }}</p>
+        </section>
+        <switch [checked]="d.on" (change)="toggle(room, d)"></switch>
       </section>
-      <switch [checked]="d.on" (change)="toggle(room, d)"></switch>
+      <section *ngIf="d.timed" class="win-row">
+        <section class="win-pick">
+          <datetime-picker label="From" mode="time" [value]="d.fromIso" (change)="setFrom(room, d, $event)"></datetime-picker>
+        </section>
+        <section class="win-pick">
+          <datetime-picker label="To" mode="time" [value]="d.toIso" (change)="setTo(room, d, $event)"></datetime-picker>
+        </section>
+      </section>
     </section>
     <label>History</label>
     <p *ngIf="room.history.length === 0" class="hist">No changes yet. Flip a switch above.</p>

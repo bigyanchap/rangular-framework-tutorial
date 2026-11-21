@@ -9,15 +9,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
  * a fifth change deletes the oldest line, and a longer
  * saved history is cut back to four when it loads. Some
  * devices, the outdoor ones, run on a timer instead: the
- * row names the hours, and its switch turns the timer on
- * or off. Nothing here talks to a real device: the state
+ * row names the hours, its switch turns the timer on or
+ * off, and From and To pickers on the page set the hours.
+ * Nothing here talks to a real device: the state
  * is kept on this phone, and the switches change this
  * page only. First run seeds four rooms so the page has
  * life at once; after that, the home is the reader's own.
  */
 @Injectable({ providedIn: 'root' })
 export class IotService {
-  storageKey = 'rangular-tutorial.iot.v2';
+  storageKey = 'rangular-tutorial.iot.v3';
   rooms: any[] = [];
   loaded = false;
   waiters: any[] = [];
@@ -60,8 +61,8 @@ export class IotService {
           {
             title: 'Outdoor',
             devices: [
-              { name: 'Water pump', on: true, window: '6:00 AM to 7:00 AM' },
-              { name: 'Garden lights', on: true, window: '6:30 PM to 10:00 PM' },
+              { name: 'Water pump', on: true, fromIso: '2026-11-13T06:00:00', toIso: '2026-11-13T07:00:00' },
+              { name: 'Garden lights', on: true, fromIso: '2026-11-13T18:30:00', toIso: '2026-11-13T22:00:00' },
               { name: 'Porch light', on: false },
             ],
             history: [{ text: 'Water pump timer turned on', at: now - 180 * 60000 }],
@@ -88,13 +89,37 @@ export class IotService {
     AsyncStorage.setItem(this.storageKey, JSON.stringify(this.rooms)).then(() => {}, () => {});
   }
 
+  fmtTime(iso: string) {
+    const h = Number(iso.slice(11, 13));
+    const suffix = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    return h12 + ':' + iso.slice(14, 16) + ' ' + suffix;
+  }
+
+  setWindow(roomTitle: string, deviceName: string, which: string, iso: string) {
+    const now = Date.now();
+    this.rooms = this.rooms.map((room) => {
+      if (room.title !== roomTitle) return room;
+      const devices = room.devices.map((d: any) => {
+        if (d.name !== deviceName) return d;
+        if (which === 'from') return { name: d.name, on: d.on, fromIso: iso, toIso: d.toIso };
+        return { name: d.name, on: d.on, fromIso: d.fromIso, toIso: iso };
+      });
+      const dev = devices.find((d: any) => d.name === deviceName);
+      const line = deviceName + ' time set to ' + this.fmtTime(dev.fromIso) + ' to ' + this.fmtTime(dev.toIso);
+      const history = [{ text: line, at: now }].concat(room.history).slice(0, 4);
+      return { title: room.title, devices, history };
+    });
+    this.persist();
+  }
+
   toggle(roomTitle: string, deviceName: string) {
     const now = Date.now();
     this.rooms = this.rooms.map((room) => {
       if (room.title !== roomTitle) return room;
-      const devices = room.devices.map((d: any) => (d.name === deviceName ? { name: d.name, on: !d.on, window: d.window } : d));
+      const devices = room.devices.map((d: any) => (d.name === deviceName ? { name: d.name, on: !d.on, fromIso: d.fromIso, toIso: d.toIso } : d));
       const flipped = devices.find((d: any) => d.name === deviceName);
-      const timed = flipped && flipped.window ? ' timer' : '';
+      const timed = flipped && flipped.fromIso ? ' timer' : '';
       const line = deviceName + timed + (flipped && flipped.on ? ' turned on' : ' turned off');
       const history = [{ text: line, at: now }].concat(room.history).slice(0, 4);
       return { title: room.title, devices, history };

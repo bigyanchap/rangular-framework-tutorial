@@ -20,6 +20,8 @@ import { IotService } from './iot.service';
     .dev-row { flex-direction: row; align-items: center; gap: 12px; }
     .dev-main { flex: 1; gap: 4px; }
     .dev-name { font-size: 16px; }
+    .win-row { flex-direction: row; gap: 12px; }
+    .win-pick { flex: 1; }
     .dev-state { font-size: 12px; color: #5f6368; }
     .hist { font-size: 12px; color: #5f6368; }
   `],
@@ -42,10 +44,30 @@ export class IotSampleComponent {
       devices: room.devices.map((d: any) => ({
         name: d.name,
         on: d.on,
-        state: d.window ? d.window + (d.on ? ' · Timer on' : ' · Timer off') : d.on ? 'On' : 'Off',
+        timed: d.fromIso ? true : false,
+        fromIso: d.fromIso,
+        toIso: d.toIso,
+        state: d.fromIso ? this.fmtTime(d.fromIso) + ' to ' + this.fmtTime(d.toIso) + (d.on ? ' · Timer on' : ' · Timer off') : d.on ? 'On' : 'Off',
       })),
       history: room.history.map((h: any) => ({ text: h.text, ago: this.ago(h.at) })),
     }));
+  }
+
+  fmtTime(iso: string) {
+    const h = Number(iso.slice(11, 13));
+    const suffix = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    return h12 + ':' + iso.slice(14, 16) + ' ' + suffix;
+  }
+
+  setFrom(room: any, d: any, iso: string) {
+    this.iot.setWindow(room.title, d.name, 'from', iso);
+    this.refresh();
+  }
+
+  setTo(room: any, d: any, iso: string) {
+    this.iot.setWindow(room.title, d.name, 'to', iso);
+    this.refresh();
   }
 
   ago(at: number) {
