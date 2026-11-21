@@ -18,8 +18,6 @@ import { Component } from '@angular/core';
   styles: [`
     .chat-row { flex-direction: row; align-items: center; gap: 8px; }
     .dots-hit { width: 44px; height: 44px; align-items: center; justify-content: center; }
-    .dots { gap: 4px; align-items: center; }
-    .dot { width: 4px; height: 4px; border-radius: 9999px; background-color: #5f6368; }
     .bubble { flex: 1; background-color: #e8f0fe; border-radius: 16px; padding: 12px; gap: 4px; }
     .chat-name { font-size: 12px; font-weight: 700; color: #0b57d0; }
     .chat-text { font-size: 16px; line-height: 22px; }

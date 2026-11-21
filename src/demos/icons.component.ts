@@ -14,7 +14,7 @@ import { Component } from '@angular/core';
   `],
 })
 export class IconsDemoComponent {
-  names = ['menu', 'search', 'close', 'check', 'chevron-left', 'chevron-right', 'arrow-left', 'arrow-right', 'plus', 'minus', 'bell', 'heart', 'star', 'settings', 'home', 'person', 'calendar', 'alarm', 'play', 'pause', 'edit', 'delete', 'share', 'info', 'warning', 'mail', 'sun', 'code', 'bookmark', 'bookmark-outline'];
+  names = ['alarm', 'arrow-down', 'arrow-left', 'arrow-right', 'arrow-up', 'bell', 'bookmark', 'bookmark-outline', 'calendar', 'camera', 'chart', 'chat', 'check', 'check-circle', 'chevron-down', 'chevron-left', 'chevron-right', 'chevron-up', 'close', 'code', 'copy', 'dark-mode', 'delete', 'download', 'edit', 'error', 'file', 'filter', 'folder', 'group', 'heart', 'heart-outline', 'help', 'history', 'home', 'image', 'info', 'language', 'link', 'location', 'lock', 'login', 'logout', 'mail', 'menu', 'mic', 'minus', 'more-horiz', 'more-vert', 'pause', 'person', 'play', 'plus', 'print', 'redo', 'refresh', 'save', 'schedule', 'school', 'search', 'send', 'settings', 'share', 'sort', 'star', 'star-outline', 'sun', 'thumb-up', 'timer', 'tune', 'undo', 'upload', 'visibility', 'visibility-off', 'volume', 'warning', 'wifi', 'work'];
   lastTap = '';
 
   tapIcon(name: string) {

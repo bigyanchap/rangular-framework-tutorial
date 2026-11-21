@@ -1,11 +1,7 @@
 <p>One chat message. The three dots at its left open the actions you can take on it.</p>
 <section class="chat-row" *ngIf="!deleted && !editing">
   <section class="dots-hit" (click)="openMenu()">
-    <section class="dots">
-      <section class="dot"></section>
-      <section class="dot"></section>
-      <section class="dot"></section>
-    </section>
+    <icon name="more-vert" color="textMuted"></icon>
   </section>
   <section class="bubble">
     <p class="chat-name">Asha</p>
