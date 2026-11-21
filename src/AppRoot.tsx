@@ -1004,7 +1004,7 @@ export class LessonService extends ReactiveService {
       title: 'Colour picker: a hex value with a swatch',
       subtitle: 'The shared data palette, plus one custom hex row',
       minutes: '4 min',
-      intro: 'The colour picker holds one colour as a hex string. The field shows a swatch of the current colour beside its label; tapping it opens a sheet offering the shared data palette, the same fixed colours the charts draw with, identical in the light and dark themes because they are data, not theme, plus one custom hex row for a colour of your own typing. The contract is the usual one: [value] carries the hex in, and (change) carries the new hex out as $event. The demo picks the colour for a chart: the line below prints the exact hex the class holds as you pick, and a button writes the starting blue back through the binding.',
+      intro: 'The colour picker holds one colour as a hex string. The field shows a swatch of the current colour beside its label; tapping it opens a sheet offering the shared data palette arranged on a colour wheel, the twelve colours on a ring around the colour you hold now, the same fixed colours the charts draw with, identical in the light and dark themes because they are data, not theme, plus one custom hex row for a colour of your own typing. The contract is the usual one: [value] carries the hex in, and (change) carries the new hex out as $event. The demo picks the colour for a chart: the line below prints the exact hex the class holds as you pick, and a button writes the starting blue back through the binding.',
       code: '<color-picker label="Chart colour" [value]="brand" (change)="onBrand($event)"></color-picker>',
       implementation: '// color-picker.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-color-picker-demo\',\n  templateUrl: \'./color-picker.component.html\',\n})\nexport class ColorPickerDemoComponent {\n  brand = \'#0b57d0\';\n\n  onBrand(v: string) {\n    this.brand = v;\n  }\n\n  reset() {\n    this.brand = \'#0b57d0\';\n  }\n}\n\n// color-picker.component.html\n<color-picker label="Chart colour" [value]="brand" (change)="onBrand($event)"></color-picker>\n<p>Colour: {{ brand }}</p>\n<button variant="text" (click)="reset()">\n  Back to the starting blue\n</button>',
       tip: 'Store the hex, and show the hex. A colour remembered as the third palette colour breaks the day the palette is reordered; a hex string means the same colour forever, in every theme and every app.',
@@ -2055,7 +2055,7 @@ export function Home() {
                 ))}
               </RgList>
             </RgSection>
-            <RgText variant="bodyLarge">97 lessons · Rangular framework 0.4.6</RgText>
+            <RgText variant="bodyLarge">97 lessons · Rangular framework 0.4.7</RgText>
             <RgButton color="danger" onPress={() => askReset()}>Reset all checks</RgButton>
           </RgSection>
         )}
