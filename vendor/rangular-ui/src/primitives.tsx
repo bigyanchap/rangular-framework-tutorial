@@ -43,7 +43,7 @@ import { ICON_PATHS, BRAND_MARKS, BRAND_MARK_VIEWBOX } from './icons';
 import { applyMask } from './mask';
 import {
   parseBlocks, serializeBlocks, setBlockKind, toggleBlockDone,
-  insertBlockAfter, moveBlock, parseInline,
+  moveBlock, parseInline,
   blockOffsets, lineAtOffset, toggleInlineInValue, inlineActiveInValue,
 } from './blocks';
 import type { Block, BlockKind } from './blocks';
@@ -949,8 +949,6 @@ function buildStyles(t: Theme) {
       backgroundColor: c.text,
     },
     edDoneLabel: { color: c.surface, fontWeight: '700', fontSize: t.typography.label.fontSize },
-    edAdd: { paddingVertical: t.spacing.sm, paddingHorizontal: t.spacing.xs },
-    edAddLabel: { color: c.textMuted, fontSize: t.typography.body.fontSize },
     // Lightbox (Stage 15): the photo centred over the scrim,
     // the close button a surface chip at the top end corner.
     lightboxImage: { width: '100%', height: '72%' },
@@ -4603,10 +4601,9 @@ export function RgEditor({ value, label, placeholder, disabled, onChange, style 
     }
   };
 
-  const enterEdit = (i?: number, fromText?: string): void => {
+  const enterEdit = (i?: number): void => {
     if (disabled) return;
-    const src = fromText ?? text;
-    const list = parseBlocks(src);
+    const list = blocks;
     cancelClear();
     justEntered.current = true;
     setTimeout(() => {
@@ -4617,7 +4614,7 @@ export function RgEditor({ value, label, placeholder, disabled, onChange, style 
       const pos = offs[i].start + offs[i].prefix + list[i].text.length;
       setSel({ start: pos, end: pos });
     } else {
-      setSel({ start: src.length, end: src.length });
+      setSel({ start: text.length, end: text.length });
     }
     setEditing(true);
   };
@@ -4692,14 +4689,6 @@ export function RgEditor({ value, label, placeholder, disabled, onChange, style 
     const next = moveBlock(blocks, caretLine, dir);
     emit(next);
     placeCaretOnLine(next, target, local);
-  };
-
-  const addBlock = (): void => {
-    if (disabled) return;
-    const next = insertBlockAfter(blocks, blocks.length - 1, 'body');
-    const nextText = serializeBlocks(next);
-    onChange?.(nextText);
-    enterEdit(next.length - 1, nextText);
   };
 
   const kindTextStyle = (block: Block): any[] => {
@@ -4872,11 +4861,6 @@ export function RgEditor({ value, label, placeholder, disabled, onChange, style 
                   </View>
                 );
               })}
-              {!disabled ? (
-                <Pressable onPress={addBlock} style={styles.edAdd}>
-                  <Text style={styles.edAddLabel}>+ Tap to add a block</Text>
-                </Pressable>
-              ) : null}
             </>
           )}
         </View>
