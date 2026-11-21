@@ -12,9 +12,11 @@ import { ShellService } from './shell.service';
   selector: 'app-root',
   templateUrl: './app.component.html',
   styles: [`
-    /* doctor: allow-hex - the drawer mark is the deliberate brand blue. */
-    .drawer-head { padding: 16px; }
-    .drawer-mark { width: 48px; height: 48px; border-radius: 9999px; background-color: #0b57d0; align-items: center; justify-content: center; }
+    /* doctor: allow-hex - the drawer head carries the deliberate brand tint and slate. */
+    .drawer-head { padding: 20px; border-radius: 16px; background-color: #e8f0fe; }
+    .drawer-sub { color: #5f6368; font-size: 14px; line-height: 20px; }
+    .drawer-rule { height: 3px; padding: 0px; border-radius: 9999px; }
+    .drawer-version { color: #80868b; font-size: 12px; line-height: 16px; }
   `],
 })
 export class AppComponent {
