@@ -7,9 +7,13 @@ import { Platform, Vibration } from 'react-native';
  * kept on this device. A one second heartbeat compares the
  * clock with the next ring time, which arm() works out from
  * the picked time and the repeat days with plain calendar
- * arithmetic: the picked ISO string carries the local date,
- * its weekday comes from a days-from-civil conversion, and
- * the first picked day whose moment is still ahead wins.
+ * arithmetic: its weekday comes from a days-from-civil
+ * conversion, and the first picked day whose moment is
+ * still ahead wins. One trap sits under this: the time
+ * picker keeps the date of the value it was given, so a
+ * stored ISO goes stale a day later and every candidate
+ * lands in the past. arm() therefore rebases the date to
+ * today before it scans, every time it runs.
  * Ringing is this page plus vibration. There is no system
  * notification and no sound file, on purpose: those were
  * the parts that made the first alarm sample fragile.
@@ -48,6 +52,43 @@ export class AlarmService {
     ).then(() => {}, () => {});
   }
 
+  dayNumber(offset: number) {
+    return Math.floor(Date.now() / 86400000) - offset;
+  }
+
+  pad2(n: number) {
+    return n < 10 ? '0' + n : String(n);
+  }
+
+  /**
+   * Today's date as YYYY-MM-DD, from the epoch day count
+   * with the same days-to-civil conversion BookmarksService
+   * uses for its day keys. The weekday scan in arm() works
+   * from the date in the string itself, so a UTC date here
+   * still lands the ring on the right local day.
+   */
+  dayKey(offset: number) {
+    const z = this.dayNumber(offset) + 719468;
+    const era = Math.floor(z / 146097);
+    const doe = z - era * 146097;
+    const yoe = Math.floor((doe - Math.floor(doe / 1460) + Math.floor(doe / 36524) - Math.floor(doe / 146096)) / 365);
+    const y = yoe + era * 400;
+    const doy = doe - (365 * yoe + Math.floor(yoe / 4) - Math.floor(yoe / 100));
+    const mp = Math.floor((5 * doy + 2) / 153);
+    const d = doy - Math.floor((153 * mp + 2) / 5) + 1;
+    const m = mp + (mp < 10 ? 3 : -9);
+    const year = m <= 2 ? y + 1 : y;
+    return year + '-' + this.pad2(m) + '-' + this.pad2(d);
+  }
+
+  rebase() {
+    const today = this.dayKey(0);
+    if (this.timeIso.slice(0, 10) !== today) {
+      this.timeIso = today + this.timeIso.slice(10);
+      this.persist();
+    }
+  }
+
   daysFromCivil(y: number, m: number, d: number) {
     const yy = m <= 2 ? y - 1 : y;
     const era = Math.floor(yy / 400);
@@ -59,6 +100,7 @@ export class AlarmService {
   }
 
   arm() {
+    this.rebase();
     if (!this.enabled || this.days.length === 0) {
       this.target = 0;
       return;
