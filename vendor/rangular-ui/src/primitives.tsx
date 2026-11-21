@@ -4982,40 +4982,41 @@ export function RgColorPicker({ value, label, placeholder, disabled, onChange, s
     const typed = hexToHsv(custom);
     pick(typed ? hsvToHex(typed.h, typed.s, typed.v) : draftHex);
   };
-  // The square and the bar are dragged with the slider's
-  // responder shape: each measures its box in the window and
-  // reads the finger's page position against it. Drags move
-  // the draft only; the commit button above emits.
-  const squareBox = useRef({ x: 0, y: 0, width: 0, height: 0 });
-  const squareRef = useRef<any>(null);
-  const barBox = useRef({ x: 0, y: 0, width: 0, height: 0 });
-  const barRef = useRef<any>(null);
+  // The square and the bar read the finger in their own
+  // coordinates (locationX and locationY) against the size
+  // onLayout reports. They must never read a window position:
+  // the sheet panel slides up as it opens, so a measureInWindow
+  // taken at layout time keeps the mid-slide position and every
+  // touch lands at the top (the 0.6.2 bug). Drags move the
+  // draft only; the commit button above emits.
+  const squareSize = useRef({ width: 0, height: 0 });
+  const barSize = useRef({ width: 0, height: 0 });
   const live = useRef({ draft });
   live.current = { draft };
-  const squareFromPage = (pageX: number, pageY: number): void => {
-    const b = squareBox.current;
+  const squareFromLocal = (locationX: number, locationY: number): void => {
+    const b = squareSize.current;
     if (b.width <= 0 || b.height <= 0) return;
-    const sv = Math.min(1, Math.max(0, (pageX - b.x) / b.width));
-    const vv = 1 - Math.min(1, Math.max(0, (pageY - b.y) / b.height));
+    const sv = Math.min(1, Math.max(0, locationX / b.width));
+    const vv = 1 - Math.min(1, Math.max(0, locationY / b.height));
     applyDraft({ h: live.current.draft.h, s: sv, v: vv });
   };
-  const barFromPage = (pageY: number): void => {
-    const b = barBox.current;
+  const barFromLocal = (locationY: number): void => {
+    const b = barSize.current;
     if (b.height <= 0) return;
-    const ratio = Math.min(1, Math.max(0, (pageY - b.y) / b.height));
+    const ratio = Math.min(1, Math.max(0, locationY / b.height));
     applyDraft({ h: ratio * 360, s: live.current.draft.s, v: live.current.draft.v });
   };
   const squareResponder = useRef(PanResponder.create({
     onStartShouldSetPanResponder: () => true,
     onMoveShouldSetPanResponder: () => true,
-    onPanResponderGrant: (e) => { squareFromPage(e.nativeEvent.pageX, e.nativeEvent.pageY); },
-    onPanResponderMove: (e) => { squareFromPage(e.nativeEvent.pageX, e.nativeEvent.pageY); },
+    onPanResponderGrant: (e) => { squareFromLocal(e.nativeEvent.locationX, e.nativeEvent.locationY); },
+    onPanResponderMove: (e) => { squareFromLocal(e.nativeEvent.locationX, e.nativeEvent.locationY); },
   })).current;
   const barResponder = useRef(PanResponder.create({
     onStartShouldSetPanResponder: () => true,
     onMoveShouldSetPanResponder: () => true,
-    onPanResponderGrant: (e) => { barFromPage(e.nativeEvent.pageY); },
-    onPanResponderMove: (e) => { barFromPage(e.nativeEvent.pageY); },
+    onPanResponderGrant: (e) => { barFromLocal(e.nativeEvent.locationY); },
+    onPanResponderMove: (e) => { barFromLocal(e.nativeEvent.locationY); },
   })).current;
   return (
     <View style={[styles.inputWrap, style]}>
@@ -5052,12 +5053,9 @@ export function RgColorPicker({ value, label, placeholder, disabled, onChange, s
         </View>
         <View style={styles.colorStage}>
           <View
-            ref={squareRef}
             {...squareResponder.panHandlers}
-            onLayout={() => {
-              squareRef.current?.measureInWindow?.((x: number, y: number, w: number, h: number) => {
-                squareBox.current = { x, y, width: w, height: h };
-              });
+            onLayout={(e) => {
+              squareSize.current = { width: e.nativeEvent.layout.width, height: e.nativeEvent.layout.height };
             }}
             style={styles.svSquare}
             accessibilityRole="adjustable"
@@ -5081,12 +5079,9 @@ export function RgColorPicker({ value, label, placeholder, disabled, onChange, s
             <View style={[styles.svCursor, { left: `${draft.s * 100}%`, top: `${(1 - draft.v) * 100}%` }]} pointerEvents="none" />
           </View>
           <View
-            ref={barRef}
             {...barResponder.panHandlers}
-            onLayout={() => {
-              barRef.current?.measureInWindow?.((x: number, y: number, w: number, h: number) => {
-                barBox.current = { x, y, width: w, height: h };
-              });
+            onLayout={(e) => {
+              barSize.current = { width: e.nativeEvent.layout.width, height: e.nativeEvent.layout.height };
             }}
             style={styles.hueBar}
             accessibilityRole="adjustable"
