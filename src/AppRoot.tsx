@@ -6206,8 +6206,10 @@ export function AlarmSample() {
   const [titleDraft, setTitleDraft] = useState('');
   const [timeLabel, setTimeLabel] = useState('');
   const [daysLabel, setDaysLabel] = useState('');
-  const [dayChips, setDayChips] = useState([]);
+  const [repeatOpen, setRepeatOpen] = useState(false);
+  const [dayRows, setDayRows] = useState([]);
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const dayFullNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const ngOnInit = () => {
     setTitleDraft(alarm.title);
     refresh();
@@ -6215,7 +6217,7 @@ export function AlarmSample() {
   const refresh = () => {
     setTimeLabel(fmtTime(alarm.timeIso));
     setDaysLabel(computeDaysLabel());
-    setDayChips([0, 1, 2, 3, 4, 5, 6].map((d) => ({ d, name: dayNames[d], on: alarm.days.indexOf(d) >= 0 })));
+    setDayRows([0, 1, 2, 3, 4, 5, 6].map((d) => ({ d, name: dayFullNames[d], on: alarm.days.indexOf(d) >= 0 })));
   };
   const fmtTime = (iso: string) => {
     const h = Number(iso.slice(11, 13));
@@ -6253,6 +6255,12 @@ export function AlarmSample() {
   const toggleDay = (d: number) => {
     alarm.toggleDay(d);
     refresh();
+  };
+  const openRepeat = () => {
+    setRepeatOpen(true);
+  };
+  const closeRepeat = () => {
+    setRepeatOpen(false);
   };
   const onSwitch = (v: boolean) => {
     alarm.setEnabled(v);
@@ -6303,13 +6311,10 @@ export function AlarmSample() {
           <RgCard style={styles.alarmSampleSettingsCard}>
             <RgText variant="label">When</RgText>
             <RgDateTimePicker mode="time" label="Time" value={alarm.timeIso} onChange={($event) => setTime($event)} />
-            <RgText variant="label">Repeat</RgText>
-            <RgSection style={styles.alarmSampleChipsRow}>
-              {dayChips.map((c, index) => (
-                <RgSection key={c?.id ?? index} onPress={() => toggleDay(c.d)} style={[styles.alarmSampleChip, c.on ? styles.alarmSampleChipOn : undefined]}>
-                  <RgText variant="bodyLarge" style={[styles.alarmSampleChipText, c.on ? styles.alarmSampleChipTextOn : undefined]}>{c.name}</RgText>
-                </RgSection>
-              ))}
+            <RgSection onPress={() => openRepeat()} style={styles.alarmSampleRepeatRow}>
+              <RgText variant="bodyLarge" style={styles.alarmSampleRepeatLabel}>Repeat</RgText>
+              <RgText variant="bodyLarge" style={styles.alarmSampleBadge}>{daysLabel}</RgText>
+              <RgIcon name="chevron-right" />
             </RgSection>
             <RgInput label="Alarm title" placeholder="Wake up" value={titleDraft} onChangeText={($event) => { setTitleDraft($event); applyTitle($event); }} />
             {(titleDraft.length > 40) && (
@@ -6319,6 +6324,21 @@ export function AlarmSample() {
           <RgText variant="bodyLarge" style={styles.alarmSampleNote}>It rings on this page while the app is open, with vibration. It does not ring when the app is closed.</RgText>
         </RgSection>
       )}
+      <RgDialog title="Repeat" open={repeatOpen} onClose={() => closeRepeat()}>
+        {dayRows.map((r, index) => (
+          <RgSection key={r?.id ?? index} onPress={() => toggleDay(r.d)} style={styles.alarmSampleDayRow}>
+            <RgText variant="bodyLarge" style={styles.alarmSampleDayName}>{r.name}</RgText>
+            <RgSection style={[styles.alarmSampleCheck, r.on ? styles.alarmSampleCheckDone : undefined]}>
+              {r.on && (
+                <RgIcon name="check" color="onPrimary" />
+              )}
+            </RgSection>
+          </RgSection>
+        ))}
+        <RgActions>
+          <RgButton onPress={() => closeRepeat()}>Done</RgButton>
+        </RgActions>
+      </RgDialog>
     </RgSection>
   );
 }
@@ -6650,18 +6670,19 @@ const styles = StyleSheet.create({
   alarmSampleAlarmCard: {"gap":8,"padding":16},
   alarmSampleAlarmTop: {"flexDirection":"row","alignItems":"center","gap":12},
   alarmSampleAlarmMain: {"flex":1,"gap":4},
-  alarmSampleAlarmTime: {"fontSize":32,"fontWeight":700},
+  alarmSampleAlarmTime: {"fontSize":32,"lineHeight":40,"fontWeight":700},
   alarmSampleBadge: {"fontSize":12,"fontWeight":700,"color":"#0b57d0"},
   alarmSampleSettingsCard: {"gap":12,"padding":16},
-  alarmSampleChipsRow: {"flexDirection":"row","gap":8},
-  alarmSampleChip: {"borderWidth":1,"borderColor":"#0b57d0","borderRadius":9999,"padding":8},
-  alarmSampleChipOn: {"backgroundColor":"#0b57d0"},
-  alarmSampleChipText: {"fontSize":12,"fontWeight":700,"color":"#0b57d0"},
-  alarmSampleChipTextOn: {"color":"#ffffff"},
+  alarmSampleRepeatRow: {"flexDirection":"row","alignItems":"center","gap":8},
+  alarmSampleRepeatLabel: {"flex":1,"fontSize":16},
+  alarmSampleDayRow: {"flexDirection":"row","alignItems":"center","gap":12,"padding":8},
+  alarmSampleDayName: {"flex":1,"fontSize":16},
+  alarmSampleCheck: {"width":34,"height":34,"borderRadius":8,"borderWidth":2,"borderColor":"#34a853","alignItems":"center","justifyContent":"center"},
+  alarmSampleCheckDone: {"backgroundColor":"#34a853"},
   alarmSampleNote: {"fontSize":12,"color":"#5f6368"},
   alarmSampleRingCard: {"gap":12,"padding":16,"alignItems":"center"},
   alarmSampleRingLabel: {"fontSize":12,"fontWeight":700,"color":"#b3261e"},
-  alarmSampleRingTime: {"fontSize":32,"fontWeight":700},
+  alarmSampleRingTime: {"fontSize":32,"lineHeight":40,"fontWeight":700},
   alarmSampleRingActions: {"flexDirection":"row","gap":12},
   todoSampleChipsRow: {"flexDirection":"row","gap":8},
   todoSampleChip: {"borderWidth":1,"borderColor":"#0b57d0","borderRadius":9999,"padding":8},

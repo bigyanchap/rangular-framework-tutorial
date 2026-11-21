@@ -25,15 +25,25 @@
     <card class="settings-card">
       <label>When</label>
       <datetime-picker label="Time" mode="time" [value]="alarm.timeIso" (change)="setTime($event)"></datetime-picker>
-      <label>Repeat</label>
-      <section class="chips-row">
-        <section *ngFor="let c of dayChips" class="chip" [class.chip-on]="c.on" (click)="toggleDay(c.d)">
-          <p class="chip-text" [class.chip-text-on]="c.on">{{ c.name }}</p>
-        </section>
+      <section class="repeat-row" (click)="openRepeat()">
+        <p class="repeat-label">Repeat</p>
+        <p class="badge">{{ daysLabel }}</p>
+        <icon name="chevron-right"></icon>
       </section>
       <input label="Alarm title" placeholder="Wake up" [(ngModel)]="titleDraft" (change)="applyTitle($event)">
       <p *ngIf="titleDraft.length > 40">{{ 50 - titleDraft.length }} characters left.</p>
     </card>
     <p class="note">It rings on this page while the app is open, with vibration. It does not ring when the app is closed.</p>
   </section>
+  <dialog [open]="repeatOpen" (close)="closeRepeat()" title="Repeat">
+    <section *ngFor="let r of dayRows" class="day-row" (click)="toggleDay(r.d)">
+      <p class="day-name">{{ r.name }}</p>
+      <section class="check" [class.check-done]="r.on">
+        <icon *ngIf="r.on" name="check" color="onPrimary"></icon>
+      </section>
+    </section>
+    <actions>
+      <button (click)="closeRepeat()">Done</button>
+    </actions>
+  </dialog>
 </section>

@@ -19,18 +19,19 @@ import { AlarmService } from './alarm.service';
     .alarm-card { gap: 8px; padding: 16px; }
     .alarm-top { flex-direction: row; align-items: center; gap: 12px; }
     .alarm-main { flex: 1; gap: 4px; }
-    .alarm-time { font-size: 32px; font-weight: 700; }
+    .alarm-time { font-size: 32px; line-height: 40px; font-weight: 700; }
     .badge { font-size: 12px; font-weight: 700; color: #0b57d0; }
     .settings-card { gap: 12px; padding: 16px; }
-    .chips-row { flex-direction: row; gap: 8px; }
-    .chip { border-width: 1px; border-color: #0b57d0; border-radius: 9999px; padding: 8px; }
-    .chip-on { background-color: #0b57d0; }
-    .chip-text { font-size: 12px; font-weight: 700; color: #0b57d0; }
-    .chip-text-on { color: #ffffff; }
+    .repeat-row { flex-direction: row; align-items: center; gap: 8px; }
+    .repeat-label { flex: 1; font-size: 16px; }
+    .day-row { flex-direction: row; align-items: center; gap: 12px; padding: 8px; }
+    .day-name { flex: 1; font-size: 16px; }
+    .check { width: 34px; height: 34px; border-radius: 8px; border-width: 2px; border-color: #34a853; align-items: center; justify-content: center; }
+    .check-done { background-color: #34a853; }
     .note { font-size: 12px; color: #5f6368; }
     .ring-card { gap: 12px; padding: 16px; align-items: center; }
     .ring-label { font-size: 12px; font-weight: 700; color: #b3261e; }
-    .ring-time { font-size: 32px; font-weight: 700; }
+    .ring-time { font-size: 32px; line-height: 40px; font-weight: 700; }
     .ring-actions { flex-direction: row; gap: 12px; }
   `],
 })
@@ -38,8 +39,10 @@ export class AlarmSampleComponent {
   titleDraft = '';
   timeLabel = '';
   daysLabel = '';
-  dayChips: any[] = [];
+  repeatOpen = false;
+  dayRows: any[] = [];
   dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  dayFullNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
   constructor(
     public alarm: AlarmService,
@@ -54,7 +57,7 @@ export class AlarmSampleComponent {
   refresh() {
     this.timeLabel = this.fmtTime(this.alarm.timeIso);
     this.daysLabel = this.computeDaysLabel();
-    this.dayChips = [0, 1, 2, 3, 4, 5, 6].map((d) => ({ d, name: this.dayNames[d], on: this.alarm.days.indexOf(d) >= 0 }));
+    this.dayRows = [0, 1, 2, 3, 4, 5, 6].map((d) => ({ d, name: this.dayFullNames[d], on: this.alarm.days.indexOf(d) >= 0 }));
   }
 
   fmtTime(iso: string) {
@@ -87,6 +90,14 @@ export class AlarmSampleComponent {
   toggleDay(d: number) {
     this.alarm.toggleDay(d);
     this.refresh();
+  }
+
+  openRepeat() {
+    this.repeatOpen = true;
+  }
+
+  closeRepeat() {
+    this.repeatOpen = false;
   }
 
   onSwitch(v: boolean) {
