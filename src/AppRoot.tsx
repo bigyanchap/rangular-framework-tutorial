@@ -2055,7 +2055,7 @@ export function Home() {
                 ))}
               </RgList>
             </RgSection>
-            <RgText variant="bodyLarge">97 lessons · Rangular framework 0.4.5</RgText>
+            <RgText variant="bodyLarge">97 lessons · Rangular framework 0.4.6</RgText>
             <RgButton color="danger" onPress={() => askReset()}>Reset all checks</RgButton>
           </RgSection>
         )}
