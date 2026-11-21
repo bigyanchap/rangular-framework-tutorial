@@ -307,18 +307,29 @@ repo cloned to run the tutorial.
 ## Recompile after editing the source
 
 Running the app needs nothing but this repo. Recompiling after you edit
-a file in `src/` needs a clone of the Rangular repo beside it:
+a file in `src/` needs the Rangular compiler, which lives in the
+framework repo.
+
+The compile itself is one short command, run in this folder:
 
 ```sh
-git clone https://github.com/bigyanchap/rangular.git
-cd rangular
+rg build
+```
+
+With no arguments it compiles `src/app.component.ts` and writes
+`src/AppRoot.tsx`; then restart Expo. That command needs the `rg` CLI
+on your PATH. From a clone, the same compile spelled out is:
+
+```sh
+git clone https://github.com/bigyanchap/rangular-framework.git
+cd rangular-framework
 npm install
 npm test
 node dist/packages/cli/src/cli.js build ../rangular-tutorial/src/app.component.ts --out ../rangular-tutorial/src/AppRoot.tsx
 ```
 
-Run that from the Rangular repo folder, then restart Expo in the
-tutorial folder. In normal use, leave recompiling to the build process:
+Run that from the framework repo folder, with this repo cloned beside
+it. In normal use, leave recompiling to the build process:
 each delivered batch arrives with its compiled `AppRoot.tsx` included.
 
 ## Rules this app follows
