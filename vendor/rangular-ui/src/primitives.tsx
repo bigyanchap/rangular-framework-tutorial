@@ -42,8 +42,9 @@ import type { Theme } from './tokens';
 import { ICON_PATHS, BRAND_MARKS, BRAND_MARK_VIEWBOX } from './icons';
 import { applyMask } from './mask';
 import {
-  parseBlocks, serializeBlocks, setBlockKind, setBlockText, toggleBlockDone,
-  insertBlockAfter, removeBlock, moveBlock, toggleInline, inlineActive, parseInline,
+  parseBlocks, serializeBlocks, setBlockKind, toggleBlockDone,
+  insertBlockAfter, moveBlock, parseInline,
+  blockOffsets, lineAtOffset, toggleInlineInValue, inlineActiveInValue,
 } from './blocks';
 import type { Block, BlockKind } from './blocks';
 import { chartModel } from './chart';
@@ -871,10 +872,14 @@ function buildStyles(t: Theme) {
       fontSize: t.typography.title.fontSize, fontWeight: '600', color: c.text, textAlign: 'center',
     },
     emptyText: { fontSize: t.typography.body.fontSize, color: c.textMuted, textAlign: 'center' },
-    // Editor (Stage 15, rebuilt 0.5.0): one framed unit. The
-    // head inside the frame holds the block style chips and,
-    // right below them, the parameter tools; the blocks live
-    // under the head, inside the same frame.
+    // Editor (Stage 15, rebuilt 0.5.0, one-field editing
+    // 0.6.0): one framed unit. The head inside the frame
+    // holds the block style chips and, right below them, the
+    // parameter tools; both rows wrap when the frame is too
+    // narrow. The blocks live under the head, inside the
+    // same frame; while editing, one field holds the whole
+    // note and an edit bar under it carries the move
+    // steppers and Done.
     editorFrame: {
       borderWidth: 1, borderColor: c.border, borderRadius: t.radius.md,
       overflow: 'hidden', backgroundColor: c.surface,
@@ -883,7 +888,7 @@ function buildStyles(t: Theme) {
       backgroundColor: c.surfaceVariant, padding: t.spacing.sm, gap: t.spacing.sm,
       borderBottomWidth: 1, borderBottomColor: c.border,
     },
-    editorChipsRow: { flexDirection: 'row', gap: t.spacing.xs },
+    editorChipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.xs },
     editorChip: {
       paddingHorizontal: t.spacing.sm, paddingVertical: 6, borderRadius: t.radius.sm,
       borderWidth: 1, borderColor: c.border, backgroundColor: c.surface,
@@ -891,7 +896,7 @@ function buildStyles(t: Theme) {
     editorChipOn: { backgroundColor: c.primary, borderColor: c.primary },
     editorChipLabel: { fontSize: 12, color: c.text, fontWeight: '600' },
     editorChipLabelOn: { color: c.onPrimary },
-    editorToolsRow: { flexDirection: 'row', gap: t.spacing.xs, alignItems: 'center' },
+    editorToolsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.xs, alignItems: 'center' },
     editorTool: {
       minWidth: 36, height: 36, paddingHorizontal: 6, borderRadius: t.radius.sm,
       borderWidth: 1, borderColor: c.border, backgroundColor: c.surface,
@@ -914,9 +919,7 @@ function buildStyles(t: Theme) {
     edBlockRow: {
       flexDirection: 'row', alignItems: 'flex-start', gap: t.spacing.sm,
       paddingVertical: 4, paddingHorizontal: t.spacing.xs, borderRadius: t.radius.sm,
-      borderWidth: 1, borderColor: 'transparent',
     },
-    edBlockActive: { borderColor: c.primary },
     edGutter: { width: 22, textAlign: 'center', color: c.textMuted, fontSize: 15, lineHeight: 22 },
     edCheckRing: {
       width: 20, height: 20, borderRadius: t.radius.full, borderWidth: 2,
@@ -935,8 +938,17 @@ function buildStyles(t: Theme) {
     edRunUnderline: { textDecorationLine: 'underline' },
     edRunStrike: { textDecorationLine: 'line-through' },
     edInput: { padding: 0, margin: 0, textAlignVertical: 'top' },
-    edMoveCol: { gap: 2 },
+    edEditBar: {
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+      paddingTop: t.spacing.sm,
+    },
+    edMoveRow: { flexDirection: 'row', gap: 2 },
     edMoveBtn: { width: 28, height: 22, alignItems: 'center', justifyContent: 'center' },
+    edDoneBtn: {
+      paddingHorizontal: t.spacing.md, paddingVertical: 6, borderRadius: t.radius.sm,
+      backgroundColor: c.text,
+    },
+    edDoneLabel: { color: c.surface, fontWeight: '700', fontSize: t.typography.label.fontSize },
     edAdd: { paddingVertical: t.spacing.sm, paddingHorizontal: t.spacing.xs },
     edAddLabel: { color: c.textMuted, fontSize: t.typography.body.fontSize },
     // Lightbox (Stage 15): the photo centred over the scrim,
@@ -4524,26 +4536,28 @@ export function RgChart({ type = 'bar', data, width, height, style }: any) {
  * contract every other control has: [value] in, (change) out.
  */
 /**
- * The block editor (Stage 15, rebuilt 0.5.0 at Bigyan's
- * direction): `<editor [value] (change)>` edits a note made
- * of blocks. The value stays one string, one block per line,
- * and the pure model in blocks.ts reads and writes it: a
- * line's prefix names its kind and four inline marks style
- * runs of words inside a block. The editor is one framed
- * unit: inside the frame, at the top, the block style chips
- * (Title, Heading, Body, Quote, Checklist, List) and, right
- * below them, the parameter tools (Aa shows or hides the
- * style row; Bold, Italic, Underline and Strikethrough act
- * on the active block's selection and toggle; the checklist,
- * bullet and numbered tools set the active block's kind; the
- * grip arms move mode, which steps the block up or down).
- * The blocks live under the controls. At rest a block renders
- * styled, bold is bold and a checklist ring taps to tick;
- * tapping a block's text opens it for editing, and only
- * there do its marks show. Enter starts the next block; an
- * empty list item left by Enter becomes a body block; an
- * empty block removed by Backspace steps back to the block
- * above.
+ * The block editor (Stage 15, rebuilt 0.5.0, editing model
+ * changed 0.6.0 at Bigyan's direction): `<editor [value]
+ * (change)>` edits a note made of blocks. The value stays
+ * one string, one block per line, and the pure model in
+ * blocks.ts reads and writes it: a line's prefix names its
+ * kind and four inline marks style runs of words inside a
+ * block. The editor is one framed unit: inside the frame,
+ * at the top, the block style chips (Title, Heading, Body,
+ * Quote, Checklist, List) and, right below them, the
+ * parameter tools (Aa shows or hides the style row; Bold,
+ * Italic, Underline and Strikethrough act on the selection
+ * and toggle; the checklist, bullet and numbered tools set
+ * the kind of the caret's line; the grip arms move mode,
+ * which steps the caret's line up or down). Both rows wrap
+ * onto a second line when the frame is too narrow, so no
+ * control ever falls off the edge (0.6.0, his pick A).
+ * The blocks live under the controls. At rest the note
+ * renders styled, bold is bold and a checklist ring taps
+ * to tick. Tapping the note opens the WHOLE note in one
+ * field, marks and prefixes showing as text, the caret on
+ * the block that was tapped; Done, or the keyboard going
+ * away, settles it back to the styled face.
  */
 export function RgEditor({ value, label, placeholder, disabled, onChange, style }: any) {
   const t = useRgTheme();
@@ -4551,30 +4565,37 @@ export function RgEditor({ value, label, placeholder, disabled, onChange, style 
   const liftAboveKeyboard = useKeyboardLift();
   const text = value === undefined || value === null ? '' : String(value);
   const blocks = parseBlocks(text);
-  const [active, setActive] = useState<number | null>(null);
+  const [editing, setEditing] = useState(false);
   const [sel, setSel] = useState({ start: 0, end: 0 });
   const [showStyles, setShowStyles] = useState(true);
   const [moveMode, setMoveMode] = useState(false);
-  const inputRefs = useRef(new Map<number, any>());
-  const pendingActive = useRef<number | null>(null);
+  const fieldRef = useRef<any>(null);
+  const justEntered = useRef(false);
   const clearTimer = useRef<any>(null);
-  const activeBlock: Block | null = active !== null && active < blocks.length ? blocks[active] : null;
+  const caretLine = editing ? lineAtOffset(blocks, sel.start) : null;
+  // The field stands as tall as the note's lines, wrapped
+  // lines counted at a phone's measure, so no line hides
+  // inside it while the whole note is being edited.
+  const fieldLines = blocks.reduce(
+    (n, b) => n + Math.max(1, Math.ceil((b.text.length + 4) / 38)),
+    0,
+  );
+  const caretBlock: Block | null = caretLine !== null ? blocks[caretLine] : null;
 
   useEffect(() => {
-    if (active === null) return;
-    const input = inputRefs.current.get(active);
-    if (input) input.focus();
-  }, [active]);
+    if (editing && fieldRef.current) fieldRef.current.focus();
+  }, [editing]);
 
   const emit = (next: Block[]): void => {
     onChange?.(serializeBlocks(next));
   };
 
-  // A blur does not close the block at once. On the web a tap
-  // on a tool blurs the field first and presses second, so the
-  // close waits a beat and any editor action cancels it; only
-  // a blur that nothing follows (the keyboard dismissed, the
-  // reader moved on) settles the block back to its styled rest.
+  // A blur does not settle the note at once. On the web a
+  // tap on a tool blurs the field first and presses second,
+  // so the settle waits a beat and any editor action cancels
+  // it; only a blur that nothing follows (the keyboard
+  // dismissed, the reader moved on) returns the note to its
+  // styled rest.
   const cancelClear = (): void => {
     if (clearTimer.current) {
       clearTimeout(clearTimer.current);
@@ -4582,118 +4603,103 @@ export function RgEditor({ value, label, placeholder, disabled, onChange, style 
     }
   };
 
-  const openBlock = (i: number, from?: Block[]): void => {
+  const enterEdit = (i?: number, fromText?: string): void => {
     if (disabled) return;
-    const list = from ?? blocks;
-    const target = list[i];
-    if (!target) return;
+    const src = fromText ?? text;
+    const list = parseBlocks(src);
     cancelClear();
-    pendingActive.current = i;
+    justEntered.current = true;
     setTimeout(() => {
-      if (pendingActive.current === i) pendingActive.current = null;
+      justEntered.current = false;
     }, 300);
-    setActive(i);
-    setSel({ start: target.text.length, end: target.text.length });
+    if (i !== undefined && list[i]) {
+      const offs = blockOffsets(list);
+      const pos = offs[i].start + offs[i].prefix + list[i].text.length;
+      setSel({ start: pos, end: pos });
+    } else {
+      setSel({ start: src.length, end: src.length });
+    }
+    setEditing(true);
   };
 
-  const onInputBlur = (i: number): void => {
-    if (pendingActive.current !== null) return;
+  const exitEdit = (): void => {
+    cancelClear();
+    setEditing(false);
+    setMoveMode(false);
+  };
+
+  const onFieldBlur = (): void => {
+    if (justEntered.current) return;
     cancelClear();
     clearTimer.current = setTimeout(() => {
       clearTimer.current = null;
-      setActive((cur: number | null) => (cur === i ? null : cur));
+      setEditing(false);
       setMoveMode(false);
     }, 350);
   };
 
+  // Where the caret sits inside its line's text, measured on
+  // the current value; chips and steppers keep it in place
+  // while the line's prefix changes length around it.
+  const caretLocal = (): number => {
+    if (caretLine === null) return 0;
+    const offs = blockOffsets(blocks);
+    return Math.max(
+      0,
+      Math.min(sel.start - offs[caretLine].start - offs[caretLine].prefix, blocks[caretLine].text.length),
+    );
+  };
+
+  const placeCaretOnLine = (list: Block[], line: number, local: number): void => {
+    const offs = blockOffsets(list);
+    const pos = offs[line].start + offs[line].prefix + Math.min(local, list[line].text.length);
+    setSel({ start: pos, end: pos });
+  };
+
   const applyChip = (kind: BlockKind): void => {
-    if (active === null || !activeBlock) return;
+    if (!editing || caretLine === null) return;
     cancelClear();
-    emit(setBlockKind(blocks, active, kind));
+    const local = caretLocal();
+    const next = setBlockKind(blocks, caretLine, kind);
+    emit(next);
+    placeCaretOnLine(next, caretLine, local);
   };
 
   const applyKindTool = (kind: BlockKind): void => {
-    if (active === null || !activeBlock) return;
+    if (!editing || caretLine === null || !caretBlock) return;
     cancelClear();
-    emit(setBlockKind(blocks, active, activeBlock.kind === kind ? 'body' : kind));
+    const local = caretLocal();
+    const next = setBlockKind(blocks, caretLine, caretBlock.kind === kind ? 'body' : kind);
+    emit(next);
+    placeCaretOnLine(next, caretLine, local);
   };
 
   const applyMark = (marker: string): void => {
-    if (active === null || !activeBlock) return;
+    if (!editing) return;
     cancelClear();
-    const out = toggleInline(activeBlock.text, sel.start, sel.end, marker);
-    if (out.text === activeBlock.text) return;
+    const out = toggleInlineInValue(blocks, sel.start, sel.end, marker);
+    if (serializeBlocks(out.blocks) === text) return;
     setSel({ start: out.start, end: out.end });
-    emit(setBlockText(blocks, active, out.text));
+    emit(out.blocks);
   };
 
-  const onBlockText = (i: number, nextText: string): void => {
-    if (nextText.indexOf('\n') === -1) {
-      emit(setBlockText(blocks, i, nextText));
-      return;
-    }
-    const parts = nextText.split('\n');
-    const kind = blocks[i].kind;
-    if (
-      parts.length === 2 && parts[0] === '' && parts[1] === '' &&
-      (kind === 'check' || kind === 'bullet' || kind === 'number')
-    ) {
-      // Enter on an empty list item leaves the list, the way
-      // the notes apps do it.
-      emit(setBlockKind(blocks, i, 'body'));
-      return;
-    }
-    let nextBlocks = setBlockText(blocks, i, parts[0]);
-    let at = i;
-    for (let k = 1; k < parts.length; k += 1) {
-      const here = nextBlocks[at].kind;
-      const follow = here === 'check' || here === 'bullet' || here === 'number' ? here : 'body';
-      nextBlocks = insertBlockAfter(nextBlocks, at, follow);
-      at += 1;
-      nextBlocks = setBlockText(nextBlocks, at, parts[k]);
-    }
-    pendingActive.current = at;
-    setTimeout(() => {
-      if (pendingActive.current === at) pendingActive.current = null;
-    }, 300);
-    setActive(at);
-    const last = parts[parts.length - 1];
-    setSel({ start: last.length, end: last.length });
-    emit(nextBlocks);
-  };
-
-  const onBlockKey = (i: number) => (e: any): void => {
-    if (e?.nativeEvent?.key !== 'Backspace') return;
-    if (blocks[i].text !== '' || blocks.length <= 1) return;
-    const target = Math.max(0, i - 1);
-    pendingActive.current = target;
-    setTimeout(() => {
-      if (pendingActive.current === target) pendingActive.current = null;
-    }, 300);
-    setActive(target);
-    setSel({ start: blocks[target].text.length, end: blocks[target].text.length });
-    emit(removeBlock(blocks, i));
-  };
-
-  const moveActive = (dir: -1 | 1): void => {
-    if (active === null) return;
+  const moveLine = (dir: -1 | 1): void => {
+    if (!editing || caretLine === null) return;
     cancelClear();
-    const target = active + dir;
+    const target = caretLine + dir;
     if (target < 0 || target >= blocks.length) return;
-    pendingActive.current = target;
-    setTimeout(() => {
-      if (pendingActive.current === target) pendingActive.current = null;
-    }, 300);
-    setActive(target);
-    emit(moveBlock(blocks, active, dir));
+    const local = caretLocal();
+    const next = moveBlock(blocks, caretLine, dir);
+    emit(next);
+    placeCaretOnLine(next, target, local);
   };
 
   const addBlock = (): void => {
     if (disabled) return;
-    cancelClear();
     const next = insertBlockAfter(blocks, blocks.length - 1, 'body');
-    emit(next);
-    openBlock(next.length - 1, next);
+    const nextText = serializeBlocks(next);
+    onChange?.(nextText);
+    enterEdit(next.length - 1, nextText);
   };
 
   const kindTextStyle = (block: Block): any[] => {
@@ -4725,11 +4731,11 @@ export function RgEditor({ value, label, placeholder, disabled, onChange, style 
   };
 
   const chip = (labelText: string, kind: BlockKind): React.ReactNode => {
-    const on = activeBlock?.kind === kind;
+    const on = caretBlock?.kind === kind;
     return (
       <Pressable
         key={labelText}
-        disabled={disabled || active === null}
+        disabled={disabled || !editing}
         onPress={() => applyChip(kind)}
         style={[styles.editorChip, on ? styles.editorChipOn : null]}
         accessibilityRole="button"
@@ -4778,96 +4784,107 @@ export function RgEditor({ value, label, placeholder, disabled, onChange, style 
               cancelClear();
               setShowStyles(!showStyles);
             }, showStyles)}
-            {tool('bold', 'B', () => applyMark('**'), !!activeBlock && inlineActive(activeBlock.text, sel.start, sel.end, '**'), styles.editorBoldLabel)}
-            {tool('italic', 'I', () => applyMark('*'), !!activeBlock && inlineActive(activeBlock.text, sel.start, sel.end, '*'), styles.editorItalicLabel)}
-            {tool('underline', 'U', () => applyMark('++'), !!activeBlock && inlineActive(activeBlock.text, sel.start, sel.end, '++'), styles.editorUnderlineLabel)}
-            {tool('strike', 'S', () => applyMark('~~'), !!activeBlock && inlineActive(activeBlock.text, sel.start, sel.end, '~~'), styles.editorStrikeLabel)}
-            {tool('check', '☑', () => applyKindTool('check'), activeBlock?.kind === 'check')}
-            {tool('bullet', '•', () => applyKindTool('bullet'), activeBlock?.kind === 'bullet')}
-            {tool('number', '1.', () => applyKindTool('number'), activeBlock?.kind === 'number')}
+            {tool('bold', 'B', () => applyMark('**'), editing && inlineActiveInValue(blocks, sel.start, sel.end, '**'), styles.editorBoldLabel)}
+            {tool('italic', 'I', () => applyMark('*'), editing && inlineActiveInValue(blocks, sel.start, sel.end, '*'), styles.editorItalicLabel)}
+            {tool('underline', 'U', () => applyMark('++'), editing && inlineActiveInValue(blocks, sel.start, sel.end, '++'), styles.editorUnderlineLabel)}
+            {tool('strike', 'S', () => applyMark('~~'), editing && inlineActiveInValue(blocks, sel.start, sel.end, '~~'), styles.editorStrikeLabel)}
+            {tool('check', '☑', () => applyKindTool('check'), caretBlock?.kind === 'check')}
+            {tool('bullet', '•', () => applyKindTool('bullet'), caretBlock?.kind === 'bullet')}
+            {tool('number', '1.', () => applyKindTool('number'), caretBlock?.kind === 'number')}
             {tool('grip', '⠿', () => {
               cancelClear();
-              setMoveMode(!moveMode);
+              if (!editing) {
+                enterEdit();
+                setMoveMode(true);
+              } else {
+                setMoveMode(!moveMode);
+              }
             }, moveMode)}
           </View>
         </View>
         <View style={styles.editorBody}>
-          {blocks.map((block, i) => {
-            if (block.kind === 'number') numberRun += 1;
-            else numberRun = 0;
-            const ordinal = numberRun;
-            const isActive = active === i;
-            const content = isActive ? (
+          {editing ? (
+            <View>
               <TextInput
-                ref={(node: any) => {
-                  if (node) inputRefs.current.set(i, node);
-                  else inputRefs.current.delete(i);
-                }}
-                style={[kindTextStyle(block), styles.edInput]}
-                value={block.text}
-                onChangeText={(nextText: string) => onBlockText(i, nextText)}
+                ref={fieldRef}
+                style={[styles.edTextBase, styles.edInput, { minHeight: Math.max(44, fieldLines * 22) }]}
+                value={text}
+                onChangeText={(nextText: string) => onChange?.(nextText)}
                 onSelectionChange={(e: any) => setSel(e.nativeEvent.selection)}
                 selection={sel}
-                onKeyPress={onBlockKey(i)}
                 onFocus={() => {
                   cancelClear();
-                  liftAboveKeyboard(inputRefs.current.get(i));
+                  liftAboveKeyboard(fieldRef.current);
                 }}
-                onBlur={() => onInputBlur(i)}
+                onBlur={onFieldBlur}
                 placeholder={placeholder ? String(placeholder) : undefined}
                 placeholderTextColor={t.colors.textMuted}
                 editable={!disabled}
                 multiline
               />
-            ) : (
-              <Pressable disabled={disabled} onPress={() => openBlock(i)} style={{ flex: 1 }}>
-                <Text style={[kindTextStyle(block), block.kind === 'check' && block.done ? styles.edDoneText : null]}>
-                  {renderRuns(block)}
-                </Text>
-              </Pressable>
-            );
-            return (
-              <View key={i} style={[styles.edBlockRow, isActive ? styles.edBlockActive : null]}>
-                {block.kind === 'check' ? (
-                  <Pressable
-                    disabled={disabled}
-                    onPress={() => {
-                      cancelClear();
-                      emit(toggleBlockDone(blocks, i));
-                    }}
-                  >
-                    <View style={[styles.edCheckRing, block.done ? styles.edCheckRingDone : null]}>
-                      {block.done ? <RgIcon name="check" size={12} color="onPrimary" /> : null}
-                    </View>
-                  </Pressable>
-                ) : null}
-                {block.kind === 'bullet' ? <Text style={styles.edGutter}>•</Text> : null}
-                {block.kind === 'number' ? <Text style={styles.edGutter}>{ordinal}.</Text> : null}
-                {block.kind === 'quote' ? <View style={styles.edQuoteBar} /> : null}
-                {content}
-                {moveMode && isActive ? (
-                  <View style={styles.edMoveCol}>
-                    <Pressable disabled={disabled || i === 0} onPress={() => moveActive(-1)} style={styles.edMoveBtn}>
+              <View style={styles.edEditBar}>
+                {moveMode ? (
+                  <View style={styles.edMoveRow}>
+                    <Pressable disabled={disabled || caretLine === 0} onPress={() => moveLine(-1)} style={styles.edMoveBtn}>
                       <RgIcon name="chevron-up" size={16} color="textMuted" />
                     </Pressable>
-                    <Pressable disabled={disabled || i === blocks.length - 1} onPress={() => moveActive(1)} style={styles.edMoveBtn}>
+                    <Pressable disabled={disabled || caretLine === null || caretLine === blocks.length - 1} onPress={() => moveLine(1)} style={styles.edMoveBtn}>
                       <RgIcon name="chevron-down" size={16} color="textMuted" />
                     </Pressable>
                   </View>
-                ) : null}
+                ) : (
+                  <View />
+                )}
+                <Pressable disabled={disabled} onPress={exitEdit} style={styles.edDoneBtn}>
+                  <Text style={styles.edDoneLabel}>Done</Text>
+                </Pressable>
               </View>
-            );
-          })}
-          {!disabled ? (
-            <Pressable onPress={addBlock} style={styles.edAdd}>
-              <Text style={styles.edAddLabel}>+ Tap to add a block</Text>
-            </Pressable>
-          ) : null}
+            </View>
+          ) : (
+            <>
+              {blocks.map((block, i) => {
+                if (block.kind === 'number') numberRun += 1;
+                else numberRun = 0;
+                const ordinal = numberRun;
+                return (
+                  <View key={i} style={styles.edBlockRow}>
+                    {block.kind === 'check' ? (
+                      <Pressable
+                        disabled={disabled}
+                        onPress={() => {
+                          cancelClear();
+                          emit(toggleBlockDone(blocks, i));
+                        }}
+                      >
+                        <View style={[styles.edCheckRing, block.done ? styles.edCheckRingDone : null]}>
+                          {block.done ? <RgIcon name="check" size={12} color="onPrimary" /> : null}
+                        </View>
+                      </Pressable>
+                    ) : null}
+                    {block.kind === 'bullet' ? <Text style={styles.edGutter}>•</Text> : null}
+                    {block.kind === 'number' ? <Text style={styles.edGutter}>{ordinal}.</Text> : null}
+                    {block.kind === 'quote' ? <View style={styles.edQuoteBar} /> : null}
+                    <Pressable disabled={disabled} onPress={() => enterEdit(i)} style={{ flex: 1 }}>
+                      <Text style={[kindTextStyle(block), block.kind === 'check' && block.done ? styles.edDoneText : null]}>
+                        {renderRuns(block)}
+                      </Text>
+                    </Pressable>
+                  </View>
+                );
+              })}
+              {!disabled ? (
+                <Pressable onPress={addBlock} style={styles.edAdd}>
+                  <Text style={styles.edAddLabel}>+ Tap to add a block</Text>
+                </Pressable>
+              ) : null}
+            </>
+          )}
         </View>
       </View>
     </View>
   );
 }
+
 /**
  * An image (Stage 15): `<image src="..." width="320" height="180">`
  * shows a remote or bundled picture at a declared size. Declaring

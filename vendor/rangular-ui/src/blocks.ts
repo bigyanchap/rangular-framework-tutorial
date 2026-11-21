@@ -18,9 +18,11 @@
  * double stars are bold, a single star is italic, double plus is
  * underline and double tilde is strikethrough. The marks are
  * flat: a marked run holds plain text, marks do not nest. The
- * editor renders blocks styled at rest and shows a block's marks
- * only while that block is being edited, so what the writer sees
- * is the styled note, and what the app stores is this string.
+ * editor renders blocks styled at rest; tapping the note opens
+ * the WHOLE note in one field, where the marks show as text, and
+ * Done settles it back to the styled face. What the writer reads
+ * at rest is the styled note, and what the app stores is this
+ * string.
  *
  * Pure functions only, no React Native imports, so the model is
  * unit tested directly and the browser preview mirrors it.
@@ -216,6 +218,138 @@ export function toggleInline(
     };
   }
   return { text, start: s, end: e };
+}
+
+export interface BlockOffset {
+  /** Offset of the line's first character in the serialized value. */
+  start: number;
+  /** Length of the line's kind prefix in the serialized value. */
+  prefix: number;
+}
+
+/**
+ * Where each block's line sits in the serialized value. The
+ * prefix length comes from the serialized line itself, so a
+ * renumbered run ('10. ') measures exactly what was written.
+ */
+export function blockOffsets(blocks: Block[]): BlockOffset[] {
+  const lines = serializeBlocks(blocks).split('\n');
+  const out: BlockOffset[] = [];
+  let pos = 0;
+  blocks.forEach((b, i) => {
+    const line = lines[i] ?? '';
+    out.push({ start: pos, prefix: Math.max(0, line.length - b.text.length) });
+    pos += line.length + 1;
+  });
+  return out;
+}
+
+/** The index of the block whose line holds this value offset. */
+export function lineAtOffset(blocks: Block[], offset: number): number {
+  const offs = blockOffsets(blocks);
+  let idx = 0;
+  offs.forEach((o, i) => {
+    if (offset >= o.start) idx = i;
+  });
+  return idx;
+}
+
+export interface ValueToggle {
+  blocks: Block[];
+  start: number;
+  end: number;
+}
+
+/**
+ * One press of a toolbar mark button while the whole note is
+ * being edited in one field: the selection lives in serialized
+ * value coordinates, so each line it touches gets its own
+ * toggleInline on the matching segment. Marks are per line in
+ * this model, so a selection that crosses lines toggles each
+ * line's part; a line the selection covers whole unwraps every
+ * run of the mark inside it (and wraps whole only when it holds
+ * none). The returned selection keeps covering the same words
+ * in the new value.
+ */
+export function toggleInlineInValue(
+  blocks: Block[],
+  start: number,
+  end: number,
+  marker: string,
+): ValueToggle {
+  const total = serializeBlocks(blocks).length;
+  const s = Math.max(0, Math.min(start, total));
+  const e = Math.max(s, Math.min(end, total));
+  const offs = blockOffsets(blocks);
+  if (s === e) {
+    const li = lineAtOffset(blocks, s);
+    const o = offs[li];
+    const local = Math.max(0, Math.min(s - o.start - o.prefix, blocks[li].text.length));
+    const out = toggleInline(blocks[li].text, local, local, marker);
+    if (out.text === blocks[li].text) return { blocks, start: s, end: e };
+    return {
+      blocks: setBlockText(blocks, li, out.text),
+      start: o.start + o.prefix + out.start,
+      end: o.start + o.prefix + out.end,
+    };
+  }
+  let next = blocks;
+  let shift = 0;
+  let touched = false;
+  let newStart = s;
+  let newEnd = e;
+  for (let li = 0; li < blocks.length; li++) {
+    const o = offs[li];
+    const lineTextStart = o.start + o.prefix;
+    const lineTextEnd = lineTextStart + blocks[li].text.length;
+    const segS = Math.max(s, lineTextStart);
+    const segE = Math.min(e, lineTextEnd);
+    if (segS >= segE) continue;
+    let out: InlineToggle;
+    const spans =
+      segS === lineTextStart && segE === lineTextEnd
+        ? markedSpans(blocks[li].text, marker)
+        : [];
+    if (spans.length > 0) {
+      let t = blocks[li].text;
+      for (let k = spans.length - 1; k >= 0; k--) {
+        const sp = spans[k];
+        t = t.slice(0, sp.outerStart) + t.slice(sp.contentStart, sp.contentEnd) + t.slice(sp.outerEnd);
+      }
+      out = { text: t, start: 0, end: t.length };
+    } else {
+      out = toggleInline(
+        blocks[li].text,
+        segS - lineTextStart,
+        segE - lineTextStart,
+        marker,
+      );
+    }
+    if (out.text === blocks[li].text) continue;
+    next = setBlockText(next, li, out.text);
+    if (!touched) {
+      newStart = o.start + o.prefix + out.start;
+      touched = true;
+    }
+    newEnd = o.start + shift + o.prefix + out.end;
+    shift += out.text.length - blocks[li].text.length;
+  }
+  return { blocks: next, start: newStart, end: newEnd };
+}
+
+/** Is the mark active at the whole-note selection's caret line? */
+export function inlineActiveInValue(
+  blocks: Block[],
+  start: number,
+  end: number,
+  marker: string,
+): boolean {
+  const li = lineAtOffset(blocks, start);
+  const o = blockOffsets(blocks)[li];
+  const text = blocks[li].text;
+  const localS = Math.max(0, Math.min(start - o.start - o.prefix, text.length));
+  const localE = Math.max(localS, Math.min(end - o.start - o.prefix, text.length));
+  return inlineActive(text, localS, localE, marker);
 }
 
 /** Is the selection (or the caret's run) currently wearing this mark? */
