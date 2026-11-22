@@ -643,9 +643,9 @@ export class LessonService extends ReactiveService {
       subtitle: 'Navigate from code, when a tap is not a link',
       minutes: '4 min',
       intro: 'Links cover taps on blocks. Code covers the rest: after a save, after a sign in, whenever a value decides the destination. Inject Router and call navigate with a commands array, the array form of a link, or navigateByUrl with a whole path string. Both write to the same navigator the links use, and both resolve from the root of the route table: relative navigation, from this route to a sibling, is not supported yet. The demo asks for a lesson number and navigates to it from a method: type a number from 1 to 65 and tap Go. Ask for a number with no lesson and the lesson screen answers plainly that the lesson could not be found, which is honest behaviour for a bad address.',
-      code: "this.router.navigate(['/lesson', this.target]);",
-      implementation: '// programmatic-nav.component.ts\nimport { Component } from \'@angular/core\';\nimport { Router } from \'@angular/router\';\n\n@Component({\n  selector: \'app-programmatic-nav-demo\',\n  templateUrl: \'./programmatic-nav.component.html\',\n})\nexport class ProgrammaticNavDemoComponent {\n  target = \'\';\n\n  constructor(private router: Router) {}\n\n  go() {\n    this.router.navigate([\'/lesson\', this.target]);\n  }\n\n  goHistory() {\n    this.router.navigateByUrl(\'/history\');\n  }\n\n  goHome() {\n    this.router.navigate([\'/home\']);\n  }\n}\n\n// programmatic-nav.component.html\n<input label="Lesson number" placeholder="Type a number from 1 to 65" [(ngModel)]="target">\n<button (click)="go()" [disabled]="target === \'\'">\n  Go to that lesson\n</button>\n<button (click)="goHistory()">\n  History, by navigateByUrl\n</button>\n<button (click)="goHome()">\n  Home, by navigate\n</button>',
-
+      introAfter: 'An array can ride along too. A route parameter carries one string, so the array is joined into one string for the trip and split back into an array on the far side. The console box in the demo holds the array: Java, TypeScript, Python and C#. Tap Navigate With Array and a brand new page opens. That page reads the parameter, rebuilds the array, and puts it to work: it lists the languages, counts them, and reads the first and the last. The same packing works in a routerLink, because a link and the Router service write the same address.',
+      code: "this.router.navigate(['/lesson', this.target]);\nthis.router.navigate(['/stack', this.langs.join(',')]);",
+      implementation: '// programmatic-nav.component.ts\nimport { Component } from \'@angular/core\';\nimport { Router } from \'@angular/router\';\n\n@Component({\n  selector: \'app-programmatic-nav-demo\',\n  templateUrl: \'./programmatic-nav.component.html\',\n  styles: [`\n    /* doctor: allow-hex - the console box is a deliberate dark terminal surface. */\n    .console-box { background-color: #202124; border-radius: 12px; padding: 16px; }\n    .console-text { color: #a8dab5; font-size: 14px; line-height: 20px; }\n  `],\n})\nexport class ProgrammaticNavDemoComponent {\n  target = \'\';\n  langs = [\'Java\', \'TypeScript\', \'Python\', \'C#\'];\n\n  constructor(private router: Router) {}\n\n  go() {\n    this.router.navigate([\'/lesson\', this.target]);\n  }\n\n  goHistory() {\n    this.router.navigateByUrl(\'/history\');\n  }\n\n  goHome() {\n    this.router.navigate([\'/home\']);\n  }\n\n  langsText() {\n    return this.langs.join(\', \');\n  }\n\n  goStack() {\n    this.router.navigate([\'/stack\', this.langs.join(\',\')]);\n  }\n}\n\n// programmatic-nav.component.html\n<input label="Lesson number" placeholder="Type a number from 1 to 65" [(ngModel)]="target">\n<button (click)="go()" [disabled]="target === \'\'">\n  Go to that lesson\n</button>\n<button (click)="goHistory()">\n  History, by navigateByUrl\n</button>\n<button (click)="goHome()">\n  Home, by navigate\n</button>\n<section class="console-box">\n  <p class="console-text">[{{ langsText() }}]</p>\n</section>\n<button (click)="goStack()">\n  Navigate With Array\n</button>\n\n// stack.component.ts\nimport { Component } from \'@angular/core\';\nimport { ActivatedRoute, Router } from \'@angular/router\';\n\n@Component({\n  selector: \'app-stack\',\n  templateUrl: \'./stack.component.html\',\n})\nexport class StackComponent {\n  langs: string[] = [];\n  first = \'\';\n  last = \'\';\n\n  constructor(\n    private route: ActivatedRoute,\n    private router: Router,\n  ) {}\n\n  ngOnInit() {\n    const raw = this.route.snapshot.params.langs;\n    this.langs = raw ? raw.split(\',\') : [];\n    if (this.langs.length > 0) {\n      this.first = this.langs[0];\n      this.last = this.langs[this.langs.length - 1];\n    }\n  }\n\n  goBack() {\n    this.router.navigate([\'/lesson\', 60]);\n  }\n}\n\n// stack.component.html\n<section>\n  <appbar pin tone="tint" title="Language stack" back (back)="goBack()"></appbar>\n  <p>The array crossed the route whole. This page rebuilt it from the address and put it to work:</p>\n  <card>\n    <p>{{ langs.length }} languages arrived.</p>\n    <list>\n      <row *ngFor="let lang of langs" [title]="lang"></row>\n    </list>\n    <p>First: {{ first }} · Last: {{ last }}</p>\n  </card>\n  <p>One route parameter carried the whole array as one joined string. The page split it back into a list, counted it, and read its ends.</p>\n</section>',
       tip: 'Navigate from code at the end of an action, not instead of a link. If a plain tap on a block goes somewhere fixed, that is a routerLink; the Router service earns its place when logic chooses the moment or the destination.',
     },
     {
@@ -1839,7 +1839,7 @@ __container.register(IotService, new IotService());
 __container.register(AlarmService, new AlarmService());
 __container.register(TodoService, new TodoService());
 
-const __navigator = new RgNavigator([{"path":"","redirectTo":"splash"},{"path":"splash"},{"path":"home"},{"path":"saved"},{"path":"history"},{"path":"progress","redirectTo":"history"},{"path":"lesson/:id"},{"path":"samples"},{"path":"samples/iot"},{"path":"samples/alarm"},{"path":"samples/breakout","redirectTo":"samples"},{"path":"samples/mario","redirectTo":"samples"},{"path":"samples/todo"},{"path":"samples/habit","redirectTo":"samples/todo"},{"path":"about"},{"path":"**"}]);
+const __navigator = new RgNavigator([{"path":"","redirectTo":"splash"},{"path":"splash"},{"path":"home"},{"path":"saved"},{"path":"history"},{"path":"progress","redirectTo":"history"},{"path":"lesson/:id"},{"path":"samples"},{"path":"samples/iot"},{"path":"samples/alarm"},{"path":"samples/breakout","redirectTo":"samples"},{"path":"samples/mario","redirectTo":"samples"},{"path":"samples/todo"},{"path":"samples/habit","redirectTo":"samples/todo"},{"path":"about"},{"path":"stack/:langs"},{"path":"**"}]);
 const __router = new Router(__navigator);
 
 const __snackBar = new SnackBar();
@@ -4956,6 +4956,7 @@ export function ActivatedRouteDemo() {
 export function ProgrammaticNavDemo() {
   const router = __router;
   const [target, setTarget] = useState('');
+  const langs = ['Java', 'TypeScript', 'Python', 'C#'];
   const go = () => {
     router.navigate(['/lesson', target]);
   };
@@ -4965,12 +4966,22 @@ export function ProgrammaticNavDemo() {
   const goHome = () => {
     router.navigate(['/home']);
   };
+  const langsText = () => {
+    return langs.join(', ');
+  };
+  const goStack = () => {
+    router.navigate(['/stack', langs.join(',')]);
+  };
   return (
     <>
       <RgInput label="Lesson number" placeholder="Type a number from 1 to 65" value={target} onChangeText={($event) => setTarget($event)} />
       <RgButton disabled={(target === '')} onPress={() => go()}>Go to that lesson</RgButton>
       <RgButton onPress={() => goHistory()}>History, by navigateByUrl</RgButton>
       <RgButton onPress={() => goHome()}>Home, by navigate</RgButton>
+      <RgSection style={styles.programmaticNavDemoConsoleBox}>
+        <RgText variant="bodyLarge" style={styles.programmaticNavDemoConsoleText}>[{langsText()}]</RgText>
+      </RgSection>
+      <RgButton onPress={() => goStack()}>Navigate With Array</RgButton>
     </>
   );
 }
@@ -6835,6 +6846,46 @@ export function NotFound() {
   );
 }
 
+export function Stack() {
+  const route = useContext(ActivatedRouteContext) ?? new ActivatedRoute({});
+  const router = __router;
+  const [langs, setLangs] = useState([]);
+  const [first, setFirst] = useState('');
+  const [last, setLast] = useState('');
+  const ngOnInit = () => {
+    let __shadowLangs = langs;
+    const raw = route.snapshot.params.langs;
+    __shadowLangs = (raw ? raw.split(',') : []);
+    setLangs(__shadowLangs);
+    if (__shadowLangs.length > 0) {
+      setFirst(__shadowLangs[0]);
+      setLast(__shadowLangs[__shadowLangs.length - 1]);
+    }
+  };
+  const goBack = () => {
+    router.navigate(['/lesson', 60]);
+  };
+  useEffect(() => {
+    ngOnInit();
+  }, []);
+  return (
+    <RgSection>
+      <RgAppbar tone="tint" title="Language stack" pin back onBack={() => goBack()} />
+      <RgText variant="bodyLarge">The array crossed the route whole. This page rebuilt it from the address and put it to work:</RgText>
+      <RgCard>
+        <RgText variant="bodyLarge">{langs.length} languages arrived.</RgText>
+        <RgList>
+          {langs.map((lang, index) => (
+            <RgRow key={lang?.id ?? index} title={lang} />
+          ))}
+        </RgList>
+        <RgText variant="bodyLarge">First: {first} · Last: {last}</RgText>
+      </RgCard>
+      <RgText variant="bodyLarge">One route parameter carried the whole array as one joined string. The page split it back into a list, counted it, and read its ends.</RgText>
+    </RgSection>
+  );
+}
+
 export default function App() {
   const shell = __container.get<ShellService>(ShellService);
   useSyncExternalStore((cb) => shell.__subscribe(cb), () => shell.__getVersion());
@@ -6949,6 +7000,11 @@ export default function App() {
               <About key={__route.path} />
             </ActivatedRouteContext.Provider>
           )}
+          {__route.routePath === "stack/:langs" && (
+            <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
+              <Stack key={__route.path} />
+            </ActivatedRouteContext.Provider>
+          )}
           {__route.routePath === "**" && (
             <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
               <NotFound key={__route.path} />
@@ -7002,6 +7058,8 @@ const styles = StyleSheet.create({
   favouriteListPanel: {"borderWidth":1,"borderColor":"#a06a35","borderRadius":12,"padding":12,"backgroundColor":"#fdf6ec"},
   minutesStepperBtnrow: {"flexDirection":"row","gap":8},
   minutesDisplayPanel: {"borderWidth":1,"borderColor":"#a06a35","borderRadius":12,"padding":12,"backgroundColor":"#fdf6ec"},
+  programmaticNavDemoConsoleBox: {"backgroundColor":"#202124","borderRadius":12,"padding":16},
+  programmaticNavDemoConsoleText: {"color":"#a8dab5","fontSize":14,"lineHeight":20},
   logQuickAddBtnrow: {"flexDirection":"row","gap":8},
   logListPanel: {"borderWidth":1,"borderColor":"#a06a35","borderRadius":12,"padding":12,"backgroundColor":"#fdf6ec"},
   capstoneDemoPanel: {"borderWidth":1,"borderColor":"#a06a35","borderRadius":12,"padding":12,"backgroundColor":"#fdf6ec"},

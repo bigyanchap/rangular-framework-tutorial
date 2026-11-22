@@ -1,0 +1,12 @@
+<section>
+  <appbar pin tone="tint" title="Language stack" back (back)="goBack()"></appbar>
+  <p>The array crossed the route whole. This page rebuilt it from the address and put it to work:</p>
+  <card>
+    <p>{{ langs.length }} languages arrived.</p>
+    <list>
+      <row *ngFor="let lang of langs" [title]="lang"></row>
+    </list>
+    <p>First: {{ first }} · Last: {{ last }}</p>
+  </card>
+  <p>One route parameter carried the whole array as one joined string. The page split it back into a list, counted it, and read its ends.</p>
+</section>
