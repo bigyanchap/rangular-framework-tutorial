@@ -13,7 +13,7 @@
       <p *ngIf="!lastLesson">No lesson opened yet. Start with Lesson 1, and your place will wait for you here.</p>
       <p *ngIf="lastLesson" class="path-continue">Tap to pick it up again</p>
     </card>
-    <input variant="search" placeholder="Search 97 lessons" [value]="query" (change)="onQuery($event)">
+    <input variant="search" placeholder="Search by Topic or Chapter number" [value]="query" (change)="onQuery($event)">
     <section *ngIf="searching">
     <section label="Search results" plain [meta]="results.length + ' found'">
       <list>
