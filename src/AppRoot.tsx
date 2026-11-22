@@ -184,9 +184,9 @@ export class LessonService extends ReactiveService {
       title: 'Template reference variables',
       subtitle: 'Ask the template about its own blocks',
       minutes: '5 min',
-      intro: 'A template reference variable names a block so the rest of the template can ask about it. You write it with a hash, like #nameField. On an input that carries ngModel, the ref is read as #nameField="ngModel", and it exposes the field state: valid, invalid, touched, and errors. The demo binds a name input with ngModel, which the forms batch will teach in full, and shows the ref values live as you type. Watch valid flip the moment the name reaches three characters, and touched flip after the field loses focus.',
-      code: '<input [(ngModel)]="name" #nameField="ngModel" required>',
-      implementation: '// refs.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-refs-demo\',\n  templateUrl: \'./refs.component.html\',\n})\nexport class RefsDemoComponent {\n  name = \'\';\n}\n\n// refs.component.html\n<input\n  label="Your name"\n  placeholder="Type at least 3 characters"\n  [(ngModel)]="name"\n  #nameField="ngModel"\n  required\n  minlength="3"\n>\n<p>Valid: {{ nameField.valid ? \'yes\' : \'no\' }}</p>\n<p>Touched: {{ nameField.touched ? \'yes\' : \'no\' }}</p>\n<p *ngIf="nameField.invalid && nameField.touched">The name is required and needs at least 3 characters.</p>\n<p *ngIf="nameField.valid">The ref says the name is good.</p>',
+      intro: 'A template reference variable names a block so the rest of the template can ask about it. You write it with a hash, like #nameField. On an input that carries ngModel, the ref is read as #nameField="ngModel", and it exposes the field state: valid, invalid, touched, dirty, and errors. The demo binds a name input with ngModel, which the forms batch will teach in full, and shows the ref values live in the console above the field as you type. Watch valid flip the moment the name reaches three characters, dirty flip on your first keystroke, and touched flip only after the field loses focus. The names trip everyone: dirty means changed, touched means left.',
+      code: '<input [(ngModel)]="name" #nameField="ngModel" required>\n<p>dirty: {{ nameField.dirty ? \'yes\' : \'no\' }}</p>',
+      implementation: '// refs.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-refs-demo\',\n  templateUrl: \'./refs.component.html\',\n  styles: [`\n    /* doctor: allow-hex - the console box is a deliberate dark terminal surface. */\n    .console-box { background-color: #202124; border-radius: 12px; padding: 16px; }\n    .console-text { color: #a8dab5; font-size: 14px; line-height: 20px; }\n  `],\n})\nexport class RefsDemoComponent {\n  name = \'\';\n}\n\n// refs.component.html\n<section class="console-box">\n  <p class="console-text">valid: {{ nameField.valid ? \'yes\' : \'no\' }}</p>\n  <p class="console-text">touched: {{ nameField.touched ? \'yes\' : \'no\' }}</p>\n  <p class="console-text">dirty: {{ nameField.dirty ? \'yes\' : \'no\' }}</p>\n</section>\n<input\n  label="Your name"\n  placeholder="Type at least 3 characters"\n  [(ngModel)]="name"\n  #nameField="ngModel"\n  required\n  minlength="3"\n>\n<p *ngIf="nameField.invalid && nameField.touched">The name is required and needs at least 3 characters.</p>\n<p *ngIf="nameField.valid">The ref says the name is good.</p>',
       tip: 'Use a ref when the template itself needs the answer, like showing an error line under a field. When the class needs the value, bind it with ngModel and read the class field. Refs are for the template, fields are for the class.',
     },
     {
@@ -2081,7 +2081,7 @@ export function Home() {
                 ))}
               </RgList>
             </RgSection>
-            <RgText variant="bodyLarge">97 lessons · Rangular framework 0.6.5</RgText>
+            <RgText variant="bodyLarge">97 lessons · Rangular framework 0.6.6</RgText>
             <RgButton color="danger" onPress={() => askReset()}>Reset all checks</RgButton>
           </RgSection>
         )}
@@ -3362,13 +3362,17 @@ export function Panel({ children }: { children?: any }) {
 export function RefsDemo() {
   const [name, setName] = useState('');
   const [nameFieldTouched, setNameFieldTouched] = useState(false);
+  const [nameFieldDirty, setNameFieldDirty] = useState(false);
   const nameFieldErrors = validateValue(name, [Validators.required, Validators.minLength(3)]);
-  const nameFieldModel = { value: name, errors: nameFieldErrors, valid: nameFieldErrors === null, invalid: nameFieldErrors !== null, touched: nameFieldTouched };
+  const nameFieldModel = { value: name, errors: nameFieldErrors, valid: nameFieldErrors === null, invalid: nameFieldErrors !== null, touched: nameFieldTouched, dirty: nameFieldDirty, pristine: !nameFieldDirty, untouched: !nameFieldTouched };
   return (
     <>
-      <RgInput label="Your name" placeholder="Type at least 3 characters" value={name} onChangeText={($event) => setName($event)} onBlur={() => setNameFieldTouched(true)} />
-      <RgText variant="bodyLarge">Valid: {(nameFieldModel.valid ? 'yes' : 'no')}</RgText>
-      <RgText variant="bodyLarge">Touched: {(nameFieldModel.touched ? 'yes' : 'no')}</RgText>
+      <RgSection style={styles.refsDemoConsoleBox}>
+        <RgText variant="bodyLarge" style={styles.refsDemoConsoleText}>valid: {(nameFieldModel.valid ? 'yes' : 'no')}</RgText>
+        <RgText variant="bodyLarge" style={styles.refsDemoConsoleText}>touched: {(nameFieldModel.touched ? 'yes' : 'no')}</RgText>
+        <RgText variant="bodyLarge" style={styles.refsDemoConsoleText}>dirty: {(nameFieldModel.dirty ? 'yes' : 'no')}</RgText>
+      </RgSection>
+      <RgInput label="Your name" placeholder="Type at least 3 characters" value={name} onChangeText={($event) => { setName($event); setNameFieldDirty(true); }} onBlur={() => setNameFieldTouched(true)} />
       {!!((nameFieldModel.invalid && nameFieldModel.touched)) && (
         <RgText variant="bodyLarge">The name is required and needs at least 3 characters.</RgText>
       )}
@@ -3806,11 +3810,12 @@ export function InputTypesDemo() {
 export function ValidatorsBasicDemo() {
   const [username, setUsername] = useState('');
   const [nameFieldTouched, setNameFieldTouched] = useState(false);
+  const [nameFieldDirty, setNameFieldDirty] = useState(false);
   const nameFieldErrors = validateValue(username, [Validators.required, Validators.minLength(3), Validators.maxLength(8)]);
-  const nameFieldModel = { value: username, errors: nameFieldErrors, valid: nameFieldErrors === null, invalid: nameFieldErrors !== null, touched: nameFieldTouched };
+  const nameFieldModel = { value: username, errors: nameFieldErrors, valid: nameFieldErrors === null, invalid: nameFieldErrors !== null, touched: nameFieldTouched, dirty: nameFieldDirty, pristine: !nameFieldDirty, untouched: !nameFieldTouched };
   return (
     <>
-      <RgInput label="Username" placeholder="3 to 8 characters" value={username} onChangeText={($event) => setUsername($event)} onBlur={() => setNameFieldTouched(true)} />
+      <RgInput label="Username" placeholder="3 to 8 characters" value={username} onChangeText={($event) => { setUsername($event); setNameFieldDirty(true); }} onBlur={() => setNameFieldTouched(true)} />
       <RgText variant="bodyLarge">Characters: {username.length} (3 to 8 allowed)</RgText>
       {!!(((nameFieldModel.errors && nameFieldModel.errors.required) && nameFieldModel.touched)) && (
         <RgText variant="bodyLarge">A username is required.</RgText>
@@ -3832,21 +3837,23 @@ export function ValidatorsShapeDemo() {
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [emailFieldTouched, setEmailFieldTouched] = useState(false);
+  const [emailFieldDirty, setEmailFieldDirty] = useState(false);
   const emailFieldErrors = validateValue(email, [Validators.required, Validators.email]);
-  const emailFieldModel = { value: email, errors: emailFieldErrors, valid: emailFieldErrors === null, invalid: emailFieldErrors !== null, touched: emailFieldTouched };
+  const emailFieldModel = { value: email, errors: emailFieldErrors, valid: emailFieldErrors === null, invalid: emailFieldErrors !== null, touched: emailFieldTouched, dirty: emailFieldDirty, pristine: !emailFieldDirty, untouched: !emailFieldTouched };
   const [codeFieldTouched, setCodeFieldTouched] = useState(false);
+  const [codeFieldDirty, setCodeFieldDirty] = useState(false);
   const codeFieldErrors = validateValue(code, [Validators.required, Validators.pattern("[0-9]{4}")]);
-  const codeFieldModel = { value: code, errors: codeFieldErrors, valid: codeFieldErrors === null, invalid: codeFieldErrors !== null, touched: codeFieldTouched };
+  const codeFieldModel = { value: code, errors: codeFieldErrors, valid: codeFieldErrors === null, invalid: codeFieldErrors !== null, touched: codeFieldTouched, dirty: codeFieldDirty, pristine: !codeFieldDirty, untouched: !codeFieldTouched };
   return (
     <>
-      <RgInput keyboardType="email-address" label="Email" placeholder="you@example.com" value={email} onChangeText={($event) => setEmail($event)} onBlur={() => setEmailFieldTouched(true)} />
+      <RgInput keyboardType="email-address" label="Email" placeholder="you@example.com" value={email} onChangeText={($event) => { setEmail($event); setEmailFieldDirty(true); }} onBlur={() => setEmailFieldTouched(true)} />
       {!!(((emailFieldModel.errors && emailFieldModel.errors.email) && emailFieldModel.touched)) && (
         <RgText variant="bodyLarge">That is not an email shape.</RgText>
       )}
       {!!(emailFieldModel.valid) && (
         <RgText variant="bodyLarge">The email shape is good.</RgText>
       )}
-      <RgInput label="Four digit code" placeholder="e.g. 2026" value={code} onChangeText={($event) => setCode($event)} onBlur={() => setCodeFieldTouched(true)} />
+      <RgInput label="Four digit code" placeholder="e.g. 2026" value={code} onChangeText={($event) => { setCode($event); setCodeFieldDirty(true); }} onBlur={() => setCodeFieldTouched(true)} />
       {!!(((codeFieldModel.errors && codeFieldModel.errors.pattern) && codeFieldModel.touched)) && (
         <RgText variant="bodyLarge">The code must be exactly four digits. You typed: {codeFieldModel.errors.pattern.actualValue}</RgText>
       )}
@@ -3861,15 +3868,16 @@ export function FormStateDemo() {
   const [name, setName] = useState('');
   const [attempted, setAttempted] = useState(false);
   const [nameFieldTouched, setNameFieldTouched] = useState(false);
+  const [nameFieldDirty, setNameFieldDirty] = useState(false);
   const nameFieldErrors = validateValue(name, [Validators.required, Validators.minLength(3)]);
-  const nameFieldModel = { value: name, errors: nameFieldErrors, valid: nameFieldErrors === null, invalid: nameFieldErrors !== null, touched: nameFieldTouched };
+  const nameFieldModel = { value: name, errors: nameFieldErrors, valid: nameFieldErrors === null, invalid: nameFieldErrors !== null, touched: nameFieldTouched, dirty: nameFieldDirty, pristine: !nameFieldDirty, untouched: !nameFieldTouched };
   const attempt = () => {
     setAttempted(true);
   };
   return (
     <>
       <RgSection>
-        <RgInput label="Name" placeholder="At least 3 characters" value={name} onChangeText={($event) => setName($event)} onBlur={() => setNameFieldTouched(true)} />
+        <RgInput label="Name" placeholder="At least 3 characters" value={name} onChangeText={($event) => { setName($event); setNameFieldDirty(true); }} onBlur={() => setNameFieldTouched(true)} />
         <RgText variant="bodyLarge">Value: {nameFieldModel.value}</RgText>
         <RgText variant="bodyLarge">Valid: {(nameFieldModel.valid ? 'yes' : 'no')}</RgText>
         <RgText variant="bodyLarge">Touched: {(nameFieldModel.touched ? 'yes' : 'no')}</RgText>
@@ -3895,15 +3903,17 @@ export function ErrorDisplayDemo() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailFieldTouched, setEmailFieldTouched] = useState(false);
+  const [emailFieldDirty, setEmailFieldDirty] = useState(false);
   const emailFieldErrors = validateValue(email, [Validators.required, Validators.email]);
-  const emailFieldModel = { value: email, errors: emailFieldErrors, valid: emailFieldErrors === null, invalid: emailFieldErrors !== null, touched: emailFieldTouched };
+  const emailFieldModel = { value: email, errors: emailFieldErrors, valid: emailFieldErrors === null, invalid: emailFieldErrors !== null, touched: emailFieldTouched, dirty: emailFieldDirty, pristine: !emailFieldDirty, untouched: !emailFieldTouched };
   const [passwordFieldTouched, setPasswordFieldTouched] = useState(false);
+  const [passwordFieldDirty, setPasswordFieldDirty] = useState(false);
   const passwordFieldErrors = validateValue(password, [Validators.required, Validators.minLength(6)]);
-  const passwordFieldModel = { value: password, errors: passwordFieldErrors, valid: passwordFieldErrors === null, invalid: passwordFieldErrors !== null, touched: passwordFieldTouched };
+  const passwordFieldModel = { value: password, errors: passwordFieldErrors, valid: passwordFieldErrors === null, invalid: passwordFieldErrors !== null, touched: passwordFieldTouched, dirty: passwordFieldDirty, pristine: !passwordFieldDirty, untouched: !passwordFieldTouched };
   return (
     <>
-      <RgInput keyboardType="email-address" label="Email" placeholder="you@example.com" value={email} onChangeText={($event) => setEmail($event)} onBlur={() => setEmailFieldTouched(true)} error={((emailFieldModel.invalid && emailFieldModel.touched) ? 'Enter a valid email address.' : '')} />
-      <RgInput secure label="Password" placeholder="At least 6 characters" value={password} onChangeText={($event) => setPassword($event)} onBlur={() => setPasswordFieldTouched(true)} />
+      <RgInput keyboardType="email-address" label="Email" placeholder="you@example.com" value={email} onChangeText={($event) => { setEmail($event); setEmailFieldDirty(true); }} onBlur={() => setEmailFieldTouched(true)} error={((emailFieldModel.invalid && emailFieldModel.touched) ? 'Enter a valid email address.' : '')} />
+      <RgInput secure label="Password" placeholder="At least 6 characters" value={password} onChangeText={($event) => { setPassword($event); setPasswordFieldDirty(true); }} onBlur={() => setPasswordFieldTouched(true)} />
       {!!((passwordFieldModel.invalid && passwordFieldModel.touched)) && (
         <RgText variant="bodyLarge">Password is required and needs at least 6 characters.</RgText>
       )}
@@ -3917,11 +3927,13 @@ export function SubmitDemo() {
   const [email, setEmail] = useState('');
   const [savedLine, setSavedLine] = useState('');
   const [nameFieldTouched, setNameFieldTouched] = useState(false);
+  const [nameFieldDirty, setNameFieldDirty] = useState(false);
   const nameFieldErrors = validateValue(name, [Validators.required, Validators.minLength(3)]);
-  const nameFieldModel = { value: name, errors: nameFieldErrors, valid: nameFieldErrors === null, invalid: nameFieldErrors !== null, touched: nameFieldTouched };
+  const nameFieldModel = { value: name, errors: nameFieldErrors, valid: nameFieldErrors === null, invalid: nameFieldErrors !== null, touched: nameFieldTouched, dirty: nameFieldDirty, pristine: !nameFieldDirty, untouched: !nameFieldTouched };
   const [emailFieldTouched, setEmailFieldTouched] = useState(false);
+  const [emailFieldDirty, setEmailFieldDirty] = useState(false);
   const emailFieldErrors = validateValue(email, [Validators.required, Validators.email]);
-  const emailFieldModel = { value: email, errors: emailFieldErrors, valid: emailFieldErrors === null, invalid: emailFieldErrors !== null, touched: emailFieldTouched };
+  const emailFieldModel = { value: email, errors: emailFieldErrors, valid: emailFieldErrors === null, invalid: emailFieldErrors !== null, touched: emailFieldTouched, dirty: emailFieldDirty, pristine: !emailFieldDirty, untouched: !emailFieldTouched };
   const save = () => {
     setSavedLine(name + ' (' + email + ')');
   };
@@ -3933,11 +3945,11 @@ export function SubmitDemo() {
   return (
     <>
       <RgSection>
-        <RgInput label="Name" placeholder="Your name" value={name} onChangeText={($event) => setName($event)} onBlur={() => setNameFieldTouched(true)} />
+        <RgInput label="Name" placeholder="Your name" value={name} onChangeText={($event) => { setName($event); setNameFieldDirty(true); }} onBlur={() => setNameFieldTouched(true)} />
         {!!((nameFieldModel.invalid && nameFieldModel.touched)) && (
           <RgText variant="bodyLarge">Name is required and needs at least 3 characters.</RgText>
         )}
-        <RgInput keyboardType="email-address" label="Email" placeholder="you@example.com" value={email} onChangeText={($event) => setEmail($event)} onBlur={() => setEmailFieldTouched(true)} />
+        <RgInput keyboardType="email-address" label="Email" placeholder="you@example.com" value={email} onChangeText={($event) => { setEmail($event); setEmailFieldDirty(true); }} onBlur={() => setEmailFieldTouched(true)} />
         {!!((emailFieldModel.invalid && emailFieldModel.touched)) && (
           <RgText variant="bodyLarge">Enter a valid email address.</RgText>
         )}
@@ -4511,14 +4523,17 @@ export function SignupDemo() {
   const [terms, setTerms] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [nameFieldTouched, setNameFieldTouched] = useState(false);
+  const [nameFieldDirty, setNameFieldDirty] = useState(false);
   const nameFieldErrors = validateValue(name, [Validators.required, Validators.minLength(3)]);
-  const nameFieldModel = { value: name, errors: nameFieldErrors, valid: nameFieldErrors === null, invalid: nameFieldErrors !== null, touched: nameFieldTouched };
+  const nameFieldModel = { value: name, errors: nameFieldErrors, valid: nameFieldErrors === null, invalid: nameFieldErrors !== null, touched: nameFieldTouched, dirty: nameFieldDirty, pristine: !nameFieldDirty, untouched: !nameFieldTouched };
   const [emailFieldTouched, setEmailFieldTouched] = useState(false);
+  const [emailFieldDirty, setEmailFieldDirty] = useState(false);
   const emailFieldErrors = validateValue(email, [Validators.required, Validators.email]);
-  const emailFieldModel = { value: email, errors: emailFieldErrors, valid: emailFieldErrors === null, invalid: emailFieldErrors !== null, touched: emailFieldTouched };
+  const emailFieldModel = { value: email, errors: emailFieldErrors, valid: emailFieldErrors === null, invalid: emailFieldErrors !== null, touched: emailFieldTouched, dirty: emailFieldDirty, pristine: !emailFieldDirty, untouched: !emailFieldTouched };
   const [passwordFieldTouched, setPasswordFieldTouched] = useState(false);
+  const [passwordFieldDirty, setPasswordFieldDirty] = useState(false);
   const passwordFieldErrors = validateValue(password, [Validators.required, Validators.minLength(6)]);
-  const passwordFieldModel = { value: password, errors: passwordFieldErrors, valid: passwordFieldErrors === null, invalid: passwordFieldErrors !== null, touched: passwordFieldTouched };
+  const passwordFieldModel = { value: password, errors: passwordFieldErrors, valid: passwordFieldErrors === null, invalid: passwordFieldErrors !== null, touched: passwordFieldTouched, dirty: passwordFieldDirty, pristine: !passwordFieldDirty, untouched: !passwordFieldTouched };
   const onTerms = (value: boolean) => {
     setTerms(value);
   };
@@ -4529,15 +4544,15 @@ export function SignupDemo() {
   return (
     <>
       <RgSection>
-        <RgInput label="Full name" placeholder="e.g. Maya Sharma" value={name} onChangeText={($event) => setName($event)} onBlur={() => setNameFieldTouched(true)} />
+        <RgInput label="Full name" placeholder="e.g. Maya Sharma" value={name} onChangeText={($event) => { setName($event); setNameFieldDirty(true); }} onBlur={() => setNameFieldTouched(true)} />
         {!!((nameFieldModel.invalid && nameFieldModel.touched)) && (
           <RgText variant="bodyLarge">Name is required and needs at least 3 characters.</RgText>
         )}
-        <RgInput keyboardType="email-address" label="Email" placeholder="you@example.com" value={email} onChangeText={($event) => setEmail($event)} onBlur={() => setEmailFieldTouched(true)} />
+        <RgInput keyboardType="email-address" label="Email" placeholder="you@example.com" value={email} onChangeText={($event) => { setEmail($event); setEmailFieldDirty(true); }} onBlur={() => setEmailFieldTouched(true)} />
         {!!((emailFieldModel.invalid && emailFieldModel.touched)) && (
           <RgText variant="bodyLarge">Enter a valid email address.</RgText>
         )}
-        <RgInput secure label="Password" placeholder="At least 6 characters" value={password} onChangeText={($event) => setPassword($event)} onBlur={() => setPasswordFieldTouched(true)} />
+        <RgInput secure label="Password" placeholder="At least 6 characters" value={password} onChangeText={($event) => { setPassword($event); setPasswordFieldDirty(true); }} onBlur={() => setPasswordFieldTouched(true)} />
         {!!((passwordFieldModel.invalid && passwordFieldModel.touched)) && (
           <RgText variant="bodyLarge">Password is required and needs at least 6 characters.</RgText>
         )}
@@ -7011,7 +7026,7 @@ export default function App() {
             <RgRow icon="play" title="Samples" selected={(shell.place === 'samples')} onPress={() => goSamples()} />
             <RgRow icon="info" title="About" selected={(shell.place === 'about')} onPress={() => goAbout()} />
           </RgList>
-          <RgText variant="bodyLarge" style={styles.drawerVersion}>Rangular framework 0.6.5</RgText>
+          <RgText variant="bodyLarge" style={styles.drawerVersion}>Rangular framework 0.6.6</RgText>
         </RgDrawer>
         <RgDialog title="How to use this tutorial" open={shell.howToOpen} onClose={() => closeHowTo()}>
           <RgText variant="bodyLarge">Start at Lesson 1 and go in order. Tap a lesson, read it, try its demo, then mark it done and move to the next one.</RgText>
@@ -7106,6 +7121,8 @@ const styles = StyleSheet.create({
   classStyleDemoLookRainy: {"color":"#546e7a"},
   classStyleDemoLookBig: {"fontSize":20,"fontWeight":600},
   classStyleDemoLookHighlight: {"backgroundColor":"#fef7e0"},
+  refsDemoConsoleBox: {"backgroundColor":"#202124","borderRadius":12,"padding":16},
+  refsDemoConsoleText: {"color":"#a8dab5","fontSize":14,"lineHeight":20},
   radioSwitcherDemoSampleS: {"fontSize":12},
   radioSwitcherDemoSampleM: {"fontSize":14},
   radioSwitcherDemoSampleL: {"fontSize":20},
