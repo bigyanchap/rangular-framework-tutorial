@@ -275,23 +275,52 @@ export interface ObservableLite<T> {
 }
 
 /** The slice of fetch HttpClient needs, injectable so tests never touch the network. */
-export type FetchLike = (url: string) => Promise<{ json(): Promise<unknown> }>;
+export type FetchLike = (
+  url: string,
+  init?: { method?: string; headers?: Record<string, string>; body?: string },
+) => Promise<{ json(): Promise<unknown> }>;
 
 /**
  * Angular-shaped HttpClient over fetch (Stage 3, M6). Registered in the
  * generated app's container under its own class token, so components inject
  * it exactly like a service: `constructor(private http: HttpClient)`.
- * Responses are parsed as JSON (Angular's default responseType).
+ * Responses are parsed as JSON (Angular's default responseType). The four
+ * verbs share one request path: get and delete send no body, post and put
+ * send theirs as JSON (the verbs joined in 0.6.5, for lesson 63's examples).
  */
 export class HttpClient {
-  constructor(private fetchImpl: FetchLike = (url: string) => fetch(url)) {}
+  constructor(
+    private fetchImpl: FetchLike = (
+      url: string,
+      init?: { method?: string; headers?: Record<string, string>; body?: string },
+    ) => fetch(url, init),
+  ) {}
 
   get<T = unknown>(url: string): ObservableLite<T> {
+    return this.request<T>('GET', url);
+  }
+
+  post<T = unknown>(url: string, body: unknown): ObservableLite<T> {
+    return this.request<T>('POST', url, body);
+  }
+
+  put<T = unknown>(url: string, body: unknown): ObservableLite<T> {
+    return this.request<T>('PUT', url, body);
+  }
+
+  delete<T = unknown>(url: string): ObservableLite<T> {
+    return this.request<T>('DELETE', url);
+  }
+
+  private request<T>(method: string, url: string, body?: unknown): ObservableLite<T> {
     const fetchImpl = this.fetchImpl;
     return {
       subscribe(next?: (value: T) => void, error?: (err: unknown) => void): Subscription {
         let cancelled = false;
-        fetchImpl(url)
+        const init = body === undefined
+          ? { method }
+          : { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) };
+        fetchImpl(url, init)
           .then((res) => res.json())
           .then((data) => { if (!cancelled) next?.(data as T); })
           .catch((err) => { if (!cancelled) error?.(err); });

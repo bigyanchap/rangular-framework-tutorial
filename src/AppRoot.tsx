@@ -7,6 +7,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SQLite from 'expo-sqlite';
 import { Platform, Vibration } from 'react-native';
 
+const environment = {
+  baseUrl: 'https://jsonplaceholder.typicode.com',
+};
+
 export class ShellService extends ReactiveService {
   drawerOpen = false;
   howToOpen = false;
@@ -674,10 +678,10 @@ export class LessonService extends ReactiveService {
       title: 'HttpClient: asking the network',
       subtitle: 'A real GET over fetch, answered as JSON',
       minutes: '5 min',
-      intro: "HttpClient is a built in service, injected like any other, that performs real requests with fetch and hands back parsed JSON. get(url) returns a small observable: subscribe with a block bodied arrow that assigns your fields, and add a second arrow for the error, because networks fail. There are no operators, no pipe, no retry: the subscribe is the whole tool, and lesson 64 builds the states around it. The demo makes a real call to JSONPlaceholder, a public test API kept for exactly this purpose, and shows the user it returns: sample data, fetched by a genuine request. Two honest notes: the call needs the phone online, and in this app's browser preview HttpClient is a stub that never answers, so the demo waits at Loading there. On the phone, nothing is faked.",
-      code: 'this.http.get(url).subscribe((data) => { this.name = data.name; });',
-      implementation: '// http-basics.component.ts\nimport { Component } from \'@angular/core\';\nimport { HttpClient } from \'@angular/common/http\';\n\n@Component({\n  selector: \'app-http-basics-demo\',\n  templateUrl: \'./http-basics.component.html\',\n})\nexport class HttpBasicsDemoComponent {\n  name = \'\';\n  email = \'\';\n  city = \'\';\n  loading = false;\n  failed = \'\';\n\n  constructor(private http: HttpClient) {}\n\n  load() {\n    this.loading = true;\n    this.failed = \'\';\n    this.http.get(\'https://jsonplaceholder.typicode.com/users/1\').subscribe(\n      (data) => {\n        this.name = data.name;\n        this.email = data.email;\n        this.city = data.address.city;\n        this.loading = false;\n      },\n      (err) => {\n        this.failed = \'The request failed. Check the connection and try again.\';\n        this.loading = false;\n      },\n    );\n  }\n}\n\n// http-basics.component.html\n<button (click)="load()" [disabled]="loading">\n  Load one user\n</button>\n<spinner *ngIf="loading"></spinner>\n<p *ngIf="loading">Loading...</p>\n<p *ngIf="failed">{{ failed }}</p>\n<section *ngIf="name">\n  <p>Name: {{ name }}</p>\n  <p>Email: {{ email }}</p>\n  <p>City: {{ city }}</p>\n</section>\n<p *ngIf="!name && !loading && !failed">Nothing loaded yet. Tap the button and the request travels.</p>',
-      tip: 'Keep the URL in one place, a constant or a service, never scattered through components. And always write the error arrow: a request without an error path is a screen that hangs silently one day.',
+      intro: "Real apps ask the network through a service, and this demo practices exactly that. An ApiService owns the HttpClient calls: it reads one baseUrl from environment.ts and builds every address from it, and its four methods, getUser, createUser, updateUser and deleteUser, cover reading, creating, replacing and removing. The component receives the ApiService in its constructor and makes the first call right there, so the screen can never run half wired. Each call returns a small observable: subscribe with a block bodied arrow that assigns your fields, and add a second arrow for the error, because networks fail. There are no operators, no pipe, no retry: the subscribe is the whole tool, and lesson 64 builds the states around it. The demo makes a real call to JSONPlaceholder, a public test API kept for exactly this purpose. Two honest notes: the call needs the phone online, and in this app's browser preview HttpClient is a stub that never answers, so the demo waits at Loading there. On the phone, nothing is faked.",
+      code: 'this.api.getUser().subscribe((data) => { this.name = data.name; });',
+      implementation: '// http-basics.component.ts\nimport { Component } from \'@angular/core\';\nimport { ApiService } from \'./api.service\';\n\n@Component({\n  selector: \'app-http-basics-demo\',\n  templateUrl: \'./http-basics.component.html\',\n})\nexport class HttpBasicsDemoComponent {\n  name = \'\';\n  email = \'\';\n  city = \'\';\n  loading = false;\n  failed = \'\';\n\n  constructor(private api: ApiService) {\n    this.load();\n  }\n\n  load() {\n    this.loading = true;\n    this.failed = \'\';\n    this.api.getUser().subscribe(\n      (data) => {\n        this.name = data.name;\n        this.email = data.email;\n        this.city = data.address.city;\n        this.loading = false;\n      },\n      (err) => {\n        this.failed = \'The request failed. Check the connection and try again.\';\n        this.loading = false;\n      },\n    );\n  }\n\n  create() {\n    const body = { name: \'Asha Verma\', email: \'asha@example.com\' };\n    this.loading = true;\n    this.failed = \'\';\n    this.api.createUser(body).subscribe(\n      (data) => {\n        this.name = data.name;\n        this.email = data.email;\n        this.city = \'\';\n        this.loading = false;\n      },\n      (err) => {\n        this.failed = \'The request failed. Check the connection and try again.\';\n        this.loading = false;\n      },\n    );\n  }\n\n  update() {\n    const body = {\n      name: \'Leanne Graham\',\n      email: \'leanne@example.com\',\n      address: { city: \'Gwenborough\' },\n    };\n    this.loading = true;\n    this.failed = \'\';\n    this.api.updateUser(body).subscribe(\n      (data) => {\n        this.name = data.name;\n        this.email = data.email;\n        this.city = data.address.city;\n        this.loading = false;\n      },\n      (err) => {\n        this.failed = \'The request failed. Check the connection and try again.\';\n        this.loading = false;\n      },\n    );\n  }\n\n  remove() {\n    this.loading = true;\n    this.failed = \'\';\n    this.api.deleteUser().subscribe(\n      () => {\n        this.name = \'\';\n        this.email = \'\';\n        this.city = \'\';\n        this.loading = false;\n      },\n      (err) => {\n        this.failed = \'The request failed. Check the connection and try again.\';\n        this.loading = false;\n      },\n    );\n  }\n}\n\n// api.service.ts\nimport { Injectable } from \'@angular/core\';\nimport { HttpClient } from \'@angular/common/http\';\nimport { environment } from \'../environment\';\n\n@Injectable({ providedIn: \'root\' })\nexport class ApiService {\n  baseUrl = \'\';\n\n  constructor(private http: HttpClient) {\n    this.baseUrl = environment.baseUrl;\n  }\n\n  getUser() {\n    return this.http.get(this.baseUrl + \'/users/1\');\n  }\n\n  createUser(body: any) {\n    return this.http.post(this.baseUrl + \'/users\', body);\n  }\n\n  updateUser(body: any) {\n    return this.http.put(this.baseUrl + \'/users/1\', body);\n  }\n\n  deleteUser() {\n    return this.http.delete(this.baseUrl + \'/users/1\');\n  }\n}\n\n// http-basics.component.html\n<button (click)="load()" [disabled]="loading">\n  Load one user\n</button>\n<spinner *ngIf="loading"></spinner>\n<p *ngIf="loading">Loading...</p>\n<p *ngIf="failed">{{ failed }}</p>\n<section *ngIf="name">\n  <p>Name: {{ name }}</p>\n  <p>Email: {{ email }}</p>\n  <p>City: {{ city }}</p>\n</section>\n\n// environment.ts\nexport const environment = {\n  baseUrl: \'https://jsonplaceholder.typicode.com\',\n};',
+      tip: 'Make a habit of creating an ApiService instead of calling HttpClient from components. The service owns every call for its area of the API, so addresses, bodies and error handling live in one place, and the component only asks for data. Inject the ApiService in the constructor and make the first call there: the screen can never run half wired, and a mistake has exactly one place to be fixed. Keep one baseUrl in the service and build every address from it. Read that baseUrl from environment.ts or an .env file, so moving from a test server to the real one changes one line, not twenty. And wherever the call is made, always write the error arrow.',
     },
     {
       id: 64,
@@ -1364,6 +1368,27 @@ export class MinutesService extends ReactiveService {
   }
 }
 
+export class ApiService extends ReactiveService {
+  baseUrl = '';
+  constructor(private http: HttpClient) {
+    super();
+    this.baseUrl = environment.baseUrl;
+    this.__notify();
+  }
+  getUser() {
+    return this.http.get(this.baseUrl + '/users/1');
+  }
+  createUser(body: any) {
+    return this.http.post(this.baseUrl + '/users', body);
+  }
+  updateUser(body: any) {
+    return this.http.put(this.baseUrl + '/users/1', body);
+  }
+  deleteUser() {
+    return this.http.delete(this.baseUrl + '/users/1');
+  }
+}
+
 export class UserService extends ReactiveService {
   which = 1;
   name = '';
@@ -1833,6 +1858,7 @@ __container.register(ProfileService, new ProfileService());
 __container.register(ShelfService, new ShelfService());
 __container.register(FavouritesService, new FavouritesService());
 __container.register(MinutesService, new MinutesService());
+__container.register(ApiService, new ApiService(__container.get<HttpClient>(HttpClient)));
 __container.register(UserService, new UserService(__container.get<HttpClient>(HttpClient)));
 __container.register(ActivityLogService, new ActivityLogService());
 __container.register(IotService, new IotService());
@@ -2055,7 +2081,7 @@ export function Home() {
                 ))}
               </RgList>
             </RgSection>
-            <RgText variant="bodyLarge">97 lessons · Rangular framework 0.6.4</RgText>
+            <RgText variant="bodyLarge">97 lessons · Rangular framework 0.6.5</RgText>
             <RgButton color="danger" onPress={() => askReset()}>Reset all checks</RgButton>
           </RgSection>
         )}
@@ -5028,7 +5054,8 @@ export function RouteGateDemo() {
 }
 
 export function HttpBasicsDemo() {
-  const http = __container.get<HttpClient>(HttpClient);
+  const api = __container.get<ApiService>(ApiService);
+  useSyncExternalStore((cb) => api.__subscribe(cb), () => api.__getVersion());
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [city, setCity] = useState('');
@@ -5037,7 +5064,7 @@ export function HttpBasicsDemo() {
   const load = () => {
     setLoading(true);
     setFailed('');
-    http.get('https://jsonplaceholder.typicode.com/users/1').subscribe((data) => {
+    api.getUser().subscribe((data) => {
   setName(data.name);
   setEmail(data.email);
   setCity(data.address.city);
@@ -5047,6 +5074,50 @@ export function HttpBasicsDemo() {
   setLoading(false);
 });
   };
+  const create = () => {
+    const body = { name: 'Asha Verma', email: 'asha@example.com' };
+    setLoading(true);
+    setFailed('');
+    api.createUser(body).subscribe((data) => {
+  setName(data.name);
+  setEmail(data.email);
+  setCity('');
+  setLoading(false);
+}, (err) => {
+  setFailed('The request failed. Check the connection and try again.');
+  setLoading(false);
+});
+  };
+  const update = () => {
+    const body = { name: 'Leanne Graham', email: 'leanne@example.com', address: { city: 'Gwenborough' } };
+    setLoading(true);
+    setFailed('');
+    api.updateUser(body).subscribe((data) => {
+  setName(data.name);
+  setEmail(data.email);
+  setCity(data.address.city);
+  setLoading(false);
+}, (err) => {
+  setFailed('The request failed. Check the connection and try again.');
+  setLoading(false);
+});
+  };
+  const remove = () => {
+    setLoading(true);
+    setFailed('');
+    api.deleteUser().subscribe(() => {
+  setName('');
+  setEmail('');
+  setCity('');
+  setLoading(false);
+}, (err) => {
+  setFailed('The request failed. Check the connection and try again.');
+  setLoading(false);
+});
+  };
+  useEffect(() => {
+    load();
+  }, []);
   return (
     <>
       <RgButton disabled={loading} onPress={() => load()}>Load one user</RgButton>
@@ -5065,9 +5136,6 @@ export function HttpBasicsDemo() {
           <RgText variant="bodyLarge">Email: {email}</RgText>
           <RgText variant="bodyLarge">City: {city}</RgText>
         </RgSection>
-      )}
-      {!!(((!name && !loading) && !failed)) && (
-        <RgText variant="bodyLarge">Nothing loaded yet. Tap the button and the request travels.</RgText>
       )}
     </>
   );
@@ -6943,7 +7011,7 @@ export default function App() {
             <RgRow icon="play" title="Samples" selected={(shell.place === 'samples')} onPress={() => goSamples()} />
             <RgRow icon="info" title="About" selected={(shell.place === 'about')} onPress={() => goAbout()} />
           </RgList>
-          <RgText variant="bodyLarge" style={styles.drawerVersion}>Rangular framework 0.6.4</RgText>
+          <RgText variant="bodyLarge" style={styles.drawerVersion}>Rangular framework 0.6.5</RgText>
         </RgDrawer>
         <RgDialog title="How to use this tutorial" open={shell.howToOpen} onClose={() => closeHowTo()}>
           <RgText variant="bodyLarge">Start at Lesson 1 and go in order. Tap a lesson, read it, try its demo, then mark it done and move to the next one.</RgText>
