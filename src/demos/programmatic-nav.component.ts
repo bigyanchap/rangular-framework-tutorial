@@ -14,7 +14,9 @@ import { Router } from '@angular/router';
   selector: 'app-programmatic-nav-demo',
   templateUrl: './programmatic-nav.component.html',
   styles: [`
-    /* doctor: allow-hex - the console box is a deliberate dark terminal surface. */
+    /* doctor: allow-hex - the console box is a deliberate dark terminal surface, and the group card wears the app tint. */
+    .array-group { background-color: #e8f0fe; border-radius: 16px; padding: 16px; margin-top: 16px; }
+    .array-title { font-weight: 700; }
     .console-box { background-color: #202124; border-radius: 12px; padding: 16px; }
     .console-text { color: #a8dab5; font-size: 14px; line-height: 20px; }
   `],

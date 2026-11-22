@@ -2,7 +2,10 @@
 <button (click)="go()" [disabled]="target === ''">Go to that lesson</button>
 <button (click)="goHistory()">History, by navigateByUrl</button>
 <button (click)="goHome()">Home, by navigate</button>
-<section class="console-box">
-  <p class="console-text">[{{ langsText() }}]</p>
+<section class="array-group">
+  <p class="array-title">Send an array along</p>
+  <section class="console-box">
+    <p class="console-text">[{{ langsText() }}]</p>
+  </section>
+  <button (click)="goStack()">Navigate With Array</button>
 </section>
-<button (click)="goStack()">Navigate With Array</button>
