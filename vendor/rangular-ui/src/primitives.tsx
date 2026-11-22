@@ -3087,7 +3087,7 @@ export function RgDateTimePicker({ value, mode = 'datetime', label, minuteInterv
       {label ? <Text style={styles.inputLabel}>{label}</Text> : null}
       <Pressable onPress={start} style={styles.pickerBox} accessibilityRole="button">
         <Text style={styles.pickerValue}>{formatDateTimeValue(current, pickerMode)}</Text>
-        <RgIcon name="calendar" size={20} color="textMuted" />
+        <RgIcon name={pickerMode === 'time' ? 'schedule' : 'calendar'} size={20} color="textMuted" />
       </Pressable>
       <RgDialog open={open} onClose={cancel}>{pickerBody}</RgDialog>
     </View>

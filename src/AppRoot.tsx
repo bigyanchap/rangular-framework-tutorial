@@ -2055,7 +2055,7 @@ export function Home() {
                 ))}
               </RgList>
             </RgSection>
-            <RgText variant="bodyLarge">97 lessons · Rangular framework 0.6.3</RgText>
+            <RgText variant="bodyLarge">97 lessons · Rangular framework 0.6.4</RgText>
             <RgButton color="danger" onPress={() => askReset()}>Reset all checks</RgButton>
           </RgSection>
         )}
@@ -6889,7 +6889,7 @@ export default function App() {
             <RgRow icon="play" title="Samples" selected={(shell.place === 'samples')} onPress={() => goSamples()} />
             <RgRow icon="info" title="About" selected={(shell.place === 'about')} onPress={() => goAbout()} />
           </RgList>
-          <RgText variant="bodyLarge" style={styles.drawerVersion}>Rangular framework 0.6.3</RgText>
+          <RgText variant="bodyLarge" style={styles.drawerVersion}>Rangular framework 0.6.4</RgText>
         </RgDrawer>
         <RgDialog title="How to use this tutorial" open={shell.howToOpen} onClose={() => closeHowTo()}>
           <RgText variant="bodyLarge">Start at Lesson 1 and go in order. Tap a lesson, read it, try its demo, then mark it done and move to the next one.</RgText>
