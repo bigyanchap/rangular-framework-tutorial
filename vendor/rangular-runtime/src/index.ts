@@ -1,6 +1,7 @@
 /**
  * @rangular-framework/runtime, small pure-TypeScript helpers for generated apps.
- * EventEmitter (for @Output), a tiny signal implementation, a DI Container,
+ * EventEmitter (for @Output), the signals core (signal, computed,
+ * effect, untracked and the SignalRenderTracker React bridge), a DI Container,
  * the ReactiveService base class generated services extend (Stage 3),
  * HttpClient over fetch, returning real RxJS Observables (Stage 3;
  * the RxJS adoption replaced the old Observable-lite shape, so every
@@ -57,34 +58,341 @@ export class EventEmitter<T = void> extends Subject<T> {
 }
 
 export interface Signal<T> {
-  get(): T;
-  set(value: T): void;
-  update(fn: (value: T) => T): void;
-  subscribe(listener: Listener<T>): () => void;
-  readonly value: T;
+  (): T;
 }
 
-/** A minimal signal: a value plus change subscribers (Object.is comparison). */
-export function signal<T>(initial: T): Signal<T> {
-  let current = initial;
-  const listeners = new Set<Listener<T>>();
-  const notify = () => { for (const l of [...listeners]) l(current); };
-  return {
-    get: () => current,
-    set(value: T) {
-      if (Object.is(value, current)) return;
-      current = value;
-      notify();
-    },
-    update(fn: (value: T) => T) {
-      this.set(fn(current));
-    },
-    subscribe(listener: Listener<T>) {
-      listeners.add(listener);
-      return () => { listeners.delete(listener); };
-    },
-    get value() { return current; },
+/** A signal whose value can be written, as in Angular. */
+export interface WritableSignal<T> extends Signal<T> {
+  set(value: T): void;
+  update(fn: (value: T) => T): void;
+  asReadonly(): Signal<T>;
+}
+
+export interface EffectRef {
+  destroy(): void;
+}
+
+/**
+ * The reactive core (signals adoption): callable signals, computed
+ * values and effects with automatic dependency tracking, mirroring
+ * @angular/core semantics. A signal is a producer; computed values and
+ * effects are consumers that record exactly which producers they read,
+ * with the version each producer had at the read. A write bumps the
+ * producer's version and notifies its consumers: computed consumers
+ * mark themselves stale and recompute lazily on the next read (pull),
+ * so a chain never observes a half-updated mix, and a computed whose
+ * inputs settle to the same value keeps its version, so its own
+ * consumers do not recompute either. Effects re-run through a queue
+ * flushed on a microtask (flushEffects runs it synchronously), never
+ * inside the write itself. Until this adoption the runtime carried a
+ * manual get/set/subscribe helper under the signal name; it had no
+ * call sites and is superseded by this core.
+ */
+interface ProducerNode {
+  version: number;
+  consumers: Set<ConsumerNode>;
+}
+
+interface ConsumerNode {
+  producers: Map<ProducerNode, number>;
+  onProducerChanged(): void;
+}
+
+let activeConsumer: ConsumerNode | null = null;
+let computedDepth = 0;
+
+function trackRead(producer: ProducerNode): void {
+  if (!activeConsumer) return;
+  activeConsumer.producers.set(producer, producer.version);
+  producer.consumers.add(activeConsumer);
+}
+
+function detachConsumer(consumer: ConsumerNode): void {
+  for (const producer of consumer.producers.keys()) producer.consumers.delete(consumer);
+  consumer.producers.clear();
+}
+
+function notifyConsumers(producer: ProducerNode): void {
+  for (const consumer of [...producer.consumers]) consumer.onProducerChanged();
+}
+
+class SignalNode<T> implements ProducerNode {
+  version = 0;
+  consumers = new Set<ConsumerNode>();
+  value: T;
+  readonly equal: (a: T, b: T) => boolean;
+  constructor(initial: T, equal: (a: T, b: T) => boolean) {
+    this.value = initial;
+    this.equal = equal;
+  }
+}
+
+/** Create a writable signal holding `initial`, as in Angular. */
+export function signal<T>(initial: T, options?: { equal?: (a: T, b: T) => boolean }): WritableSignal<T> {
+  const node = new SignalNode<T>(initial, options?.equal ?? Object.is);
+  let readonlyView: Signal<T> | undefined;
+  const read = (() => {
+    trackRead(node);
+    return node.value;
+  }) as WritableSignal<T>;
+  read.set = (value: T) => {
+    if (computedDepth > 0) {
+      throw new Error('Writing to a signal is not allowed inside a computed value; move the write into a method or an effect.');
+    }
+    if (node.equal(node.value, value)) return;
+    node.value = value;
+    node.version++;
+    notifyConsumers(node);
   };
+  read.update = (fn: (value: T) => T) => {
+    read.set(fn(node.value));
+  };
+  read.asReadonly = () => {
+    if (!readonlyView) {
+      readonlyView = (() => {
+        trackRead(node);
+        return node.value;
+      }) as Signal<T>;
+    }
+    return readonlyView;
+  };
+  return read;
+}
+
+class ComputedNode<T> implements ProducerNode, ConsumerNode {
+  version = 0;
+  consumers = new Set<ConsumerNode>();
+  producers = new Map<ProducerNode, number>();
+  private value: T | undefined;
+  private hasValue = false;
+  private stale = true;
+  private readonly fn: () => T;
+  private readonly equal: (a: T, b: T) => boolean;
+  constructor(fn: () => T, equal: (a: T, b: T) => boolean) {
+    this.fn = fn;
+    this.equal = equal;
+  }
+
+  onProducerChanged(): void {
+    if (this.stale) return;
+    this.stale = true;
+    notifyConsumers(this);
+  }
+
+  refreshIfStale(): void {
+    if (this.stale) this.refresh();
+  }
+
+  read(): T {
+    if (this.stale || !this.hasValue) this.refresh();
+    trackRead(this);
+    return this.value as T;
+  }
+
+  private refresh(): void {
+    if (this.hasValue) {
+      let changed = false;
+      for (const [producer, seen] of this.producers) {
+        if (producer instanceof ComputedNode) producer.refreshIfStale();
+        if (producer.version !== seen) { changed = true; break; }
+      }
+      if (!changed) {
+        this.stale = false;
+        return;
+      }
+    }
+    detachConsumer(this);
+    const prev = activeConsumer;
+    activeConsumer = this;
+    computedDepth++;
+    let next: T;
+    try {
+      next = this.fn();
+    } finally {
+      computedDepth--;
+      activeConsumer = prev;
+    }
+    const valueChanged = !this.hasValue || !this.equal(this.value as T, next);
+    this.value = next;
+    this.hasValue = true;
+    this.stale = false;
+    if (valueChanged) this.version++;
+  }
+}
+
+/**
+ * Create a computed value, as in Angular: lazy (nothing runs until the
+ * first read), cached (a read with unchanged inputs returns the cached
+ * value), and tracked (the inputs are whatever the function read last).
+ */
+export function computed<T>(fn: () => T, options?: { equal?: (a: T, b: T) => boolean }): Signal<T> {
+  const node = new ComputedNode<T>(fn, options?.equal ?? Object.is);
+  return (() => node.read()) as Signal<T>;
+}
+
+const pendingEffects = new Set<EffectNode>();
+let effectFlushQueued = false;
+
+function queueEffectFlush(): void {
+  if (effectFlushQueued) return;
+  effectFlushQueued = true;
+  queueMicrotask(() => {
+    effectFlushQueued = false;
+    flushEffects();
+  });
+}
+
+/** Run every queued effect now, including any those runs queue. */
+export function flushEffects(): void {
+  for (let guard = 0; pendingEffects.size > 0 && guard < 100; guard++) {
+    const batch = [...pendingEffects];
+    pendingEffects.clear();
+    for (const node of batch) node.run();
+  }
+  pendingEffects.clear();
+}
+
+const effectScopeStack: Array<Set<EffectNode>> = [];
+
+/**
+ * Generated components open an effect scope around their mount effect:
+ * every effect created while a scope is open joins it, and the cleanup
+ * the matching end call returns destroys them all (the component
+ * unmount path).
+ */
+export function beginEffectScope(): void {
+  effectScopeStack.push(new Set());
+}
+
+export function endEffectScope(): () => void {
+  const scope = effectScopeStack.pop();
+  return () => {
+    if (scope) for (const node of [...scope]) node.destroy();
+  };
+}
+
+class EffectNode implements ConsumerNode {
+  producers = new Map<ProducerNode, number>();
+  private cleanups: Array<() => void> = [];
+  private destroyed = false;
+  private queued = false;
+  private scope: Set<EffectNode> | undefined;
+  private readonly fn: (onCleanup: (cleanup: () => void) => void) => void;
+  constructor(fn: (onCleanup: (cleanup: () => void) => void) => void) {
+    this.fn = fn;
+  }
+
+  onProducerChanged(): void {
+    if (this.destroyed || this.queued) return;
+    this.queued = true;
+    pendingEffects.add(this);
+    queueEffectFlush();
+  }
+
+  joinScope(scope: Set<EffectNode>): void {
+    this.scope = scope;
+  }
+
+  run(): void {
+    this.queued = false;
+    if (this.destroyed) return;
+    this.runCleanups();
+    detachConsumer(this);
+    const prev = activeConsumer;
+    activeConsumer = this;
+    try {
+      this.fn((cleanup) => { this.cleanups.push(cleanup); });
+    } finally {
+      activeConsumer = prev;
+    }
+  }
+
+  destroy(): void {
+    if (this.destroyed) return;
+    this.destroyed = true;
+    pendingEffects.delete(this);
+    if (this.scope) this.scope.delete(this);
+    this.runCleanups();
+    detachConsumer(this);
+  }
+
+  private runCleanups(): void {
+    const cleanups = this.cleanups;
+    this.cleanups = [];
+    for (const cleanup of cleanups) cleanup();
+  }
+}
+
+/**
+ * Create an effect, as in Angular: the function runs once at creation
+ * and re-runs whenever a signal or computed it read changes. The
+ * function receives onCleanup to register teardown that runs before
+ * each re-run and at destroy. Effects created inside a component's
+ * mount scope are destroyed with the component.
+ */
+export function effect(fn: (onCleanup: (cleanup: () => void) => void) => void): EffectRef {
+  const node = new EffectNode(fn);
+  const scope = effectScopeStack[effectScopeStack.length - 1];
+  if (scope) {
+    scope.add(node);
+    node.joinScope(scope);
+  }
+  node.run();
+  return { destroy: () => { node.destroy(); } };
+}
+
+/** Run `fn` with dependency tracking suspended, as in Angular. */
+export function untracked<T>(fn: () => T): T {
+  const prev = activeConsumer;
+  activeConsumer = null;
+  try {
+    return fn();
+  } finally {
+    activeConsumer = prev;
+  }
+}
+
+/**
+ * The React bridge for generated components: a tracker is the consumer
+ * for one component's render. Codegen opens it (begin) just before the
+ * returned view is evaluated and closes it (end) right after, so every
+ * signal read by the view, including reads inside methods the view
+ * calls, subscribes exactly this component. A later write to any of
+ * those signals calls onChange once, and the next render re-tracks
+ * from scratch, so a component follows the signals its current view
+ * actually reads.
+ */
+export class SignalRenderTracker implements ConsumerNode {
+  producers = new Map<ProducerNode, number>();
+  private rendering = false;
+  private disposed = false;
+  private prevConsumer: ConsumerNode | null = null;
+  private readonly onChange: () => void;
+  constructor(onChange: () => void) {
+    this.onChange = onChange;
+  }
+
+  begin(): void {
+    detachConsumer(this);
+    this.rendering = true;
+    this.prevConsumer = activeConsumer;
+    activeConsumer = this;
+  }
+
+  end(): void {
+    activeConsumer = this.prevConsumer;
+    this.prevConsumer = null;
+    this.rendering = false;
+  }
+
+  onProducerChanged(): void {
+    if (!this.rendering && !this.disposed) this.onChange();
+  }
+
+  dispose(): void {
+    this.disposed = true;
+    detachConsumer(this);
+  }
 }
 
 /**
