@@ -3,9 +3,13 @@
   <p *ngIf="teamForm.get('team').invalid && teamForm.get('team').touched">Team name is required.</p>
   <div formArrayName="members">
     <div *ngFor="let m of teamForm.get('members').controls; let i = index">
-      <input label="Member" placeholder="Member name" [formControlName]="i">
+      <section class="member-row">
+        <section class="member-field">
+          <input label="Member" placeholder="Member name" [formControlName]="i">
+        </section>
+        <icon-button name="delete" (click)="removeMember(i)"></icon-button>
+      </section>
       <p *ngIf="teamForm.get('members').at(i).invalid && teamForm.get('members').at(i).touched">Member name is required.</p>
-      <button (click)="removeMember(i)">Remove</button>
     </div>
   </div>
   <button (click)="addMember()">Add member</button>
