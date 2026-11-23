@@ -7,8 +7,8 @@
         <section class="member-field">
           <input label="Member" placeholder="Member name" [formControlName]="i">
         </section>
-        <section class="member-del">
-          <icon-button name="delete" color="error" (click)="removeMember(i)"></icon-button>
+        <section class="member-del" (click)="removeMember(i)">
+          <icon name="delete" color="error" size="28"></icon>
         </section>
       </section>
       <p *ngIf="teamForm.get('members').at(i).invalid && teamForm.get('members').at(i).touched">Member name is required.</p>

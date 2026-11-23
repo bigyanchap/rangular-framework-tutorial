@@ -6,9 +6,10 @@ import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
  * team group: each row is a control, rows are pushed and removed
  * while the form runs, and the group value shows the list as an
  * array. Each row's textbox is narrowed to leave room at its
- * right for a red delete icon button, which removes that row.
- * The button's wrapper pads it down past the field's label, so
- * the button sits centred on the textbox line itself.
+ * right for a red delete icon, which removes that row. The icon
+ * sits in a 48 square of its own, dropped 16px from the row top
+ * so the square's centre lands exactly on the textbox's centre,
+ * and the icon is centred inside the square both ways.
  */
 @Component({
   selector: 'app-form-array-demo',
@@ -16,7 +17,7 @@ import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
   styles: [`
     .member-row { flex-direction: row; gap: 8px; }
     .member-field { flex: 1; }
-    .member-del { display: flex; justify-content: center; align-items: center; }
+    .member-del { width: 48px; height: 48px; margin-top: 16px; align-items: center; justify-content: center; }
   `],
 })
 export class FormArrayDemoComponent {
