@@ -3,6 +3,7 @@ import { useContext, useEffect, useRef, useState, useSyncExternalStore } from 'r
 import { Text, StyleSheet } from 'react-native';
 import { ActivatedRouteContext, RgAccordion, RgActions, RgAppbar, RgAvatar, RgAvatarGroup, RgBottomNav, RgBreadcrumbs, RgButton, RgCalendar, RgCard, RgCarousel, RgChart, RgCheckbox, RgChip, RgChips, RgCode, RgColorPicker, RgColumn, RgCrumb, RgDateTimePicker, RgDialog, RgDivider, RgDrawer, RgEditor, RgEmptyState, RgFilePicker, RgGradient, RgGridList, RgGridTile, RgIcon, RgIconButton, RgImage, RgInput, RgLightbox, RgList, RgMenu, RgMenuItem, RgNavItem, RgOption, RgOtp, RgOutlet, RgPanel, RgProgressBar, RgRadio, RgRadioGroup, RgRating, RgRow, RgRowAction, RgScreen, RgSection, RgSelect, RgSheet, RgSkeleton, RgSlider, RgSnackbar, RgSpinner, RgStep, RgStepper, RgSwitch, RgSwitcher, RgTab, RgTable, RgTabs, RgText, RgTimeline, RgTimelineItem, RgTree, RgTreeNode } from '@rangular-framework/ui';
 import { ActivatedRoute, Container, FormArray, FormBuilder, FormControl, FormGroup, HttpClient, ReactiveService, RgNavigator, Router, SnackBar, Validators, pipe, validateValue } from '@rangular-framework/runtime';
+import { map, BehaviorSubject, Subject, scan } from 'rxjs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SQLite from 'expo-sqlite';
 import { Platform, Vibration } from 'react-native';
@@ -678,9 +679,9 @@ export class LessonService extends ReactiveService {
       title: 'HttpClient: asking the network',
       subtitle: 'A real GET over fetch, answered as JSON',
       minutes: '5 min',
-      intro: "Real apps ask the network through a service, and this demo practices exactly that. An ApiService owns the HttpClient calls: it reads one baseUrl from environment.ts and builds every address from it, and its four methods, getUser (GET), createUser (POST), updateUser (PUT) and deleteUser (DELETE), cover reading, creating, replacing and removing. The component receives the ApiService in its constructor and makes the first call right there, so the screen can never run half wired. Each call returns a small observable: subscribe with a block bodied arrow that assigns your fields, and add a second arrow for the error, because networks fail. There are no operators, no pipe, no retry: the subscribe is the whole tool, and lesson 64 builds the states around it. The demo makes a real call to JSONPlaceholder, a public test API kept for exactly this purpose. Two honest notes: the call needs the phone online, and in this app's browser preview HttpClient is a stub that never answers, so the demo waits at Loading there. On the phone, nothing is faked.",
-      code: 'this.api.getUser().subscribe((data) => { this.name = data.name; });',
-      implementation: '// http-basics.component.ts\nimport { Component } from \'@angular/core\';\nimport { ApiService } from \'./api.service\';\n\n@Component({\n  selector: \'app-http-basics-demo\',\n  templateUrl: \'./http-basics.component.html\',\n})\nexport class HttpBasicsDemoComponent {\n  name = \'\';\n  email = \'\';\n  city = \'\';\n  loading = false;\n  failed = \'\';\n\n  constructor(private api: ApiService) {\n    this.load();\n  }\n\n  load() {\n    this.loading = true;\n    this.failed = \'\';\n    this.api.getUser().subscribe(\n      (data) => {\n        this.name = data.name;\n        this.email = data.email;\n        this.city = data.address.city;\n        this.loading = false;\n      },\n      (err) => {\n        this.failed = \'The request failed. Check the connection and try again.\';\n        this.loading = false;\n      },\n    );\n  }\n\n  create() {\n    const body = { name: \'Asha Verma\', email: \'asha@example.com\' };\n    this.loading = true;\n    this.failed = \'\';\n    this.api.createUser(body).subscribe(\n      (data) => {\n        this.name = data.name;\n        this.email = data.email;\n        this.city = \'\';\n        this.loading = false;\n      },\n      (err) => {\n        this.failed = \'The request failed. Check the connection and try again.\';\n        this.loading = false;\n      },\n    );\n  }\n\n  update() {\n    const body = {\n      name: \'Leanne Graham\',\n      email: \'leanne@example.com\',\n      address: { city: \'Gwenborough\' },\n    };\n    this.loading = true;\n    this.failed = \'\';\n    this.api.updateUser(body).subscribe(\n      (data) => {\n        this.name = data.name;\n        this.email = data.email;\n        this.city = data.address.city;\n        this.loading = false;\n      },\n      (err) => {\n        this.failed = \'The request failed. Check the connection and try again.\';\n        this.loading = false;\n      },\n    );\n  }\n\n  remove() {\n    this.loading = true;\n    this.failed = \'\';\n    this.api.deleteUser().subscribe(\n      () => {\n        this.name = \'\';\n        this.email = \'\';\n        this.city = \'\';\n        this.loading = false;\n      },\n      (err) => {\n        this.failed = \'The request failed. Check the connection and try again.\';\n        this.loading = false;\n      },\n    );\n  }\n}\n\n// api.service.ts\nimport { Injectable } from \'@angular/core\';\nimport { HttpClient } from \'@angular/common/http\';\nimport { environment } from \'../environment\';\n\n@Injectable({ providedIn: \'root\' })\nexport class ApiService {\n  baseUrl = \'\';\n\n  constructor(private http: HttpClient) {\n    this.baseUrl = environment.baseUrl;\n  }\n\n  getUser() {\n    return this.http.get(this.baseUrl + \'/users/1\');\n  }\n\n  createUser(body: any) {\n    return this.http.post(this.baseUrl + \'/users\', body);\n  }\n\n  updateUser(body: any) {\n    return this.http.put(this.baseUrl + \'/users/1\', body);\n  }\n\n  deleteUser() {\n    return this.http.delete(this.baseUrl + \'/users/1\');\n  }\n}\n\n// http-basics.component.html\n<button (click)="load()" [disabled]="loading">\n  Load one user\n</button>\n<spinner *ngIf="loading"></spinner>\n<p *ngIf="loading">Loading...</p>\n<p *ngIf="failed">{{ failed }}</p>\n<section *ngIf="name">\n  <p>Name: {{ name }}</p>\n  <p>Email: {{ email }}</p>\n  <p>City: {{ city }}</p>\n</section>\n\n// environment.ts\nexport const environment = {\n  baseUrl: \'https://jsonplaceholder.typicode.com\',\n};',
+      intro: "Real apps ask the network through a service, and this demo practices exactly that. An ApiService owns the HttpClient calls: it reads one baseUrl from environment.ts and builds every address from it, and its four methods, getUser (GET), createUser (POST), updateUser (PUT) and deleteUser (DELETE), cover reading, creating, replacing and removing. The component receives the ApiService in its constructor and makes the first call right there, so the screen can never run half wired. Each call returns a real RxJS observable: subscribe with a block bodied arrow that assigns your fields, and add a second arrow for the error, because networks fail. load() also shapes its answer on the way in, through pipe and the map operator, so the stream carries exactly the fields the screen needs. Lesson 64 builds the states around these calls, and lesson 98 makes streams of your own. The demo makes a real call to JSONPlaceholder, a public test API kept for exactly this purpose. Two honest notes: the call needs the phone online, and in this app's browser preview HttpClient is a stub that never answers, so the demo waits at Loading there. On the phone, nothing is faked.",
+      code: 'this.api.getUser().pipe(map((data: any) => ({ name: data.name, email: data.email, city: data.address.city }))).subscribe((user) => { this.name = user.name; });',
+      implementation: '// http-basics.component.ts\nimport { Component } from \'@angular/core\';\nimport { map } from \'rxjs\';\nimport { ApiService } from \'./api.service\';\n\n@Component({\n  selector: \'app-http-basics-demo\',\n  templateUrl: \'./http-basics.component.html\',\n})\nexport class HttpBasicsDemoComponent {\n  name = \'\';\n  email = \'\';\n  city = \'\';\n  loading = false;\n  failed = \'\';\n\n  constructor(private api: ApiService) {\n    this.load();\n  }\n\n  load() {\n    this.loading = true;\n    this.failed = \'\';\n    this.api.getUser()\n      .pipe(map((data: any) => ({ name: data.name, email: data.email, city: data.address.city })))\n      .subscribe(\n      (user) => {\n        this.name = user.name;\n        this.email = user.email;\n        this.city = user.city;\n        this.loading = false;\n      },\n      (err) => {\n        this.failed = \'The request failed. Check the connection and try again.\';\n        this.loading = false;\n      },\n    );\n  }\n\n  create() {\n    const body = { name: \'Asha Verma\', email: \'asha@example.com\' };\n    this.loading = true;\n    this.failed = \'\';\n    this.api.createUser(body).subscribe(\n      (data) => {\n        this.name = data.name;\n        this.email = data.email;\n        this.city = \'\';\n        this.loading = false;\n      },\n      (err) => {\n        this.failed = \'The request failed. Check the connection and try again.\';\n        this.loading = false;\n      },\n    );\n  }\n\n  update() {\n    const body = {\n      name: \'Leanne Graham\',\n      email: \'leanne@example.com\',\n      address: { city: \'Gwenborough\' },\n    };\n    this.loading = true;\n    this.failed = \'\';\n    this.api.updateUser(body).subscribe(\n      (data) => {\n        this.name = data.name;\n        this.email = data.email;\n        this.city = data.address.city;\n        this.loading = false;\n      },\n      (err) => {\n        this.failed = \'The request failed. Check the connection and try again.\';\n        this.loading = false;\n      },\n    );\n  }\n\n  remove() {\n    this.loading = true;\n    this.failed = \'\';\n    this.api.deleteUser().subscribe(\n      () => {\n        this.name = \'\';\n        this.email = \'\';\n        this.city = \'\';\n        this.loading = false;\n      },\n      (err) => {\n        this.failed = \'The request failed. Check the connection and try again.\';\n        this.loading = false;\n      },\n    );\n  }\n}\n\n// api.service.ts\nimport { Injectable } from \'@angular/core\';\nimport { HttpClient } from \'@angular/common/http\';\nimport { environment } from \'../environment\';\n\n@Injectable({ providedIn: \'root\' })\nexport class ApiService {\n  baseUrl = \'\';\n\n  constructor(private http: HttpClient) {\n    this.baseUrl = environment.baseUrl;\n  }\n\n  getUser() {\n    return this.http.get(this.baseUrl + \'/users/1\');\n  }\n\n  createUser(body: any) {\n    return this.http.post(this.baseUrl + \'/users\', body);\n  }\n\n  updateUser(body: any) {\n    return this.http.put(this.baseUrl + \'/users/1\', body);\n  }\n\n  deleteUser() {\n    return this.http.delete(this.baseUrl + \'/users/1\');\n  }\n}\n\n// http-basics.component.html\n<button (click)="load()" [disabled]="loading">\n  Load one user\n</button>\n<spinner *ngIf="loading"></spinner>\n<p *ngIf="loading">Loading...</p>\n<p *ngIf="failed">{{ failed }}</p>\n<section *ngIf="name">\n  <p>Name: {{ name }}</p>\n  <p>Email: {{ email }}</p>\n  <p>City: {{ city }}</p>\n</section>\n\n// environment.ts\nexport const environment = {\n  baseUrl: \'https://jsonplaceholder.typicode.com\',\n};',
       tip: 'Make a habit of creating an ApiService instead of calling HttpClient from components. The service owns every call for its area of the API, so addresses, bodies and error handling live in one place, and the component only asks for data. Inject the ApiService in the constructor and make the first call there: the screen can never run half wired, and a mistake has exactly one place to be fixed. Keep one baseUrl in the service and build every address from it. Read that baseUrl from environment.ts or an .env file, so moving from a test server to the real one changes one line, not twenty. And wherever the call is made, always write the error arrow.',
     },
     {
@@ -1022,6 +1023,16 @@ export class LessonService extends ReactiveService {
       code: '<crumb routerLink="/home">Home</crumb>',
       implementation: '// breadcrumbs.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-breadcrumbs-demo\',\n  templateUrl: \'./breadcrumbs.component.html\',\n})\nexport class BreadcrumbsDemoComponent {\n  place = \'Lesson 97\';\n\n  goPlace(name: string) {\n    this.place = name;\n  }\n}\n\n// breadcrumbs.component.html\n<breadcrumbs>\n  <crumb (click)="goPlace(\'Home\')">\n    Home\n  </crumb>\n  <crumb (click)="goPlace(\'Beyond Angular\')">\n    Beyond Angular\n  </crumb>\n  <crumb>\n    Lesson 97\n  </crumb>\n</breadcrumbs>\n<p>You are looking at: {{ place }}</p>\n<p>Tap Home or Beyond Angular and the line follows. The last crumb never moves: it is where you already are.</p>',
       tip: 'If the last crumb is a link, it is wrong: the current page linking to itself teaches people that links lie. Keep the last crumb plain text, always, and keep the whole path short enough to read at a glance.',
+    },
+    {
+      id: 98,
+      title: 'Observables: streams you make yourself',
+      subtitle: 'Subject, BehaviorSubject, scan and the async pipe',
+      minutes: '5 min',
+      intro: 'Every stream you have met so far came from the framework: the HttpClient answers as a stream, a form control reports its valueChanges, the route offers paramMap. All of them are real RxJS, the same library Angular uses, and this lesson makes streams of your own.\n\nA Subject is a stream you can push values into: call next(value) and every subscriber hears it. A BehaviorSubject is a Subject that also remembers its current value, so a new subscriber hears that value at once, before anything new is pushed. Between the source and the subscriber, pipe shapes the stream with operators: scan folds each value into a running total, map rewrites each value, filter lets only some values through.\n\nThe demo keeps both ways of reading a stream side by side. The tap count is folded by scan and lands in a field through a subscription made in ngOnInit. The mood is a BehaviorSubject: the template reads it with the async pipe, which subscribes and unsubscribes by itself, while a second subscription mirrors the same stream into a field. The browser preview carries a small mirror of these pieces, so the demo behaves here too; the phone runs the real RxJS library.',
+      code: 'this.taps.pipe(scan((n: number) => n + 1, 0)).subscribe((n: number) => { this.tapCount = n; });',
+      implementation: '// streams.component.ts\nimport { Component } from \'@angular/core\';\nimport { BehaviorSubject, Subject, scan } from \'rxjs\';\n\n@Component({\n  selector: \'app-streams-demo\',\n  templateUrl: \'./streams.component.html\',\n  styles: [`\n    .panel { border-width: 1px; border-color: #a06a35; border-radius: 12px; padding: 12px; background-color: #fdf6ec; }\n    .count { font-size: 24px; font-weight: 700; }\n    .btnrow { flex-direction: row; gap: 8px; }\n  `],\n})\nexport class StreamsDemoComponent {\n  taps = new Subject<number>();\n  mood = new BehaviorSubject<string>(\'Calm\');\n  tapCount = 0;\n  lastMood = \'\';\n\n  ngOnInit() {\n    this.taps.pipe(scan((n: number) => n + 1, 0)).subscribe((n: number) => { this.tapCount = n; });\n    this.mood.subscribe((m: string) => { this.lastMood = m; });\n  }\n\n  tap() {\n    this.taps.next(1);\n  }\n\n  setMood(m: string) {\n    this.mood.next(m);\n  }\n}\n\n// streams.component.html\n<section class="panel">\n  <p class="count">{{ tapCount }}</p>\n  <p>Taps, counted by the stream itself through scan.</p>\n  <button (click)="tap()">\n    Tap\n  </button>\n</section>\n<section class="panel">\n  <p>Current mood: {{ mood | async }}</p>\n  <p>Last mood the subscription saw: {{ lastMood }}</p>\n  <section class="btnrow">\n    <button (click)="setMood(\'Calm\')">\n      Calm\n    </button>\n    <button (click)="setMood(\'Bright\')">\n      Bright\n    </button>\n  </section>\n</section>',
+      tip: 'Make your subscriptions in ngOnInit, one per stream, and let them live as long as the component should listen. A plain Subject has no memory: a value pushed before anyone subscribes is gone, so when late readers need the current value, use a BehaviorSubject. And wherever the template is the only reader, let the async pipe own the subscription instead of mirroring the value into a field by hand.',
     },
   ];
   getById(id: string) {
@@ -1932,7 +1943,7 @@ export function Home() {
     setFormsMeta(doneIn(26, 47));
     setDataMeta(doneIn(48, 67));
     setPiecesMeta(doneIn(68, 78));
-    setBeyondMeta(doneIn(79, 97));
+    setBeyondMeta(doneIn(79, 98));
   };
   const doneIn = (from: number, to: number) => {
     const group = lessons.lessons.filter((l: Lesson) => l.id >= from && l.id <= to);
@@ -2081,7 +2092,7 @@ export function Home() {
                 ))}
               </RgList>
             </RgSection>
-            <RgText variant="bodyLarge">97 lessons · Rangular framework 0.6.6</RgText>
+            <RgText variant="bodyLarge">98 lessons · Rangular framework 0.6.7</RgText>
             <RgButton color="danger" onPress={() => askReset()}>Reset all checks</RgButton>
           </RgSection>
         )}
@@ -2183,10 +2194,10 @@ export function History() {
     __shadowDoneCount = done.length;
     setDoneCount(__shadowDoneCount);
     setDoneMinutes(done.reduce((sum: number, l: Lesson) => sum + parseInt(l.minutes, 10), 0));
-    setPercent(Math.round((__shadowDoneCount * 100) / 97));
+    setPercent(Math.round((__shadowDoneCount * 100) / 98));
     setSavedCount(bookmarks.bookmarkIds.length);
     setWeekData([6, 5, 4, 3, 2, 1, 0].map((off: number) => ({ label: dayLabel(off), value: dayMinutes(off) })));
-    setGroups([groupStat('Getting started', 1, 5), groupStat('Components and templates', 6, 25), groupStat('Forms and interaction', 26, 47), groupStat('Services, routing, and data', 48, 67), groupStat('The Material pieces', 68, 78), groupStat('Beyond Angular', 79, 97)]);
+    setGroups([groupStat('Getting started', 1, 5), groupStat('Components and templates', 6, 25), groupStat('Forms and interaction', 26, 47), groupStat('Services, routing, and data', 48, 67), groupStat('The Material pieces', 68, 78), groupStat('Beyond Angular', 79, 98)]);
   };
   const minutesOf = (id: number) => {
     const found = lessons.lessons.find((l: Lesson) => l.id === id);
@@ -2244,7 +2255,7 @@ export function History() {
       <RgSection label="Your progress" plain>
         <RgCard style={styles.historyPathCard}>
           <RgText variant="heading">{percent}%</RgText>
-          <RgText variant="bodyLarge">{doneCount} of 97 lessons · {doneMinutes} minutes in</RgText>
+          <RgText variant="bodyLarge">{doneCount} of 98 lessons · {doneMinutes} minutes in</RgText>
           <RgProgressBar value={percent} />
         </RgCard>
         <RgSection style={styles.historyStatRow}>
@@ -2308,7 +2319,7 @@ export function Lesson() {
       setBarTitle('Lesson ' + __shadowLessonId);
       setHasCode(__shadowLesson.code !== '');
       setDone(bookmarks.isDone(__shadowLessonId));
-      setProgressPct(Math.round((__shadowLessonId * 100) / 97));
+      setProgressPct(Math.round((__shadowLessonId * 100) / 98));
       setSectionName(nameFor(__shadowLessonId));
       setNextLabel(labelFor(__shadowLessonId));
       setImplBlocks(buildImplBlocks(__shadowLesson.implementation || ''));
@@ -2349,7 +2360,7 @@ export function Lesson() {
     return 'BEYOND ANGULAR';
   };
   const labelFor = (id: number) => {
-    if (id >= 97) {
+    if (id >= 98) {
       return (done ? 'Done · Back home' : 'Mark done · Finish');
     }
     return (done ? 'Done · Next lesson' : 'Mark done · Next lesson');
@@ -2988,6 +2999,12 @@ export function Lesson() {
         <RgCard style={styles.lessonDemoCard}>
           <RgText variant="label">Live demo: the path to here</RgText>
           <BreadcrumbsDemo />
+        </RgCard>
+      )}
+      {!!((lessonId === 98)) && (
+        <RgCard style={styles.lessonDemoCard}>
+          <RgText variant="label">Live demo: streams you make yourself</RgText>
+          <StreamsDemo />
         </RgCard>
       )}
       {!!(lesson) && (
@@ -5092,10 +5109,10 @@ export function HttpBasicsDemo() {
   const load = () => {
     setLoading(true);
     setFailed('');
-    api.getUser().subscribe((data) => {
-  setName(data.name);
-  setEmail(data.email);
-  setCity(data.address.city);
+    api.getUser().pipe(map((data: any) => ({ name: data.name, email: data.email, city: data.address.city }))).subscribe((user) => {
+  setName(user.name);
+  setEmail(user.email);
+  setCity(user.city);
   setLoading(false);
 }, (err) => {
   setFailed('The request failed. Check the connection and try again.');
@@ -6287,6 +6304,54 @@ export function BreadcrumbsDemo() {
   );
 }
 
+export function StreamsDemo() {
+  const [tapCount, setTapCount] = useState(0);
+  const [lastMood, setLastMood] = useState('');
+  const tapsRef = useRef(new Subject<number>());
+  const moodRef = useRef(new BehaviorSubject<string>('Calm'));
+  const [__async0, set__async0] = useState<any>(null);
+  useEffect(() => {
+    const __obs = (moodRef.current) as any;
+    if (!__obs || typeof __obs.subscribe !== 'function') return;
+    const __sub = __obs.subscribe((__v: any) => set__async0(__v));
+    return () => { if (__sub && typeof __sub.unsubscribe === 'function') __sub.unsubscribe(); };
+  }, []);
+  const ngOnInit = () => {
+    tapsRef.current.pipe(scan((n: number) => n + 1, 0)).subscribe((n: number) => {
+  setTapCount(n);
+});
+    moodRef.current.subscribe((m: string) => {
+  setLastMood(m);
+});
+  };
+  const tap = () => {
+    tapsRef.current.next(1);
+  };
+  const setMood = (m: string) => {
+    moodRef.current.next(m);
+  };
+  useEffect(() => {
+    ngOnInit();
+  }, []);
+  return (
+    <>
+      <RgSection style={styles.streamsDemoPanel}>
+        <RgText variant="bodyLarge" style={styles.streamsDemoCount}>{tapCount}</RgText>
+        <RgText variant="bodyLarge">Taps, counted by the stream itself through scan.</RgText>
+        <RgButton onPress={() => tap()}>Tap</RgButton>
+      </RgSection>
+      <RgSection style={styles.streamsDemoPanel}>
+        <RgText variant="bodyLarge">Current mood: {__async0}</RgText>
+        <RgText variant="bodyLarge">Last mood the subscription saw: {lastMood}</RgText>
+        <RgSection style={styles.streamsDemoBtnrow}>
+          <RgButton onPress={() => setMood('Calm')}>Calm</RgButton>
+          <RgButton onPress={() => setMood('Bright')}>Bright</RgButton>
+        </RgSection>
+      </RgSection>
+    </>
+  );
+}
+
 export function Samples() {
   const shell = __container.get<ShellService>(ShellService);
   useSyncExternalStore((cb) => shell.__subscribe(cb), () => shell.__getVersion());
@@ -6397,7 +6462,7 @@ export function About() {
           <RgIcon name="logo" size={48} />
         </RgSection>
         <RgText variant="heading" style={styles.aboutHeroTitle}>Rangular Tutorial</RgText>
-        <RgText variant="bodyLarge" style={styles.aboutHeroText}>Version 1.0.0 · 97 lessons</RgText>
+        <RgText variant="bodyLarge" style={styles.aboutHeroText}>Version 1.0.0 · 98 lessons</RgText>
         <RgText variant="bodyLarge" style={styles.aboutHeroText}>A step by step tutorial that teaches the Rangular framework: writing iOS and Android apps the Angular way. Every screen in this app, including this one, started as Angular code and was compiled by Rangular into React Native.</RgText>
       </RgCard>
       <RgCard>
@@ -6423,7 +6488,7 @@ export function About() {
       </RgCard>
       <RgCard>
         <RgSection icon="star" label="Made for the stores">
-          <RgText variant="bodyLarge">This app is being prepared for release on the App Store and Google Play. All 97 lessons are complete, and the icon, splash artwork, and store listing are prepared. The store accounts and the submission itself are the remaining steps.</RgText>
+          <RgText variant="bodyLarge">This app is being prepared for release on the App Store and Google Play. All 98 lessons are complete, and the icon, splash artwork, and store listing are prepared. The store accounts and the submission itself are the remaining steps.</RgText>
         </RgSection>
       </RgCard>
       <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.3.4</RgText>
@@ -7028,7 +7093,7 @@ export default function App() {
         <RgDrawer open={shell.drawerOpen} onClose={() => closeDrawer()}>
           <RgSection style={styles.drawerHead}>
             <RgText variant="title">Rangular Tutorial</RgText>
-            <RgText variant="bodyLarge" style={styles.drawerSub}>97 lessons · Learn by running code</RgText>
+            <RgText variant="bodyLarge" style={styles.drawerSub}>98 lessons · Learn by running code</RgText>
             <RgGradient style={styles.drawerRule} />
           </RgSection>
           <RgList>
@@ -7039,7 +7104,7 @@ export default function App() {
             <RgRow icon="play" title="Samples" selected={(shell.place === 'samples')} onPress={() => goSamples()} />
             <RgRow icon="info" title="About" selected={(shell.place === 'about')} onPress={() => goAbout()} />
           </RgList>
-          <RgText variant="bodyLarge" style={styles.drawerVersion}>Rangular framework 0.6.6</RgText>
+          <RgText variant="bodyLarge" style={styles.drawerVersion}>Rangular framework 0.6.7</RgText>
         </RgDrawer>
         <RgDialog title="How to use this tutorial" open={shell.howToOpen} onClose={() => closeHowTo()}>
           <RgText variant="bodyLarge">Start at Lesson 1 and go in order. Tap a lesson, read it, try its demo, then mark it done and move to the next one.</RgText>
@@ -7194,6 +7259,9 @@ const styles = StyleSheet.create({
   drawerDemoCountText: {"color":"#ffffff","fontSize":12,"lineHeight":16,"fontWeight":700},
   drawerDemoFoot: {"fontSize":12,"lineHeight":16,"color":"#5f6368"},
   filePickerDemoPicked: {"color":"#34a853","fontWeight":700},
+  streamsDemoPanel: {"borderWidth":1,"borderColor":"#a06a35","borderRadius":12,"padding":12,"backgroundColor":"#fdf6ec"},
+  streamsDemoCount: {"fontSize":24,"fontWeight":700},
+  streamsDemoBtnrow: {"flexDirection":"row","gap":8},
   samplesSampleRow: {"flexDirection":"row","alignItems":"flex-start","gap":12},
   samplesSampleMain: {"flex":1},
   samplesSampleIc: {"width":44,"height":44,"borderRadius":9999,"backgroundColor":"#e8f0fe","alignItems":"center","justifyContent":"center"},
