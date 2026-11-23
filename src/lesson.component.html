@@ -400,6 +400,10 @@
     <label>Live demo: the path to here</label>
     <app-breadcrumbs-demo></app-breadcrumbs-demo>
   </card>
+  <card class="demo-card" *ngIf="lessonId === 98">
+    <label>Live demo: streams you make yourself</label>
+    <app-streams-demo></app-streams-demo>
+  </card>
   <card *ngIf="lesson" class="tip-card">
     <label>Best practice</label>
     <p>{{ lesson.tip }}</p>

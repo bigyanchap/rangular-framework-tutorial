@@ -98,6 +98,7 @@ import { EditorDemoComponent } from './demos/editor.component';
 import { ImageDemoComponent } from './demos/image.component';
 import { ColorPickerDemoComponent } from './demos/color-picker.component';
 import { BreadcrumbsDemoComponent } from './demos/breadcrumbs.component';
+import { StreamsDemoComponent } from './demos/streams.component';
 
 /**
  * One lesson screen. The lesson data comes from LessonService by
@@ -147,7 +148,7 @@ export class LessonComponent {
       this.barTitle = 'Lesson ' + this.lessonId;
       this.hasCode = this.lesson.code !== '';
       this.done = this.bookmarks.isDone(this.lessonId);
-      this.progressPct = Math.round((this.lessonId * 100) / 97);
+      this.progressPct = Math.round((this.lessonId * 100) / 98);
       this.sectionName = this.nameFor(this.lessonId);
       this.nextLabel = this.labelFor(this.lessonId);
       this.implBlocks = this.buildImplBlocks(this.lesson.implementation || '');
@@ -181,7 +182,7 @@ export class LessonComponent {
   }
 
   labelFor(id: number) {
-    if (id >= 97) return this.done ? 'Done · Back home' : 'Mark done · Finish';
+    if (id >= 98) return this.done ? 'Done · Back home' : 'Mark done · Finish';
     return this.done ? 'Done · Next lesson' : 'Mark done · Next lesson';
   }
 

@@ -1,0 +1,19 @@
+<section class="panel">
+  <p class="count">{{ tapCount }}</p>
+  <p>Taps, counted by the stream itself through scan.</p>
+  <button (click)="tap()">
+    Tap
+  </button>
+</section>
+<section class="panel">
+  <p>Current mood: {{ mood | async }}</p>
+  <p>Last mood the subscription saw: {{ lastMood }}</p>
+  <section class="btnrow">
+    <button (click)="setMood('Calm')">
+      Calm
+    </button>
+    <button (click)="setMood('Bright')">
+      Bright
+    </button>
+  </section>
+</section>

@@ -2,8 +2,10 @@
  * @rangular-framework/runtime, small pure-TypeScript helpers for generated apps.
  * EventEmitter (for @Output), a tiny signal implementation, a DI Container,
  * the ReactiveService base class generated services extend (Stage 3),
- * HttpClient, an Observable-lite wrapper over fetch (Stage 3), and the
- * forms core (Stage 8): Validators, FormControl and FormGroup, mirroring
+ * HttpClient over fetch, returning real RxJS Observables (Stage 3;
+ * the RxJS adoption replaced the old Observable-lite shape, so every
+ * stream this package hands out takes the full operator library),
+ * and the forms core (Stage 8): Validators, FormControl and FormGroup, mirroring
  * @angular/forms semantics (Stage 8), and the routing core (Stage 9):
  * matchRoute, RgNavigator, Router and ActivatedRoute, mirroring
  * @angular/router, and the snackbar service (Stage 10): SnackBar and
@@ -14,33 +16,43 @@
  * and unit-testable.
  */
 
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { map, merge } from 'rxjs';
+
+export type { Subscription } from 'rxjs';
+
 export type Listener<T> = (value: T) => void;
 
-export class EventEmitter<T = void> {
-  private listeners = new Set<Listener<T>>();
+/**
+ * An output emitter, as in Angular: an EventEmitter IS a Subject, so
+ * it can be subscribed, piped and composed like any other stream
+ * (the RxJS adoption made this literally true; before it, the class
+ * was a small listener set shaped like one). `emit` is the Angular
+ * spelling of `next`. `on` and `off` stay as the framework's older
+ * convenience pair: `on` subscribes and returns an unsubscribe
+ * function, `off` removes a listener registered through `on`.
+ */
+export class EventEmitter<T = void> extends Subject<T> {
+  private readonly tracked = new Map<Listener<T>, { unsubscribe(): void }>();
 
   /** Subscribe; returns an unsubscribe function. */
   on(listener: Listener<T>): () => void {
-    this.listeners.add(listener);
+    const sub = this.subscribe(listener);
+    this.tracked.set(listener, sub);
     return () => this.off(listener);
   }
 
-  /** Alias matching the Angular/RxJS-flavoured naming generated code expects. */
-  subscribe(listener: Listener<T>): () => void {
-    return this.on(listener);
-  }
-
   off(listener: Listener<T>): void {
-    this.listeners.delete(listener);
+    this.tracked.get(listener)?.unsubscribe();
+    this.tracked.delete(listener);
   }
 
   emit(value: T): void {
-    // Copy first: a listener may unsubscribe itself while emitting.
-    for (const listener of [...this.listeners]) listener(value);
+    this.next(value);
   }
 
   get listenerCount(): number {
-    return this.listeners.size;
+    return this.observers.length;
   }
 }
 
@@ -262,17 +274,14 @@ export class ReactiveService {
   }
 }
 
-export interface Subscription {
-  unsubscribe(): void;
-}
-
 /**
- * The smallest useful Observable shape: subscribe with a next and/or error
- * callback, get back a Subscription. No operators, pipelines are Stage 4+.
+ * The stream type this package hands out: a real RxJS Observable.
+ * Before the RxJS adoption this name was a small home-grown interface
+ * with subscribe only; it stays exported as an alias so older code
+ * that names the type keeps compiling, but the value behind it is
+ * the genuine Observable, with pipe and the whole operator library.
  */
-export interface ObservableLite<T> {
-  subscribe(next?: (value: T) => void, error?: (err: unknown) => void): Subscription;
-}
+export type ObservableLite<T> = Observable<T>;
 
 /** The slice of fetch HttpClient needs, injectable so tests never touch the network. */
 export type FetchLike = (
@@ -296,37 +305,39 @@ export class HttpClient {
     ) => fetch(url, init),
   ) {}
 
-  get<T = unknown>(url: string): ObservableLite<T> {
+  get<T = unknown>(url: string): Observable<T> {
     return this.request<T>('GET', url);
   }
 
-  post<T = unknown>(url: string, body: unknown): ObservableLite<T> {
+  post<T = unknown>(url: string, body: unknown): Observable<T> {
     return this.request<T>('POST', url, body);
   }
 
-  put<T = unknown>(url: string, body: unknown): ObservableLite<T> {
+  put<T = unknown>(url: string, body: unknown): Observable<T> {
     return this.request<T>('PUT', url, body);
   }
 
-  delete<T = unknown>(url: string): ObservableLite<T> {
+  delete<T = unknown>(url: string): Observable<T> {
     return this.request<T>('DELETE', url);
   }
 
-  private request<T>(method: string, url: string, body?: unknown): ObservableLite<T> {
+  private request<T>(method: string, url: string, body?: unknown): Observable<T> {
     const fetchImpl = this.fetchImpl;
-    return {
-      subscribe(next?: (value: T) => void, error?: (err: unknown) => void): Subscription {
-        let cancelled = false;
-        const init = body === undefined
-          ? { method }
-          : { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) };
-        fetchImpl(url, init)
-          .then((res) => res.json())
-          .then((data) => { if (!cancelled) next?.(data as T); })
-          .catch((err) => { if (!cancelled) error?.(err); });
-        return { unsubscribe: () => { cancelled = true; } };
-      },
-    };
+    return new Observable<T>((subscriber) => {
+      let cancelled = false;
+      const init = body === undefined
+        ? { method }
+        : { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) };
+      fetchImpl(url, init)
+        .then((res) => res.json())
+        .then((data) => {
+          if (cancelled) return;
+          subscriber.next(data as T);
+          subscriber.complete();
+        })
+        .catch((err) => { if (!cancelled) subscriber.error(err); });
+      return () => { cancelled = true; };
+    });
   }
 }
 
@@ -469,7 +480,7 @@ export interface FormNode {
   readonly errors: ValidationErrors | null;
   readonly touched: boolean;
   readonly dirty: boolean;
-  readonly valueChanges: ObservableLite<any>;
+  readonly valueChanges: Observable<any>;
   setValue(value: any): void;
   patchValue(value: any): void;
   markAllAsTouched(): void;
@@ -478,26 +489,22 @@ export interface FormNode {
 /**
  * One reactive form control (Stage 8). Holds a value, validates it on
  * construction and on every setValue, tracks touched/dirty the way
- * Angular does, and exposes valueChanges as an Observable-lite.
+ * Angular does, and exposes valueChanges as a real RxJS Observable
+ * fed by a Subject the control owns.
  */
 export class FormControl implements FormNode {
   value: unknown;
   errors: ValidationErrors | null = null;
   touched = false;
   dirty = false;
-  readonly valueChanges: ObservableLite<unknown>;
+  readonly valueChanges: Observable<unknown>;
   private readonly validators: ValidatorFn[];
-  private readonly listeners = new Set<(value: unknown) => void>();
+  private readonly changes = new Subject<unknown>();
 
   constructor(initialValue: unknown = null, validators?: ValidatorFn | ValidatorFn[] | null) {
     this.value = initialValue;
     this.validators = validators == null ? [] : Array.isArray(validators) ? [...validators] : [validators];
-    this.valueChanges = {
-      subscribe: (next?: (value: unknown) => void) => {
-        if (next) this.listeners.add(next);
-        return { unsubscribe: () => { if (next) this.listeners.delete(next); } };
-      },
-    };
+    this.valueChanges = this.changes.asObservable();
     this.revalidate();
   }
 
@@ -510,7 +517,7 @@ export class FormControl implements FormNode {
     this.value = value;
     this.dirty = true;
     this.revalidate();
-    for (const listener of [...this.listeners]) listener(value);
+    this.changes.next(value);
   }
 
   patchValue(value: unknown): void { this.setValue(value); }
@@ -551,17 +558,13 @@ function patchNodeValue(node: FormNode, value: unknown): void {
  */
 export class FormGroup implements FormNode {
   readonly controls: Record<string, FormNode>;
-  readonly valueChanges: ObservableLite<Record<string, unknown>>;
+  readonly valueChanges: Observable<Record<string, unknown>>;
 
   constructor(controls: Record<string, FormNode>) {
     this.controls = controls;
-    this.valueChanges = {
-      subscribe: (next?: (value: Record<string, unknown>) => void) => {
-        const subs = Object.values(this.controls).map((child) =>
-          child.valueChanges.subscribe(() => { if (next) next(this.value); }));
-        return { unsubscribe: () => { subs.forEach((sub) => sub.unsubscribe()); } };
-      },
-    };
+    this.valueChanges = merge(...Object.values(this.controls).map((child) => child.valueChanges)).pipe(
+      map(() => this.value),
+    );
   }
 
   get(name: string): FormNode {
@@ -626,18 +629,13 @@ export class FormGroup implements FormNode {
  */
 export class FormArray implements FormNode {
   readonly controls: FormNode[];
-  readonly valueChanges: ObservableLite<unknown[]>;
-  private readonly listeners = new Set<(value: unknown[]) => void>();
+  readonly valueChanges: Observable<unknown[]>;
+  private readonly changes = new Subject<unknown[]>();
   private readonly childSubs = new Map<FormNode, { unsubscribe(): void }>();
 
   constructor(controls: FormNode[] = []) {
     this.controls = [...controls];
-    this.valueChanges = {
-      subscribe: (next?: (value: unknown[]) => void) => {
-        if (next) this.listeners.add(next);
-        return { unsubscribe: () => { if (next) this.listeners.delete(next); } };
-      },
-    };
+    this.valueChanges = this.changes.asObservable();
     for (const child of this.controls) this.watch(child);
   }
 
@@ -651,8 +649,7 @@ export class FormArray implements FormNode {
   }
 
   private emit(): void {
-    const value = this.value;
-    for (const listener of [...this.listeners]) listener(value);
+    this.changes.next(this.value);
   }
 
   get length(): number { return this.controls.length; }
@@ -930,31 +927,29 @@ export class Router {
  * route component (Stage 9). The outlet creates one instance per mount
  * from the current navigation entry and passes it to the component.
  *
- * `snapshot.params` is the plain params object. `paramMap` is an
- * Observable-lite that emits the current params on subscribe and, while
- * subscribed, again whenever the navigator's current entry changes.
+ * `snapshot.params` is the plain params object. `paramMap` is a real
+ * RxJS Observable fed by a BehaviorSubject: it emits the current
+ * params on subscribe and, while subscribed, again whenever the
+ * navigator's current entry changes.
  * In v1 the generated outlet remounts a route component when the path
  * changes (it keys the component by the concrete path), so a component
  * normally sees exactly one emission per mount; the snapshot is the
  * primary surface, exactly the pattern Angular's own docs teach first.
  */
 export class ActivatedRoute {
-  readonly paramMap: ObservableLite<Record<string, string>>;
+  readonly paramMap: Observable<Record<string, string>>;
+  private readonly paramsChanges: BehaviorSubject<Record<string, string>>;
 
   constructor(
     private readonly initialParams: Record<string, string>,
     private readonly navigatorRef?: RgNavigator,
   ) {
-    this.paramMap = {
-      subscribe: (next?: (value: Record<string, string>) => void): Subscription => {
-        if (!next) return { unsubscribe: () => undefined };
-        next(this.snapshot.params);
-        if (!this.navigatorRef) return { unsubscribe: () => undefined };
-        const nav = this.navigatorRef;
-        const off = nav.subscribe(() => next(nav.current.params));
-        return { unsubscribe: off };
-      },
-    };
+    this.paramsChanges = new BehaviorSubject<Record<string, string>>(initialParams);
+    if (this.navigatorRef) {
+      const nav = this.navigatorRef;
+      nav.subscribe(() => this.paramsChanges.next(nav.current.params));
+    }
+    this.paramMap = this.paramsChanges.asObservable();
   }
 
   /**

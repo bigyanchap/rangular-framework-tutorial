@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { map } from 'rxjs';
 import { ApiService } from './api.service';
 
 /**
@@ -6,12 +7,13 @@ import { ApiService } from './api.service';
  * ApiService. The component receives the service in its
  * constructor and makes the first call right there, so the
  * screen can never run half wired. load() reads one user
- * from JSONPlaceholder, a public test API; create(),
- * update() and remove() carry the writing verbs in the
- * same subscribe shape. In the browser preview the client
- * is a stub that never answers, so the demo waits at
- * Loading there; on a phone with a connection the request
- * is genuine.
+ * from JSONPlaceholder, a public test API, and shapes the
+ * answer with the map operator before subscribing;
+ * create(), update() and remove() carry the writing verbs
+ * in the same subscribe shape. In the browser preview the
+ * client is a stub that never answers, so the demo waits
+ * at Loading there; on a phone with a connection the
+ * request is genuine.
  */
 @Component({
   selector: 'app-http-basics-demo',
@@ -31,11 +33,13 @@ export class HttpBasicsDemoComponent {
   load() {
     this.loading = true;
     this.failed = '';
-    this.api.getUser().subscribe(
-      (data) => {
-        this.name = data.name;
-        this.email = data.email;
-        this.city = data.address.city;
+    this.api.getUser()
+      .pipe(map((data: any) => ({ name: data.name, email: data.email, city: data.address.city })))
+      .subscribe(
+      (user) => {
+        this.name = user.name;
+        this.email = user.email;
+        this.city = user.city;
         this.loading = false;
       },
       (err) => {

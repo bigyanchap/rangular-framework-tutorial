@@ -82,7 +82,7 @@ export class HomeComponent {
     this.formsMeta = this.doneIn(26, 47);
     this.dataMeta = this.doneIn(48, 67);
     this.piecesMeta = this.doneIn(68, 78);
-    this.beyondMeta = this.doneIn(79, 97);
+    this.beyondMeta = this.doneIn(79, 98);
   }
 
   doneIn(from: number, to: number) {
