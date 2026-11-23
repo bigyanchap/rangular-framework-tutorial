@@ -1,4 +1,17 @@
-<input label="Move to folder" placeholder="Type a folder name" [(ngModel)]="folder" [options]="folders" (optionSelected)="onPick($event)">
-<p>Field value: {{ folder }}</p>
+<section class="band">
+  <section class="band-title">
+    <icon name="folder" color="primary"></icon>
+    <p class="band-title-text">Move this mail</p>
+  </section>
+  <input label="Folder name" placeholder="Type a folder name" [(ngModel)]="folder" [options]="folders" (optionSelected)="onPick($event)">
+</section>
+<section class="folders">
+  <p class="folders-label">All folders</p>
+  <chips>
+    <section class="chip" *ngFor="let f of folders" [class.chip-on]="picked === f" (click)="choose(f)">
+      <p class="chip-text" [class.chip-text-on]="picked === f">{{ f }}</p>
+    </section>
+  </chips>
+</section>
 <p *ngIf="picked">Last pick from the list: {{ picked }}</p>
-<p>Try typing in, st, or tr, then tap a suggestion.</p>
+<p>Try typing in, st, or tr, then tap a suggestion. Or tap a folder chip.</p>

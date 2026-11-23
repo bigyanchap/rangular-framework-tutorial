@@ -506,7 +506,7 @@ export class LessonService extends ReactiveService {
       minutes: '4 min',
       intro: 'Autocomplete is not a new block. It is an ordinary input carrying [options]: an array of strings in the class. While the field is focused and holds text, a panel under it lists the options that contain the text, matched case insensitively as a substring, the filter the Angular Material example uses. Tapping a suggestion writes it back through ngModel, like typing it, and emits (optionSelected) with the chosen string in $event. Two honest limits: options are strings only, with no objects and no displayWith, and the panel shows only while the field is focused.',
       code: '<input [(ngModel)]="folder" [options]="folders" (optionSelected)="onPick($event)">',
-      implementation: '// autocomplete.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-autocomplete-demo\',\n  templateUrl: \'./autocomplete.component.html\',\n})\nexport class AutocompleteDemoComponent {\n  folder = \'\';\n  folders = [\'Inbox\', \'Starred\', \'Sent\', \'Drafts\', \'Archive\', \'Spam\', \'Trash\'];\n  picked = \'\';\n\n  onPick(value: string) {\n    this.picked = value;\n  }\n}\n\n// autocomplete.component.html\n<input\n  label="Move to folder"\n  placeholder="Type a folder name"\n  [(ngModel)]="folder"\n  [options]="folders"\n  (optionSelected)="onPick($event)"\n>\n<p>Field value: {{ folder }}</p>\n<p *ngIf="picked">Last pick from the list: {{ picked }}</p>\n<p>Try typing in, st, or tr, then tap a suggestion.</p>',
+      implementation: '// autocomplete.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-autocomplete-demo\',\n  templateUrl: \'./autocomplete.component.html\',\n  styles: [`\n    .band { background-color: #e8f0fe; border-radius: 16px; padding: 16px; gap: 12px; }\n    .band-title { flex-direction: row; align-items: center; gap: 8px; }\n    .band-title-text { font-size: 16px; font-weight: 700; }\n    .folders { gap: 4px; margin-top: 16px; }\n    .folders-label { font-size: 14px; font-weight: 600; color: #5f6368; }\n    .chip { border-width: 1px; border-color: #bdc1c6; border-radius: 9999px; padding: 8px; }\n    .chip-on { background-color: #0b57d0; border-color: #0b57d0; }\n    .chip-text { font-size: 14px; color: #3c4043; }\n    .chip-text-on { color: #ffffff; font-weight: 600; }\n  `],\n})\nexport class AutocompleteDemoComponent {\n  folder = \'\';\n  folders = [\'Inbox\', \'Starred\', \'Sent\', \'Drafts\', \'Archive\', \'Spam\', \'Trash\'];\n  picked = \'\';\n\n  onPick(value: string) {\n    this.picked = value;\n  }\n\n  choose(name: string) {\n    this.folder = name;\n    this.picked = name;\n  }\n}\n\n// autocomplete.component.html\n<section class="band">\n  <section class="band-title">\n    <icon name="folder" color="primary"></icon>\n    <p class="band-title-text">Move this mail</p>\n  </section>\n  <input\n    label="Folder name"\n    placeholder="Type a folder name"\n    [(ngModel)]="folder"\n    [options]="folders"\n    (optionSelected)="onPick($event)"\n  >\n</section>\n<section class="folders">\n  <p class="folders-label">All folders</p>\n  <chips>\n    <section\n      class="chip"\n      *ngFor="let f of folders"\n      [class.chip-on]="picked === f"\n      (click)="choose(f)"\n    >\n      <p class="chip-text" [class.chip-text-on]="picked === f">{{ f }}</p>\n    </section>\n  </chips>\n</section>\n<p *ngIf="picked">Last pick from the list: {{ picked }}</p>\n<p>Try typing in, st, or tr, then tap a suggestion. Or tap a folder chip.</p>',
       tip: 'Suggest from a short, known list: folders, cities, recent values. Autocomplete helps memory, not discovery; if the learner cannot guess the first letters, a select or a list is the kinder control.',
     },
     {
@@ -4429,14 +4429,33 @@ export function AutocompleteDemo() {
   const onPick = (value: string) => {
     setPicked(value);
   };
+  const choose = (name: string) => {
+    setFolder(name);
+    setPicked(name);
+  };
   return (
     <>
-      <RgInput label="Move to folder" placeholder="Type a folder name" value={folder} onChangeText={($event) => setFolder($event)} onOptionSelected={($event) => onPick($event)} options={folders} />
-      <RgText variant="bodyLarge">Field value: {folder}</RgText>
+      <RgSection style={styles.autocompleteDemoBand}>
+        <RgSection style={styles.autocompleteDemoBandTitle}>
+          <RgIcon name="folder" color="primary" />
+          <RgText variant="bodyLarge" style={styles.autocompleteDemoBandTitleText}>Move this mail</RgText>
+        </RgSection>
+        <RgInput label="Folder name" placeholder="Type a folder name" value={folder} onChangeText={($event) => setFolder($event)} onOptionSelected={($event) => onPick($event)} options={folders} />
+      </RgSection>
+      <RgSection style={styles.autocompleteDemoFolders}>
+        <RgText variant="bodyLarge" style={styles.autocompleteDemoFoldersLabel}>All folders</RgText>
+        <RgChips>
+          {folders.map((f, index) => (
+            <RgSection key={f?.id ?? index} onPress={() => choose(f)} style={[styles.autocompleteDemoChip, (picked === f) ? styles.autocompleteDemoChipOn : undefined]}>
+              <RgText variant="bodyLarge" style={[styles.autocompleteDemoChipText, (picked === f) ? styles.autocompleteDemoChipTextOn : undefined]}>{f}</RgText>
+            </RgSection>
+          ))}
+        </RgChips>
+      </RgSection>
       {!!(picked) && (
         <RgText variant="bodyLarge">Last pick from the list: {picked}</RgText>
       )}
-      <RgText variant="bodyLarge">Try typing in, st, or tr, then tap a suggestion.</RgText>
+      <RgText variant="bodyLarge">Try typing in, st, or tr, then tap a suggestion. Or tap a folder chip.</RgText>
     </>
   );
 }
@@ -7251,4 +7270,13 @@ const styles = StyleSheet.create({
   drawerSub: {"color":"#5f6368","fontSize":14,"lineHeight":20},
   drawerRule: {"height":3,"padding":0,"borderRadius":9999},
   drawerVersion: {"color":"#80868b","fontSize":12,"lineHeight":16},
+  autocompleteDemoBand: {"backgroundColor":"#e8f0fe","borderRadius":16,"padding":16,"gap":12},
+  autocompleteDemoBandTitle: {"flexDirection":"row","alignItems":"center","gap":8},
+  autocompleteDemoBandTitleText: {"fontSize":16,"fontWeight":700},
+  autocompleteDemoFolders: {"gap":4,"marginTop":16},
+  autocompleteDemoFoldersLabel: {"fontSize":14,"fontWeight":600,"color":"#5f6368"},
+  autocompleteDemoChip: {"borderWidth":1,"borderColor":"#bdc1c6","borderRadius":9999,"padding":8},
+  autocompleteDemoChipOn: {"backgroundColor":"#0b57d0","borderColor":"#0b57d0"},
+  autocompleteDemoChipText: {"fontSize":14,"color":"#3c4043"},
+  autocompleteDemoChipTextOn: {"color":"#ffffff","fontWeight":600},
 });
