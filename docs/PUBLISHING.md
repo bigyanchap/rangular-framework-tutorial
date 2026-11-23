@@ -61,3 +61,8 @@ docs/STORE_LISTING.md.
 4. Prepare listings and screenshots. (Listings drafted;
    screenshots still need a real device.)
 5. Submit production builds to both stores.
+6. Host the web version on GitHub Pages (free): publish the
+   Expo web export from this repo so the whole tutorial is
+   browsable at bigyanchap.github.io/rangular-framework-tutorial,
+   beside the store apps. (Bigyan's reminder, 2026-11-23: do
+   this during publishing, not before.)
