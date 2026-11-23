@@ -1388,9 +1388,11 @@ export function RgScreen({ children, style, theme: mode, refreshing, onRefresh, 
     }
   });
   const scrollYRef = useRef(0);
+  const listEndReachedRef = useRef<any>(null);
   const handleScroll = (e: any) => {
     offsetRef.current = e?.nativeEvent?.contentOffset?.y ?? offsetRef.current;
     if (onEndReached) onScroll(e);
+    listEndReachedRef.current?.onScroll?.(e);
     if (fade) {
       const y = e?.nativeEvent?.contentOffset?.y ?? 0;
       if (Math.abs(y - scrollYRef.current) >= 1) {
@@ -1485,6 +1487,16 @@ export function RgScreen({ children, style, theme: mode, refreshing, onRefresh, 
           return next;
         });
       }, 0);
+    },
+    registerEndReached: (entry: any) => {
+      // The end-reached twin of the pull above (lesson 81,
+      // 2026-11-23): a paging list inside the screen registers
+      // its guarded end handler here and the screen's scroll
+      // runs it, because the screen is the scroller that owns
+      // every vertical drag. Ref only: nothing renders from
+      // this entry, so no mirror is needed and it cannot feed
+      // a render loop.
+      listEndReachedRef.current = entry;
     },
   }).current;
   // The overlay twin of the lift above: same measured facts,
@@ -2449,12 +2461,33 @@ export function RgList({ data, renderItem, keyExtractor, children, refreshing, o
     });
     return () => scrollControl.registerRefresh(null);
   }, [scrollControl, wantsPull, refreshing]);
+  // End reached lends the same way (lesson 81, 2026-11-23): a
+  // paging list inside a scrolling screen never receives a
+  // scroll of its own, because the screen's scroller takes
+  // every vertical drag (the lesson 80 finding above). Its own
+  // ScrollView has no bounded height inside the page, so it
+  // cannot scroll either, and its end handler sat silent while
+  // the reader scrolled past it: the next page never came. So
+  // the list registers its guarded end handler with the screen
+  // and the screen's scroll runs it as the page nears its end.
+  // The callback is read through a ref, so the registration
+  // stays one stable guarded handler. One paging list per
+  // screen: the last one registered is the one the scroll runs.
+  const endHandler = useRef<any>(null);
+  endHandler.current = onEndReached;
+  const lentEndScroll = useRef(endReachedScrollHandler(() => endHandler.current?.())).current;
+  useEffect(() => {
+    if (!scrollControl?.registerEndReached || !onEndReached) return;
+    scrollControl.registerEndReached({ onScroll: lentEndScroll });
+    return () => scrollControl.registerEndReached(null);
+  }, [scrollControl, onEndReached]);
   // Generated code (Stage 2) renders rows as children, e.g. a *ngFor map,
   // rather than via FlatList's data/renderItem. Support both shapes.
-  // Stage 15: a list that pages becomes its own scroller (the
-  // shared end-reached handler); a list that refreshes lends
-  // its pull to the screen (the registration above); a plain
-  // list stays a plain View inside the screen's scroll.
+  // Stage 15: a list that pages lends its end to the screen
+  // when it has one (the registration above) and becomes its
+  // own scroller when it stands alone; a list that refreshes
+  // lends its pull to the screen; a plain list stays a plain
+  // View inside the screen's scroll.
   // The paging scroller opts into nested scrolling (lesson 80
   // report, 2026-11-21). The FlatList below keeps the platform
   // RefreshControl, themed: a data list is normally the
@@ -2476,6 +2509,12 @@ export function RgList({ data, renderItem, keyExtractor, children, refreshing, o
       return <View>{marked}</View>;
     }
     if (onEndReached) {
+      // Inside a screen the end contract is lent (registered
+      // above) and the rows stay in the page's own scroll.
+      // Standing alone, the list keeps its own scroller.
+      if (scrollControl?.registerEndReached) {
+        return <View>{marked}</View>;
+      }
       return (
         <ScrollView
           nestedScrollEnabled

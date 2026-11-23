@@ -3079,6 +3079,12 @@ export function Lesson() {
             <RgButton onPress={() => markDoneNext()}>{nextLabel}</RgButton>
           </RgActions>
         )}
+        {!!((lessonId === 81)) && (
+          <RgCard style={styles.lessonSurpriseCard}>
+            <RgText variant="label">Surprise, surprise, surprise</RgText>
+            <RgText variant="bodyLarge">You scrolled to the very bottom of this lesson, past the Next lesson button. An exception has been made for this page, for you: this note lives at the true end of the page, so you can see the end-reaching effect with your own eyes. It is the same effect the list above uses to load its next page. This note appears in this lesson only.</RgText>
+          </RgCard>
+        )}
       </RgSection>
     );
   } finally {
@@ -8225,6 +8231,7 @@ const styles = StyleSheet.create({
   historyStatTile: {"flex":1},
   lessonEyebrow: {"color":"#5f6368","fontWeight":700},
   lessonTipCard: {"backgroundColor":"#e8f0fe","borderWidth":0},
+  lessonSurpriseCard: {"backgroundColor":"#fef7e0","borderWidth":0},
   lessonDemoCard: {"backgroundColor":"transparent","borderWidth":0,"padding":0},
   lessonCmdLine: {"backgroundColor":"#e8f0fe","borderRadius":12,"padding":12},
   lessonCmdText: {"color":"#0b57d0","fontWeight":700,"fontSize":16,"letterSpacing":1,"textAlign":"center"},
