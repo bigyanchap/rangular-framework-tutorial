@@ -3362,9 +3362,8 @@ export function Panel({ children }: { children?: any }) {
 export function RefsDemo() {
   const [name, setName] = useState('');
   const [nameFieldTouched, setNameFieldTouched] = useState(false);
-  const [nameFieldDirty, setNameFieldDirty] = useState(false);
   const nameFieldErrors = validateValue(name, [Validators.required, Validators.minLength(3)]);
-  const nameFieldModel = { value: name, errors: nameFieldErrors, valid: nameFieldErrors === null, invalid: nameFieldErrors !== null, touched: nameFieldTouched, dirty: nameFieldDirty, pristine: !nameFieldDirty, untouched: !nameFieldTouched };
+  const nameFieldModel = { value: name, errors: nameFieldErrors, valid: nameFieldErrors === null, invalid: nameFieldErrors !== null, touched: nameFieldTouched };
   return (
     <>
       <RgSection style={styles.refsDemoConsoleBox}>
@@ -3372,7 +3371,7 @@ export function RefsDemo() {
         <RgText variant="bodyLarge" style={styles.refsDemoConsoleText}>touched: {(nameFieldModel.touched ? 'yes' : 'no')}</RgText>
         <RgText variant="bodyLarge" style={styles.refsDemoConsoleText}>dirty: {(nameFieldModel.dirty ? 'yes' : 'no')}</RgText>
       </RgSection>
-      <RgInput label="Your name" placeholder="Type at least 3 characters" value={name} onChangeText={($event) => { setName($event); setNameFieldDirty(true); }} onBlur={() => setNameFieldTouched(true)} />
+      <RgInput label="Your name" placeholder="Type at least 3 characters" value={name} onChangeText={($event) => setName($event)} onBlur={() => setNameFieldTouched(true)} />
       {!!((nameFieldModel.invalid && nameFieldModel.touched)) && (
         <RgText variant="bodyLarge">The name is required and needs at least 3 characters.</RgText>
       )}
@@ -3810,12 +3809,11 @@ export function InputTypesDemo() {
 export function ValidatorsBasicDemo() {
   const [username, setUsername] = useState('');
   const [nameFieldTouched, setNameFieldTouched] = useState(false);
-  const [nameFieldDirty, setNameFieldDirty] = useState(false);
   const nameFieldErrors = validateValue(username, [Validators.required, Validators.minLength(3), Validators.maxLength(8)]);
-  const nameFieldModel = { value: username, errors: nameFieldErrors, valid: nameFieldErrors === null, invalid: nameFieldErrors !== null, touched: nameFieldTouched, dirty: nameFieldDirty, pristine: !nameFieldDirty, untouched: !nameFieldTouched };
+  const nameFieldModel = { value: username, errors: nameFieldErrors, valid: nameFieldErrors === null, invalid: nameFieldErrors !== null, touched: nameFieldTouched };
   return (
     <>
-      <RgInput label="Username" placeholder="3 to 8 characters" value={username} onChangeText={($event) => { setUsername($event); setNameFieldDirty(true); }} onBlur={() => setNameFieldTouched(true)} />
+      <RgInput label="Username" placeholder="3 to 8 characters" value={username} onChangeText={($event) => setUsername($event)} onBlur={() => setNameFieldTouched(true)} />
       <RgText variant="bodyLarge">Characters: {username.length} (3 to 8 allowed)</RgText>
       {!!(((nameFieldModel.errors && nameFieldModel.errors.required) && nameFieldModel.touched)) && (
         <RgText variant="bodyLarge">A username is required.</RgText>
@@ -3837,23 +3835,21 @@ export function ValidatorsShapeDemo() {
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [emailFieldTouched, setEmailFieldTouched] = useState(false);
-  const [emailFieldDirty, setEmailFieldDirty] = useState(false);
   const emailFieldErrors = validateValue(email, [Validators.required, Validators.email]);
-  const emailFieldModel = { value: email, errors: emailFieldErrors, valid: emailFieldErrors === null, invalid: emailFieldErrors !== null, touched: emailFieldTouched, dirty: emailFieldDirty, pristine: !emailFieldDirty, untouched: !emailFieldTouched };
+  const emailFieldModel = { value: email, errors: emailFieldErrors, valid: emailFieldErrors === null, invalid: emailFieldErrors !== null, touched: emailFieldTouched };
   const [codeFieldTouched, setCodeFieldTouched] = useState(false);
-  const [codeFieldDirty, setCodeFieldDirty] = useState(false);
   const codeFieldErrors = validateValue(code, [Validators.required, Validators.pattern("[0-9]{4}")]);
-  const codeFieldModel = { value: code, errors: codeFieldErrors, valid: codeFieldErrors === null, invalid: codeFieldErrors !== null, touched: codeFieldTouched, dirty: codeFieldDirty, pristine: !codeFieldDirty, untouched: !codeFieldTouched };
+  const codeFieldModel = { value: code, errors: codeFieldErrors, valid: codeFieldErrors === null, invalid: codeFieldErrors !== null, touched: codeFieldTouched };
   return (
     <>
-      <RgInput keyboardType="email-address" label="Email" placeholder="you@example.com" value={email} onChangeText={($event) => { setEmail($event); setEmailFieldDirty(true); }} onBlur={() => setEmailFieldTouched(true)} />
+      <RgInput keyboardType="email-address" label="Email" placeholder="you@example.com" value={email} onChangeText={($event) => setEmail($event)} onBlur={() => setEmailFieldTouched(true)} />
       {!!(((emailFieldModel.errors && emailFieldModel.errors.email) && emailFieldModel.touched)) && (
         <RgText variant="bodyLarge">That is not an email shape.</RgText>
       )}
       {!!(emailFieldModel.valid) && (
         <RgText variant="bodyLarge">The email shape is good.</RgText>
       )}
-      <RgInput label="Four digit code" placeholder="e.g. 2026" value={code} onChangeText={($event) => { setCode($event); setCodeFieldDirty(true); }} onBlur={() => setCodeFieldTouched(true)} />
+      <RgInput label="Four digit code" placeholder="e.g. 2026" value={code} onChangeText={($event) => setCode($event)} onBlur={() => setCodeFieldTouched(true)} />
       {!!(((codeFieldModel.errors && codeFieldModel.errors.pattern) && codeFieldModel.touched)) && (
         <RgText variant="bodyLarge">The code must be exactly four digits. You typed: {codeFieldModel.errors.pattern.actualValue}</RgText>
       )}
@@ -3868,16 +3864,15 @@ export function FormStateDemo() {
   const [name, setName] = useState('');
   const [attempted, setAttempted] = useState(false);
   const [nameFieldTouched, setNameFieldTouched] = useState(false);
-  const [nameFieldDirty, setNameFieldDirty] = useState(false);
   const nameFieldErrors = validateValue(name, [Validators.required, Validators.minLength(3)]);
-  const nameFieldModel = { value: name, errors: nameFieldErrors, valid: nameFieldErrors === null, invalid: nameFieldErrors !== null, touched: nameFieldTouched, dirty: nameFieldDirty, pristine: !nameFieldDirty, untouched: !nameFieldTouched };
+  const nameFieldModel = { value: name, errors: nameFieldErrors, valid: nameFieldErrors === null, invalid: nameFieldErrors !== null, touched: nameFieldTouched };
   const attempt = () => {
     setAttempted(true);
   };
   return (
     <>
       <RgSection>
-        <RgInput label="Name" placeholder="At least 3 characters" value={name} onChangeText={($event) => { setName($event); setNameFieldDirty(true); }} onBlur={() => setNameFieldTouched(true)} />
+        <RgInput label="Name" placeholder="At least 3 characters" value={name} onChangeText={($event) => setName($event)} onBlur={() => setNameFieldTouched(true)} />
         <RgText variant="bodyLarge">Value: {nameFieldModel.value}</RgText>
         <RgText variant="bodyLarge">Valid: {(nameFieldModel.valid ? 'yes' : 'no')}</RgText>
         <RgText variant="bodyLarge">Touched: {(nameFieldModel.touched ? 'yes' : 'no')}</RgText>
@@ -3903,17 +3898,15 @@ export function ErrorDisplayDemo() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailFieldTouched, setEmailFieldTouched] = useState(false);
-  const [emailFieldDirty, setEmailFieldDirty] = useState(false);
   const emailFieldErrors = validateValue(email, [Validators.required, Validators.email]);
-  const emailFieldModel = { value: email, errors: emailFieldErrors, valid: emailFieldErrors === null, invalid: emailFieldErrors !== null, touched: emailFieldTouched, dirty: emailFieldDirty, pristine: !emailFieldDirty, untouched: !emailFieldTouched };
+  const emailFieldModel = { value: email, errors: emailFieldErrors, valid: emailFieldErrors === null, invalid: emailFieldErrors !== null, touched: emailFieldTouched };
   const [passwordFieldTouched, setPasswordFieldTouched] = useState(false);
-  const [passwordFieldDirty, setPasswordFieldDirty] = useState(false);
   const passwordFieldErrors = validateValue(password, [Validators.required, Validators.minLength(6)]);
-  const passwordFieldModel = { value: password, errors: passwordFieldErrors, valid: passwordFieldErrors === null, invalid: passwordFieldErrors !== null, touched: passwordFieldTouched, dirty: passwordFieldDirty, pristine: !passwordFieldDirty, untouched: !passwordFieldTouched };
+  const passwordFieldModel = { value: password, errors: passwordFieldErrors, valid: passwordFieldErrors === null, invalid: passwordFieldErrors !== null, touched: passwordFieldTouched };
   return (
     <>
-      <RgInput keyboardType="email-address" label="Email" placeholder="you@example.com" value={email} onChangeText={($event) => { setEmail($event); setEmailFieldDirty(true); }} onBlur={() => setEmailFieldTouched(true)} error={((emailFieldModel.invalid && emailFieldModel.touched) ? 'Enter a valid email address.' : '')} />
-      <RgInput secure label="Password" placeholder="At least 6 characters" value={password} onChangeText={($event) => { setPassword($event); setPasswordFieldDirty(true); }} onBlur={() => setPasswordFieldTouched(true)} />
+      <RgInput keyboardType="email-address" label="Email" placeholder="you@example.com" value={email} onChangeText={($event) => setEmail($event)} onBlur={() => setEmailFieldTouched(true)} error={((emailFieldModel.invalid && emailFieldModel.touched) ? 'Enter a valid email address.' : '')} />
+      <RgInput secure label="Password" placeholder="At least 6 characters" value={password} onChangeText={($event) => setPassword($event)} onBlur={() => setPasswordFieldTouched(true)} />
       {!!((passwordFieldModel.invalid && passwordFieldModel.touched)) && (
         <RgText variant="bodyLarge">Password is required and needs at least 6 characters.</RgText>
       )}
@@ -3927,13 +3920,11 @@ export function SubmitDemo() {
   const [email, setEmail] = useState('');
   const [savedLine, setSavedLine] = useState('');
   const [nameFieldTouched, setNameFieldTouched] = useState(false);
-  const [nameFieldDirty, setNameFieldDirty] = useState(false);
   const nameFieldErrors = validateValue(name, [Validators.required, Validators.minLength(3)]);
-  const nameFieldModel = { value: name, errors: nameFieldErrors, valid: nameFieldErrors === null, invalid: nameFieldErrors !== null, touched: nameFieldTouched, dirty: nameFieldDirty, pristine: !nameFieldDirty, untouched: !nameFieldTouched };
+  const nameFieldModel = { value: name, errors: nameFieldErrors, valid: nameFieldErrors === null, invalid: nameFieldErrors !== null, touched: nameFieldTouched };
   const [emailFieldTouched, setEmailFieldTouched] = useState(false);
-  const [emailFieldDirty, setEmailFieldDirty] = useState(false);
   const emailFieldErrors = validateValue(email, [Validators.required, Validators.email]);
-  const emailFieldModel = { value: email, errors: emailFieldErrors, valid: emailFieldErrors === null, invalid: emailFieldErrors !== null, touched: emailFieldTouched, dirty: emailFieldDirty, pristine: !emailFieldDirty, untouched: !emailFieldTouched };
+  const emailFieldModel = { value: email, errors: emailFieldErrors, valid: emailFieldErrors === null, invalid: emailFieldErrors !== null, touched: emailFieldTouched };
   const save = () => {
     setSavedLine(name + ' (' + email + ')');
   };
@@ -3945,11 +3936,11 @@ export function SubmitDemo() {
   return (
     <>
       <RgSection>
-        <RgInput label="Name" placeholder="Your name" value={name} onChangeText={($event) => { setName($event); setNameFieldDirty(true); }} onBlur={() => setNameFieldTouched(true)} />
+        <RgInput label="Name" placeholder="Your name" value={name} onChangeText={($event) => setName($event)} onBlur={() => setNameFieldTouched(true)} />
         {!!((nameFieldModel.invalid && nameFieldModel.touched)) && (
           <RgText variant="bodyLarge">Name is required and needs at least 3 characters.</RgText>
         )}
-        <RgInput keyboardType="email-address" label="Email" placeholder="you@example.com" value={email} onChangeText={($event) => { setEmail($event); setEmailFieldDirty(true); }} onBlur={() => setEmailFieldTouched(true)} />
+        <RgInput keyboardType="email-address" label="Email" placeholder="you@example.com" value={email} onChangeText={($event) => setEmail($event)} onBlur={() => setEmailFieldTouched(true)} />
         {!!((emailFieldModel.invalid && emailFieldModel.touched)) && (
           <RgText variant="bodyLarge">Enter a valid email address.</RgText>
         )}
@@ -4529,17 +4520,14 @@ export function SignupDemo() {
   const [terms, setTerms] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [nameFieldTouched, setNameFieldTouched] = useState(false);
-  const [nameFieldDirty, setNameFieldDirty] = useState(false);
   const nameFieldErrors = validateValue(name, [Validators.required, Validators.minLength(3)]);
-  const nameFieldModel = { value: name, errors: nameFieldErrors, valid: nameFieldErrors === null, invalid: nameFieldErrors !== null, touched: nameFieldTouched, dirty: nameFieldDirty, pristine: !nameFieldDirty, untouched: !nameFieldTouched };
+  const nameFieldModel = { value: name, errors: nameFieldErrors, valid: nameFieldErrors === null, invalid: nameFieldErrors !== null, touched: nameFieldTouched };
   const [emailFieldTouched, setEmailFieldTouched] = useState(false);
-  const [emailFieldDirty, setEmailFieldDirty] = useState(false);
   const emailFieldErrors = validateValue(email, [Validators.required, Validators.email]);
-  const emailFieldModel = { value: email, errors: emailFieldErrors, valid: emailFieldErrors === null, invalid: emailFieldErrors !== null, touched: emailFieldTouched, dirty: emailFieldDirty, pristine: !emailFieldDirty, untouched: !emailFieldTouched };
+  const emailFieldModel = { value: email, errors: emailFieldErrors, valid: emailFieldErrors === null, invalid: emailFieldErrors !== null, touched: emailFieldTouched };
   const [passwordFieldTouched, setPasswordFieldTouched] = useState(false);
-  const [passwordFieldDirty, setPasswordFieldDirty] = useState(false);
   const passwordFieldErrors = validateValue(password, [Validators.required, Validators.minLength(6)]);
-  const passwordFieldModel = { value: password, errors: passwordFieldErrors, valid: passwordFieldErrors === null, invalid: passwordFieldErrors !== null, touched: passwordFieldTouched, dirty: passwordFieldDirty, pristine: !passwordFieldDirty, untouched: !passwordFieldTouched };
+  const passwordFieldModel = { value: password, errors: passwordFieldErrors, valid: passwordFieldErrors === null, invalid: passwordFieldErrors !== null, touched: passwordFieldTouched };
   const onTerms = (value: boolean) => {
     setTerms(value);
   };
@@ -4550,15 +4538,15 @@ export function SignupDemo() {
   return (
     <>
       <RgSection>
-        <RgInput label="Full name" placeholder="e.g. Maya Sharma" value={name} onChangeText={($event) => { setName($event); setNameFieldDirty(true); }} onBlur={() => setNameFieldTouched(true)} />
+        <RgInput label="Full name" placeholder="e.g. Maya Sharma" value={name} onChangeText={($event) => setName($event)} onBlur={() => setNameFieldTouched(true)} />
         {!!((nameFieldModel.invalid && nameFieldModel.touched)) && (
           <RgText variant="bodyLarge">Name is required and needs at least 3 characters.</RgText>
         )}
-        <RgInput keyboardType="email-address" label="Email" placeholder="you@example.com" value={email} onChangeText={($event) => { setEmail($event); setEmailFieldDirty(true); }} onBlur={() => setEmailFieldTouched(true)} />
+        <RgInput keyboardType="email-address" label="Email" placeholder="you@example.com" value={email} onChangeText={($event) => setEmail($event)} onBlur={() => setEmailFieldTouched(true)} />
         {!!((emailFieldModel.invalid && emailFieldModel.touched)) && (
           <RgText variant="bodyLarge">Enter a valid email address.</RgText>
         )}
-        <RgInput secure label="Password" placeholder="At least 6 characters" value={password} onChangeText={($event) => { setPassword($event); setPasswordFieldDirty(true); }} onBlur={() => setPasswordFieldTouched(true)} />
+        <RgInput secure label="Password" placeholder="At least 6 characters" value={password} onChangeText={($event) => setPassword($event)} onBlur={() => setPasswordFieldTouched(true)} />
         {!!((passwordFieldModel.invalid && passwordFieldModel.touched)) && (
           <RgText variant="bodyLarge">Password is required and needs at least 6 characters.</RgText>
         )}
@@ -7138,7 +7126,7 @@ const styles = StyleSheet.create({
   errorDisplayDemoReady: {"color":"#137333","fontWeight":700},
   formArrayDemoMemberRow: {"flexDirection":"row","gap":8},
   formArrayDemoMemberField: {"flex":1},
-  formArrayDemoMemberDel: {"paddingTop":24},
+  formArrayDemoMemberDel: {"justifyContent":"center","alignItems":"center"},
   shelfInspectorPanel: {"borderWidth":1,"borderColor":"#a06a35","borderRadius":12,"padding":12,"backgroundColor":"#fdf6ec"},
   shelfInspectorBtnrow: {"flexDirection":"row","gap":8},
   deviceKeyBase: {"backgroundColor":"#a06a35","borderRadius":12,"paddingBottom":4,"width":84},

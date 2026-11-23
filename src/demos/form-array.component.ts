@@ -16,7 +16,7 @@ import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
   styles: [`
     .member-row { flex-direction: row; gap: 8px; }
     .member-field { flex: 1; }
-    .member-del { padding-top: 24px; }
+    .member-del { display: flex; justify-content: center; align-items: center; }
   `],
 })
 export class FormArrayDemoComponent {
