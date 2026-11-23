@@ -3,11 +3,10 @@ import { MinutesStepperComponent } from './minutes-stepper.component';
 import { MinutesDisplayComponent } from './minutes-display.component';
 
 /**
- * Lesson 55's live demo: signals, honestly. There is no
- * signal() here, because Rangular does not compile Angular
- * signals yet. The reactive value is a service field, and
- * the derived value is a method read, which is the pattern
- * this framework offers today.
+ * Lesson 55's live demo: real Angular signals. The reactive
+ * value is a signal() in a service, the stepper writes it
+ * with update(), and the display derives its lines with
+ * computed(). One source, tracked automatically.
  */
 @Component({
   selector: 'app-signals-demo',
