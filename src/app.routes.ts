@@ -11,6 +11,7 @@ import { AlarmSampleComponent } from './alarm-sample.component';
 import { TodoSampleComponent } from './todo-sample.component';
 import { NotFoundComponent } from './not-found.component';
 import { StackComponent } from './stack.component';
+import { ReadingListComponent } from './reading-list.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'splash', pathMatch: 'full' },
@@ -29,5 +30,6 @@ export const routes: Routes = [
   { path: 'samples/habit', redirectTo: 'samples/todo' },
   { path: 'about', component: AboutComponent },
   { path: 'stack/:langs', component: StackComponent },
+  { path: 'reading-list/:run', component: ReadingListComponent },
   { path: '**', component: NotFoundComponent },
 ];

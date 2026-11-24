@@ -333,7 +333,7 @@
     <app-refresh-demo></app-refresh-demo>
   </card>
   <card class="demo-card" *ngIf="lessonId === 81">
-    <label>Live demo: scroll for the next page</label>
+    <label>Live demo: a list that loads as you scroll</label>
     <app-infinite-scroll-demo></app-infinite-scroll-demo>
   </card>
   <card class="demo-card" *ngIf="lessonId === 82">
@@ -425,8 +425,4 @@
     <button variant="text" [disabled]="lessonId <= 1" (click)="prevLesson()">Previous</button>
     <button (click)="markDoneNext()">{{ nextLabel }}</button>
   </actions>
-  <card *ngIf="lessonId === 81" class="surprise-card">
-    <label>Surprise, surprise, surprise</label>
-    <p>You scrolled to the very bottom of this lesson, past the Next lesson button. An exception has been made for this page, for you: this note lives at the true end of the page, so you can see the end-reaching effect with your own eyes. It is the same effect the list above uses to load its next page. This note appears in this lesson only.</p>
-  </card>
 </section>

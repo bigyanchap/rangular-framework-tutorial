@@ -859,9 +859,9 @@ export class LessonService extends ReactiveService {
       title: 'Infinite scroll: the endReached event',
       subtitle: 'Append the next page when the end is near',
       minutes: '5 min',
-      intro: 'The third scroller event is (endReached). It fires once per approach to the end of a screen or a list, and it fires again only after the content grows, so a handler that appends a page cannot loop on itself. The handler\'s job is narrow: append the next page by assignment, and keep a done flag for when the pages run out. Rebuilding the whole array, or re-rendering the page you already show, breaks the contract the event offers. The demo is a reading list that starts with one page. Scroll to the end and the next page appends, until the pages run out and a line says the list is whole. A button then restores the first page.',
+      intro: 'The third scroller event is (endReached). It fires once per approach to the end of a screen or a list, and it fires again only after the content grows, so a handler that appends a page cannot loop on itself. The handler\'s job is narrow: append the next page by assignment, and keep a done flag for when the pages run out. Rebuilding the whole array, or re-rendering the page you already show, breaks the contract the event offers. The demo needs a whole scrolling surface, so it lives on its own page, the way the array in lesson 60 got a page of its own. A button below opens a reading list of 60 articles, ten to a page. One detail matters: if a page does not fill the screen, the end is already near, so the next page loads by itself until the screen is full. After that, each scroll to the end appends the next ten, while a line at the top counts what has loaded. When the pages run out, a line says the list is whole, and a button starts the list again from the top.',
       code: '<list (endReached)="loadMore()">',
-      implementation: '// infinite-scroll.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-infinite-scroll-demo\',\n  templateUrl: \'./infinite-scroll.component.html\',\n})\nexport class InfiniteScrollDemoComponent {\n  firstPage = [\n    { id: 1, title: \'Article 1: Begin with the breath\' },\n    { id: 2, title: \'Article 2: The spine, held easy\' },\n    { id: 3, title: \'Article 3: Sitting without force\' },\n    { id: 4, title: \'Article 4: Attention returns\' },\n  ];\n\n  morePages: any[] = [\n    [\n      { id: 5, title: \'Article 5: The witness stance\' },\n      { id: 6, title: \'Article 6: Sound and silence\' },\n      { id: 7, title: \'Article 7: The pause between\' },\n      { id: 8, title: \'Article 8: Ending well\' },\n    ],\n    [\n      { id: 9, title: \'Article 9: Carrying it into the day\' },\n      { id: 10, title: \'Article 10: Review and rest\' },\n    ],\n  ];\n\n  items = [\n    { id: 1, title: \'Article 1: Begin with the breath\' },\n    { id: 2, title: \'Article 2: The spine, held easy\' },\n    { id: 3, title: \'Article 3: Sitting without force\' },\n    { id: 4, title: \'Article 4: Attention returns\' },\n  ];\n  page = 0;\n  done = false;\n\n  loadMore() {\n    this.items = this.items.concat(this.morePages[this.page] || []);\n    this.page = this.page + 1;\n    this.done = this.page >= this.morePages.length;\n  }\n\n  reset() {\n    this.items = [...this.firstPage];\n    this.page = 0;\n    this.done = false;\n  }\n}\n\n// infinite-scroll.component.html\n<p>Scroll to the end of the list. The next page appends on its own.</p>\n<list (endReached)="loadMore()">\n  <row *ngFor="let a of items" [title]="a.title"></row>\n</list>\n<p *ngIf="done">That is the whole list: {{ items.length }} articles.</p>\n<button *ngIf="done" (click)="reset()">\n  Start the list again\n</button>',
+      implementation: '// infinite-scroll.component.ts\nimport { Component } from \'@angular/core\';\nimport { Router } from \'@angular/router\';\n\n@Component({\n  selector: \'app-infinite-scroll-demo\',\n  templateUrl: \'./infinite-scroll.component.html\',\n})\nexport class InfiniteScrollDemoComponent {\n  constructor(private router: Router) {}\n\n  openList() {\n    this.router.navigate([\'/reading-list\', 1]);\n  }\n}\n\n// infinite-scroll.component.html\n<p>A reading list of 60 articles lives on its own page, so the list can be the page. Open it and scroll: each time you reach the end, the next ten articles append.</p>\n<button (click)="openList()">\n  Open the reading list\n</button>\n\n// reading-list.component.ts\nimport { Component } from \'@angular/core\';\nimport { ActivatedRoute, Router } from \'@angular/router\';\n\n/**\n * The reading list page: lesson 81\'s infinite scroll demo,\n * given a page of its own. A list that pages needs a whole\n * scrolling surface, so here the list is the page: the end\n * of the list and the end of the page are the same line,\n * and each approach to it appends the next ten articles.\n * One semantic shows itself at once: a page that does not\n * fill the screen is already at its end, so the next page\n * loads by itself until the screen is full. After that,\n * the reader\'s own scroll drives every append. A status\n * line counts what has loaded. The last page\n * rests with an end line, and Start the list again opens\n * this same page under a new run number in its address:\n * the fresh page starts at the top with the first page.\n */\n@Component({\n  selector: \'app-reading-list\',\n  templateUrl: \'./reading-list.component.html\',\n})\nexport class ReadingListComponent {\n  total = 60;\n  run = 1;\n\n  firstPage = [\n    { id: 1, title: \'Article 1: Begin with the breath\', sub: \'Start where the breath starts\' },\n    { id: 2, title: \'Article 2: The spine, held easy\', sub: \'Posture without force\' },\n    { id: 3, title: \'Article 3: Sitting without force\', sub: \'Let the seat hold you\' },\n    { id: 4, title: \'Article 4: Attention returns\', sub: \'The gentle art of coming back\' },\n    { id: 5, title: \'Article 5: The witness stance\', sub: \'Watch, do not chase\' },\n    { id: 6, title: \'Article 6: Sound and silence\', sub: \'Two sides of listening\' },\n    { id: 7, title: \'Article 7: The pause between\', sub: \'Rest in the gap\' },\n    { id: 8, title: \'Article 8: Ending well\', sub: \'Close the sit with care\' },\n    { id: 9, title: \'Article 9: Carrying it into the day\', sub: \'Practice after the cushion\' },\n    { id: 10, title: \'Article 10: Review and rest\', sub: \'Look back, then let go\' },\n  ];\n\n  morePages: any[] = [\n    [\n      { id: 11, title: \'Article 11: Morning light, first practice\', sub: \'Begin with the day\' },\n      { id: 12, title: \'Article 12: The hands, relaxed\', sub: \'Soft hands, soft mind\' },\n      { id: 13, title: \'Article 13: Counting the breath out\', sub: \'Numbers as an anchor\' },\n      { id: 14, title: \'Article 14: A quieter jaw\', sub: \'Release the small tensions\' },\n      { id: 15, title: \'Article 15: Standing like a mountain\', sub: \'Stillness on your feet\' },\n      { id: 16, title: \'Article 16: The floor holds you\', sub: \'Trust the ground\' },\n      { id: 17, title: \'Article 17: Eyes, soft focus\', sub: \'See without gripping\' },\n      { id: 18, title: \'Article 18: One thing at a time\', sub: \'The single thread\' },\n      { id: 19, title: \'Article 19: The space between thoughts\', sub: \'Widen the gap\' },\n      { id: 20, title: \'Article 20: Listening to the room\', sub: \'Sound as a teacher\' },\n    ],\n    [\n      { id: 21, title: \'Article 21: Shoulders down\', sub: \'Drop what you carry\' },\n      { id: 22, title: \'Article 22: The long exhale\', sub: \'Longer out than in\' },\n      { id: 23, title: \'Article 23: Walking without hurry\', sub: \'Steps that arrive\' },\n      { id: 24, title: \'Article 24: Tea, taken slowly\', sub: \'A practice in a cup\' },\n      { id: 25, title: \'Article 25: The body scans itself\', sub: \'Attention, head to heel\' },\n      { id: 26, title: \'Article 26: Gratitude, briefly\', sub: \'One honest thank you\' },\n      { id: 27, title: \'Article 27: Letting the day land\', sub: \'Evening settling\' },\n      { id: 28, title: \'Article 28: A short sit before sleep\', sub: \'Close the day seated\' },\n      { id: 29, title: \'Article 29: The breath at the nostrils\', sub: \'The smallest anchor\' },\n      { id: 30, title: \'Article 30: Palms together\', sub: \'A gesture of return\' },\n    ],\n    [\n      { id: 31, title: \'Article 31: The spine, one inch taller\', sub: \'Grow the axis gently\' },\n      { id: 32, title: \'Article 32: Silence after sound\', sub: \'What the bell leaves behind\' },\n      { id: 33, title: \'Article 33: Noticing the noticing\', sub: \'Awareness of awareness\' },\n      { id: 34, title: \'Article 34: The weight of the hands\', sub: \'Feel gravity kindly\' },\n      { id: 35, title: \'Article 35: A kinder inner voice\', sub: \'Speak to yourself well\' },\n      { id: 36, title: \'Article 36: The pause before speaking\', sub: \'One breath of room\' },\n      { id: 37, title: \'Article 37: Sitting with discomfort\', sub: \'Stay, without fixing\' },\n      { id: 38, title: \'Article 38: The morning stretches\', sub: \'Wake the body first\' },\n      { id: 39, title: \'Article 39: Breath and heartbeat\', sub: \'Two rhythms, one seat\' },\n      { id: 40, title: \'Article 40: Coming back, again\', sub: \'The practice is the return\' },\n    ],\n    [\n      { id: 41, title: \'Article 41: The cool of the evening\', sub: \'Sit as the light fades\' },\n      { id: 42, title: \'Article 42: One minute of stillness\', sub: \'Small, and complete\' },\n      { id: 43, title: \'Article 43: The gaze rests\', sub: \'Eyes that do not hunt\' },\n      { id: 44, title: \'Article 44: Shoulders, neck, jaw\', sub: \'The tension triangle\' },\n      { id: 45, title: \'Article 45: Counting to ten, slowly\', sub: \'Ten breaths, no rush\' },\n      { id: 46, title: \'Article 46: The room, held in mind\', sub: \'Know where you sit\' },\n      { id: 47, title: \'Article 47: A practice for busy days\', sub: \'Short is not shallow\' },\n      { id: 48, title: \'Article 48: The last page of the day\', sub: \'End on a kind note\' },\n      { id: 49, title: \'Article 49: Rest is also practice\', sub: \'Doing nothing, well\' },\n      { id: 50, title: \'Article 50: Beginning again\', sub: \'Every sit is the first\' },\n    ],\n    [\n      { id: 51, title: \'Article 51: The breath deepens\', sub: \'Let it slow itself\' },\n      { id: 52, title: \'Article 52: Watching the mind settle\', sub: \'Sediment and clear water\' },\n      { id: 53, title: \'Article 53: A steady seat\', sub: \'Build the base\' },\n      { id: 54, title: \'Article 54: The sounds outside\', sub: \'The world, included\' },\n      { id: 55, title: \'Article 55: Kindness toward the body\', sub: \'Thank the instrument\' },\n      { id: 56, title: \'Article 56: The exhale lengthens\', sub: \'Follow it all the way out\' },\n      { id: 57, title: \'Article 57: Stillness between tasks\', sub: \'The hinge of the day\' },\n      { id: 58, title: \'Article 58: The evening review\', sub: \'See the day, release it\' },\n      { id: 59, title: \'Article 59: One slow breath\', sub: \'Enough for now\' },\n      { id: 60, title: \'Article 60: The whole list, held lightly\', sub: \'All of it, loosely\' },\n    ],\n  ];\n\n  items = [\n    { id: 1, title: \'Article 1: Begin with the breath\', sub: \'Start where the breath starts\' },\n    { id: 2, title: \'Article 2: The spine, held easy\', sub: \'Posture without force\' },\n    { id: 3, title: \'Article 3: Sitting without force\', sub: \'Let the seat hold you\' },\n    { id: 4, title: \'Article 4: Attention returns\', sub: \'The gentle art of coming back\' },\n    { id: 5, title: \'Article 5: The witness stance\', sub: \'Watch, do not chase\' },\n    { id: 6, title: \'Article 6: Sound and silence\', sub: \'Two sides of listening\' },\n    { id: 7, title: \'Article 7: The pause between\', sub: \'Rest in the gap\' },\n    { id: 8, title: \'Article 8: Ending well\', sub: \'Close the sit with care\' },\n    { id: 9, title: \'Article 9: Carrying it into the day\', sub: \'Practice after the cushion\' },\n    { id: 10, title: \'Article 10: Review and rest\', sub: \'Look back, then let go\' },\n  ];\n  page = 0;\n  done = false;\n\n  constructor(\n    private route: ActivatedRoute,\n    private router: Router,\n  ) {}\n\n  ngOnInit() {\n    const raw = this.route.snapshot.params.run;\n    this.run = raw ? Number(raw) : 1;\n  }\n\n  loadMore() {\n    this.items = this.items.concat(this.morePages[this.page] || []);\n    this.page = this.page + 1;\n    this.done = this.page >= this.morePages.length;\n  }\n\n  reset() {\n    this.router.navigate([\'/reading-list\', this.run + 1]);\n  }\n\n  goBack() {\n    this.router.navigate([\'/lesson\', 81]);\n  }\n}\n\n// reading-list.component.html\n<section>\n  <appbar pin tone="tint" title="Reading list" back (back)="goBack()"></appbar>\n  <p>Scroll to the end and the next page of articles appends on its own. If the screen is not full yet, the next page loads by itself.</p>\n  <p>Showing {{ items.length }} of {{ total }} articles.</p>\n  <list (endReached)="loadMore()">\n    <row *ngFor="let a of items" [title]="a.title" [subtitle]="a.sub"></row>\n  </list>\n  <p *ngIf="done">That is the whole list: {{ items.length }} articles.</p>\n  <button *ngIf="done" (click)="reset()">Start the list again</button>\n</section>',
       tip: 'Treat (endReached) as the end is near, not as render again. Append one page, and let the last page be a resting state with a clear end line, not an error and not a spinner that never stops.',
     },
     {
@@ -1874,7 +1874,7 @@ __container.register(IotService, new IotService());
 __container.register(AlarmService, new AlarmService());
 __container.register(TodoService, new TodoService());
 
-const __navigator = new RgNavigator([{"path":"","redirectTo":"splash"},{"path":"splash"},{"path":"home"},{"path":"saved"},{"path":"history"},{"path":"progress","redirectTo":"history"},{"path":"lesson/:id"},{"path":"samples"},{"path":"samples/iot"},{"path":"samples/alarm"},{"path":"samples/breakout","redirectTo":"samples"},{"path":"samples/mario","redirectTo":"samples"},{"path":"samples/todo"},{"path":"samples/habit","redirectTo":"samples/todo"},{"path":"about"},{"path":"stack/:langs"},{"path":"**"}]);
+const __navigator = new RgNavigator([{"path":"","redirectTo":"splash"},{"path":"splash"},{"path":"home"},{"path":"saved"},{"path":"history"},{"path":"progress","redirectTo":"history"},{"path":"lesson/:id"},{"path":"samples"},{"path":"samples/iot"},{"path":"samples/alarm"},{"path":"samples/breakout","redirectTo":"samples"},{"path":"samples/mario","redirectTo":"samples"},{"path":"samples/todo"},{"path":"samples/habit","redirectTo":"samples/todo"},{"path":"about"},{"path":"stack/:langs"},{"path":"reading-list/:run"},{"path":"**"}]);
 const __router = new Router(__navigator);
 
 const __snackBar = new SnackBar();
@@ -2936,7 +2936,7 @@ export function Lesson() {
         )}
         {!!((lessonId === 81)) && (
           <RgCard style={styles.lessonDemoCard}>
-            <RgText variant="label">Live demo: scroll for the next page</RgText>
+            <RgText variant="label">Live demo: a list that loads as you scroll</RgText>
             <InfiniteScrollDemo />
           </RgCard>
         )}
@@ -3078,12 +3078,6 @@ export function Lesson() {
             <RgButton variant="text" disabled={(lessonId <= 1)} onPress={() => prevLesson()}>Previous</RgButton>
             <RgButton onPress={() => markDoneNext()}>{nextLabel}</RgButton>
           </RgActions>
-        )}
-        {!!((lessonId === 81)) && (
-          <RgCard style={styles.lessonSurpriseCard}>
-            <RgText variant="label">Surprise, surprise, surprise</RgText>
-            <RgText variant="bodyLarge">You scrolled to the very bottom of this lesson, past the Next lesson button. An exception has been made for this page, for you: this note lives at the true end of the page, so you can see the end-reaching effect with your own eyes. It is the same effect the list above uses to load its next page. This note appears in this lesson only.</RgText>
-          </RgCard>
         )}
       </RgSection>
     );
@@ -6689,63 +6683,19 @@ export function RefreshDemo() {
 }
 
 export function InfiniteScrollDemo() {
+  const router = __router;
   const [, __sigBump] = useReducer((n: number) => n + 1, 0);
   const __sigTracker = useRef(new SignalRenderTracker(__sigBump));
   useEffect(() => () => { __sigTracker.current.dispose(); }, []);
-  const firstPage = [
-    { id: 1, title: 'Article 1: Begin with the breath' },
-    { id: 2, title: 'Article 2: The spine, held easy' },
-    { id: 3, title: 'Article 3: Sitting without force' },
-    { id: 4, title: 'Article 4: Attention returns' },
-  ];
-  const morePages = [
-    [
-      { id: 5, title: 'Article 5: The witness stance' },
-      { id: 6, title: 'Article 6: Sound and silence' },
-      { id: 7, title: 'Article 7: The pause between' },
-      { id: 8, title: 'Article 8: Ending well' },
-    ],
-    [
-      { id: 9, title: 'Article 9: Carrying it into the day' },
-      { id: 10, title: 'Article 10: Review and rest' },
-    ],
-  ];
-  const [items, setItems] = useState([
-    { id: 1, title: 'Article 1: Begin with the breath' },
-    { id: 2, title: 'Article 2: The spine, held easy' },
-    { id: 3, title: 'Article 3: Sitting without force' },
-    { id: 4, title: 'Article 4: Attention returns' },
-  ]);
-  const [page, setPage] = useState(0);
-  const [done, setDone] = useState(false);
-  const loadMore = () => {
-    let __shadowPage = page;
-    setItems(items.concat(morePages[__shadowPage] || []));
-    __shadowPage = __shadowPage + 1;
-    setPage(__shadowPage);
-    setDone(__shadowPage >= morePages.length);
-  };
-  const reset = () => {
-    setItems([...firstPage]);
-    setPage(0);
-    setDone(false);
+  const openList = () => {
+    router.navigate(['/reading-list', 1]);
   };
   __sigTracker.current.begin();
   try {
     return (
       <>
-        <RgText variant="bodyLarge">Scroll to the end of the list. The next page appends on its own.</RgText>
-        <RgList onEndReached={() => loadMore()}>
-          {items.map((a, index) => (
-            <RgRow key={a?.id ?? index} title={a.title} />
-          ))}
-        </RgList>
-        {!!(done) && (
-          <RgText variant="bodyLarge">That is the whole list: {items.length} articles.</RgText>
-        )}
-        {!!(done) && (
-          <RgButton onPress={() => reset()}>Start the list again</RgButton>
-        )}
+        <RgText variant="bodyLarge">A reading list of 60 articles lives on its own page, so the list can be the page. Open it and scroll: each time you reach the end, the next ten articles append.</RgText>
+        <RgButton onPress={() => openList()}>Open the reading list</RgButton>
       </>
     );
   } finally {
@@ -8081,6 +8031,147 @@ export function Stack() {
   }
 }
 
+export function ReadingList() {
+  const route = useContext(ActivatedRouteContext) ?? new ActivatedRoute({});
+  const router = __router;
+  const [, __sigBump] = useReducer((n: number) => n + 1, 0);
+  const __sigTracker = useRef(new SignalRenderTracker(__sigBump));
+  useEffect(() => () => { __sigTracker.current.dispose(); }, []);
+  const total = 60;
+  const [run, setRun] = useState(1);
+  const firstPage = [
+    { id: 1, title: 'Article 1: Begin with the breath', sub: 'Start where the breath starts' },
+    { id: 2, title: 'Article 2: The spine, held easy', sub: 'Posture without force' },
+    { id: 3, title: 'Article 3: Sitting without force', sub: 'Let the seat hold you' },
+    { id: 4, title: 'Article 4: Attention returns', sub: 'The gentle art of coming back' },
+    { id: 5, title: 'Article 5: The witness stance', sub: 'Watch, do not chase' },
+    { id: 6, title: 'Article 6: Sound and silence', sub: 'Two sides of listening' },
+    { id: 7, title: 'Article 7: The pause between', sub: 'Rest in the gap' },
+    { id: 8, title: 'Article 8: Ending well', sub: 'Close the sit with care' },
+    { id: 9, title: 'Article 9: Carrying it into the day', sub: 'Practice after the cushion' },
+    { id: 10, title: 'Article 10: Review and rest', sub: 'Look back, then let go' },
+  ];
+  const morePages = [
+    [
+      { id: 11, title: 'Article 11: Morning light, first practice', sub: 'Begin with the day' },
+      { id: 12, title: 'Article 12: The hands, relaxed', sub: 'Soft hands, soft mind' },
+      { id: 13, title: 'Article 13: Counting the breath out', sub: 'Numbers as an anchor' },
+      { id: 14, title: 'Article 14: A quieter jaw', sub: 'Release the small tensions' },
+      { id: 15, title: 'Article 15: Standing like a mountain', sub: 'Stillness on your feet' },
+      { id: 16, title: 'Article 16: The floor holds you', sub: 'Trust the ground' },
+      { id: 17, title: 'Article 17: Eyes, soft focus', sub: 'See without gripping' },
+      { id: 18, title: 'Article 18: One thing at a time', sub: 'The single thread' },
+      { id: 19, title: 'Article 19: The space between thoughts', sub: 'Widen the gap' },
+      { id: 20, title: 'Article 20: Listening to the room', sub: 'Sound as a teacher' },
+    ],
+    [
+      { id: 21, title: 'Article 21: Shoulders down', sub: 'Drop what you carry' },
+      { id: 22, title: 'Article 22: The long exhale', sub: 'Longer out than in' },
+      { id: 23, title: 'Article 23: Walking without hurry', sub: 'Steps that arrive' },
+      { id: 24, title: 'Article 24: Tea, taken slowly', sub: 'A practice in a cup' },
+      { id: 25, title: 'Article 25: The body scans itself', sub: 'Attention, head to heel' },
+      { id: 26, title: 'Article 26: Gratitude, briefly', sub: 'One honest thank you' },
+      { id: 27, title: 'Article 27: Letting the day land', sub: 'Evening settling' },
+      { id: 28, title: 'Article 28: A short sit before sleep', sub: 'Close the day seated' },
+      { id: 29, title: 'Article 29: The breath at the nostrils', sub: 'The smallest anchor' },
+      { id: 30, title: 'Article 30: Palms together', sub: 'A gesture of return' },
+    ],
+    [
+      { id: 31, title: 'Article 31: The spine, one inch taller', sub: 'Grow the axis gently' },
+      { id: 32, title: 'Article 32: Silence after sound', sub: 'What the bell leaves behind' },
+      { id: 33, title: 'Article 33: Noticing the noticing', sub: 'Awareness of awareness' },
+      { id: 34, title: 'Article 34: The weight of the hands', sub: 'Feel gravity kindly' },
+      { id: 35, title: 'Article 35: A kinder inner voice', sub: 'Speak to yourself well' },
+      { id: 36, title: 'Article 36: The pause before speaking', sub: 'One breath of room' },
+      { id: 37, title: 'Article 37: Sitting with discomfort', sub: 'Stay, without fixing' },
+      { id: 38, title: 'Article 38: The morning stretches', sub: 'Wake the body first' },
+      { id: 39, title: 'Article 39: Breath and heartbeat', sub: 'Two rhythms, one seat' },
+      { id: 40, title: 'Article 40: Coming back, again', sub: 'The practice is the return' },
+    ],
+    [
+      { id: 41, title: 'Article 41: The cool of the evening', sub: 'Sit as the light fades' },
+      { id: 42, title: 'Article 42: One minute of stillness', sub: 'Small, and complete' },
+      { id: 43, title: 'Article 43: The gaze rests', sub: 'Eyes that do not hunt' },
+      { id: 44, title: 'Article 44: Shoulders, neck, jaw', sub: 'The tension triangle' },
+      { id: 45, title: 'Article 45: Counting to ten, slowly', sub: 'Ten breaths, no rush' },
+      { id: 46, title: 'Article 46: The room, held in mind', sub: 'Know where you sit' },
+      { id: 47, title: 'Article 47: A practice for busy days', sub: 'Short is not shallow' },
+      { id: 48, title: 'Article 48: The last page of the day', sub: 'End on a kind note' },
+      { id: 49, title: 'Article 49: Rest is also practice', sub: 'Doing nothing, well' },
+      { id: 50, title: 'Article 50: Beginning again', sub: 'Every sit is the first' },
+    ],
+    [
+      { id: 51, title: 'Article 51: The breath deepens', sub: 'Let it slow itself' },
+      { id: 52, title: 'Article 52: Watching the mind settle', sub: 'Sediment and clear water' },
+      { id: 53, title: 'Article 53: A steady seat', sub: 'Build the base' },
+      { id: 54, title: 'Article 54: The sounds outside', sub: 'The world, included' },
+      { id: 55, title: 'Article 55: Kindness toward the body', sub: 'Thank the instrument' },
+      { id: 56, title: 'Article 56: The exhale lengthens', sub: 'Follow it all the way out' },
+      { id: 57, title: 'Article 57: Stillness between tasks', sub: 'The hinge of the day' },
+      { id: 58, title: 'Article 58: The evening review', sub: 'See the day, release it' },
+      { id: 59, title: 'Article 59: One slow breath', sub: 'Enough for now' },
+      { id: 60, title: 'Article 60: The whole list, held lightly', sub: 'All of it, loosely' },
+    ],
+  ];
+  const [items, setItems] = useState([
+    { id: 1, title: 'Article 1: Begin with the breath', sub: 'Start where the breath starts' },
+    { id: 2, title: 'Article 2: The spine, held easy', sub: 'Posture without force' },
+    { id: 3, title: 'Article 3: Sitting without force', sub: 'Let the seat hold you' },
+    { id: 4, title: 'Article 4: Attention returns', sub: 'The gentle art of coming back' },
+    { id: 5, title: 'Article 5: The witness stance', sub: 'Watch, do not chase' },
+    { id: 6, title: 'Article 6: Sound and silence', sub: 'Two sides of listening' },
+    { id: 7, title: 'Article 7: The pause between', sub: 'Rest in the gap' },
+    { id: 8, title: 'Article 8: Ending well', sub: 'Close the sit with care' },
+    { id: 9, title: 'Article 9: Carrying it into the day', sub: 'Practice after the cushion' },
+    { id: 10, title: 'Article 10: Review and rest', sub: 'Look back, then let go' },
+  ]);
+  const [page, setPage] = useState(0);
+  const [done, setDone] = useState(false);
+  const ngOnInit = () => {
+    const raw = route.snapshot.params.run;
+    setRun((raw ? Number(raw) : 1));
+  };
+  const loadMore = () => {
+    let __shadowPage = page;
+    setItems(items.concat(morePages[__shadowPage] || []));
+    __shadowPage = __shadowPage + 1;
+    setPage(__shadowPage);
+    setDone(__shadowPage >= morePages.length);
+  };
+  const reset = () => {
+    router.navigate(['/reading-list', run + 1]);
+  };
+  const goBack = () => {
+    router.navigate(['/lesson', 81]);
+  };
+  useEffect(() => {
+    ngOnInit();
+  }, []);
+  __sigTracker.current.begin();
+  try {
+    return (
+      <RgSection>
+        <RgAppbar tone="tint" title="Reading list" pin back onBack={() => goBack()} />
+        <RgText variant="bodyLarge">Scroll to the end and the next page of articles appends on its own. If the screen is not full yet, the next page loads by itself.</RgText>
+        <RgText variant="bodyLarge">Showing {items.length} of {total} articles.</RgText>
+        <RgList onEndReached={() => loadMore()}>
+          {items.map((a, index) => (
+            <RgRow key={a?.id ?? index} title={a.title} subtitle={a.sub} />
+          ))}
+        </RgList>
+        {!!(done) && (
+          <RgText variant="bodyLarge">That is the whole list: {items.length} articles.</RgText>
+        )}
+        {!!(done) && (
+          <RgButton onPress={() => reset()}>Start the list again</RgButton>
+        )}
+      </RgSection>
+    );
+  } finally {
+    __sigTracker.current.end();
+  }
+}
+
 export default function App() {
   const shell = __container.get<ShellService>(ShellService);
   useSyncExternalStore((cb) => shell.__subscribe(cb), () => shell.__getVersion());
@@ -8205,6 +8296,11 @@ export default function App() {
                 <Stack key={__route.path} />
               </ActivatedRouteContext.Provider>
             )}
+            {__route.routePath === "reading-list/:run" && (
+              <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
+                <ReadingList key={__route.path} />
+              </ActivatedRouteContext.Provider>
+            )}
             {__route.routePath === "**" && (
               <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
                 <NotFound key={__route.path} />
@@ -8231,7 +8327,6 @@ const styles = StyleSheet.create({
   historyStatTile: {"flex":1},
   lessonEyebrow: {"color":"#5f6368","fontWeight":700},
   lessonTipCard: {"backgroundColor":"#e8f0fe","borderWidth":0},
-  lessonSurpriseCard: {"backgroundColor":"#fef7e0","borderWidth":0},
   lessonDemoCard: {"backgroundColor":"transparent","borderWidth":0,"padding":0},
   lessonCmdLine: {"backgroundColor":"#e8f0fe","borderRadius":12,"padding":12},
   lessonCmdText: {"color":"#0b57d0","fontWeight":700,"fontSize":16,"letterSpacing":1,"textAlign":"center"},
