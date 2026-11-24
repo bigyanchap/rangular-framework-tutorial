@@ -1037,7 +1037,7 @@ export class LessonService extends ReactiveService {
     {
       id: 99,
       title: 'Breadcrumbs: where you are, as a path',
-      subtitle: 'crumb declarations, and the last one is not a link',
+      subtitle: 'Crumb declarations, and the last one is not a link',
       minutes: '4 min',
       intro: 'Breadcrumbs show the path to the current place as a short row of names. A breadcrumbs block holds crumb declarations and nothing else; the crumbs join with chevron icons from the icon set, never with typed characters. Every crumb but the last takes a routerLink or a (click), because those places are still visitable; the last crumb renders as the current page in plain semibold text, and it is never a link. A crumb outside breadcrumbs warns GEN_CONTROL_NESTING. On a phone the path stays short, two or three crumbs: this piece was added last in its stage on purpose, because deep paths are a desktop habit that a small screen punishes. In the demo, the first two crumbs carry clicks that switch a place line, standing in for the navigation they would do in a real app, so the piece can be felt without leaving the lesson.',
       code: '<crumb routerLink="/home">Home</crumb>',
