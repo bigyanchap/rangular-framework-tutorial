@@ -1917,7 +1917,7 @@ export function Splash() {
         <RgCode>{snippet}</RgCode>
         <RgText variant="bodyLarge" style={styles.splashEntryStats}>100 lessons · Live demos · Free</RgText>
         <RgButton onPress={() => __router.navigateByUrl("/home")}>Start learning</RgButton>
-        <RgText variant="bodyLarge" style={styles.splashEntryFoot}>Rangular framework 0.3.4 · No account needed</RgText>
+        <RgText variant="bodyLarge" style={styles.splashEntryFoot}>Rangular framework 0.7.0 · No account needed</RgText>
       </RgSection>
     );
   } finally {
