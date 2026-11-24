@@ -1771,6 +1771,21 @@ export function RgAppbar({ title, search, menu, avatar, onMenu, titleAlign, tone
   const c = t.colors;
   const styles = stylesFor(t);
   const slot = useContext(RgHeaderSlotContext);
+  // Latest callbacks (Save button round, 2026-11-24): a pinned
+  // bar is an element snapshot held by the screen's header slot,
+  // created by whichever render last registered. Its buttons
+  // dispatch through this ref, which every render refreshes, so a
+  // press always reaches the CURRENT handler even when the
+  // snapshot itself predates the state it acts on. On device the
+  // lesson bar's Save press did nothing at all while the same
+  // flow worked in the web build; a snapshot-held closure is the
+  // one link that can die that quietly, so it is removed.
+  const cbRef = useRef<any>({});
+  cbRef.current = { onMenu, onBack, onAction, onAction2 };
+  const fireMenu = () => { const f = cbRef.current.onMenu; if (f) f(); };
+  const fireBack = () => { const f = cbRef.current.onBack; if (f) f(); };
+  const fireAction = () => { const f = cbRef.current.onAction; if (f) f(); };
+  const fireAction2 = () => { const f = cbRef.current.onAction2; if (f) f(); };
   const gradient = tone === 'gradient';
   const plain = tone === 'plain';
   const tint = tone === 'tint';
@@ -1782,7 +1797,7 @@ export function RgAppbar({ title, search, menu, avatar, onMenu, titleAlign, tone
   // from the title's first letter in apps with no users and no sign
   // in at all (found by the Rangular Tutorial app, 2026-11-12).
   const menuNode = menu ? (onMenu ? (
-    <Pressable onPress={onMenu} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
+    <Pressable onPress={fireMenu} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
       <RgIcon name="menu" size={24} color={iconRole} />
     </Pressable>
   ) : <RgIcon name="menu" size={24} color={iconRole} />) : null;
@@ -1790,7 +1805,7 @@ export function RgAppbar({ title, search, menu, avatar, onMenu, titleAlign, tone
   // attribute puts a chevron at the left, wired to (back); it takes
   // the left slot over the menu, a screen shows one or the other.
   const backNode = back ? (onBack ? (
-    <Pressable onPress={onBack} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
+    <Pressable onPress={fireBack} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
       <RgIcon name="chevron-left" size={24} color={iconRole} />
     </Pressable>
   ) : <RgIcon name="chevron-left" size={24} color={iconRole} />) : null;
@@ -1805,19 +1820,19 @@ export function RgAppbar({ title, search, menu, avatar, onMenu, titleAlign, tone
   // bookmark here, filled or outline by the icon name the app
   // binds, so the state reads at a glance.
   const actionNode = actionIcon ? (onAction ? (
-    <Pressable key="action" onPress={onAction} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
-      <RgIcon name={actionIcon} size={24} color={gradient ? 'onPrimary' : 'primary'} />
+    <Pressable key="action" onPress={fireAction} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
+      <RgIcon name={actionIcon} size={28} color={gradient ? 'onPrimary' : 'primary'} />
     </Pressable>
-  ) : <RgIcon key="action" name={actionIcon} size={24} color={gradient ? 'onPrimary' : 'primary'} />) : null;
+  ) : <RgIcon key="action" name={actionIcon} size={28} color={gradient ? 'onPrimary' : 'primary'} />) : null;
   // Second action (Option A round, 2026-11-17): `actionIcon2`
   // names a second icon button at the right, wired to (action2),
   // so a bar can carry search and a shortcut side by side. With
   // any action present the avatar steps aside, as before.
   const action2Node = actionIcon2 ? (onAction2 ? (
-    <Pressable key="action2" onPress={onAction2} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
-      <RgIcon name={actionIcon2} size={24} color={gradient ? 'onPrimary' : 'primary'} />
+    <Pressable key="action2" onPress={fireAction2} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
+      <RgIcon name={actionIcon2} size={28} color={gradient ? 'onPrimary' : 'primary'} />
     </Pressable>
-  ) : <RgIcon key="action2" name={actionIcon2} size={24} color={gradient ? 'onPrimary' : 'primary'} />) : null;
+  ) : <RgIcon key="action2" name={actionIcon2} size={28} color={gradient ? 'onPrimary' : 'primary'} />) : null;
   const leftNode = back ? backNode : menuNode;
   // The two actions travel as one array into the bar's right
   // zone, so both carry keys from birth (phone round,
