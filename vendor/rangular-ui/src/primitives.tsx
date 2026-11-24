@@ -23,6 +23,7 @@ import {
   Easing,
   FlatList,
   Image,
+  InputAccessoryView,
   Keyboard,
   KeyboardAvoidingView,
   PanResponder,
@@ -816,6 +817,15 @@ function buildStyles(t: Theme) {
     otpBoxActive: { borderColor: c.primary, borderWidth: 2 },
     otpDigit: { fontSize: t.typography.heading.fontSize, color: c.text, fontWeight: '600' },
     otpHiddenInput: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, opacity: 0 },
+    otpAccessory: {
+      flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center',
+      paddingHorizontal: t.spacing.sm, paddingVertical: t.spacing.xs,
+      backgroundColor: c.surface, borderTopWidth: 1, borderColor: c.outline,
+    },
+    otpCheck: {
+      width: 38, height: 38, borderRadius: 19, backgroundColor: c.primary,
+      alignItems: 'center', justifyContent: 'center',
+    },
     // Carousel (Stage 15): pages plus a dots row.
     carouselDots: {
       flexDirection: 'row', justifyContent: 'center', gap: t.spacing.xs,
@@ -4182,7 +4192,19 @@ export function RgRating({ value, max, disabled, onChange, style }: any) {
  * (its length is the control's length). Digits only in this
  * version: it is a code and PIN control, not a general segmented
  * input.
+ *
+ * Keyboard (his phone report, 2026-11-24): the hidden field
+ * reports its node to the screen's keyboard lift like every
+ * other field, so the boxes rest above the keyboard instead of
+ * hiding under it; before this, the OTP never reported, and the
+ * number pad covered the boxes. A number pad has no return key,
+ * so on iOS the field also carries an accessory with a check
+ * disc that dismisses the keyboard: the one scoped exception to
+ * the no-accessory rule for fields (2026-11-19), whose keyboards
+ * all carry a return key of their own.
  */
+const OTP_ACCESSORY_ID = 'rangular-otp-accessory';
+
 export function RgOtp({ value, length, disabled, onChange, style }: any) {
   const styles = stylesFor(useRgTheme());
   const rawLen = Number.isFinite(Number(length)) ? Math.floor(Number(length)) : 6;
@@ -4190,6 +4212,7 @@ export function RgOtp({ value, length, disabled, onChange, style }: any) {
   const text = String(value ?? '').replace(/\D/g, '').slice(0, len);
   const [focused, setFocused] = useState(false);
   const inputRef = useRef<any>(null);
+  const liftAboveKeyboard = useKeyboardLift();
   const activeBox = Math.min(text.length, len - 1);
   return (
     <View style={[styles.otpRow, style]}>
@@ -4208,14 +4231,28 @@ export function RgOtp({ value, length, disabled, onChange, style }: any) {
         style={styles.otpHiddenInput}
         value={text}
         onChangeText={(next: string) => onChange?.(next.replace(/\D/g, '').slice(0, len))}
-        onFocus={() => setFocused(true)}
+        onFocus={() => { setFocused(true); liftAboveKeyboard(inputRef.current); }}
         onBlur={() => setFocused(false)}
         keyboardType="number-pad"
         maxLength={len}
         editable={!disabled}
         caretHidden
         accessibilityLabel="One time code"
+        inputAccessoryViewID={Platform.OS === 'ios' ? OTP_ACCESSORY_ID : undefined}
       />
+      {Platform.OS === 'ios' ? (
+        <InputAccessoryView nativeID={OTP_ACCESSORY_ID}>
+          <View style={styles.otpAccessory}>
+            <Pressable
+              onPress={() => Keyboard.dismiss()}
+              style={styles.otpCheck}
+              accessibilityLabel="Done entering the code"
+            >
+              <RgIcon name="check" size={20} color="onPrimary" />
+            </Pressable>
+          </View>
+        </InputAccessoryView>
+      ) : null}
     </View>
   );
 }
