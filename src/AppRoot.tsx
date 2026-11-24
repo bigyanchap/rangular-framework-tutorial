@@ -2372,7 +2372,7 @@ export function Lesson() {
       setBarTitle('Lesson ' + __shadowLessonId);
       setHasCode(__shadowLesson.code !== '');
       setDone(bookmarks.isDone(__shadowLessonId));
-      setProgressPct(Math.round((__shadowLessonId * 100) / 100));
+      setProgressPct(Math.round((__shadowLessonId * 100) / lessonService.lessons.length));
       setSectionName(nameFor(__shadowLessonId));
       setNextLabel(labelFor(__shadowLessonId));
       setImplBlocks(buildImplBlocks(__shadowLesson.implementation || ''));
@@ -2412,8 +2412,11 @@ export function Lesson() {
     }
     return 'BEYOND ANGULAR';
   };
+  const isLast = (id: number) => {
+    return id >= lessonService.lessons.length;
+  };
   const labelFor = (id: number) => {
-    if (id >= 100) {
+    if (isLast(id)) {
       return (done ? 'Done · Back home' : 'Mark done · Finish');
     }
     return (done ? 'Done · Next lesson' : 'Mark done · Next lesson');
@@ -2426,7 +2429,7 @@ export function Lesson() {
   const markDoneNext = () => {
     if (lessonId > 0) {
       bookmarks.markDone(lessonId);
-      if (lessonId >= 97) {
+      if (isLast(lessonId)) {
         router.navigate(['/home']);
       } else {
         router.navigate(['/lesson', lessonId + 1]);

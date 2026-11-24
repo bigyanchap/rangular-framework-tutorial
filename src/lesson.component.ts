@@ -151,7 +151,7 @@ export class LessonComponent {
       this.barTitle = 'Lesson ' + this.lessonId;
       this.hasCode = this.lesson.code !== '';
       this.done = this.bookmarks.isDone(this.lessonId);
-      this.progressPct = Math.round((this.lessonId * 100) / 100);
+      this.progressPct = Math.round((this.lessonId * 100) / this.lessonService.lessons.length);
       this.sectionName = this.nameFor(this.lessonId);
       this.nextLabel = this.labelFor(this.lessonId);
       this.implBlocks = this.buildImplBlocks(this.lesson.implementation || '');
@@ -184,8 +184,18 @@ export class LessonComponent {
     return 'BEYOND ANGULAR';
   }
 
+  // The last lesson is whatever the service's list ends at.
+  // The count lives in that list and nowhere else: add or
+  // remove a lesson and the label, the Next action and the
+  // progress percent all follow on their own. (A hardwired
+  // 97 once survived here from an older count and sent
+  // lesson 97's Next button home.)
+  isLast(id: number) {
+    return id >= this.lessonService.lessons.length;
+  }
+
   labelFor(id: number) {
-    if (id >= 100) return this.done ? 'Done · Back home' : 'Mark done · Finish';
+    if (this.isLast(id)) return this.done ? 'Done · Back home' : 'Mark done · Finish';
     return this.done ? 'Done · Next lesson' : 'Mark done · Next lesson';
   }
 
@@ -198,7 +208,7 @@ export class LessonComponent {
   markDoneNext() {
     if (this.lessonId > 0) {
       this.bookmarks.markDone(this.lessonId);
-      if (this.lessonId >= 97) {
+      if (this.isLast(this.lessonId)) {
         this.router.navigate(['/home']);
       } else {
         this.router.navigate(['/lesson', this.lessonId + 1]);
