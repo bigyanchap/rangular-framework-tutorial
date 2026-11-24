@@ -30,7 +30,6 @@ import {
   Platform,
   Pressable,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -38,6 +37,7 @@ import {
   View,
 } from 'react-native';
 import { Svg, Path, Rect, Circle, Defs, LinearGradient, Stop, Text as SvgText, SvgXml } from 'react-native-svg';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme as makeTheme } from './tokens';
 import type { Theme } from './tokens';
 import { ICON_PATHS, BRAND_MARKS, BRAND_MARK_VIEWBOX } from './icons';
@@ -1340,6 +1340,21 @@ function useRgBottom(tree: React.ReactNode): boolean {
 // the smooth form costs nothing.
 
 export function RgScreen({ children, style, theme: mode, refreshing, onRefresh, onEndReached, haptic, fade, scrollKey }: any) {
+  // The safe area (safe-area round, 2026-11-24): the screen owns
+  // the provider, so every app gets real insets with no scaffold
+  // wiring. The body below reads them through useSafeAreaInsets
+  // and pads a plain View. React Native's built-in SafeAreaView
+  // applies insets only on iOS and does nothing at all on
+  // Android, which left Android content under the status bar at
+  // the top and the system buttons at the bottom.
+  return (
+    <SafeAreaProvider style={{ flex: 1 }}>
+      <RgScreenBody children={children} style={style} theme={mode} refreshing={refreshing} onRefresh={onRefresh} onEndReached={onEndReached} haptic={haptic} fade={fade} scrollKey={scrollKey} />
+    </SafeAreaProvider>
+  );
+}
+
+function RgScreenBody({ children, style, theme: mode, refreshing, onRefresh, onEndReached, haptic, fade, scrollKey }: any) {
   const veilRawId = React.useId();
   const veilId = 'rgveil' + veilRawId.replace(/[^a-zA-Z0-9]/g, '');
   const meltRawId = React.useId();
@@ -1347,6 +1362,7 @@ export function RgScreen({ children, style, theme: mode, refreshing, onRefresh, 
   const inherited = useRgTheme();
   const active = mode === 'dark' || mode === 'light' ? makeTheme(mode) : inherited;
   const styles = stylesFor(active);
+  const insets = useSafeAreaInsets();
   // The screen's own end-reached answers with the selection
   // haptic under the same `haptic` attribute as the list's
   // (lesson 81, 2026-11-24): one feel for both scroller hosts.
@@ -1657,7 +1673,7 @@ export function RgScreen({ children, style, theme: mode, refreshing, onRefresh, 
   );
   return (
     <RgThemeContext.Provider value={active}>
-      <SafeAreaView style={[styles.screen, chrome && !headerWash ? { backgroundColor: chrome } : null, style]}>
+      <View style={[styles.screen, { paddingTop: insets.top, paddingBottom: insets.bottom, paddingLeft: insets.left, paddingRight: insets.right }, chrome && !headerWash ? { backgroundColor: chrome } : null, style]}>
         <RgOverlaySlotContext.Provider value={overlaySlot}>
         <RgBottomSlotContext.Provider value={bottomSlot}>
         <RgHeaderSlotContext.Provider value={headerSlot}>
@@ -1761,7 +1777,7 @@ export function RgScreen({ children, style, theme: mode, refreshing, onRefresh, 
         </RgHeaderSlotContext.Provider>
         </RgBottomSlotContext.Provider>
         </RgOverlaySlotContext.Provider>
-      </SafeAreaView>
+      </View>
     </RgThemeContext.Provider>
   );
 }
