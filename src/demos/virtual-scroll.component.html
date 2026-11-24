@@ -1,10 +1,20 @@
-<p class="vs-readout">Rendering rows {{ firstShown }} to {{ lastShown }} of 1,000. Only 15 rows exist.</p>
-<slider min="0" max="985" step="1" [value]="start" (change)="pickStart($event)"></slider>
-<section class="vs-panel">
-  <row *ngFor="let s of slots" [title]="rowTitle(s)" [subtitle]="rowSub(s)"></row>
+<section class="launch" (click)="openList()">
+  <section class="launch-row">
+    <section class="launch-icon">
+      <icon name="file" size="24" color="primary"></icon>
+    </section>
+    <section class="launch-text">
+      <p class="launch-title">Open the thousand messages</p>
+      <p class="launch-sub">Fifteen rows, reused all the way down.</p>
+    </section>
+    <icon name="chevron-right" size="24"></icon>
+  </section>
+  <section class="launch-pills">
+    <section class="pill">
+      <p class="pill-text">1,000 messages</p>
+    </section>
+    <section class="pill">
+      <p class="pill-text">15 rows</p>
+    </section>
+  </section>
 </section>
-<section class="vs-nav">
-  <button variant="text" (click)="move(-15)">Back 15</button>
-  <button variant="text" (click)="move(15)">Forward 15</button>
-</section>
-<p>Drag the slider, or step the window. The fifteen rows never change; the numbers they wear do.</p>

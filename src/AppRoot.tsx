@@ -869,9 +869,9 @@ export class LessonService extends ReactiveService {
       title: 'Pagination: numbered pages',
       subtitle: 'The same list in numbered pages, with a place to return to',
       minutes: '5 min',
-      intro: 'Infinite scroll suits a stream, but some lists need a place. Pagination cuts a list into fixed pages and gives each page a number: page 1 holds items 1 to 10, page 2 holds 11 to 20, and the reader moves with Previous and Next buttons, or jumps straight to a page. The whole count is known, so the screen can say Page 2 of 6, and a reader who returns tomorrow finds the same items on the same page. The demo runs the same 60 articles as lesson 81, ten to a page. The work is one method: go(n) swaps the items array for page n, by assignment, and updates the counts the screen shows. Nothing renders ahead: page 4 is not built until the reader asks for it.',
-      code: '<row *ngFor="let a of items" [title]="a.title"></row>\n<button (click)="prev()">Previous</button>\n<p>Page {{ page }} of 6</p>\n<button (click)="next()">Next</button>',
-      implementation: '// pagination.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-pagination-demo\',\n  templateUrl: \'./pagination.component.html\',\n  styles: [`\n    .pg-status { font-size: 14px; line-height: 20px; font-weight: 600; color: #5f6368; }\n    .pg-nav { flex-direction: row; justify-content: space-between; align-items: center; margin-top: 12px; }\n    .pg-pages { margin-top: 12px; }\n    .chip { border-width: 1px; border-color: #bdc1c6; border-radius: 9999px; padding: 8px; }\n    .chip-on { background-color: #0b57d0; border-color: #0b57d0; }\n    .chip-text { font-size: 14px; color: #3c4043; text-align: center; }\n    .chip-text-on { color: #ffffff; font-weight: 600; }\n  `],\n})\nexport class PaginationDemoComponent {\n  total = 60;\n  page = 1;\n  first = 1;\n  last = 10;\n  pageNums = [1, 2, 3, 4, 5, 6];\n\n  firstPage = [\n    { id: 1, title: \'Article 1: Begin with the breath\', sub: \'Start where the breath starts\' },\n    { id: 2, title: \'Article 2: The spine, held easy\', sub: \'Posture without force\' },\n    { id: 3, title: \'Article 3: Sitting without force\', sub: \'Let the seat hold you\' },\n    { id: 4, title: \'Article 4: Attention returns\', sub: \'The gentle art of coming back\' },\n    { id: 5, title: \'Article 5: The witness stance\', sub: \'Watch, do not chase\' },\n    { id: 6, title: \'Article 6: Sound and silence\', sub: \'Two sides of listening\' },\n    { id: 7, title: \'Article 7: The pause between\', sub: \'Rest in the gap\' },\n    { id: 8, title: \'Article 8: Ending well\', sub: \'Close the sit with care\' },\n    { id: 9, title: \'Article 9: Carrying it into the day\', sub: \'Practice after the cushion\' },\n    { id: 10, title: \'Article 10: Review and rest\', sub: \'Look back, then let go\' },\n  ];\n\n  morePages: any[] = [\n    [\n      { id: 11, title: \'Article 11: Morning light, first practice\', sub: \'Begin with the day\' },\n      { id: 12, title: \'Article 12: The hands, relaxed\', sub: \'Soft hands, soft mind\' },\n      { id: 13, title: \'Article 13: Counting the breath out\', sub: \'Numbers as an anchor\' },\n      { id: 14, title: \'Article 14: A quieter jaw\', sub: \'Release the small tensions\' },\n      { id: 15, title: \'Article 15: Standing like a mountain\', sub: \'Stillness on your feet\' },\n      { id: 16, title: \'Article 16: The floor holds you\', sub: \'Trust the ground\' },\n      { id: 17, title: \'Article 17: Eyes, soft focus\', sub: \'See without gripping\' },\n      { id: 18, title: \'Article 18: One thing at a time\', sub: \'The single thread\' },\n      { id: 19, title: \'Article 19: The space between thoughts\', sub: \'Widen the gap\' },\n      { id: 20, title: \'Article 20: Listening to the room\', sub: \'Sound as a teacher\' },\n    ],\n    [\n      { id: 21, title: \'Article 21: Shoulders down\', sub: \'Drop what you carry\' },\n      { id: 22, title: \'Article 22: The long exhale\', sub: \'Longer out than in\' },\n      { id: 23, title: \'Article 23: Walking without hurry\', sub: \'Steps that arrive\' },\n      { id: 24, title: \'Article 24: Tea, taken slowly\', sub: \'A practice in a cup\' },\n      { id: 25, title: \'Article 25: The body scans itself\', sub: \'Attention, head to heel\' },\n      { id: 26, title: \'Article 26: Gratitude, briefly\', sub: \'One honest thank you\' },\n      { id: 27, title: \'Article 27: Letting the day land\', sub: \'Evening settling\' },\n      { id: 28, title: \'Article 28: A short sit before sleep\', sub: \'Close the day seated\' },\n      { id: 29, title: \'Article 29: The breath at the nostrils\', sub: \'The smallest anchor\' },\n      { id: 30, title: \'Article 30: Palms together\', sub: \'A gesture of return\' },\n    ],\n    [\n      { id: 31, title: \'Article 31: The spine, one inch taller\', sub: \'Grow the axis gently\' },\n      { id: 32, title: \'Article 32: Silence after sound\', sub: \'What the bell leaves behind\' },\n      { id: 33, title: \'Article 33: Noticing the noticing\', sub: \'Awareness of awareness\' },\n      { id: 34, title: \'Article 34: The weight of the hands\', sub: \'Feel gravity kindly\' },\n      { id: 35, title: \'Article 35: A kinder inner voice\', sub: \'Speak to yourself well\' },\n      { id: 36, title: \'Article 36: The pause before speaking\', sub: \'One breath of room\' },\n      { id: 37, title: \'Article 37: Sitting with discomfort\', sub: \'Stay, without fixing\' },\n      { id: 38, title: \'Article 38: The morning stretches\', sub: \'Wake the body first\' },\n      { id: 39, title: \'Article 39: Breath and heartbeat\', sub: \'Two rhythms, one seat\' },\n      { id: 40, title: \'Article 40: Coming back, again\', sub: \'The practice is the return\' },\n    ],\n    [\n      { id: 41, title: \'Article 41: The cool of the evening\', sub: \'Sit as the light fades\' },\n      { id: 42, title: \'Article 42: One minute of stillness\', sub: \'Small, and complete\' },\n      { id: 43, title: \'Article 43: The gaze rests\', sub: \'Eyes that do not hunt\' },\n      { id: 44, title: \'Article 44: Shoulders, neck, jaw\', sub: \'The tension triangle\' },\n      { id: 45, title: \'Article 45: Counting to ten, slowly\', sub: \'Ten breaths, no rush\' },\n      { id: 46, title: \'Article 46: The room, held in mind\', sub: \'Know where you sit\' },\n      { id: 47, title: \'Article 47: A practice for busy days\', sub: \'Short is not shallow\' },\n      { id: 48, title: \'Article 48: The last page of the day\', sub: \'End on a kind note\' },\n      { id: 49, title: \'Article 49: Rest is also practice\', sub: \'Doing nothing, well\' },\n      { id: 50, title: \'Article 50: Beginning again\', sub: \'Every sit is the first\' },\n    ],\n    [\n      { id: 51, title: \'Article 51: The breath deepens\', sub: \'Let it slow itself\' },\n      { id: 52, title: \'Article 52: Watching the mind settle\', sub: \'Sediment and clear water\' },\n      { id: 53, title: \'Article 53: A steady seat\', sub: \'Build the base\' },\n      { id: 54, title: \'Article 54: The sounds outside\', sub: \'The world, included\' },\n      { id: 55, title: \'Article 55: Kindness toward the body\', sub: \'Thank the instrument\' },\n      { id: 56, title: \'Article 56: The exhale lengthens\', sub: \'Follow it all the way out\' },\n      { id: 57, title: \'Article 57: Stillness between tasks\', sub: \'The hinge of the day\' },\n      { id: 58, title: \'Article 58: The evening review\', sub: \'See the day, release it\' },\n      { id: 59, title: \'Article 59: One slow breath\', sub: \'Enough for now\' },\n      { id: 60, title: \'Article 60: The whole list, held lightly\', sub: \'All of it, loosely\' },\n    ],\n  ];\n\n  items = [\n    { id: 1, title: \'Article 1: Begin with the breath\', sub: \'Start where the breath starts\' },\n    { id: 2, title: \'Article 2: The spine, held easy\', sub: \'Posture without force\' },\n    { id: 3, title: \'Article 3: Sitting without force\', sub: \'Let the seat hold you\' },\n    { id: 4, title: \'Article 4: Attention returns\', sub: \'The gentle art of coming back\' },\n    { id: 5, title: \'Article 5: The witness stance\', sub: \'Watch, do not chase\' },\n    { id: 6, title: \'Article 6: Sound and silence\', sub: \'Two sides of listening\' },\n    { id: 7, title: \'Article 7: The pause between\', sub: \'Rest in the gap\' },\n    { id: 8, title: \'Article 8: Ending well\', sub: \'Close the sit with care\' },\n    { id: 9, title: \'Article 9: Carrying it into the day\', sub: \'Practice after the cushion\' },\n    { id: 10, title: \'Article 10: Review and rest\', sub: \'Look back, then let go\' },\n  ];\n\n  go(n: number) {\n    if (n >= 1 && n <= 6) {\n      this.page = n;\n      this.first = (n - 1) * 10 + 1;\n      this.last = n * 10;\n      if (n === 1) {\n        this.items = this.firstPage;\n      } else {\n        this.items = this.morePages[n - 2];\n      }\n    }\n  }\n\n  prev() {\n    this.go(this.page - 1);\n  }\n\n  next() {\n    this.go(this.page + 1);\n  }\n}\n\n// pagination.component.html\n<p class="pg-status">Page {{ page }} of 6 · Articles {{ first }} to {{ last }} of {{ total }}</p>\n<list>\n  <row *ngFor="let a of items" [title]="a.title" [subtitle]="a.sub"></row>\n</list>\n<section class="pg-nav">\n  <button variant="text" [disabled]="page === 1" (click)="prev()">\n    Previous\n  </button>\n  <button variant="text" [disabled]="page === 6" (click)="next()">\n    Next\n  </button>\n</section>\n<section class="pg-pages">\n  <chips>\n    <section class="chip" *ngFor="let p of pageNums" [class.chip-on]="page === p" (click)="go(p)">\n      <p class="chip-text" [class.chip-text-on]="page === p">{{ p }}</p>\n    </section>\n  </chips>\n</section>',
+      intro: 'Infinite scroll suits a stream, but some lists need a place. Pagination cuts a list into fixed pages and gives each page a number: page 1 holds items 1 to 5, page 2 holds 6 to 10, and the reader moves with the arrows at the ends of a bar, or jumps straight to a page. The whole count is known, so the screen can say Page 2 of 12, and a reader who returns tomorrow finds the same items on the same page. The demo needs a whole surface, so it lives on its own page, like lesson 81\'s reading list. A button below opens the same 60 articles, five to a page, twelve pages in all. The work is one method: go(n) swaps the items array for page n, by assignment, and updates the counts the screen shows. Nothing renders ahead: page 4 is not built until the reader asks for it. The control is one segmented bar: arrows at its ends, page numbers between, the current page filled blue. Twelve pages are too many to draw, so past six the numbers window: 1, 2, 3, 4, …, 12 at the start, and the window follows the page you are on, always keeping the first and the last page in reach.',
+      code: '<section class="pager">\n  <section class="seg" (click)="prev()"><icon name="chevron-left"></icon></section>\n  <section class="seg" *ngFor="let n of pageList" (click)="go(n)"><p>{{ n }}</p></section>\n  <section class="seg" (click)="next()"><icon name="chevron-right"></icon></section>\n</section>',
+      implementation: '// pagination.component.ts\nimport { Component } from \'@angular/core\';\nimport { Router } from \'@angular/router\';\n\n@Component({\n  selector: \'app-pagination-demo\',\n  templateUrl: \'./pagination.component.html\',\n  styles: [`\n    .launch { gap: 8px; }\n    .launch-row { flex-direction: row; gap: 12px; align-items: center; }\n    .launch-icon { width: 42px; height: 42px; border-radius: 9999px; background-color: #e8f0fe; align-items: center; justify-content: center; }\n    .launch-text { flex: 1; }\n    .launch-title { font-size: 16px; line-height: 22px; font-weight: 700; }\n    .launch-sub { font-size: 14px; line-height: 20px; color: #5f6368; }\n    .launch-pills { flex-direction: row; gap: 8px; }\n    .pill { background-color: #e8f0fe; border-radius: 9999px; padding-left: 8px; padding-right: 8px; padding-top: 4px; padding-bottom: 4px; }\n    .pill-text { font-size: 12px; line-height: 16px; font-weight: 600; color: #0b57d0; }\n  `],\n})\nexport class PaginationDemoComponent {\n  constructor(private router: Router) {}\n\n  openList() {\n    this.router.navigate([\'/paged-list\']);\n  }\n}\n\n// pagination.component.html\n<section class="launch" (click)="openList()">\n  <section class="launch-row">\n    <section class="launch-icon">\n      <icon name="menu" size="24" color="primary"></icon>\n    </section>\n    <section class="launch-text">\n      <p class="launch-title">Open the paged list</p>\n      <p class="launch-sub">Numbered pages, with a place to return to.</p>\n    </section>\n    <icon name="chevron-right" size="24"></icon>\n  </section>\n  <section class="launch-pills">\n    <section class="pill">\n      <p class="pill-text">60 articles</p>\n    </section>\n    <section class="pill">\n      <p class="pill-text">12 pages</p>\n    </section>\n  </section>\n</section>\n\n// paged-list.component.ts\nimport { Component } from \'@angular/core\';\nimport { Router } from \'@angular/router\';\n\n/**\n * The paged list page: lesson 82\'s pagination demo on a\n * page of its own. The same sixty articles as lesson 81\'s\n * reading list, cut into twelve pages of five. One method,\n * go(n), swaps the items array for the page asked for and\n * updates the counts the screen shows. The control is one\n * segmented bar: an arrow segment at each end, the page\n * numbers between, the current page filled blue. Twelve\n * pages are too many to draw, so the numbers window:\n * shown(n, p) keeps the first page, the last page, and\n * the pages around the current one; segGap(n, p) marks the first\n * hidden page of each gap, where the ellipsis stands. At\n * the start the bar reads 1, 2, 3, 4, ellipsis, 12, and\n * the window follows the reader across the list.\n */\n@Component({\n  selector: \'app-paged-list\',\n  templateUrl: \'./paged-list.component.html\',\n  styles: [`\n    .pager { flex-direction: row; gap: 4px; background-color: #ffffff; border-width: 1px; border-color: #a8c7fa; border-radius: 12px; padding: 4px; margin-top: 16px; }\n    .seg { flex: 1; background-color: #ffffff; border-radius: 8px; align-items: center; justify-content: center; padding-top: 8px; padding-bottom: 8px; }\n    .seg-arrow { background-color: #e8f0fe; }\n    .seg-off { opacity: 0.45; }\n    .seg-on { background-color: #0b57d0; }\n    .seg-text { font-size: 14px; line-height: 20px; font-weight: 600; color: #3c4043; }\n    .seg-text-on { color: #ffffff; font-weight: 700; }\n    .seg-gap-text { font-size: 14px; line-height: 20px; color: #5f6368; }\n  `],\n})\nexport class PagedListComponent {\n  total = 60;\n  totalPages = 12;\n  page = 1;\n  first = 1;\n  last = 5;\n  pageList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];\n  segs = [\n    { label: \'1\', page: 1, gap: false },\n    { label: \'2\', page: 2, gap: false },\n    { label: \'3\', page: 3, gap: false },\n    { label: \'4\', page: 4, gap: false },\n    { label: \'…\', page: 5, gap: true },\n    { label: \'12\', page: 12, gap: false },\n  ];\n\n  firstPage = [\n    { id: 1, title: \'Article 1: Begin with the breath\', sub: \'Start where the breath starts\' },\n    { id: 2, title: \'Article 2: The spine, held easy\', sub: \'Posture without force\' },\n    { id: 3, title: \'Article 3: Sitting without force\', sub: \'Let the seat hold you\' },\n    { id: 4, title: \'Article 4: Attention returns\', sub: \'The gentle art of coming back\' },\n    { id: 5, title: \'Article 5: The witness stance\', sub: \'Watch, do not chase\' },\n  ];\n\n  morePages: any[] = [\n    [\n      { id: 6, title: \'Article 6: Sound and silence\', sub: \'Two sides of listening\' },\n      { id: 7, title: \'Article 7: The pause between\', sub: \'Rest in the gap\' },\n      { id: 8, title: \'Article 8: Ending well\', sub: \'Close the sit with care\' },\n      { id: 9, title: \'Article 9: Carrying it into the day\', sub: \'Practice after the cushion\' },\n      { id: 10, title: \'Article 10: Review and rest\', sub: \'Look back, then let go\' },\n    ],\n    [\n      { id: 11, title: \'Article 11: Morning light, first practice\', sub: \'Begin with the day\' },\n      { id: 12, title: \'Article 12: The hands, relaxed\', sub: \'Soft hands, soft mind\' },\n      { id: 13, title: \'Article 13: Counting the breath out\', sub: \'Numbers as an anchor\' },\n      { id: 14, title: \'Article 14: A quieter jaw\', sub: \'Release the small tensions\' },\n      { id: 15, title: \'Article 15: Standing like a mountain\', sub: \'Stillness on your feet\' },\n    ],\n    [\n      { id: 16, title: \'Article 16: The floor holds you\', sub: \'Trust the ground\' },\n      { id: 17, title: \'Article 17: Eyes, soft focus\', sub: \'See without gripping\' },\n      { id: 18, title: \'Article 18: One thing at a time\', sub: \'The single thread\' },\n      { id: 19, title: \'Article 19: The space between thoughts\', sub: \'Widen the gap\' },\n      { id: 20, title: \'Article 20: Listening to the room\', sub: \'Sound as a teacher\' },\n    ],\n    [\n      { id: 21, title: \'Article 21: Shoulders down\', sub: \'Drop what you carry\' },\n      { id: 22, title: \'Article 22: The long exhale\', sub: \'Longer out than in\' },\n      { id: 23, title: \'Article 23: Walking without hurry\', sub: \'Steps that arrive\' },\n      { id: 24, title: \'Article 24: Tea, taken slowly\', sub: \'A practice in a cup\' },\n      { id: 25, title: \'Article 25: The body scans itself\', sub: \'Attention, head to heel\' },\n    ],\n    [\n      { id: 26, title: \'Article 26: Gratitude, briefly\', sub: \'One honest thank you\' },\n      { id: 27, title: \'Article 27: Letting the day land\', sub: \'Evening settling\' },\n      { id: 28, title: \'Article 28: A short sit before sleep\', sub: \'Close the day seated\' },\n      { id: 29, title: \'Article 29: The breath at the nostrils\', sub: \'The smallest anchor\' },\n      { id: 30, title: \'Article 30: Palms together\', sub: \'A gesture of return\' },\n    ],\n    [\n      { id: 31, title: \'Article 31: The spine, one inch taller\', sub: \'Grow the axis gently\' },\n      { id: 32, title: \'Article 32: Silence after sound\', sub: \'What the bell leaves behind\' },\n      { id: 33, title: \'Article 33: Noticing the noticing\', sub: \'Awareness of awareness\' },\n      { id: 34, title: \'Article 34: The weight of the hands\', sub: \'Feel gravity kindly\' },\n      { id: 35, title: \'Article 35: A kinder inner voice\', sub: \'Speak to yourself well\' },\n    ],\n    [\n      { id: 36, title: \'Article 36: The pause before speaking\', sub: \'One breath of room\' },\n      { id: 37, title: \'Article 37: Sitting with discomfort\', sub: \'Stay, without fixing\' },\n      { id: 38, title: \'Article 38: The morning stretches\', sub: \'Wake the body first\' },\n      { id: 39, title: \'Article 39: Breath and heartbeat\', sub: \'Two rhythms, one seat\' },\n      { id: 40, title: \'Article 40: Coming back, again\', sub: \'The practice is the return\' },\n    ],\n    [\n      { id: 41, title: \'Article 41: The cool of the evening\', sub: \'Sit as the light fades\' },\n      { id: 42, title: \'Article 42: One minute of stillness\', sub: \'Small, and complete\' },\n      { id: 43, title: \'Article 43: The gaze rests\', sub: \'Eyes that do not hunt\' },\n      { id: 44, title: \'Article 44: Shoulders, neck, jaw\', sub: \'The tension triangle\' },\n      { id: 45, title: \'Article 45: Counting to ten, slowly\', sub: \'Ten breaths, no rush\' },\n    ],\n    [\n      { id: 46, title: \'Article 46: The room, held in mind\', sub: \'Know where you sit\' },\n      { id: 47, title: \'Article 47: A practice for busy days\', sub: \'Short is not shallow\' },\n      { id: 48, title: \'Article 48: The last page of the day\', sub: \'End on a kind note\' },\n      { id: 49, title: \'Article 49: Rest is also practice\', sub: \'Doing nothing, well\' },\n      { id: 50, title: \'Article 50: Beginning again\', sub: \'Every sit is the first\' },\n    ],\n    [\n      { id: 51, title: \'Article 51: The breath deepens\', sub: \'Let it slow itself\' },\n      { id: 52, title: \'Article 52: Watching the mind settle\', sub: \'Sediment and clear water\' },\n      { id: 53, title: \'Article 53: A steady seat\', sub: \'Build the base\' },\n      { id: 54, title: \'Article 54: The sounds outside\', sub: \'The world, included\' },\n      { id: 55, title: \'Article 55: Kindness toward the body\', sub: \'Thank the instrument\' },\n    ],\n    [\n      { id: 56, title: \'Article 56: The exhale lengthens\', sub: \'Follow it all the way out\' },\n      { id: 57, title: \'Article 57: Stillness between tasks\', sub: \'The hinge of the day\' },\n      { id: 58, title: \'Article 58: The evening review\', sub: \'See the day, release it\' },\n      { id: 59, title: \'Article 59: One slow breath\', sub: \'Enough for now\' },\n      { id: 60, title: \'Article 60: The whole list, held lightly\', sub: \'All of it, loosely\' },\n    ],\n  ];\n\n  items = [\n    { id: 1, title: \'Article 1: Begin with the breath\', sub: \'Start where the breath starts\' },\n    { id: 2, title: \'Article 2: The spine, held easy\', sub: \'Posture without force\' },\n    { id: 3, title: \'Article 3: Sitting without force\', sub: \'Let the seat hold you\' },\n    { id: 4, title: \'Article 4: Attention returns\', sub: \'The gentle art of coming back\' },\n    { id: 5, title: \'Article 5: The witness stance\', sub: \'Watch, do not chase\' },\n  ];\n\n  constructor(private router: Router) {}\n\n  go(n: number) {\n    if (n >= 1 && n <= this.totalPages) {\n      this.page = n;\n      this.first = (n - 1) * 5 + 1;\n      this.last = n * 5;\n      if (n === 1) {\n        this.items = this.firstPage;\n      } else {\n        this.items = this.morePages[n - 2];\n      }\n      this.buildSegs(n);\n    }\n  }\n\n  prev() {\n    this.go(this.page - 1);\n  }\n\n  next() {\n    this.go(this.page + 1);\n  }\n\n  buildSegs(p: number) {\n    let list: any[] = [];\n    list = this.withSeg(list, 1, p);\n    list = this.withSeg(list, 2, p);\n    list = this.withSeg(list, 3, p);\n    list = this.withSeg(list, 4, p);\n    list = this.withSeg(list, 5, p);\n    list = this.withSeg(list, 6, p);\n    list = this.withSeg(list, 7, p);\n    list = this.withSeg(list, 8, p);\n    list = this.withSeg(list, 9, p);\n    list = this.withSeg(list, 10, p);\n    list = this.withSeg(list, 11, p);\n    list = this.withSeg(list, 12, p);\n    this.segs = list;\n  }\n\n  withSeg(list: any[], n: number, p: number) {\n    if (this.shown(n, p)) {\n      const s = { label: \'\' + n, page: n, gap: false };\n      return list.concat([s]);\n    }\n    if (this.segGap(n, p)) {\n      const s = { label: \'…\', page: n, gap: true };\n      return list.concat([s]);\n    }\n    return list;\n  }\n\n  shown(n: number, p: number) {\n    if (n === 1 || n === this.totalPages) {\n      return true;\n    }\n    if (p <= 3) {\n      return n <= 4;\n    }\n    if (p >= this.totalPages - 2) {\n      return n >= this.totalPages - 3;\n    }\n    return n >= p - 1 && n <= p + 1;\n  }\n\n  segGap(n: number, p: number) {\n    return !this.shown(n, p) && this.shown(n - 1, p);\n  }\n\n  tapSeg(s: any) {\n    if (!s.gap) {\n      this.go(s.page);\n    }\n  }\n\n  goBack() {\n    this.router.navigate([\'/lesson\', 82]);\n  }\n}\n\n// paged-list.component.html\n<section>\n  <appbar pin tone="tint" title="Paged list" back (back)="goBack()"></appbar>\n  <p>Page {{ page }} of {{ totalPages }} · Articles {{ first }} to {{ last }} of {{ total }}</p>\n  <list>\n    <row *ngFor="let a of items" [title]="a.title" [subtitle]="a.sub"></row>\n  </list>\n  <section class="pager">\n    <section class="seg seg-arrow" [class.seg-off]="page === 1" (click)="prev()">\n      <icon name="chevron-left" size="20" color="primary"></icon>\n    </section>\n    <section class="seg" *ngFor="let s of segs" [class.seg-on]="s.page === page && !s.gap" (click)="tapSeg(s)">\n      <p class="seg-text" *ngIf="!s.gap" [class.seg-text-on]="s.page === page">{{ s.label }}</p>\n      <p class="seg-gap-text" *ngIf="s.gap">{{ s.label }}</p>\n    </section>\n    <section class="seg seg-arrow" [class.seg-off]="page === totalPages" (click)="next()">\n      <icon name="chevron-right" size="20" color="primary"></icon>\n    </section>\n  </section>\n  <p>One bar holds the whole control: arrows at the ends, numbers between, the page you are on filled blue. Past six pages the numbers window, and the window follows you.</p>\n</section>',
       tip: 'Choose pagination when the reader needs a place: search results, documents, settings, anything counted or shared. Choose infinite scroll when the list is a stream to wander. Keep the page size steady, too: a page that changes size mid list moves every item after it.',
     },
     {
@@ -879,9 +879,9 @@ export class LessonService extends ReactiveService {
       title: 'Virtual scrolling: render only what is seen',
       subtitle: 'A thousand rows behind fifteen views',
       minutes: '5 min',
-      intro: 'A list can hold all its data and still drown the screen. A thousand rows created at once means a thousand views: slow to build, heavy in memory, and all but a screenful of them invisible. Virtual scrolling creates only the rows the reader can see, plus a few spare, and reuses them: as the window moves, the same row views take new values from further down the data. The count of views stays flat while the data grows. The demo makes the mechanism visible: a thousand messages stand behind fifteen rows, a slider moves the window, the step buttons move it fifteen at a time, and the readout names the rows alive right now. One confusion to clear: when developers say lazy loading, they usually mean loading code, routes above all, only when it is visited. This lesson loads nothing late. The data is all here; only the rendering is rationed. React Native\'s FlatList windows its rows the same way when you hand it data. Here the window is built by hand, so you can watch it move.',
+      intro: 'A list can hold all its data and still drown the screen. A thousand rows created at once means a thousand views: slow to build, heavy in memory, and all but a screenful of them invisible. Virtual scrolling creates only the rows the reader can see, plus a few spare, and reuses them: as the window moves, the same row views take new values from further down the data. The count of views stays flat while the data grows. The demo needs a whole surface, so it lives on its own page. A button below opens it: a thousand messages stand behind fifteen rows, a slider moves the window, the step buttons move it fifteen at a time, and the readout names the rows alive right now. One confusion to clear: when developers say lazy loading, they usually mean loading code, routes above all, only when it is visited. This lesson loads nothing late. The data is all here; only the rendering is rationed. React Native\'s FlatList windows its rows the same way when you hand it data. Here the window is built by hand, so you can watch it move.',
       code: '<row *ngFor="let s of slots" [title]="rowTitle(s)"></row>\n<slider [value]="start" (change)="pickStart($event)"></slider>',
-      implementation: '// virtual-scroll.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-virtual-scroll-demo\',\n  templateUrl: \'./virtual-scroll.component.html\',\n  styles: [`\n    .vs-readout { font-size: 14px; line-height: 20px; font-weight: 600; color: #5f6368; }\n    .vs-panel { border-width: 1px; border-color: #a06a35; border-radius: 12px; padding: 12px; background-color: #fdf6ec; margin-top: 12px; }\n    .vs-nav { flex-direction: row; justify-content: space-between; margin-top: 12px; }\n  `],\n})\nexport class VirtualScrollDemoComponent {\n  start = 0;\n  firstShown = 1;\n  lastShown = 15;\n  slots = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];\n  senders = [\'Ana\', \'Ben\', \'Cleo\', \'Dev\', \'Eli\', \'Faye\', \'Gus\', \'Hana\'];\n\n  pickStart(v: number) {\n    this.start = v;\n    this.syncShown(v);\n  }\n\n  move(d: number) {\n    let n = this.start + d;\n    if (n < 0) {\n      n = 0;\n    }\n    if (n > 985) {\n      n = 985;\n    }\n    this.start = n;\n    this.syncShown(n);\n  }\n\n  syncShown(n: number) {\n    this.firstShown = n + 1;\n    this.lastShown = n + 15;\n  }\n\n  rowTitle(s: number) {\n    return \'Message \' + (this.start + s + 1);\n  }\n\n  rowSub(s: number) {\n    return this.senders[(this.start + s) % 8] + \' · message \' + (this.start + s + 1) + \' of 1,000\';\n  }\n}\n\n// virtual-scroll.component.html\n<p class="vs-readout">Rendering rows {{ firstShown }} to {{ lastShown }} of 1,000. Only 15 rows exist.</p>\n<slider min="0" max="985" step="1" [value]="start" (change)="pickStart($event)"></slider>\n<section class="vs-panel">\n  <row *ngFor="let s of slots" [title]="rowTitle(s)" [subtitle]="rowSub(s)"></row>\n</section>\n<section class="vs-nav">\n  <button variant="text" (click)="move(-15)">\n    Back 15\n  </button>\n  <button variant="text" (click)="move(15)">\n    Forward 15\n  </button>\n</section>\n<p>Drag the slider, or step the window. The fifteen rows never change; the numbers they wear do.</p>',
+      implementation: '// virtual-scroll.component.ts\nimport { Component } from \'@angular/core\';\nimport { Router } from \'@angular/router\';\n\n@Component({\n  selector: \'app-virtual-scroll-demo\',\n  templateUrl: \'./virtual-scroll.component.html\',\n  styles: [`\n    .launch { gap: 8px; }\n    .launch-row { flex-direction: row; gap: 12px; align-items: center; }\n    .launch-icon { width: 42px; height: 42px; border-radius: 9999px; background-color: #e8f0fe; align-items: center; justify-content: center; }\n    .launch-text { flex: 1; }\n    .launch-title { font-size: 16px; line-height: 22px; font-weight: 700; }\n    .launch-sub { font-size: 14px; line-height: 20px; color: #5f6368; }\n    .launch-pills { flex-direction: row; gap: 8px; }\n    .pill { background-color: #e8f0fe; border-radius: 9999px; padding-left: 8px; padding-right: 8px; padding-top: 4px; padding-bottom: 4px; }\n    .pill-text { font-size: 12px; line-height: 16px; font-weight: 600; color: #0b57d0; }\n  `],\n})\nexport class VirtualScrollDemoComponent {\n  constructor(private router: Router) {}\n\n  openList() {\n    this.router.navigate([\'/virtual-list\']);\n  }\n}\n\n// virtual-scroll.component.html\n<section class="launch" (click)="openList()">\n  <section class="launch-row">\n    <section class="launch-icon">\n      <icon name="file" size="24" color="primary"></icon>\n    </section>\n    <section class="launch-text">\n      <p class="launch-title">Open the thousand messages</p>\n      <p class="launch-sub">Fifteen rows, reused all the way down.</p>\n    </section>\n    <icon name="chevron-right" size="24"></icon>\n  </section>\n  <section class="launch-pills">\n    <section class="pill">\n      <p class="pill-text">1,000 messages</p>\n    </section>\n    <section class="pill">\n      <p class="pill-text">15 rows</p>\n    </section>\n  </section>\n</section>\n\n// virtual-list.component.ts\nimport { Component } from \'@angular/core\';\nimport { Router } from \'@angular/router\';\n\n/**\n * The thousand messages page: lesson 83\'s virtual\n * scrolling demo on a page of its own. A thousand messages\n * stand behind fifteen rows. The rows are the only views\n * ever created: a slider moves the window over the data,\n * the step buttons move it fifteen at a time, and each\n * row\'s title and subtitle are computed from the window\'s\n * start plus the row\'s slot. Move the window and the same\n * fifteen rows wear new numbers. That reuse is the whole\n * mechanism a virtualised list runs on.\n */\n@Component({\n  selector: \'app-virtual-list\',\n  templateUrl: \'./virtual-list.component.html\',\n  styles: [`\n    .vs-readout { font-size: 14px; line-height: 20px; font-weight: 600; color: #5f6368; }\n    .vs-panel { border-width: 1px; border-color: #a06a35; border-radius: 12px; padding: 12px; background-color: #fdf6ec; margin-top: 12px; }\n    .vs-nav { flex-direction: row; justify-content: space-between; margin-top: 12px; }\n  `],\n})\nexport class VirtualListComponent {\n  start = 0;\n  firstShown = 1;\n  lastShown = 15;\n  slots = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];\n  senders = [\'Ana\', \'Ben\', \'Cleo\', \'Dev\', \'Eli\', \'Faye\', \'Gus\', \'Hana\'];\n\n  constructor(private router: Router) {}\n\n  pickStart(v: number) {\n    this.start = v;\n    this.syncShown(v);\n  }\n\n  move(d: number) {\n    let n = this.start + d;\n    if (n < 0) {\n      n = 0;\n    }\n    if (n > 985) {\n      n = 985;\n    }\n    this.start = n;\n    this.syncShown(n);\n  }\n\n  syncShown(n: number) {\n    this.firstShown = n + 1;\n    this.lastShown = n + 15;\n  }\n\n  rowTitle(s: number) {\n    return \'Message \' + (this.start + s + 1);\n  }\n\n  rowSub(s: number) {\n    return this.senders[(this.start + s) % 8] + \' · message \' + (this.start + s + 1) + \' of 1,000\';\n  }\n\n  goBack() {\n    this.router.navigate([\'/lesson\', 83]);\n  }\n}\n\n// virtual-list.component.html\n<section>\n  <appbar pin tone="tint" title="A thousand messages" back (back)="goBack()"></appbar>\n  <p class="vs-readout">Rendering rows {{ firstShown }} to {{ lastShown }} of 1,000. Only 15 rows exist.</p>\n  <slider min="0" max="985" step="1" [value]="start" (change)="pickStart($event)"></slider>\n  <section class="vs-panel">\n    <row *ngFor="let s of slots" [title]="rowTitle(s)" [subtitle]="rowSub(s)"></row>\n  </section>\n  <section class="vs-nav">\n    <button variant="text" (click)="move(-15)">Back 15</button>\n    <button variant="text" (click)="move(15)">Forward 15</button>\n  </section>\n  <p>Drag the slider, or step the window. The fifteen rows never change; the numbers they wear do.</p>\n</section>',
       tip: 'Virtualise when rows are many, alike, and more than a screen can hold: archives, logs, long catalogues. Keep every row the same height, because the window math leans on it. And measure with real data before trusting the gain: for sixty rows, plain rendering is simpler and fast enough.',
     },
     {
@@ -1894,7 +1894,7 @@ __container.register(IotService, new IotService());
 __container.register(AlarmService, new AlarmService());
 __container.register(TodoService, new TodoService());
 
-const __navigator = new RgNavigator([{"path":"","redirectTo":"splash"},{"path":"splash"},{"path":"home"},{"path":"saved"},{"path":"history"},{"path":"progress","redirectTo":"history"},{"path":"lesson/:id"},{"path":"samples"},{"path":"samples/iot"},{"path":"samples/alarm"},{"path":"samples/breakout","redirectTo":"samples"},{"path":"samples/mario","redirectTo":"samples"},{"path":"samples/todo"},{"path":"samples/habit","redirectTo":"samples/todo"},{"path":"about"},{"path":"stack/:langs"},{"path":"reading-list/:run"},{"path":"**"}]);
+const __navigator = new RgNavigator([{"path":"","redirectTo":"splash"},{"path":"splash"},{"path":"home"},{"path":"saved"},{"path":"history"},{"path":"progress","redirectTo":"history"},{"path":"lesson/:id"},{"path":"samples"},{"path":"samples/iot"},{"path":"samples/alarm"},{"path":"samples/breakout","redirectTo":"samples"},{"path":"samples/mario","redirectTo":"samples"},{"path":"samples/todo"},{"path":"samples/habit","redirectTo":"samples/todo"},{"path":"about"},{"path":"stack/:langs"},{"path":"reading-list/:run"},{"path":"paged-list"},{"path":"virtual-list"},{"path":"**"}]);
 const __router = new Router(__navigator);
 
 const __snackBar = new SnackBar();
@@ -2961,13 +2961,13 @@ export function Lesson() {
           </RgCard>
         )}
         {!!((lessonId === 82)) && (
-          <RgCard style={styles.lessonDemoCard}>
+          <RgCard style={[styles.lessonDemoCard, styles.lessonDemoBox81]}>
             <RgText variant="label">Live demo: the reading list in numbered pages</RgText>
             <PaginationDemo />
           </RgCard>
         )}
         {!!((lessonId === 83)) && (
-          <RgCard style={styles.lessonDemoCard}>
+          <RgCard style={[styles.lessonDemoCard, styles.lessonDemoBox81]}>
             <RgText variant="label">Live demo: a window of fifteen rows over a thousand messages</RgText>
             <VirtualScrollDemo />
           </RgCard>
@@ -6752,142 +6752,36 @@ export function InfiniteScrollDemo() {
 }
 
 export function PaginationDemo() {
+  const router = __router;
   const [, __sigBump] = useReducer((n: number) => n + 1, 0);
   const __sigTracker = useRef(new SignalRenderTracker(__sigBump));
   useEffect(() => () => { __sigTracker.current.dispose(); }, []);
-  const total = 60;
-  const [page, setPage] = useState(1);
-  const [first, setFirst] = useState(1);
-  const [last, setLast] = useState(10);
-  const pageNums = [1, 2, 3, 4, 5, 6];
-  const firstPage = [
-    { id: 1, title: 'Article 1: Begin with the breath', sub: 'Start where the breath starts' },
-    { id: 2, title: 'Article 2: The spine, held easy', sub: 'Posture without force' },
-    { id: 3, title: 'Article 3: Sitting without force', sub: 'Let the seat hold you' },
-    { id: 4, title: 'Article 4: Attention returns', sub: 'The gentle art of coming back' },
-    { id: 5, title: 'Article 5: The witness stance', sub: 'Watch, do not chase' },
-    { id: 6, title: 'Article 6: Sound and silence', sub: 'Two sides of listening' },
-    { id: 7, title: 'Article 7: The pause between', sub: 'Rest in the gap' },
-    { id: 8, title: 'Article 8: Ending well', sub: 'Close the sit with care' },
-    { id: 9, title: 'Article 9: Carrying it into the day', sub: 'Practice after the cushion' },
-    { id: 10, title: 'Article 10: Review and rest', sub: 'Look back, then let go' },
-  ];
-  const morePages = [
-    [
-      { id: 11, title: 'Article 11: Morning light, first practice', sub: 'Begin with the day' },
-      { id: 12, title: 'Article 12: The hands, relaxed', sub: 'Soft hands, soft mind' },
-      { id: 13, title: 'Article 13: Counting the breath out', sub: 'Numbers as an anchor' },
-      { id: 14, title: 'Article 14: A quieter jaw', sub: 'Release the small tensions' },
-      { id: 15, title: 'Article 15: Standing like a mountain', sub: 'Stillness on your feet' },
-      { id: 16, title: 'Article 16: The floor holds you', sub: 'Trust the ground' },
-      { id: 17, title: 'Article 17: Eyes, soft focus', sub: 'See without gripping' },
-      { id: 18, title: 'Article 18: One thing at a time', sub: 'The single thread' },
-      { id: 19, title: 'Article 19: The space between thoughts', sub: 'Widen the gap' },
-      { id: 20, title: 'Article 20: Listening to the room', sub: 'Sound as a teacher' },
-    ],
-    [
-      { id: 21, title: 'Article 21: Shoulders down', sub: 'Drop what you carry' },
-      { id: 22, title: 'Article 22: The long exhale', sub: 'Longer out than in' },
-      { id: 23, title: 'Article 23: Walking without hurry', sub: 'Steps that arrive' },
-      { id: 24, title: 'Article 24: Tea, taken slowly', sub: 'A practice in a cup' },
-      { id: 25, title: 'Article 25: The body scans itself', sub: 'Attention, head to heel' },
-      { id: 26, title: 'Article 26: Gratitude, briefly', sub: 'One honest thank you' },
-      { id: 27, title: 'Article 27: Letting the day land', sub: 'Evening settling' },
-      { id: 28, title: 'Article 28: A short sit before sleep', sub: 'Close the day seated' },
-      { id: 29, title: 'Article 29: The breath at the nostrils', sub: 'The smallest anchor' },
-      { id: 30, title: 'Article 30: Palms together', sub: 'A gesture of return' },
-    ],
-    [
-      { id: 31, title: 'Article 31: The spine, one inch taller', sub: 'Grow the axis gently' },
-      { id: 32, title: 'Article 32: Silence after sound', sub: 'What the bell leaves behind' },
-      { id: 33, title: 'Article 33: Noticing the noticing', sub: 'Awareness of awareness' },
-      { id: 34, title: 'Article 34: The weight of the hands', sub: 'Feel gravity kindly' },
-      { id: 35, title: 'Article 35: A kinder inner voice', sub: 'Speak to yourself well' },
-      { id: 36, title: 'Article 36: The pause before speaking', sub: 'One breath of room' },
-      { id: 37, title: 'Article 37: Sitting with discomfort', sub: 'Stay, without fixing' },
-      { id: 38, title: 'Article 38: The morning stretches', sub: 'Wake the body first' },
-      { id: 39, title: 'Article 39: Breath and heartbeat', sub: 'Two rhythms, one seat' },
-      { id: 40, title: 'Article 40: Coming back, again', sub: 'The practice is the return' },
-    ],
-    [
-      { id: 41, title: 'Article 41: The cool of the evening', sub: 'Sit as the light fades' },
-      { id: 42, title: 'Article 42: One minute of stillness', sub: 'Small, and complete' },
-      { id: 43, title: 'Article 43: The gaze rests', sub: 'Eyes that do not hunt' },
-      { id: 44, title: 'Article 44: Shoulders, neck, jaw', sub: 'The tension triangle' },
-      { id: 45, title: 'Article 45: Counting to ten, slowly', sub: 'Ten breaths, no rush' },
-      { id: 46, title: 'Article 46: The room, held in mind', sub: 'Know where you sit' },
-      { id: 47, title: 'Article 47: A practice for busy days', sub: 'Short is not shallow' },
-      { id: 48, title: 'Article 48: The last page of the day', sub: 'End on a kind note' },
-      { id: 49, title: 'Article 49: Rest is also practice', sub: 'Doing nothing, well' },
-      { id: 50, title: 'Article 50: Beginning again', sub: 'Every sit is the first' },
-    ],
-    [
-      { id: 51, title: 'Article 51: The breath deepens', sub: 'Let it slow itself' },
-      { id: 52, title: 'Article 52: Watching the mind settle', sub: 'Sediment and clear water' },
-      { id: 53, title: 'Article 53: A steady seat', sub: 'Build the base' },
-      { id: 54, title: 'Article 54: The sounds outside', sub: 'The world, included' },
-      { id: 55, title: 'Article 55: Kindness toward the body', sub: 'Thank the instrument' },
-      { id: 56, title: 'Article 56: The exhale lengthens', sub: 'Follow it all the way out' },
-      { id: 57, title: 'Article 57: Stillness between tasks', sub: 'The hinge of the day' },
-      { id: 58, title: 'Article 58: The evening review', sub: 'See the day, release it' },
-      { id: 59, title: 'Article 59: One slow breath', sub: 'Enough for now' },
-      { id: 60, title: 'Article 60: The whole list, held lightly', sub: 'All of it, loosely' },
-    ],
-  ];
-  const [items, setItems] = useState([
-    { id: 1, title: 'Article 1: Begin with the breath', sub: 'Start where the breath starts' },
-    { id: 2, title: 'Article 2: The spine, held easy', sub: 'Posture without force' },
-    { id: 3, title: 'Article 3: Sitting without force', sub: 'Let the seat hold you' },
-    { id: 4, title: 'Article 4: Attention returns', sub: 'The gentle art of coming back' },
-    { id: 5, title: 'Article 5: The witness stance', sub: 'Watch, do not chase' },
-    { id: 6, title: 'Article 6: Sound and silence', sub: 'Two sides of listening' },
-    { id: 7, title: 'Article 7: The pause between', sub: 'Rest in the gap' },
-    { id: 8, title: 'Article 8: Ending well', sub: 'Close the sit with care' },
-    { id: 9, title: 'Article 9: Carrying it into the day', sub: 'Practice after the cushion' },
-    { id: 10, title: 'Article 10: Review and rest', sub: 'Look back, then let go' },
-  ]);
-  const go = (n: number) => {
-    if (n >= 1 && n <= 6) {
-      setPage(n);
-      setFirst((n - 1) * 10 + 1);
-      setLast(n * 10);
-      if (n === 1) {
-        setItems(firstPage);
-      } else {
-        setItems(morePages[n - 2]);
-      }
-    }
-  };
-  const prev = () => {
-    go(page - 1);
-  };
-  const next = () => {
-    go(page + 1);
+  const openList = () => {
+    router.navigate(['/paged-list']);
   };
   __sigTracker.current.begin();
   try {
     return (
-      <>
-        <RgText variant="bodyLarge" style={styles.paginationDemoPgStatus}>Page {page} of 6 · Articles {first} to {last} of {total}</RgText>
-        <RgList>
-          {items.map((a, index) => (
-            <RgRow key={a?.id ?? index} title={a.title} subtitle={a.sub} />
-          ))}
-        </RgList>
-        <RgSection style={styles.paginationDemoPgNav}>
-          <RgButton variant="text" disabled={(page === 1)} onPress={() => prev()}>Previous</RgButton>
-          <RgButton variant="text" disabled={(page === 6)} onPress={() => next()}>Next</RgButton>
+      <RgSection onPress={() => openList()} style={styles.paginationDemoLaunch}>
+        <RgSection style={styles.paginationDemoLaunchRow}>
+          <RgSection style={styles.paginationDemoLaunchIcon}>
+            <RgIcon name="menu" size={24} color="primary" />
+          </RgSection>
+          <RgSection style={styles.paginationDemoLaunchText}>
+            <RgText variant="bodyLarge" style={styles.paginationDemoLaunchTitle}>Open the paged list</RgText>
+            <RgText variant="bodyLarge" style={styles.paginationDemoLaunchSub}>Numbered pages, with a place to return to.</RgText>
+          </RgSection>
+          <RgIcon name="chevron-right" size={24} />
         </RgSection>
-        <RgSection style={styles.paginationDemoPgPages}>
-          <RgChips>
-            {pageNums.map((p, index) => (
-              <RgSection key={p?.id ?? index} onPress={() => go(p)} style={[styles.paginationDemoChip, (page === p) ? styles.paginationDemoChipOn : undefined]}>
-                <RgText variant="bodyLarge" style={[styles.paginationDemoChipText, (page === p) ? styles.paginationDemoChipTextOn : undefined]}>{p}</RgText>
-              </RgSection>
-            ))}
-          </RgChips>
+        <RgSection style={styles.paginationDemoLaunchPills}>
+          <RgSection style={styles.paginationDemoPill}>
+            <RgText variant="bodyLarge" style={styles.paginationDemoPillText}>60 articles</RgText>
+          </RgSection>
+          <RgSection style={styles.paginationDemoPill}>
+            <RgText variant="bodyLarge" style={styles.paginationDemoPillText}>12 pages</RgText>
+          </RgSection>
         </RgSection>
-      </>
+      </RgSection>
     );
   } finally {
     __sigTracker.current.end();
@@ -6895,56 +6789,36 @@ export function PaginationDemo() {
 }
 
 export function VirtualScrollDemo() {
+  const router = __router;
   const [, __sigBump] = useReducer((n: number) => n + 1, 0);
   const __sigTracker = useRef(new SignalRenderTracker(__sigBump));
   useEffect(() => () => { __sigTracker.current.dispose(); }, []);
-  const [start, setStart] = useState(0);
-  const [firstShown, setFirstShown] = useState(1);
-  const [lastShown, setLastShown] = useState(15);
-  const slots = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
-  const senders = ['Ana', 'Ben', 'Cleo', 'Dev', 'Eli', 'Faye', 'Gus', 'Hana'];
-  const pickStart = (v: number) => {
-    setStart(v);
-    syncShown(v);
-  };
-  const move = (d: number) => {
-    let n = start + d;
-    if (n < 0) {
-      n = 0;
-    }
-    if (n > 985) {
-      n = 985;
-    }
-    setStart(n);
-    syncShown(n);
-  };
-  const syncShown = (n: number) => {
-    setFirstShown(n + 1);
-    setLastShown(n + 15);
-  };
-  const rowTitle = (s: number) => {
-    return 'Message ' + (start + s + 1);
-  };
-  const rowSub = (s: number) => {
-    return senders[(start + s) % 8] + ' · message ' + (start + s + 1) + ' of 1,000';
+  const openList = () => {
+    router.navigate(['/virtual-list']);
   };
   __sigTracker.current.begin();
   try {
     return (
-      <>
-        <RgText variant="bodyLarge" style={styles.virtualScrollDemoVsReadout}>Rendering rows {firstShown} to {lastShown} of 1,000. Only 15 rows exist.</RgText>
-        <RgSlider min={0} max={985} step={1} value={start} onChange={($event) => pickStart($event)} />
-        <RgSection style={styles.virtualScrollDemoVsPanel}>
-          {slots.map((s, index) => (
-            <RgRow key={s?.id ?? index} title={rowTitle(s)} subtitle={rowSub(s)} />
-          ))}
+      <RgSection onPress={() => openList()} style={styles.virtualScrollDemoLaunch}>
+        <RgSection style={styles.virtualScrollDemoLaunchRow}>
+          <RgSection style={styles.virtualScrollDemoLaunchIcon}>
+            <RgIcon name="file" size={24} color="primary" />
+          </RgSection>
+          <RgSection style={styles.virtualScrollDemoLaunchText}>
+            <RgText variant="bodyLarge" style={styles.virtualScrollDemoLaunchTitle}>Open the thousand messages</RgText>
+            <RgText variant="bodyLarge" style={styles.virtualScrollDemoLaunchSub}>Fifteen rows, reused all the way down.</RgText>
+          </RgSection>
+          <RgIcon name="chevron-right" size={24} />
         </RgSection>
-        <RgSection style={styles.virtualScrollDemoVsNav}>
-          <RgButton variant="text" onPress={() => move(-15)}>Back 15</RgButton>
-          <RgButton variant="text" onPress={() => move(15)}>Forward 15</RgButton>
+        <RgSection style={styles.virtualScrollDemoLaunchPills}>
+          <RgSection style={styles.virtualScrollDemoPill}>
+            <RgText variant="bodyLarge" style={styles.virtualScrollDemoPillText}>1,000 messages</RgText>
+          </RgSection>
+          <RgSection style={styles.virtualScrollDemoPill}>
+            <RgText variant="bodyLarge" style={styles.virtualScrollDemoPillText}>15 rows</RgText>
+          </RgSection>
         </RgSection>
-        <RgText variant="bodyLarge">Drag the slider, or step the window. The fifteen rows never change; the numbers they wear do.</RgText>
-      </>
+      </RgSection>
     );
   } finally {
     __sigTracker.current.end();
@@ -8420,6 +8294,286 @@ export function ReadingList() {
   }
 }
 
+export function PagedList() {
+  const router = __router;
+  const [, __sigBump] = useReducer((n: number) => n + 1, 0);
+  const __sigTracker = useRef(new SignalRenderTracker(__sigBump));
+  useEffect(() => () => { __sigTracker.current.dispose(); }, []);
+  const total = 60;
+  const totalPages = 12;
+  const [page, setPage] = useState(1);
+  const [first, setFirst] = useState(1);
+  const [last, setLast] = useState(5);
+  const pageList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  const [segs, setSegs] = useState([
+    { label: '1', page: 1, gap: false },
+    { label: '2', page: 2, gap: false },
+    { label: '3', page: 3, gap: false },
+    { label: '4', page: 4, gap: false },
+    { label: '…', page: 5, gap: true },
+    { label: '12', page: 12, gap: false },
+  ]);
+  const firstPage = [
+    { id: 1, title: 'Article 1: Begin with the breath', sub: 'Start where the breath starts' },
+    { id: 2, title: 'Article 2: The spine, held easy', sub: 'Posture without force' },
+    { id: 3, title: 'Article 3: Sitting without force', sub: 'Let the seat hold you' },
+    { id: 4, title: 'Article 4: Attention returns', sub: 'The gentle art of coming back' },
+    { id: 5, title: 'Article 5: The witness stance', sub: 'Watch, do not chase' },
+  ];
+  const morePages = [
+    [
+      { id: 6, title: 'Article 6: Sound and silence', sub: 'Two sides of listening' },
+      { id: 7, title: 'Article 7: The pause between', sub: 'Rest in the gap' },
+      { id: 8, title: 'Article 8: Ending well', sub: 'Close the sit with care' },
+      { id: 9, title: 'Article 9: Carrying it into the day', sub: 'Practice after the cushion' },
+      { id: 10, title: 'Article 10: Review and rest', sub: 'Look back, then let go' },
+    ],
+    [
+      { id: 11, title: 'Article 11: Morning light, first practice', sub: 'Begin with the day' },
+      { id: 12, title: 'Article 12: The hands, relaxed', sub: 'Soft hands, soft mind' },
+      { id: 13, title: 'Article 13: Counting the breath out', sub: 'Numbers as an anchor' },
+      { id: 14, title: 'Article 14: A quieter jaw', sub: 'Release the small tensions' },
+      { id: 15, title: 'Article 15: Standing like a mountain', sub: 'Stillness on your feet' },
+    ],
+    [
+      { id: 16, title: 'Article 16: The floor holds you', sub: 'Trust the ground' },
+      { id: 17, title: 'Article 17: Eyes, soft focus', sub: 'See without gripping' },
+      { id: 18, title: 'Article 18: One thing at a time', sub: 'The single thread' },
+      { id: 19, title: 'Article 19: The space between thoughts', sub: 'Widen the gap' },
+      { id: 20, title: 'Article 20: Listening to the room', sub: 'Sound as a teacher' },
+    ],
+    [
+      { id: 21, title: 'Article 21: Shoulders down', sub: 'Drop what you carry' },
+      { id: 22, title: 'Article 22: The long exhale', sub: 'Longer out than in' },
+      { id: 23, title: 'Article 23: Walking without hurry', sub: 'Steps that arrive' },
+      { id: 24, title: 'Article 24: Tea, taken slowly', sub: 'A practice in a cup' },
+      { id: 25, title: 'Article 25: The body scans itself', sub: 'Attention, head to heel' },
+    ],
+    [
+      { id: 26, title: 'Article 26: Gratitude, briefly', sub: 'One honest thank you' },
+      { id: 27, title: 'Article 27: Letting the day land', sub: 'Evening settling' },
+      { id: 28, title: 'Article 28: A short sit before sleep', sub: 'Close the day seated' },
+      { id: 29, title: 'Article 29: The breath at the nostrils', sub: 'The smallest anchor' },
+      { id: 30, title: 'Article 30: Palms together', sub: 'A gesture of return' },
+    ],
+    [
+      { id: 31, title: 'Article 31: The spine, one inch taller', sub: 'Grow the axis gently' },
+      { id: 32, title: 'Article 32: Silence after sound', sub: 'What the bell leaves behind' },
+      { id: 33, title: 'Article 33: Noticing the noticing', sub: 'Awareness of awareness' },
+      { id: 34, title: 'Article 34: The weight of the hands', sub: 'Feel gravity kindly' },
+      { id: 35, title: 'Article 35: A kinder inner voice', sub: 'Speak to yourself well' },
+    ],
+    [
+      { id: 36, title: 'Article 36: The pause before speaking', sub: 'One breath of room' },
+      { id: 37, title: 'Article 37: Sitting with discomfort', sub: 'Stay, without fixing' },
+      { id: 38, title: 'Article 38: The morning stretches', sub: 'Wake the body first' },
+      { id: 39, title: 'Article 39: Breath and heartbeat', sub: 'Two rhythms, one seat' },
+      { id: 40, title: 'Article 40: Coming back, again', sub: 'The practice is the return' },
+    ],
+    [
+      { id: 41, title: 'Article 41: The cool of the evening', sub: 'Sit as the light fades' },
+      { id: 42, title: 'Article 42: One minute of stillness', sub: 'Small, and complete' },
+      { id: 43, title: 'Article 43: The gaze rests', sub: 'Eyes that do not hunt' },
+      { id: 44, title: 'Article 44: Shoulders, neck, jaw', sub: 'The tension triangle' },
+      { id: 45, title: 'Article 45: Counting to ten, slowly', sub: 'Ten breaths, no rush' },
+    ],
+    [
+      { id: 46, title: 'Article 46: The room, held in mind', sub: 'Know where you sit' },
+      { id: 47, title: 'Article 47: A practice for busy days', sub: 'Short is not shallow' },
+      { id: 48, title: 'Article 48: The last page of the day', sub: 'End on a kind note' },
+      { id: 49, title: 'Article 49: Rest is also practice', sub: 'Doing nothing, well' },
+      { id: 50, title: 'Article 50: Beginning again', sub: 'Every sit is the first' },
+    ],
+    [
+      { id: 51, title: 'Article 51: The breath deepens', sub: 'Let it slow itself' },
+      { id: 52, title: 'Article 52: Watching the mind settle', sub: 'Sediment and clear water' },
+      { id: 53, title: 'Article 53: A steady seat', sub: 'Build the base' },
+      { id: 54, title: 'Article 54: The sounds outside', sub: 'The world, included' },
+      { id: 55, title: 'Article 55: Kindness toward the body', sub: 'Thank the instrument' },
+    ],
+    [
+      { id: 56, title: 'Article 56: The exhale lengthens', sub: 'Follow it all the way out' },
+      { id: 57, title: 'Article 57: Stillness between tasks', sub: 'The hinge of the day' },
+      { id: 58, title: 'Article 58: The evening review', sub: 'See the day, release it' },
+      { id: 59, title: 'Article 59: One slow breath', sub: 'Enough for now' },
+      { id: 60, title: 'Article 60: The whole list, held lightly', sub: 'All of it, loosely' },
+    ],
+  ];
+  const [items, setItems] = useState([
+    { id: 1, title: 'Article 1: Begin with the breath', sub: 'Start where the breath starts' },
+    { id: 2, title: 'Article 2: The spine, held easy', sub: 'Posture without force' },
+    { id: 3, title: 'Article 3: Sitting without force', sub: 'Let the seat hold you' },
+    { id: 4, title: 'Article 4: Attention returns', sub: 'The gentle art of coming back' },
+    { id: 5, title: 'Article 5: The witness stance', sub: 'Watch, do not chase' },
+  ]);
+  const go = (n: number) => {
+    if (n >= 1 && n <= totalPages) {
+      setPage(n);
+      setFirst((n - 1) * 5 + 1);
+      setLast(n * 5);
+      if (n === 1) {
+        setItems(firstPage);
+      } else {
+        setItems(morePages[n - 2]);
+      }
+      buildSegs(n);
+    }
+  };
+  const prev = () => {
+    go(page - 1);
+  };
+  const next = () => {
+    go(page + 1);
+  };
+  const buildSegs = (p: number) => {
+    let list = [];
+    list = withSeg(list, 1, p);
+    list = withSeg(list, 2, p);
+    list = withSeg(list, 3, p);
+    list = withSeg(list, 4, p);
+    list = withSeg(list, 5, p);
+    list = withSeg(list, 6, p);
+    list = withSeg(list, 7, p);
+    list = withSeg(list, 8, p);
+    list = withSeg(list, 9, p);
+    list = withSeg(list, 10, p);
+    list = withSeg(list, 11, p);
+    list = withSeg(list, 12, p);
+    setSegs(list);
+  };
+  const withSeg = (list: any[], n: number, p: number) => {
+    if (shown(n, p)) {
+      const s = { label: '' + n, page: n, gap: false };
+      return list.concat([s]);
+    }
+    if (segGap(n, p)) {
+      const s = { label: '…', page: n, gap: true };
+      return list.concat([s]);
+    }
+    return list;
+  };
+  const shown = (n: number, p: number) => {
+    if (n === 1 || n === totalPages) {
+      return true;
+    }
+    if (p <= 3) {
+      return n <= 4;
+    }
+    if (p >= totalPages - 2) {
+      return n >= totalPages - 3;
+    }
+    return n >= p - 1 && n <= p + 1;
+  };
+  const segGap = (n: number, p: number) => {
+    return !shown(n, p) && shown(n - 1, p);
+  };
+  const tapSeg = (s: any) => {
+    if (!s.gap) {
+      go(s.page);
+    }
+  };
+  const goBack = () => {
+    router.navigate(['/lesson', 82]);
+  };
+  __sigTracker.current.begin();
+  try {
+    return (
+      <RgSection>
+        <RgAppbar tone="tint" title="Paged list" pin back onBack={() => goBack()} />
+        <RgText variant="bodyLarge">Page {page} of {totalPages} · Articles {first} to {last} of {total}</RgText>
+        <RgList>
+          {items.map((a, index) => (
+            <RgRow key={a?.id ?? index} title={a.title} subtitle={a.sub} />
+          ))}
+        </RgList>
+        <RgSection style={styles.pagedListPager}>
+          <RgSection onPress={() => prev()} style={[styles.pagedListSeg, styles.pagedListSegArrow, (page === 1) ? styles.pagedListSegOff : undefined]}>
+            <RgIcon name="chevron-left" size={20} color="primary" />
+          </RgSection>
+          {segs.map((s, index) => (
+            <RgSection key={s?.id ?? index} onPress={() => tapSeg(s)} style={[styles.pagedListSeg, ((s.page === page) && !s.gap) ? styles.pagedListSegOn : undefined]}>
+              {!!(!s.gap) && (
+                <RgText variant="bodyLarge" style={[styles.pagedListSegText, (s.page === page) ? styles.pagedListSegTextOn : undefined]}>{s.label}</RgText>
+              )}
+              {!!(s.gap) && (
+                <RgText variant="bodyLarge" style={styles.pagedListSegGapText}>{s.label}</RgText>
+              )}
+            </RgSection>
+          ))}
+          <RgSection onPress={() => next()} style={[styles.pagedListSeg, styles.pagedListSegArrow, (page === totalPages) ? styles.pagedListSegOff : undefined]}>
+            <RgIcon name="chevron-right" size={20} color="primary" />
+          </RgSection>
+        </RgSection>
+        <RgText variant="bodyLarge">One bar holds the whole control: arrows at the ends, numbers between, the page you are on filled blue. Past six pages the numbers window, and the window follows you.</RgText>
+      </RgSection>
+    );
+  } finally {
+    __sigTracker.current.end();
+  }
+}
+
+export function VirtualList() {
+  const router = __router;
+  const [, __sigBump] = useReducer((n: number) => n + 1, 0);
+  const __sigTracker = useRef(new SignalRenderTracker(__sigBump));
+  useEffect(() => () => { __sigTracker.current.dispose(); }, []);
+  const [start, setStart] = useState(0);
+  const [firstShown, setFirstShown] = useState(1);
+  const [lastShown, setLastShown] = useState(15);
+  const slots = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+  const senders = ['Ana', 'Ben', 'Cleo', 'Dev', 'Eli', 'Faye', 'Gus', 'Hana'];
+  const pickStart = (v: number) => {
+    setStart(v);
+    syncShown(v);
+  };
+  const move = (d: number) => {
+    let n = start + d;
+    if (n < 0) {
+      n = 0;
+    }
+    if (n > 985) {
+      n = 985;
+    }
+    setStart(n);
+    syncShown(n);
+  };
+  const syncShown = (n: number) => {
+    setFirstShown(n + 1);
+    setLastShown(n + 15);
+  };
+  const rowTitle = (s: number) => {
+    return 'Message ' + (start + s + 1);
+  };
+  const rowSub = (s: number) => {
+    return senders[(start + s) % 8] + ' · message ' + (start + s + 1) + ' of 1,000';
+  };
+  const goBack = () => {
+    router.navigate(['/lesson', 83]);
+  };
+  __sigTracker.current.begin();
+  try {
+    return (
+      <RgSection>
+        <RgAppbar tone="tint" title="A thousand messages" pin back onBack={() => goBack()} />
+        <RgText variant="bodyLarge" style={styles.virtualListVsReadout}>Rendering rows {firstShown} to {lastShown} of 1,000. Only 15 rows exist.</RgText>
+        <RgSlider min={0} max={985} step={1} value={start} onChange={($event) => pickStart($event)} />
+        <RgSection style={styles.virtualListVsPanel}>
+          {slots.map((s, index) => (
+            <RgRow key={s?.id ?? index} title={rowTitle(s)} subtitle={rowSub(s)} />
+          ))}
+        </RgSection>
+        <RgSection style={styles.virtualListVsNav}>
+          <RgButton variant="text" onPress={() => move(-15)}>Back 15</RgButton>
+          <RgButton variant="text" onPress={() => move(15)}>Forward 15</RgButton>
+        </RgSection>
+        <RgText variant="bodyLarge">Drag the slider, or step the window. The fifteen rows never change; the numbers they wear do.</RgText>
+      </RgSection>
+    );
+  } finally {
+    __sigTracker.current.end();
+  }
+}
+
 export default function App() {
   const shell = __container.get<ShellService>(ShellService);
   useSyncExternalStore((cb) => shell.__subscribe(cb), () => shell.__getVersion());
@@ -8549,6 +8703,16 @@ export default function App() {
                 <ReadingList key={__route.path} />
               </ActivatedRouteContext.Provider>
             )}
+            {__route.routePath === "paged-list" && (
+              <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
+                <PagedList key={__route.path} />
+              </ActivatedRouteContext.Provider>
+            )}
+            {__route.routePath === "virtual-list" && (
+              <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
+                <VirtualList key={__route.path} />
+              </ActivatedRouteContext.Provider>
+            )}
             {__route.routePath === "**" && (
               <ActivatedRouteContext.Provider value={new ActivatedRoute(__route.params, __navigator)}>
                 <NotFound key={__route.path} />
@@ -8660,16 +8824,24 @@ const styles = StyleSheet.create({
   infiniteScrollDemoLaunchPills: {"flexDirection":"row","gap":8},
   infiniteScrollDemoPill: {"backgroundColor":"#e8f0fe","borderRadius":9999,"paddingLeft":8,"paddingRight":8,"paddingTop":4,"paddingBottom":4},
   infiniteScrollDemoPillText: {"fontSize":12,"lineHeight":16,"fontWeight":600,"color":"#0b57d0"},
-  paginationDemoPgStatus: {"fontSize":14,"lineHeight":20,"fontWeight":600,"color":"#5f6368"},
-  paginationDemoPgNav: {"flexDirection":"row","justifyContent":"space-between","alignItems":"center","marginTop":12},
-  paginationDemoPgPages: {"marginTop":12},
-  paginationDemoChip: {"borderWidth":1,"borderColor":"#bdc1c6","borderRadius":9999,"padding":8},
-  paginationDemoChipOn: {"backgroundColor":"#0b57d0","borderColor":"#0b57d0"},
-  paginationDemoChipText: {"fontSize":14,"color":"#3c4043","textAlign":"center"},
-  paginationDemoChipTextOn: {"color":"#ffffff","fontWeight":600},
-  virtualScrollDemoVsReadout: {"fontSize":14,"lineHeight":20,"fontWeight":600,"color":"#5f6368"},
-  virtualScrollDemoVsPanel: {"borderWidth":1,"borderColor":"#a06a35","borderRadius":12,"padding":12,"backgroundColor":"#fdf6ec","marginTop":12},
-  virtualScrollDemoVsNav: {"flexDirection":"row","justifyContent":"space-between","marginTop":12},
+  paginationDemoLaunch: {"gap":8},
+  paginationDemoLaunchRow: {"flexDirection":"row","gap":12,"alignItems":"center"},
+  paginationDemoLaunchIcon: {"width":42,"height":42,"borderRadius":9999,"backgroundColor":"#e8f0fe","alignItems":"center","justifyContent":"center"},
+  paginationDemoLaunchText: {"flex":1},
+  paginationDemoLaunchTitle: {"fontSize":16,"lineHeight":22,"fontWeight":700},
+  paginationDemoLaunchSub: {"fontSize":14,"lineHeight":20,"color":"#5f6368"},
+  paginationDemoLaunchPills: {"flexDirection":"row","gap":8},
+  paginationDemoPill: {"backgroundColor":"#e8f0fe","borderRadius":9999,"paddingLeft":8,"paddingRight":8,"paddingTop":4,"paddingBottom":4},
+  paginationDemoPillText: {"fontSize":12,"lineHeight":16,"fontWeight":600,"color":"#0b57d0"},
+  virtualScrollDemoLaunch: {"gap":8},
+  virtualScrollDemoLaunchRow: {"flexDirection":"row","gap":12,"alignItems":"center"},
+  virtualScrollDemoLaunchIcon: {"width":42,"height":42,"borderRadius":9999,"backgroundColor":"#e8f0fe","alignItems":"center","justifyContent":"center"},
+  virtualScrollDemoLaunchText: {"flex":1},
+  virtualScrollDemoLaunchTitle: {"fontSize":16,"lineHeight":22,"fontWeight":700},
+  virtualScrollDemoLaunchSub: {"fontSize":14,"lineHeight":20,"color":"#5f6368"},
+  virtualScrollDemoLaunchPills: {"flexDirection":"row","gap":8},
+  virtualScrollDemoPill: {"backgroundColor":"#e8f0fe","borderRadius":9999,"paddingLeft":8,"paddingRight":8,"paddingTop":4,"paddingBottom":4},
+  virtualScrollDemoPillText: {"fontSize":12,"lineHeight":16,"fontWeight":600,"color":"#0b57d0"},
   filePickerDemoPicked: {"color":"#34a853","fontWeight":700},
   streamsDemoPanel: {"borderWidth":1,"borderColor":"#a06a35","borderRadius":12,"padding":12,"backgroundColor":"#fdf6ec"},
   streamsDemoCount: {"fontSize":24,"fontWeight":700},
@@ -8746,6 +8918,17 @@ const styles = StyleSheet.create({
   todoSampleDueLabel: {"flex":1,"fontSize":14,"fontWeight":700},
   todoSampleMoreHit: {"width":44,"height":44,"alignItems":"center","justifyContent":"center"},
   todoSampleSheetWrap: {"gap":12,"paddingBottom":24},
+  pagedListPager: {"flexDirection":"row","gap":4,"backgroundColor":"#ffffff","borderWidth":1,"borderColor":"#a8c7fa","borderRadius":12,"padding":4,"marginTop":16},
+  pagedListSeg: {"flex":1,"backgroundColor":"#ffffff","borderRadius":8,"alignItems":"center","justifyContent":"center","paddingTop":8,"paddingBottom":8},
+  pagedListSegArrow: {"backgroundColor":"#e8f0fe"},
+  pagedListSegOff: {"opacity":0.45},
+  pagedListSegOn: {"backgroundColor":"#0b57d0"},
+  pagedListSegText: {"fontSize":14,"lineHeight":20,"fontWeight":600,"color":"#3c4043"},
+  pagedListSegTextOn: {"color":"#ffffff","fontWeight":700},
+  pagedListSegGapText: {"fontSize":14,"lineHeight":20,"color":"#5f6368"},
+  virtualListVsReadout: {"fontSize":14,"lineHeight":20,"fontWeight":600,"color":"#5f6368"},
+  virtualListVsPanel: {"borderWidth":1,"borderColor":"#a06a35","borderRadius":12,"padding":12,"backgroundColor":"#fdf6ec","marginTop":12},
+  virtualListVsNav: {"flexDirection":"row","justifyContent":"space-between","marginTop":12},
   drawerHead: {"padding":20,"borderRadius":16,"backgroundColor":"#e8f0fe"},
   drawerSub: {"color":"#5f6368","fontSize":14,"lineHeight":20},
   drawerRule: {"height":3,"padding":0,"borderRadius":9999},

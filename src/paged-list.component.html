@@ -1,0 +1,20 @@
+<section>
+  <appbar pin tone="tint" title="Paged list" back (back)="goBack()"></appbar>
+  <p>Page {{ page }} of {{ totalPages }} · Articles {{ first }} to {{ last }} of {{ total }}</p>
+  <list>
+    <row *ngFor="let a of items" [title]="a.title" [subtitle]="a.sub"></row>
+  </list>
+  <section class="pager">
+    <section class="seg seg-arrow" [class.seg-off]="page === 1" (click)="prev()">
+      <icon name="chevron-left" size="20" color="primary"></icon>
+    </section>
+    <section class="seg" *ngFor="let s of segs" [class.seg-on]="s.page === page && !s.gap" (click)="tapSeg(s)">
+      <p class="seg-text" *ngIf="!s.gap" [class.seg-text-on]="s.page === page">{{ s.label }}</p>
+      <p class="seg-gap-text" *ngIf="s.gap">{{ s.label }}</p>
+    </section>
+    <section class="seg seg-arrow" [class.seg-off]="page === totalPages" (click)="next()">
+      <icon name="chevron-right" size="20" color="primary"></icon>
+    </section>
+  </section>
+  <p>One bar holds the whole control: arrows at the ends, numbers between, the page you are on filled blue. Past six pages the numbers window, and the window follows you.</p>
+</section>

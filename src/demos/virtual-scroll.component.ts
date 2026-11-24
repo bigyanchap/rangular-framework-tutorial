@@ -1,58 +1,33 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 /**
- * Lesson 83's live demo: virtual scrolling, built by hand.
- * A thousand messages stand behind fifteen rows. The rows
- * are the only views ever created: a slider moves the
- * window over the data, the step buttons move it fifteen
- * at a time, and each row's title and subtitle are computed
- * from the window's start plus the row's slot. Move the
- * window and the same fifteen rows wear new numbers. That
- * reuse is the whole mechanism a virtualised list runs on.
+ * Lesson 83's live demo launcher, in the same dress as
+ * lesson 81's: the window over a thousand messages needs
+ * a whole surface, so the demo lives on its own page and
+ * this card only opens it. The whole surface is the tap:
+ * the page icon in a tint disc, the title and one line, a
+ * chevron, and two pills of fact.
  */
 @Component({
   selector: 'app-virtual-scroll-demo',
   templateUrl: './virtual-scroll.component.html',
   styles: [`
-    .vs-readout { font-size: 14px; line-height: 20px; font-weight: 600; color: #5f6368; }
-    .vs-panel { border-width: 1px; border-color: #a06a35; border-radius: 12px; padding: 12px; background-color: #fdf6ec; margin-top: 12px; }
-    .vs-nav { flex-direction: row; justify-content: space-between; margin-top: 12px; }
+    .launch { gap: 8px; }
+    .launch-row { flex-direction: row; gap: 12px; align-items: center; }
+    .launch-icon { width: 42px; height: 42px; border-radius: 9999px; background-color: #e8f0fe; align-items: center; justify-content: center; }
+    .launch-text { flex: 1; }
+    .launch-title { font-size: 16px; line-height: 22px; font-weight: 700; }
+    .launch-sub { font-size: 14px; line-height: 20px; color: #5f6368; }
+    .launch-pills { flex-direction: row; gap: 8px; }
+    .pill { background-color: #e8f0fe; border-radius: 9999px; padding-left: 8px; padding-right: 8px; padding-top: 4px; padding-bottom: 4px; }
+    .pill-text { font-size: 12px; line-height: 16px; font-weight: 600; color: #0b57d0; }
   `],
 })
 export class VirtualScrollDemoComponent {
-  start = 0;
-  firstShown = 1;
-  lastShown = 15;
-  slots = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
-  senders = ['Ana', 'Ben', 'Cleo', 'Dev', 'Eli', 'Faye', 'Gus', 'Hana'];
+  constructor(private router: Router) {}
 
-  pickStart(v: number) {
-    this.start = v;
-    this.syncShown(v);
-  }
-
-  move(d: number) {
-    let n = this.start + d;
-    if (n < 0) {
-      n = 0;
-    }
-    if (n > 985) {
-      n = 985;
-    }
-    this.start = n;
-    this.syncShown(n);
-  }
-
-  syncShown(n: number) {
-    this.firstShown = n + 1;
-    this.lastShown = n + 15;
-  }
-
-  rowTitle(s: number) {
-    return 'Message ' + (this.start + s + 1);
-  }
-
-  rowSub(s: number) {
-    return this.senders[(this.start + s) % 8] + ' · message ' + (this.start + s + 1) + ' of 1,000';
+  openList() {
+    this.router.navigate(['/virtual-list']);
   }
 }
