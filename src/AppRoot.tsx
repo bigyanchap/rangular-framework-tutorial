@@ -1915,7 +1915,7 @@ export function Splash() {
         <RgText variant="display">Write Angular. Ship React Native.</RgText>
         <RgText variant="bodyLarge">Learn the Rangular framework lesson by lesson, with a live demo on every screen. And when the learning is done, the same pages stay beside you as documentation, each with its full working code to look up. This app is built with Rangular itself.</RgText>
         <RgCode>{snippet}</RgCode>
-        <RgText variant="bodyLarge" style={styles.splashEntryStats}>97 lessons · Live demos · Free</RgText>
+        <RgText variant="bodyLarge" style={styles.splashEntryStats}>100 lessons · Live demos · Free</RgText>
         <RgButton onPress={() => __router.navigateByUrl("/home")}>Start learning</RgButton>
         <RgText variant="bodyLarge" style={styles.splashEntryFoot}>Rangular framework 0.3.4 · No account needed</RgText>
       </RgSection>

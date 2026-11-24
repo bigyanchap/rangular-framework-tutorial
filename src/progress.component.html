@@ -8,7 +8,7 @@
   </bottom-nav>
   <card class="path-card">
     <h2>{{ percent }}%</h2>
-    <p>{{ doneCount }} of 97 lessons · {{ doneMinutes }} minutes in</p>
+    <p>{{ doneCount }} of 100 lessons · {{ doneMinutes }} minutes in</p>
     <progress-bar [value]="percent"></progress-bar>
     <p *ngIf="lastLesson">You are on Lesson {{ lastLesson.id }} · {{ lastLesson.title }}</p>
   </card>
