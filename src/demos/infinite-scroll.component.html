@@ -1,2 +1,23 @@
-<p>A reading list of 60 articles lives on its own page, so the list can be the page. Open it and scroll: each time you reach the end, the next ten articles append.</p>
-<button (click)="openList()">Open the reading list</button>
+<section class="launch" (click)="openList()">
+  <gradient class="launch-edge"></gradient>
+  <section class="launch-body">
+    <section class="launch-row">
+      <section class="launch-icon">
+        <icon name="file" size="24" color="primary"></icon>
+      </section>
+      <section class="launch-text">
+        <p class="launch-title">Open the reading list</p>
+        <p class="launch-sub">Scroll and the next page appends.</p>
+      </section>
+      <icon name="chevron-right" size="24"></icon>
+    </section>
+    <section class="launch-pills">
+      <section class="pill">
+        <p class="pill-text">60 articles</p>
+      </section>
+      <section class="pill">
+        <p class="pill-text">6 pages</p>
+      </section>
+    </section>
+  </section>
+</section>

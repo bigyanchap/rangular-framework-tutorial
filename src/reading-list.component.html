@@ -1,8 +1,8 @@
 <section>
   <appbar pin tone="tint" title="Reading list" back (back)="goBack()"></appbar>
-  <p>Scroll to the end and the next page of articles appends on its own. If the screen is not full yet, the next page loads by itself.</p>
+  <p>Scroll to the end and the next page of articles appends on its own.</p>
   <p>Showing {{ items.length }} of {{ total }} articles.</p>
-  <list (endReached)="loadMore()">
+  <list haptic (endReached)="loadMore()">
     <row *ngFor="let a of items" [title]="a.title" [subtitle]="a.sub"></row>
   </list>
   <p *ngIf="done">That is the whole list: {{ items.length }} articles.</p>

@@ -1305,7 +1305,7 @@ function useRgBottom(tree: React.ReactNode): boolean {
 // react-native-svg is already a dependency (the icon set), so
 // the smooth form costs nothing.
 
-export function RgScreen({ children, style, theme: mode, refreshing, onRefresh, onEndReached, fade, scrollKey }: any) {
+export function RgScreen({ children, style, theme: mode, refreshing, onRefresh, onEndReached, haptic, fade, scrollKey }: any) {
   const veilRawId = React.useId();
   const veilId = 'rgveil' + veilRawId.replace(/[^a-zA-Z0-9]/g, '');
   const meltRawId = React.useId();
@@ -1313,7 +1313,13 @@ export function RgScreen({ children, style, theme: mode, refreshing, onRefresh, 
   const inherited = useRgTheme();
   const active = mode === 'dark' || mode === 'light' ? makeTheme(mode) : inherited;
   const styles = stylesFor(active);
-  const onScroll = useRef(endReachedScrollHandler(onEndReached)).current;
+  // The screen's own end-reached answers with the selection
+  // haptic under the same `haptic` attribute as the list's
+  // (lesson 81, 2026-11-24): one feel for both scroller hosts.
+  const onScroll = useRef(endReachedScrollHandler(() => {
+    if (haptic) fireSelectionHaptic();
+    onEndReached?.();
+  })).current;
   // The pinned header slot: a pinned app bar anywhere in this
   // screen registers its bar, and the screen draws it above the
   // ScrollView. Registration is keyed so a repeat registration
@@ -2435,9 +2441,22 @@ export function RgRadioGroup({ value, disabled, onChange, children, style }: any
   );
 }
 
-export function RgList({ data, renderItem, keyExtractor, children, refreshing, onRefresh, onEndReached }: any) {
+export function RgList({ data, renderItem, keyExtractor, children, refreshing, onRefresh, onEndReached, haptic }: any) {
   const tint = useRgTheme().colors.primary;
-  const onScroll = useRef(endReachedScrollHandler(onEndReached)).current;
+  // End reached, with feeling (lesson 81, 2026-11-24): with the
+  // `haptic` attribute, each firing of the end handler answers
+  // with the light selection haptic, the switch and bottom nav
+  // feel. One invoker serves every path the end can arrive by:
+  // the handler lent to the screen, the list's own scroller, and
+  // the FlatList. The handler is read through a ref, so the
+  // invoker stays stable while the handler stays fresh.
+  const endHandler = useRef<any>(null);
+  endHandler.current = onEndReached;
+  const fireEndReached = () => {
+    if (haptic) fireSelectionHaptic();
+    endHandler.current?.();
+  };
+  const onScroll = useRef(endReachedScrollHandler(fireEndReached)).current;
   // Pull to refresh (lesson 80, final shape, 2026-11-21): a
   // list of rows does not own a pull gesture. Inside a
   // scrolling screen the scroller takes every vertical drag,
@@ -2473,9 +2492,7 @@ export function RgList({ data, renderItem, keyExtractor, children, refreshing, o
   // The callback is read through a ref, so the registration
   // stays one stable guarded handler. One paging list per
   // screen: the last one registered is the one the scroll runs.
-  const endHandler = useRef<any>(null);
-  endHandler.current = onEndReached;
-  const lentEndScroll = useRef(endReachedScrollHandler(() => endHandler.current?.())).current;
+  const lentEndScroll = useRef(endReachedScrollHandler(fireEndReached)).current;
   useEffect(() => {
     if (!scrollControl?.registerEndReached || !onEndReached) return;
     scrollControl.registerEndReached({ onScroll: lentEndScroll });
@@ -2536,7 +2553,7 @@ export function RgList({ data, renderItem, keyExtractor, children, refreshing, o
       refreshControl={onRefresh
         ? <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor={tint} colors={[tint]} />
         : undefined}
-      onEndReached={onEndReached}
+      onEndReached={onEndReached ? fireEndReached : undefined}
       onEndReachedThreshold={0.4}
     />
   );
