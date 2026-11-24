@@ -969,9 +969,9 @@ export class LessonService extends ReactiveService {
       title: 'Calendar: a month to look at',
       subtitle: 'A browsing month view, and why it is not a form picker',
       minutes: '5 min',
-      intro: 'The calendar renders a whole month as a screen element: something to look at, and to tap a day in. It is a control in the plain sense: [value] carries the selected day in, and (change) carries a tapped day out as $event, both as ISO strings, the same language the pickers speak. It is not a form control, and the difference is deliberate. Choosing one moment inside a form stays the wheel datetime-picker\'s job, from lessons 37 and 38; the calendar\'s job is browsing, seeing the shape of a month and where the days fall. The demo binds a month to a field: tap days and the line below shows the exact ISO string the class holds, and a button writes the seed day back.',
+      intro: 'The calendar renders a whole month as a screen element: something to look at, and to tap a day in. It is a control in the plain sense: [value] carries the selected day in, and (change) carries a tapped day out as $event, both as ISO strings, the same language the pickers speak. It is not a form control, and the difference is deliberate. Choosing one moment inside a form stays the wheel datetime-picker\'s job, from lessons 37 and 38; the calendar\'s job is browsing, seeing the shape of a month and where the days fall. The demo binds a month to a field: tap days and the line below shows the exact ISO string the class holds, and a button writes today back.',
       code: '<calendar [value]="day"\n  (change)="onDay($event)">\n</calendar>',
-      implementation: '// calendar.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-calendar-demo\',\n  templateUrl: \'./calendar.component.html\',\n})\nexport class CalendarDemoComponent {\n  day = \'2026-11-13T00:00:00\';\n\n  onDay(v: string) {\n    this.day = v;\n  }\n\n  backToSeed() {\n    this.day = \'2026-11-13T00:00:00\';\n  }\n}\n\n// calendar.component.html\n<calendar [value]="day" (change)="onDay($event)"></calendar>\n<p>Selected day: {{ day }}</p>\n<button variant="text" (click)="backToSeed()">\n  Back to the seed day\n</button>',
+      implementation: '// calendar.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-calendar-demo\',\n  templateUrl: \'./calendar.component.html\',\n})\nexport class CalendarDemoComponent {\n  day = \'\';\n\n  ngOnInit() {\n    this.day = this.todayIso();\n  }\n\n  onDay(v: string) {\n    this.day = v;\n  }\n\n  backToToday() {\n    this.day = this.todayIso();\n  }\n\n  todayIso() {\n    const days = Math.floor(Date.now() / 86400000);\n    const z = days + 719468;\n    const era = Math.floor(z / 146097);\n    const doe = z - era * 146097;\n    const yoe = Math.floor((doe - Math.floor(doe / 1460) + Math.floor(doe / 36524) - Math.floor(doe / 146096)) / 365);\n    const doy = doe - (365 * yoe + Math.floor(yoe / 4) - Math.floor(yoe / 100));\n    const mp = Math.floor((5 * doy + 2) / 153);\n    const d = doy - Math.floor((153 * mp + 2) / 5) + 1;\n    const m = this.monthOf(mp);\n    const y = this.yearOf(yoe, era, m);\n    return y + \'-\' + this.pad2(m) + \'-\' + this.pad2(d) + \'T00:00:00\';\n  }\n\n  monthOf(mp: number) {\n    if (mp < 10) {\n      return mp + 3;\n    }\n    return mp - 9;\n  }\n\n  yearOf(yoe: number, era: number, m: number) {\n    if (m <= 2) {\n      return yoe + era * 400 + 1;\n    }\n    return yoe + era * 400;\n  }\n\n  pad2(n: number) {\n    if (n < 10) {\n      return \'0\' + n;\n    }\n    return \'\' + n;\n  }\n}\n\n// calendar.component.html\n<calendar [value]="day" (change)="onDay($event)"></calendar>\n<p>Selected day: {{ day }}</p>\n<button variant="text" (click)="backToToday()">\n  Back to today\n</button>',
       tip: 'Reach for the calendar when the day itself is the topic: browsing a month, or picking from days spread through it. When a form needs one moment, the wheel picker asks in a single gesture, and the calendar asks in two.',
     },
     {
@@ -7106,20 +7106,57 @@ export function CalendarDemo() {
   const [, __sigBump] = useReducer((n: number) => n + 1, 0);
   const __sigTracker = useRef(new SignalRenderTracker(__sigBump));
   useEffect(() => () => { __sigTracker.current.dispose(); }, []);
-  const [day, setDay] = useState('2026-11-13T00:00:00');
+  const [day, setDay] = useState('');
+  const ngOnInit = () => {
+    setDay(todayIso());
+  };
   const onDay = (v: string) => {
     setDay(v);
   };
-  const backToSeed = () => {
-    setDay('2026-11-13T00:00:00');
+  const backToToday = () => {
+    setDay(todayIso());
   };
+  const todayIso = () => {
+    const days = Math.floor(Date.now() / 86400000);
+    const z = days + 719468;
+    const era = Math.floor(z / 146097);
+    const doe = z - era * 146097;
+    const yoe = Math.floor((doe - Math.floor(doe / 1460) + Math.floor(doe / 36524) - Math.floor(doe / 146096)) / 365);
+    const doy = doe - (365 * yoe + Math.floor(yoe / 4) - Math.floor(yoe / 100));
+    const mp = Math.floor((5 * doy + 2) / 153);
+    const d = doy - Math.floor((153 * mp + 2) / 5) + 1;
+    const m = monthOf(mp);
+    const y = yearOf(yoe, era, m);
+    return y + '-' + pad2(m) + '-' + pad2(d) + 'T00:00:00';
+  };
+  const monthOf = (mp: number) => {
+    if (mp < 10) {
+      return mp + 3;
+    }
+    return mp - 9;
+  };
+  const yearOf = (yoe: number, era: number, m: number) => {
+    if (m <= 2) {
+      return yoe + era * 400 + 1;
+    }
+    return yoe + era * 400;
+  };
+  const pad2 = (n: number) => {
+    if (n < 10) {
+      return '0' + n;
+    }
+    return '' + n;
+  };
+  useEffect(() => {
+    ngOnInit();
+  }, []);
   __sigTracker.current.begin();
   try {
     return (
       <>
         <RgCalendar value={day} onChange={($event) => onDay($event)} />
         <RgText variant="bodyLarge">Selected day: {day}</RgText>
-        <RgButton variant="text" onPress={() => backToSeed()}>Back to the seed day</RgButton>
+        <RgButton variant="text" onPress={() => backToToday()}>Back to today</RgButton>
       </>
     );
   } finally {
