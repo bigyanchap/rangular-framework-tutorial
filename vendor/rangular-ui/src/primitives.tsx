@@ -851,7 +851,7 @@ function buildStyles(t: Theme) {
     // Fixed height, never aspectRatio: on iOS the aspectRatio
     // cell let the selected day's taller content (the 36px
     // disc) stretch its whole week row, so the row under the
-    // selection sat lower than every other row (lesson 90,
+    // selection sat lower than every other row (lesson 92,
     // his phone 2026-11-21). A stated height keeps every week
     // row at one pitch, selected or not.
     calendarCell: { width: '14.2857%', height: 44, alignItems: 'center', justifyContent: 'center' },
@@ -2265,7 +2265,7 @@ export function RgInput({ value, onChangeText, onBlur, onFocus, placeholder, lab
           style={[styles.inputField, error ? styles.inputFieldError : null, disabled ? styles.inputDisabled : null]}
           value={mask ? applyMask(text, String(mask)) : value}
           // The maxLength below caps a masked field at the
-          // pattern's own length (lesson 85 report, 2026-11-21):
+          // pattern's own length (lesson 87 report, 2026-11-21):
           // the extra character is refused by the field itself,
           // so it never flashes before the mask can trim it.
           onChangeText={mask

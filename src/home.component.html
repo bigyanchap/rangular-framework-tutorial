@@ -53,7 +53,7 @@
         <row *ngFor="let l of beyondLessons" avatar [avatarTone]="tileTone(l)" [avatarText]="tileText(l)" [title]="l.title" [subtitle]="l.subtitle" [time]="l.minutes" [actionIcon]="isSaved(l.id) ? 'bookmark' : 'bookmark-outline'" (action)="toggleBookmark(l.id)" [routerLink]="['/lesson', l.id]"></row>
       </list>
     </section>
-    <p>98 lessons · Rangular framework 0.7.0</p>
+    <p>100 lessons · Rangular framework 0.7.0</p>
     <button color="danger" (click)="askReset()">Reset all checks</button>
     </section>
   </section>

@@ -82,6 +82,8 @@ import { TablesDepthDemoComponent } from './demos/tables-depth.component';
 import { BottomNavDemoComponent } from './demos/bottom-nav.component';
 import { RefreshDemoComponent } from './demos/refresh.component';
 import { InfiniteScrollDemoComponent } from './demos/infinite-scroll.component';
+import { PaginationDemoComponent } from './demos/pagination.component';
+import { VirtualScrollDemoComponent } from './demos/virtual-scroll.component';
 import { SkeletonDemoComponent } from './demos/skeleton.component';
 import { RowActionsDemoComponent } from './demos/row-actions.component';
 import { FilePickerDemoComponent } from './demos/file-picker.component';
@@ -149,7 +151,7 @@ export class LessonComponent {
       this.barTitle = 'Lesson ' + this.lessonId;
       this.hasCode = this.lesson.code !== '';
       this.done = this.bookmarks.isDone(this.lessonId);
-      this.progressPct = Math.round((this.lessonId * 100) / 98);
+      this.progressPct = Math.round((this.lessonId * 100) / 100);
       this.sectionName = this.nameFor(this.lessonId);
       this.nextLabel = this.labelFor(this.lessonId);
       this.implBlocks = this.buildImplBlocks(this.lesson.implementation || '');
@@ -183,7 +185,7 @@ export class LessonComponent {
   }
 
   labelFor(id: number) {
-    if (id >= 98) return this.done ? 'Done · Back home' : 'Mark done · Finish';
+    if (id >= 100) return this.done ? 'Done · Back home' : 'Mark done · Finish';
     return this.done ? 'Done · Next lesson' : 'Mark done · Next lesson';
   }
 

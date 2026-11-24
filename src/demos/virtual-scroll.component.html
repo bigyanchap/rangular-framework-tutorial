@@ -1,0 +1,10 @@
+<p class="vs-readout">Rendering rows {{ firstShown }} to {{ lastShown }} of 1,000. Only 15 rows exist.</p>
+<slider min="0" max="985" step="1" [value]="start" (change)="pickStart($event)"></slider>
+<section class="vs-panel">
+  <row *ngFor="let s of slots" [title]="rowTitle(s)" [subtitle]="rowSub(s)"></row>
+</section>
+<section class="vs-nav">
+  <button variant="text" (click)="move(-15)">Back 15</button>
+  <button variant="text" (click)="move(15)">Forward 15</button>
+</section>
+<p>Drag the slider, or step the window. The fifteen rows never change; the numbers they wear do.</p>

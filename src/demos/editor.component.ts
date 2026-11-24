@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 94's live demo: the block editor. The seed value
+ * Lesson 96's live demo: the block editor. The seed value
  * carries one block per line: a title, a body line with three
  * inline marks, two checklist items, a bullet and a numbered
  * line. The button appends one more bullet block by

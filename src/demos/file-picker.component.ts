@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 84's live demo: the file picker, both kinds.
+ * Lesson 86's live demo: the file picker, both kinds.
  * The image picker reports the picked photo's name; the
  * document picker allows several at once, and the names
  * land as rows. A picked line names its result in the

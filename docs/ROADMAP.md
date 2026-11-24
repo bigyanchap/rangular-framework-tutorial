@@ -261,9 +261,9 @@ Bigyan's order, rather than in further batches.
   (class and style, your own line in all three looks),
   lesson 15 (built in pipes, a price slider for the currency
   pipes and the word box), lesson 16 (custom pipes, a minutes
-  slider), lesson 25 (theming, the panel heading), lesson 84
+  slider), lesson 25 (theming, the panel heading), lesson 86
   (rating, a slider that sets the stars from a value), and
-  lesson 91 (charts, a Wednesday minutes slider). The form
+  lesson 93 (charts, a Wednesday minutes slider). The form
   and mask demos were already try it in effect and were left
   as they are.
 - Store release: prepared as far as it goes without Bigyan's

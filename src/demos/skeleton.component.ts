@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 82's live demo: skeleton placeholders. One flag
+ * Lesson 84's live demo: skeleton placeholders. One flag
  * swaps the profile between its skeleton card (a circle
  * for the photo, lines for the text, a block for the
  * note) and the real card, the ngIf opposite pair. In a

@@ -46,7 +46,7 @@ device only and keep across restarts.
 The app does make a small number of network calls, and the
 listings must not claim otherwise: lessons 61 to 63 make real
 GET requests to the public JSONPlaceholder practice API
-(jsonplaceholder.typicode.com) to teach HTTP, and lessons 89 and
+(jsonplaceholder.typicode.com) to teach HTTP, and lessons 91 and
 93 load practice photos from picsum.photos. No personal data is
 sent in any of these calls. The full answers are written out in
 docs/STORE_LISTING.md.

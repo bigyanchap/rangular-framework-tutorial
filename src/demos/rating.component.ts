@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 86's live demo: the rating control. The tapped
+ * Lesson 88's live demo: the rating control. The tapped
  * star's number arrives through (change); the verdict
  * word is read from a small table by that number, so
  * the class stays free of branches. The try it slider

@@ -1,0 +1,15 @@
+<p class="pg-status">Page {{ page }} of 6 · Articles {{ first }} to {{ last }} of {{ total }}</p>
+<list>
+  <row *ngFor="let a of items" [title]="a.title" [subtitle]="a.sub"></row>
+</list>
+<section class="pg-nav">
+  <button variant="text" [disabled]="page === 1" (click)="prev()">Previous</button>
+  <button variant="text" [disabled]="page === 6" (click)="next()">Next</button>
+</section>
+<section class="pg-pages">
+  <chips>
+    <section class="chip" *ngFor="let p of pageNums" [class.chip-on]="page === p" (click)="go(p)">
+      <p class="chip-text" [class.chip-text-on]="page === p">{{ p }}</p>
+    </section>
+  </chips>
+</section>

@@ -17,14 +17,14 @@ import { Router } from '@angular/router';
   selector: 'app-infinite-scroll-demo',
   templateUrl: './infinite-scroll.component.html',
   styles: [`
-    .launch { gap: 10px; }
+    .launch { gap: 8px; }
     .launch-row { flex-direction: row; gap: 12px; align-items: center; }
     .launch-icon { width: 42px; height: 42px; border-radius: 9999px; background-color: #e8f0fe; align-items: center; justify-content: center; }
     .launch-text { flex: 1; }
     .launch-title { font-size: 16px; line-height: 22px; font-weight: 700; }
     .launch-sub { font-size: 14px; line-height: 20px; color: #5f6368; }
     .launch-pills { flex-direction: row; gap: 8px; }
-    .pill { background-color: #e8f0fe; border-radius: 9999px; padding-left: 10px; padding-right: 10px; padding-top: 4px; padding-bottom: 4px; }
+    .pill { background-color: #e8f0fe; border-radius: 9999px; padding-left: 8px; padding-right: 8px; padding-top: 4px; padding-bottom: 4px; }
     .pill-text { font-size: 12px; line-height: 16px; font-weight: 600; color: #0b57d0; }
   `],
 })

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 83's live demo: swipe row actions. Each row
+ * Lesson 85's live demo: swipe row actions. Each row
  * declares a Star and a Delete action inside itself.
  * Star reports below; Delete removes the row by filter
  * assignment, so the swipe does the whole job. In the

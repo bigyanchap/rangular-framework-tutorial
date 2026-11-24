@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 91's live demo: avatars and the avatar group.
+ * Lesson 93's live demo: avatars and the avatar group.
  * Five people fold at max 3 into a +2 circle; below,
  * one person stands alone as initials at size 56, and
  * the same circle carries a photo instead. There is no

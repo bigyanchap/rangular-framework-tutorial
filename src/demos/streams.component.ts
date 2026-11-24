@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { BehaviorSubject, Subject, scan } from 'rxjs';
 
 /**
- * Lesson 98's live demo: streams the component makes itself.
+ * Lesson 100's live demo: streams the component makes itself.
  * A Subject counts taps through the scan operator, the count
  * landing in a field through a subscription made in ngOnInit.
  * A BehaviorSubject holds the current mood: the template

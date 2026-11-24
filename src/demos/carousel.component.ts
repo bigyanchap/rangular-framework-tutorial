@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 /**
- * Lesson 88's live demo: the carousel. Three cards are
+ * Lesson 90's live demo: the carousel. Three cards are
  * the pages, in order, with no page tag anywhere. The
  * index field rides the (change) event, so the line
  * below always names the settled page.

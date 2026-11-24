@@ -1,5 +1,5 @@
 /**
- * The block editor's text model (framework 0.5.0, lesson 94's
+ * The block editor's text model (framework 0.5.0, lesson 96's
  * redesign at Bigyan's direction): the editor's value stays ONE
  * string, and each LINE of that string is one block. A line's
  * prefix names its kind:
