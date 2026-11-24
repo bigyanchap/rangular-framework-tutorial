@@ -1829,13 +1829,13 @@ export function RgAppbar({ title, search, menu, avatar, onMenu, titleAlign, tone
   // bookmark here, filled or outline by the icon name the app
   // binds, so the state reads at a glance.
   const actionNode = actionIcon ? (onAction ? (
-    <View key="action" style={{ width: 40, height: 40 }}>
+    <View key="action" onLayout={(e: any) => console.log('[rangular] WRAPPER layout:', JSON.stringify(e.nativeEvent.layout))} style={{ width: 40, height: 40 }}>
       <Pressable onPress={fireAction} onPressIn={() => console.log('[rangular] appbar ACTION pressIn')} onLayout={(e: any) => console.log('[rangular] ACTION layout:', JSON.stringify(e.nativeEvent.layout))} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
         <View pointerEvents="none">
           <RgIcon name={actionIcon} size={28} color={gradient ? 'onPrimary' : 'primary'} />
         </View>
       </Pressable>
-      <Pressable onPressIn={() => console.log('[rangular] BOUNDARY pressIn')} onPress={() => { console.log('[rangular] BOUNDARY press'); fireAction(); }} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
+      <Pressable onPressIn={() => console.log('[rangular] BOUNDARY pressIn')} onPress={() => { console.log('[rangular] BOUNDARY press'); fireAction(); }} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 200, 0, 0.35)' }} />
     </View>
   ) : <RgIcon key="action" name={actionIcon} size={28} color={gradient ? 'onPrimary' : 'primary'} />) : null;
   // Second action (Option A round, 2026-11-17): `actionIcon2`
@@ -1864,7 +1864,7 @@ export function RgAppbar({ title, search, menu, avatar, onMenu, titleAlign, tone
   ) : null;
   const rightBits = [fakeNode, actionNode, action2Node].filter(Boolean);
   const rightNode = rightBits.length ? (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.spacing.md }}>{rightBits}</View>
+    <View onLayout={(e: any) => console.log('[rangular] ZONE layout:', JSON.stringify(e.nativeEvent.layout))} style={{ flexDirection: 'row', alignItems: 'center', gap: t.spacing.md }}>{rightBits}</View>
   ) : avatarNode;
   const titleNode = search
     ? <Text style={[styles.searchText, gradient ? { color: c.onPrimary } : null, titleAlign === 'center' ? styles.appbarTitleCenter : null]}>{search}</Text>
@@ -1886,10 +1886,10 @@ export function RgAppbar({ title, search, menu, avatar, onMenu, titleAlign, tone
   const hasRow = !!(title || search || leftNode || rightNode);
   const bar = (
     <>
-    <View style={[styles.appbar, { flexDirection: 'column', alignItems: 'stretch' }, gradient ? styles.appbarGradient : null, plain ? styles.appbarPlain : null, tint ? styles.appbarTint : null, tint && pin ? { backgroundColor: 'transparent' } : null]}>
+    <View onLayout={(e: any) => console.log('[rangular] BAR layout:', JSON.stringify(e.nativeEvent.layout))} style={[styles.appbar, { flexDirection: 'column', alignItems: 'stretch' }, gradient ? styles.appbarGradient : null, plain ? styles.appbarPlain : null, tint ? styles.appbarTint : null, tint && pin ? { backgroundColor: 'transparent' } : null]}>
       {gradient ? <GradientFill /> : null}
       {hasRow ? (
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.spacing.md }}>
+        <View onLayout={(e: any) => console.log('[rangular] ROW layout:', JSON.stringify(e.nativeEvent.layout))} style={{ flexDirection: 'row', alignItems: 'center', gap: t.spacing.md }}>
           {titleAlign === 'center' ? (
             <>
               <View style={styles.appbarSide}>{leftNode}</View>
