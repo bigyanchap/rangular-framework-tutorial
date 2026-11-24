@@ -353,7 +353,7 @@ function buildStyles(t: Theme) {
     // centres its lines and may shrink to fit its box.
     buttonSized: { paddingHorizontal: t.spacing.sm, paddingVertical: t.spacing.sm },
     buttonLabelSized: { textAlign: 'center', flexShrink: 1 },
-    buttonLabel: { color: c.onPrimary, fontSize: t.typography.label.fontSize, fontWeight: '600' },
+    buttonLabel: { color: c.onGradient, fontSize: t.typography.label.fontSize, fontWeight: '600' },
     // The text variant (variant="text"): a quiet action, for back
     // links and secondary choices that should not shout like a
     // primary button. No fill, primary coloured label, left aligned,
@@ -364,15 +364,22 @@ function buildStyles(t: Theme) {
       alignItems: 'flex-start', justifyContent: 'center',
     },
     buttonTextLabel: { color: c.primary, fontSize: t.typography.label.fontSize, fontWeight: '600' },
-    // The colour roles (color="danger" / color="neutral"): danger is
-    // the theme error role as a flat fill with the on-error label,
-    // neutral is the surface-variant fill with its own label role, so
-    // a destructive action reads red and a cancelling one reads grey
-    // while both keep the pill shape, height and label face.
-    buttonNeutral: { backgroundColor: c.surfaceVariant },
-    buttonLabelNeutral: { color: c.onSurfaceVariant, fontSize: t.typography.label.fontSize, fontWeight: '600' },
+    // The colour roles (gradient button round, 2026-11-24): every
+    // filled button is a gradient in its role's hue family, drawn
+    // by ButtonFill from the role's three stops in the tokens, so
+    // the styles here carry only what the fill cannot: the light
+    // secondary member's hairline border (its gradient is near
+    // white, so its edge needs a line) and the label colours.
+    // Neutral's label is onGradient white now: its gradient is a
+    // mid slate, where the old flat surface-variant fill took a
+    // dark label.
+    buttonSecondary: { borderWidth: 1, borderColor: c.secondaryBorder },
+    buttonLabelSecondary: { color: c.secondaryLabel, fontSize: t.typography.label.fontSize, fontWeight: '600' },
+    buttonLabelNeutral: { color: c.onGradient, fontSize: t.typography.label.fontSize, fontWeight: '600' },
     buttonTextDanger: { color: c.danger, fontSize: t.typography.label.fontSize, fontWeight: '600' },
     buttonTextNeutral: { color: c.textMuted, fontSize: t.typography.label.fontSize, fontWeight: '600' },
+    buttonTextWarning: { color: c.warningText, fontSize: t.typography.label.fontSize, fontWeight: '600' },
+    buttonTextSuccess: { color: c.success, fontSize: t.typography.label.fontSize, fontWeight: '600' },
     inputWrap: { marginBottom: t.spacing.md },
     inputLabel: {
       fontSize: t.typography.label.fontSize, fontWeight: '600',
@@ -1088,25 +1095,26 @@ function SoftFill() {
 }
 
 /**
- * The filled button's gradient as an absolute fill layer
- * (seamless round, 2026-11-18): primary at the top, primaryDeep
- * at the bottom, so the button reads as lit from above. The
- * host clips it with the pill radius and overflow.
+ * The filled button's gradient as an absolute fill layer: three
+ * stops on a diagonal, light at the top left and deep at the
+ * bottom right, the brand band's language carried to every
+ * button (gradient button round, 2026-11-24; the seamless
+ * round's two-stop vertical fill grew the third stop and the
+ * diagonal). The host clips it with the pill radius and
+ * overflow.
  */
-function ButtonFill({ top, bottom, radius }: any) {
+function ButtonFill({ stops, radius }: any) {
   const t = useRgTheme();
-  const c = t.colors;
-  const stopTop = top ?? c.primary;
-  const stopBottom = bottom ?? c.primaryDeep;
   const rawId = React.useId();
   const id = 'rgbtn' + rawId.replace(/[^a-zA-Z0-9]/g, '');
   return (
     <View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: radius ?? t.radius.full, overflow: 'hidden' }}>
       <Svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
         <Defs>
-          <LinearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0" stopColor={stopTop} />
-            <Stop offset="1" stopColor={stopBottom} />
+          <LinearGradient id={id} x1="0" y1="0" x2="1" y2="1">
+            <Stop offset="0" stopColor={stops[0]} />
+            <Stop offset="0.55" stopColor={stops[1]} />
+            <Stop offset="1" stopColor={stops[2]} />
           </LinearGradient>
         </Defs>
         <Rect x="0" y="0" width="100" height="100" fill={`url(#${id})`} />
@@ -2059,16 +2067,34 @@ function useTooltipBubble(tooltip: unknown, styles: any) {
 export function RgButton({ children, disabled, onPress, badge, style, variant, tooltip, color }: any) {
   const theme = useRgTheme();
   const styles = stylesFor(theme);
+  const c = theme.colors;
   const text = variant === 'text';
-  // color (the compiler validates it): 'danger' paints the error
-  // role, 'neutral' the quiet grey fill; anything else is the
-  // primary gradient. The text variant keeps no fill and colours
-  // only its label.
-  const danger = color === 'danger';
-  const neutral = color === 'neutral';
+  // color (the compiler validates it) names one of the six roles:
+  // primary (the default), secondary (the light member, white
+  // fading to tint with a primary label and a hairline border),
+  // danger, warning, success and neutral. Every filled button is
+  // a three-stop diagonal gradient in its role's hue family
+  // (gradient button round, 2026-11-24, his pick from the
+  // mockups); the text variant keeps no fill and colours only
+  // its label. A press deepens the gradient one step (the light
+  // stop steps aside for the base, the base for the deep), and a
+  // disabled button fades to the grey gradient with a muted
+  // label, where the text variant keeps its opacity fade. The
+  // Pressable's own background takes the gradient's base stop,
+  // so the button's colour is truthful under the fill and no
+  // other hue can peek at the corners.
+  const role = (color === 'secondary' || color === 'danger' || color === 'warning' || color === 'success' || color === 'neutral') ? color : 'primary';
+  const stops = role === 'secondary' ? [c.secondaryHi, c.secondaryVia, c.secondaryDeep]
+    : role === 'danger' ? [c.dangerHi, c.dangerVia, c.dangerDeep]
+    : role === 'warning' ? [c.warningHi, c.warningVia, c.warningDeep]
+    : role === 'success' ? [c.successHi, c.successVia, c.successDeep]
+    : role === 'neutral' ? [c.neutralHi, c.neutralVia, c.neutralDeep]
+    : [c.primaryHi, c.gradientVia, c.gradientFrom];
+  const fillStops = disabled ? [c.disabledHi, c.disabledVia, c.disabledDeep] : stops;
   const labelStyle = text
-    ? (danger ? styles.buttonTextDanger : neutral ? styles.buttonTextNeutral : styles.buttonTextLabel)
-    : (neutral ? styles.buttonLabelNeutral : styles.buttonLabel);
+    ? (role === 'danger' ? styles.buttonTextDanger : role === 'neutral' ? styles.buttonTextNeutral : role === 'warning' ? styles.buttonTextWarning : role === 'success' ? styles.buttonTextSuccess : styles.buttonTextLabel)
+    : disabled ? styles.buttonTextNeutral
+    : (role === 'secondary' ? styles.buttonLabelSecondary : role === 'neutral' ? styles.buttonLabelNeutral : styles.buttonLabel);
   // A button the caller sized exactly (a width or a height in
   // its style) gets compact padding and a centred label, so
   // the label can use the size it was given, and the gradient
@@ -2086,16 +2112,21 @@ export function RgButton({ children, disabled, onPress, badge, style, variant, t
         onLongPress={tip.show}
         style={({ pressed }) => [
           text ? styles.buttonText : styles.button,
-          neutral && !text ? styles.buttonNeutral : null,
+          text ? null : { backgroundColor: fillStops[1] },
+          role === 'secondary' && !text ? styles.buttonSecondary : null,
           sized && !text ? styles.buttonSized : null,
-          pressed && styles.buttonPressed,
-          disabled && styles.buttonDisabled,
+          pressed && text ? styles.buttonPressed : null,
+          disabled && text ? styles.buttonDisabled : null,
           style,
         ]}
       >
-        {text || neutral ? null : danger ? <ButtonFill top={theme.colors.danger} bottom={theme.colors.danger} radius={fillRadius} /> : <ButtonFill radius={fillRadius} />}
-        <Text style={[labelStyle, sized && !text ? styles.buttonLabelSized : null]}>{children}</Text>
-        <BadgeDot value={badge} styles={styles} offset={{ top: -6, right: -6 }} />
+        {({ pressed }: any) => (
+          <>
+            {text ? null : <ButtonFill stops={pressed && !disabled ? [fillStops[1], fillStops[2], fillStops[2]] : fillStops} radius={fillRadius} />}
+            <Text style={[labelStyle, sized && !text ? styles.buttonLabelSized : null]}>{children}</Text>
+            <BadgeDot value={badge} styles={styles} offset={{ top: -6, right: -6 }} />
+          </>
+        )}
       </Pressable>
       {tip.bubble}
     </View>

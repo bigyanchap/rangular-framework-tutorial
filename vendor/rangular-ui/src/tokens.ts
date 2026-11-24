@@ -102,6 +102,41 @@ export interface ColourRoles {
   washVia: string;
   washTo: string;
   primaryDeep: string;
+  // Button gradients (gradient button round, 2026-11-24): every
+  // filled button is a three-stop diagonal gradient in its role's
+  // hue family, light at the top left and deep at the bottom
+  // right, the language of the brand band. The stops are the
+  // same in both modes on purpose, like the brand gradient: a
+  // button is a brand surface, not a code surface, so its label
+  // is onGradient white in both modes too, and the light
+  // secondary member keeps its primary-blue label in both modes.
+  // Hi is the light stop, Via the role's base, Deep the bottom
+  // stop. warningText is the one themed field: a text-form
+  // warning label needs a deep amber on light surfaces and a
+  // light one on dark.
+  onGradient: string;
+  primaryHi: string;
+  dangerHi: string;
+  dangerVia: string;
+  dangerDeep: string;
+  warningHi: string;
+  warningVia: string;
+  warningDeep: string;
+  warningText: string;
+  successHi: string;
+  successVia: string;
+  successDeep: string;
+  neutralHi: string;
+  neutralVia: string;
+  neutralDeep: string;
+  secondaryHi: string;
+  secondaryVia: string;
+  secondaryDeep: string;
+  secondaryBorder: string;
+  secondaryLabel: string;
+  disabledHi: string;
+  disabledVia: string;
+  disabledDeep: string;
 }
 
 export const colours: Record<'light' | 'dark', ColourRoles> = {
@@ -142,6 +177,29 @@ export const colours: Record<'light' | 'dark', ColourRoles> = {
     washVia: '#e9eff8',
     washTo: '#fbfcfe',
     primaryDeep: '#0849ad',
+    onGradient: '#ffffff',
+    primaryHi: '#6ea8ff',
+    dangerHi: '#f08379',
+    dangerVia: '#d93025',
+    dangerDeep: '#a50e0e',
+    warningHi: '#fbbc04',
+    warningVia: '#f29900',
+    warningDeep: '#e37400',
+    warningText: '#b06000',
+    successHi: '#5fbf77',
+    successVia: '#34a853',
+    successDeep: '#20713a',
+    neutralHi: '#bdc1c6',
+    neutralVia: '#80868b',
+    neutralDeep: '#5f6368',
+    secondaryHi: '#ffffff',
+    secondaryVia: '#eef3fd',
+    secondaryDeep: '#dbe7fc',
+    secondaryBorder: '#c6dafc',
+    secondaryLabel: '#0b57d0',
+    disabledHi: '#eef0f2',
+    disabledVia: '#e3e5e8',
+    disabledDeep: '#dadce0',
   },
   dark: {
     primary: '#a8c7fa',
@@ -180,6 +238,29 @@ export const colours: Record<'light' | 'dark', ColourRoles> = {
     washVia: '#1e242e',
     washTo: '#14161a',
     primaryDeep: '#8fb4f5',
+    onGradient: '#ffffff',
+    primaryHi: '#6ea8ff',
+    dangerHi: '#f08379',
+    dangerVia: '#d93025',
+    dangerDeep: '#a50e0e',
+    warningHi: '#fbbc04',
+    warningVia: '#f29900',
+    warningDeep: '#e37400',
+    warningText: '#f9ab00',
+    successHi: '#5fbf77',
+    successVia: '#34a853',
+    successDeep: '#20713a',
+    neutralHi: '#bdc1c6',
+    neutralVia: '#80868b',
+    neutralDeep: '#5f6368',
+    secondaryHi: '#ffffff',
+    secondaryVia: '#eef3fd',
+    secondaryDeep: '#dbe7fc',
+    secondaryBorder: '#c6dafc',
+    secondaryLabel: '#0b57d0',
+    disabledHi: '#eef0f2',
+    disabledVia: '#e3e5e8',
+    disabledDeep: '#dadce0',
   },
 };
 
