@@ -1771,6 +1771,10 @@ export function RgAppbar({ title, search, menu, avatar, onMenu, titleAlign, tone
   const c = t.colors;
   const styles = stylesFor(t);
   const slot = useContext(RgHeaderSlotContext);
+  // DEBUG (Save button round, 2026-11-24): the console.log lines in
+  // fireBack, fireAction and the action Pressable onPressIn are
+  // temporary, added at Bigyan's word to diagnose the dead lesson
+  // Save press on device together; strip them when it is fixed.
   // Latest callbacks (Save button round, 2026-11-24): a pinned
   // bar is an element snapshot held by the screen's header slot,
   // created by whichever render last registered. Its buttons
@@ -1783,8 +1787,8 @@ export function RgAppbar({ title, search, menu, avatar, onMenu, titleAlign, tone
   const cbRef = useRef<any>({});
   cbRef.current = { onMenu, onBack, onAction, onAction2 };
   const fireMenu = () => { const f = cbRef.current.onMenu; if (f) f(); };
-  const fireBack = () => { const f = cbRef.current.onBack; if (f) f(); };
-  const fireAction = () => { const f = cbRef.current.onAction; if (f) f(); };
+  const fireBack = () => { const f = cbRef.current.onBack; console.log('[rangular] appbar BACK press; handler:', typeof f); if (f) f(); };
+  const fireAction = () => { const f = cbRef.current.onAction; console.log('[rangular] appbar ACTION press; handler:', typeof f); if (f) f(); };
   const fireAction2 = () => { const f = cbRef.current.onAction2; if (f) f(); };
   const gradient = tone === 'gradient';
   const plain = tone === 'plain';
@@ -1820,7 +1824,7 @@ export function RgAppbar({ title, search, menu, avatar, onMenu, titleAlign, tone
   // bookmark here, filled or outline by the icon name the app
   // binds, so the state reads at a glance.
   const actionNode = actionIcon ? (onAction ? (
-    <Pressable key="action" onPress={fireAction} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
+    <Pressable key="action" onPress={fireAction} onPressIn={() => console.log('[rangular] appbar ACTION pressIn')} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
       <RgIcon name={actionIcon} size={28} color={gradient ? 'onPrimary' : 'primary'} />
     </Pressable>
   ) : <RgIcon key="action" name={actionIcon} size={28} color={gradient ? 'onPrimary' : 'primary'} />) : null;
