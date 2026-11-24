@@ -59,6 +59,7 @@ import {
   formatDateTimeValue,
   nowParts,
   parseDateTimeValue,
+  pickerYears,
 } from './datetime';
 import type { DateTimeParts, PickerMode, WheelSpec } from './datetime';
 
@@ -842,6 +843,21 @@ function buildStyles(t: Theme) {
       marginBottom: t.spacing.sm,
     },
     calendarTitle: { fontSize: t.typography.title.fontSize, fontWeight: '600', color: c.text },
+    // The title is a pill that opens the month and year jump
+    // (2026-11-24, his pick C): a tint fill behind the month
+    // name, with the check disc that confirms the jump below.
+    calendarTitlePill: {
+      flexDirection: 'row', alignItems: 'center', gap: t.spacing.xs,
+      backgroundColor: c.primaryContainer, borderRadius: 999,
+      paddingHorizontal: t.spacing.md, paddingVertical: t.spacing.xs,
+    },
+    calendarJumpRow: {
+      flexDirection: 'row', justifyContent: 'flex-end', marginTop: t.spacing.sm,
+    },
+    calendarCheck: {
+      width: 38, height: 38, borderRadius: 19, backgroundColor: c.primary,
+      alignItems: 'center', justifyContent: 'center',
+    },
     calendarWeek: { flexDirection: 'row' },
     calendarWeekCell: {
       width: '14.2857%', textAlign: 'center', fontSize: t.typography.caption.fontSize,
@@ -2693,8 +2709,13 @@ export function RgRow({ title, subtitle, detail, time, avatar, avatarText, avata
   // names a trailing icon button wired to (action), the row's own
   // button beside its navigation press: a bookmark on a lesson row,
   // filled or outline by the icon name the app binds.
-  const avatarLabel = avatarText !== undefined && avatarText !== null && String(avatarText) !== ''
-    ? String(avatarText).slice(0, 2)
+  // A number stands whole: avatarText carries a lesson number
+  // or a count, and 100 cut to "10" reads as a different lesson
+  // (Bigyan's History report, 2026-11-24). Words keep the
+  // initials rule, two letters at most.
+  const avatarRaw = avatarText !== undefined && avatarText !== null ? String(avatarText) : '';
+  const avatarLabel = avatarRaw !== ''
+    ? (/^\d+$/.test(avatarRaw) ? avatarRaw : avatarRaw.slice(0, 2))
     : (title || '\u2022').charAt(0);
   // Varied avatar tones (Gmail light round, 2026-11-17): with
   // avatarTone="varied" the avatar circle takes a pastel pair from
@@ -2709,7 +2730,7 @@ export function RgRow({ title, subtitle, detail, time, avatar, avatarText, avata
         <RgIcon name={icon} size={22} color="textMuted" />
       ) : avatar ? (
         <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: tonePair ? tonePair.bg : c.primary, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ color: tonePair ? tonePair.fg : c.onPrimary, fontSize: avatarLabel.length > 1 ? 13 : 16, fontWeight: '600' }}>{avatarLabel}</Text>
+          <Text style={{ color: tonePair ? tonePair.fg : c.onPrimary, fontSize: avatarLabel.length > 2 ? 11 : avatarLabel.length > 1 ? 13 : 16, fontWeight: '600' }}>{avatarLabel}</Text>
         </View>
       ) : null}
       <View style={{ flex: 1 }}>
@@ -4388,6 +4409,30 @@ export function RgCalendar({ value, onChange, style }: any) {
   const selected = parseDateTimeValue(value);
   const seed = selected ?? nowParts();
   const [shown, setShown] = useState({ year: seed.year, month: seed.month });
+  // The shown month follows the value when the value changes
+  // from outside (his report, 2026-11-24: he browsed the grid
+  // back to July, the demo restored its November seed day, and
+  // the grid stayed on July with nothing highlighted). A pick
+  // inside the grid writes a day of the shown month, so it
+  // never yanks the view; only an outside change to another
+  // month moves it.
+  const lastValueRef = useRef(value);
+  useEffect(() => {
+    if (lastValueRef.current === value) return;
+    lastValueRef.current = value;
+    const sel = parseDateTimeValue(value);
+    if (!sel) return;
+    setShown((s) => (sel.year !== s.year || sel.month !== s.month
+      ? { year: sel.year, month: sel.month }
+      : s));
+  }, [value]);
+  // The month and year jump (his pick C, 2026-11-24): tapping
+  // the title pill swaps the day grid for the picker's own two
+  // wheels, year then month, and the check disc applies the
+  // jump. The draft lives apart from the shown month until
+  // the check lands.
+  const [jumping, setJumping] = useState(false);
+  const [draft, setDraft] = useState({ year: seed.year, month: seed.month });
   const today = nowParts();
   const firstWeekday = new Date(shown.year, shown.month - 1, 1).getDay();
   const count = daysInMonth(shown.year, shown.month);
@@ -4415,11 +4460,60 @@ export function RgCalendar({ value, onChange, style }: any) {
     <View style={style}>
       <View style={styles.calendarHead}>
         <RgIconButton name="chevron-left" size={24} onPress={() => move(-1)} />
-        <Text style={styles.calendarTitle}>
-          {`${MONTH_SHORT[shown.month - 1]} ${shown.year}`}
-        </Text>
+        <Pressable
+          onPress={() => {
+            if (jumping) {
+              setJumping(false);
+            } else {
+              setDraft({ year: shown.year, month: shown.month });
+              setJumping(true);
+            }
+          }}
+          accessibilityRole="button"
+          style={styles.calendarTitlePill}
+        >
+          <Text style={styles.calendarTitle}>
+            {`${MONTH_SHORT[shown.month - 1]} ${shown.year}`}
+          </Text>
+          <RgIcon name="chevron-down" size={20} color="primary" />
+        </Pressable>
         <RgIconButton name="chevron-right" size={24} onPress={() => move(1)} />
       </View>
+      {jumping ? (
+        <View>
+          <View style={styles.wheelsWrap}>
+            <View style={styles.wheelsRow}>
+              <RgWheel
+                options={pickerYears(draft.year, today.year).map((y) => ({ value: `${y}`, label: `${y}` }))}
+                value={`${draft.year}`}
+                wide={false}
+                onSelect={(v: string) => setDraft((d) => ({ ...d, year: Number(v) }))}
+              />
+              <RgWheel
+                options={MONTH_SHORT.map((label, i) => ({ value: `${i + 1}`, label }))}
+                value={`${draft.month}`}
+                wide={false}
+                onSelect={(v: string) => setDraft((d) => ({ ...d, month: Number(v) }))}
+              />
+            </View>
+            <View pointerEvents="none" style={[styles.pickerCenterLine, styles.pickerCenterLineTop]} />
+            <View pointerEvents="none" style={[styles.pickerCenterLine, styles.pickerCenterLineBottom]} />
+          </View>
+          <View style={styles.calendarJumpRow}>
+            <Pressable
+              onPress={() => {
+                setShown({ year: draft.year, month: draft.month });
+                setJumping(false);
+              }}
+              accessibilityRole="button"
+              style={styles.calendarCheck}
+            >
+              <RgIcon name="check" size={20} color="onPrimary" />
+            </Pressable>
+          </View>
+        </View>
+      ) : (
+        <>
       <View style={styles.calendarWeek}>
         {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d) => (
           <Text key={d} style={styles.calendarWeekCell}>{d}</Text>
@@ -4442,6 +4536,8 @@ export function RgCalendar({ value, onChange, style }: any) {
           );
         })}
       </View>
+        </>
+      )}
     </View>
   );
 }

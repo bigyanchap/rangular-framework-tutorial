@@ -71,6 +71,23 @@ function colorOf(point: ChartPoint, index: number, palette: string[]): string {
   return point.color ?? palette[index % Math.max(palette.length, 1)] ?? '#000000';
 }
 
+/**
+ * Mix two #rrggbb colours: `frac` of the second colour into the
+ * first. A colour that is not a plain six-digit hex passes
+ * through unchanged, so a data colour the mixer cannot read
+ * still paints.
+ */
+export function mixHex(hex: string, other: string, frac: number): string {
+  const m = /^#([0-9a-fA-F]{6})$/.exec(hex);
+  const o = /^#([0-9a-fA-F]{6})$/.exec(other);
+  if (!m || !o) return hex;
+  const a = parseInt(m[1], 16);
+  const b = parseInt(o[1], 16);
+  const ch = (shift: number): number =>
+    Math.round(((a >> shift) & 255) * (1 - frac) + ((b >> shift) & 255) * frac);
+  return `#${((1 << 24) + (ch(16) << 16) + (ch(8) << 8) + ch(0)).toString(16).slice(1)}`;
+}
+
 const LABEL_STRIP = 18;
 const LEGEND_ROW = 18;
 
@@ -167,12 +184,30 @@ export function chartModel(
   points.forEach((p, i) => {
     const v = Math.max(0, p.value);
     const h = (v / max) * (plotH - 4);
-    shapes.push({
-      kind: 'rect',
-      x: r2(slot * i + slot * 0.2), y: r2(plotH - h),
-      width: r2(barW), height: r2(h),
-      fill: colorOf(p, i, palette),
-    });
+    const x = slot * i + slot * 0.2;
+    const y = plotH - h;
+    const colour = colorOf(p, i, palette);
+    if (h > 0) {
+      // Frosted glass (Bigyan's pick for the History week chart,
+      // 2026-11-24, keeping the per-bar palette colours): the
+      // bar's own colour stands at its edge, the body is that
+      // colour mixed toward white, and a paler gloss band lies
+      // over the top. The top corners round; the base stays
+      // square on the axis line.
+      const r = Math.min(6, barW / 2, h / 2);
+      const top = `M ${r2(x)} ${r2(y + h)} L ${r2(x)} ${r2(y + r)} Q ${r2(x)} ${r2(y)} ${r2(x + r)} ${r2(y)} L ${r2(x + barW - r)} ${r2(y)} Q ${r2(x + barW)} ${r2(y)} ${r2(x + barW)} ${r2(y + r)}`;
+      shapes.push({
+        kind: 'path', d: `${top} L ${r2(x + barW)} ${r2(y + h)} Z`,
+        fill: mixHex(colour, '#ffffff', 0.45), stroke: colour, strokeWidth: 1,
+      });
+      const gh = Math.max(0, h * 0.45);
+      if (gh > 1) {
+        shapes.push({
+          kind: 'path', d: `${top} L ${r2(x + barW)} ${r2(y + gh)} L ${r2(x)} ${r2(y + gh)} Z`,
+          fill: mixHex(colour, '#ffffff', 0.72),
+        });
+      }
+    }
     shapes.push({
       kind: 'text', x: r2(slot * i + slot / 2), y: plotH + 14, text: p.label,
       fill: labelColor, size: 12, anchor: 'middle',
