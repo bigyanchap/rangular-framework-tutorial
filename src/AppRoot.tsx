@@ -679,7 +679,7 @@ export class LessonService extends ReactiveService {
       title: 'HttpClient: asking the network',
       subtitle: 'A real GET over fetch, answered as JSON',
       minutes: '5 min',
-      intro: "Real apps ask the network through a service, and this demo practices exactly that. An ApiService owns the HttpClient calls: it reads one baseUrl from environment.ts and builds every address from it, and its four methods, getUser (GET), createUser (POST), updateUser (PUT) and deleteUser (DELETE), cover reading, creating, replacing and removing. The component receives the ApiService in its constructor and makes the first call right there, so the screen can never run half wired. Each call returns a real RxJS observable: subscribe with a block bodied arrow that assigns your fields, and add a second arrow for the error, because networks fail. load() also shapes its answer on the way in, through pipe and the map operator, so the stream carries exactly the fields the screen needs. Lesson 64 builds the states around these calls, and lesson 98 makes streams of your own. The demo makes a real call to JSONPlaceholder, a public test API kept for exactly this purpose. Two honest notes: the call needs the phone online, and in this app's browser preview HttpClient is a stub that never answers, so the demo waits at Loading there. On the phone, nothing is faked.",
+      intro: "Real apps ask the network through a service, and this demo practices exactly that. An ApiService owns the HttpClient calls: it reads one baseUrl from environment.ts and builds every address from it, and its four methods, getUser (GET), createUser (POST), updateUser (PUT) and deleteUser (DELETE), cover reading, creating, replacing and removing. The component receives the ApiService in its constructor and makes the first call right there, so the screen can never run half wired. Each call returns a real RxJS observable: subscribe with a block bodied arrow that assigns your fields, and add a second arrow for the error, because networks fail. load() also shapes its answer on the way in, through pipe and the map operator, so the stream carries exactly the fields the screen needs. Lesson 64 builds the states around these calls, and lesson 100 makes streams of your own. The demo makes a real call to JSONPlaceholder, a public test API kept for exactly this purpose. Two honest notes: the call needs the phone online, and in this app's browser preview HttpClient is a stub that never answers, so the demo waits at Loading there. On the phone, nothing is faked.",
       code: 'this.api.getUser().pipe(map((data: any) => ({ name: data.name, email: data.email, city: data.address.city }))).subscribe((user) => { this.name = user.name; });',
       implementation: '// http-basics.component.ts\nimport { Component } from \'@angular/core\';\nimport { map } from \'rxjs\';\nimport { ApiService } from \'./api.service\';\n\n@Component({\n  selector: \'app-http-basics-demo\',\n  templateUrl: \'./http-basics.component.html\',\n})\nexport class HttpBasicsDemoComponent {\n  name = \'\';\n  email = \'\';\n  city = \'\';\n  loading = false;\n  failed = \'\';\n\n  constructor(private api: ApiService) {\n    this.load();\n  }\n\n  load() {\n    this.loading = true;\n    this.failed = \'\';\n    this.api.getUser()\n      .pipe(map((data: any) => ({ name: data.name, email: data.email, city: data.address.city })))\n      .subscribe(\n      (user) => {\n        this.name = user.name;\n        this.email = user.email;\n        this.city = user.city;\n        this.loading = false;\n      },\n      (err) => {\n        this.failed = \'The request failed. Check the connection and try again.\';\n        this.loading = false;\n      },\n    );\n  }\n\n  create() {\n    const body = { name: \'Asha Verma\', email: \'asha@example.com\' };\n    this.loading = true;\n    this.failed = \'\';\n    this.api.createUser(body).subscribe(\n      (data) => {\n        this.name = data.name;\n        this.email = data.email;\n        this.city = \'\';\n        this.loading = false;\n      },\n      (err) => {\n        this.failed = \'The request failed. Check the connection and try again.\';\n        this.loading = false;\n      },\n    );\n  }\n\n  update() {\n    const body = {\n      name: \'Leanne Graham\',\n      email: \'leanne@example.com\',\n      address: { city: \'Gwenborough\' },\n    };\n    this.loading = true;\n    this.failed = \'\';\n    this.api.updateUser(body).subscribe(\n      (data) => {\n        this.name = data.name;\n        this.email = data.email;\n        this.city = data.address.city;\n        this.loading = false;\n      },\n      (err) => {\n        this.failed = \'The request failed. Check the connection and try again.\';\n        this.loading = false;\n      },\n    );\n  }\n\n  remove() {\n    this.loading = true;\n    this.failed = \'\';\n    this.api.deleteUser().subscribe(\n      () => {\n        this.name = \'\';\n        this.email = \'\';\n        this.city = \'\';\n        this.loading = false;\n      },\n      (err) => {\n        this.failed = \'The request failed. Check the connection and try again.\';\n        this.loading = false;\n      },\n    );\n  }\n}\n\n// api.service.ts\nimport { Injectable } from \'@angular/core\';\nimport { HttpClient } from \'@angular/common/http\';\nimport { environment } from \'../environment\';\n\n@Injectable({ providedIn: \'root\' })\nexport class ApiService {\n  baseUrl = \'\';\n\n  constructor(private http: HttpClient) {\n    this.baseUrl = environment.baseUrl;\n  }\n\n  getUser() {\n    return this.http.get(this.baseUrl + \'/users/1\');\n  }\n\n  createUser(body: any) {\n    return this.http.post(this.baseUrl + \'/users\', body);\n  }\n\n  updateUser(body: any) {\n    return this.http.put(this.baseUrl + \'/users/1\', body);\n  }\n\n  deleteUser() {\n    return this.http.delete(this.baseUrl + \'/users/1\');\n  }\n}\n\n// http-basics.component.html\n<button (click)="load()" [disabled]="loading">\n  Load one user\n</button>\n<spinner *ngIf="loading"></spinner>\n<p *ngIf="loading">Loading...</p>\n<p *ngIf="failed">{{ failed }}</p>\n<section *ngIf="name">\n  <p>Name: {{ name }}</p>\n  <p>Email: {{ email }}</p>\n  <p>City: {{ city }}</p>\n</section>\n\n// environment.ts\nexport const environment = {\n  baseUrl: \'https://jsonplaceholder.typicode.com\',\n};',
       tip: 'Make a habit of creating an ApiService instead of calling HttpClient from components. The service owns every call for its area of the API, so addresses, bodies and error handling live in one place, and the component only asks for data. Inject the ApiService in the constructor and make the first call there: the screen can never run half wired, and a mistake has exactly one place to be fixed. Keep one baseUrl in the service and build every address from it. Read that baseUrl from environment.ts or an .env file, so moving from a test server to the real one changes one line, not twenty. And wherever the call is made, always write the error arrow.',
@@ -861,11 +861,31 @@ export class LessonService extends ReactiveService {
       minutes: '5 min',
       intro: 'The third scroller event is (endReached). It fires once per approach to the end of a screen or a list, and it fires again only after the content grows, so a handler that appends a page cannot loop on itself. The handler\'s job is narrow: append the next page by assignment, and keep a done flag for when the pages run out. Rebuilding the whole array, or re-rendering the page you already show, breaks the contract the event offers. The demo needs a whole scrolling surface, so it lives on its own page, the way the array in lesson 60 got a page of its own. A button below opens a reading list of 60 articles, ten to a page. One detail matters: if a page does not fill the screen, the end is already near, so the next page loads by itself until the screen is full. After that, each scroll to the end appends the next ten, while a line at the top counts what has loaded. When the pages run out, a line says the list is whole, and a button starts the list again from the top.',
       code: '<list (endReached)="loadMore()">',
-      implementation: '// infinite-scroll.component.ts\nimport { Component } from \'@angular/core\';\nimport { Router } from \'@angular/router\';\n\n@Component({\n  selector: \'app-infinite-scroll-demo\',\n  templateUrl: \'./infinite-scroll.component.html\',\n  styles: [`\n    .launch { gap: 10px; }\n    .launch-row { flex-direction: row; gap: 12px; align-items: center; }\n    .launch-icon { width: 42px; height: 42px; border-radius: 9999px; background-color: #e8f0fe; align-items: center; justify-content: center; }\n    .launch-text { flex: 1; }\n    .launch-title { font-size: 16px; line-height: 22px; font-weight: 700; }\n    .launch-sub { font-size: 14px; line-height: 20px; color: #5f6368; }\n    .launch-pills { flex-direction: row; gap: 8px; }\n    .pill { background-color: #e8f0fe; border-radius: 9999px; padding-left: 10px; padding-right: 10px; padding-top: 4px; padding-bottom: 4px; }\n    .pill-text { font-size: 12px; line-height: 16px; font-weight: 600; color: #0b57d0; }\n  `],\n})\nexport class InfiniteScrollDemoComponent {\n  constructor(private router: Router) {}\n\n  openList() {\n    this.router.navigate([\'/reading-list\', 1]);\n  }\n}\n\n// infinite-scroll.component.html\n<section class="launch" (click)="openList()">\n  <section class="launch-row">\n    <section class="launch-icon">\n      <icon name="file" size="24" color="primary"></icon>\n    </section>\n    <section class="launch-text">\n      <p class="launch-title">Open the reading list</p>\n      <p class="launch-sub">Scroll and the next page appends.</p>\n    </section>\n    <icon name="chevron-right" size="24"></icon>\n  </section>\n  <section class="launch-pills">\n    <section class="pill">\n      <p class="pill-text">60 articles</p>\n    </section>\n    <section class="pill">\n      <p class="pill-text">6 pages</p>\n    </section>\n  </section>\n</section>\n\n// reading-list.component.ts\nimport { Component } from \'@angular/core\';\nimport { ActivatedRoute, Router } from \'@angular/router\';\n\n/**\n * The reading list page: lesson 81\'s infinite scroll demo,\n * given a page of its own. A list that pages needs a whole\n * scrolling surface, so here the list is the page: the end\n * of the list and the end of the page are the same line,\n * and each approach to it appends the next ten articles.\n * One semantic shows itself at once: a page that does not\n * fill the screen is already at its end, so the next page\n * loads by itself until the screen is full. After that,\n * the reader\'s own scroll drives every append. A status\n * line counts what has loaded. The last page\n * rests with an end line, and Start the list again opens\n * this same page under a new run number in its address:\n * the fresh page starts at the top with the first page.\n */\n@Component({\n  selector: \'app-reading-list\',\n  templateUrl: \'./reading-list.component.html\',\n})\nexport class ReadingListComponent {\n  total = 60;\n  run = 1;\n\n  firstPage = [\n    { id: 1, title: \'Article 1: Begin with the breath\', sub: \'Start where the breath starts\' },\n    { id: 2, title: \'Article 2: The spine, held easy\', sub: \'Posture without force\' },\n    { id: 3, title: \'Article 3: Sitting without force\', sub: \'Let the seat hold you\' },\n    { id: 4, title: \'Article 4: Attention returns\', sub: \'The gentle art of coming back\' },\n    { id: 5, title: \'Article 5: The witness stance\', sub: \'Watch, do not chase\' },\n    { id: 6, title: \'Article 6: Sound and silence\', sub: \'Two sides of listening\' },\n    { id: 7, title: \'Article 7: The pause between\', sub: \'Rest in the gap\' },\n    { id: 8, title: \'Article 8: Ending well\', sub: \'Close the sit with care\' },\n    { id: 9, title: \'Article 9: Carrying it into the day\', sub: \'Practice after the cushion\' },\n    { id: 10, title: \'Article 10: Review and rest\', sub: \'Look back, then let go\' },\n  ];\n\n  morePages: any[] = [\n    [\n      { id: 11, title: \'Article 11: Morning light, first practice\', sub: \'Begin with the day\' },\n      { id: 12, title: \'Article 12: The hands, relaxed\', sub: \'Soft hands, soft mind\' },\n      { id: 13, title: \'Article 13: Counting the breath out\', sub: \'Numbers as an anchor\' },\n      { id: 14, title: \'Article 14: A quieter jaw\', sub: \'Release the small tensions\' },\n      { id: 15, title: \'Article 15: Standing like a mountain\', sub: \'Stillness on your feet\' },\n      { id: 16, title: \'Article 16: The floor holds you\', sub: \'Trust the ground\' },\n      { id: 17, title: \'Article 17: Eyes, soft focus\', sub: \'See without gripping\' },\n      { id: 18, title: \'Article 18: One thing at a time\', sub: \'The single thread\' },\n      { id: 19, title: \'Article 19: The space between thoughts\', sub: \'Widen the gap\' },\n      { id: 20, title: \'Article 20: Listening to the room\', sub: \'Sound as a teacher\' },\n    ],\n    [\n      { id: 21, title: \'Article 21: Shoulders down\', sub: \'Drop what you carry\' },\n      { id: 22, title: \'Article 22: The long exhale\', sub: \'Longer out than in\' },\n      { id: 23, title: \'Article 23: Walking without hurry\', sub: \'Steps that arrive\' },\n      { id: 24, title: \'Article 24: Tea, taken slowly\', sub: \'A practice in a cup\' },\n      { id: 25, title: \'Article 25: The body scans itself\', sub: \'Attention, head to heel\' },\n      { id: 26, title: \'Article 26: Gratitude, briefly\', sub: \'One honest thank you\' },\n      { id: 27, title: \'Article 27: Letting the day land\', sub: \'Evening settling\' },\n      { id: 28, title: \'Article 28: A short sit before sleep\', sub: \'Close the day seated\' },\n      { id: 29, title: \'Article 29: The breath at the nostrils\', sub: \'The smallest anchor\' },\n      { id: 30, title: \'Article 30: Palms together\', sub: \'A gesture of return\' },\n    ],\n    [\n      { id: 31, title: \'Article 31: The spine, one inch taller\', sub: \'Grow the axis gently\' },\n      { id: 32, title: \'Article 32: Silence after sound\', sub: \'What the bell leaves behind\' },\n      { id: 33, title: \'Article 33: Noticing the noticing\', sub: \'Awareness of awareness\' },\n      { id: 34, title: \'Article 34: The weight of the hands\', sub: \'Feel gravity kindly\' },\n      { id: 35, title: \'Article 35: A kinder inner voice\', sub: \'Speak to yourself well\' },\n      { id: 36, title: \'Article 36: The pause before speaking\', sub: \'One breath of room\' },\n      { id: 37, title: \'Article 37: Sitting with discomfort\', sub: \'Stay, without fixing\' },\n      { id: 38, title: \'Article 38: The morning stretches\', sub: \'Wake the body first\' },\n      { id: 39, title: \'Article 39: Breath and heartbeat\', sub: \'Two rhythms, one seat\' },\n      { id: 40, title: \'Article 40: Coming back, again\', sub: \'The practice is the return\' },\n    ],\n    [\n      { id: 41, title: \'Article 41: The cool of the evening\', sub: \'Sit as the light fades\' },\n      { id: 42, title: \'Article 42: One minute of stillness\', sub: \'Small, and complete\' },\n      { id: 43, title: \'Article 43: The gaze rests\', sub: \'Eyes that do not hunt\' },\n      { id: 44, title: \'Article 44: Shoulders, neck, jaw\', sub: \'The tension triangle\' },\n      { id: 45, title: \'Article 45: Counting to ten, slowly\', sub: \'Ten breaths, no rush\' },\n      { id: 46, title: \'Article 46: The room, held in mind\', sub: \'Know where you sit\' },\n      { id: 47, title: \'Article 47: A practice for busy days\', sub: \'Short is not shallow\' },\n      { id: 48, title: \'Article 48: The last page of the day\', sub: \'End on a kind note\' },\n      { id: 49, title: \'Article 49: Rest is also practice\', sub: \'Doing nothing, well\' },\n      { id: 50, title: \'Article 50: Beginning again\', sub: \'Every sit is the first\' },\n    ],\n    [\n      { id: 51, title: \'Article 51: The breath deepens\', sub: \'Let it slow itself\' },\n      { id: 52, title: \'Article 52: Watching the mind settle\', sub: \'Sediment and clear water\' },\n      { id: 53, title: \'Article 53: A steady seat\', sub: \'Build the base\' },\n      { id: 54, title: \'Article 54: The sounds outside\', sub: \'The world, included\' },\n      { id: 55, title: \'Article 55: Kindness toward the body\', sub: \'Thank the instrument\' },\n      { id: 56, title: \'Article 56: The exhale lengthens\', sub: \'Follow it all the way out\' },\n      { id: 57, title: \'Article 57: Stillness between tasks\', sub: \'The hinge of the day\' },\n      { id: 58, title: \'Article 58: The evening review\', sub: \'See the day, release it\' },\n      { id: 59, title: \'Article 59: One slow breath\', sub: \'Enough for now\' },\n      { id: 60, title: \'Article 60: The whole list, held lightly\', sub: \'All of it, loosely\' },\n    ],\n  ];\n\n  items = [\n    { id: 1, title: \'Article 1: Begin with the breath\', sub: \'Start where the breath starts\' },\n    { id: 2, title: \'Article 2: The spine, held easy\', sub: \'Posture without force\' },\n    { id: 3, title: \'Article 3: Sitting without force\', sub: \'Let the seat hold you\' },\n    { id: 4, title: \'Article 4: Attention returns\', sub: \'The gentle art of coming back\' },\n    { id: 5, title: \'Article 5: The witness stance\', sub: \'Watch, do not chase\' },\n    { id: 6, title: \'Article 6: Sound and silence\', sub: \'Two sides of listening\' },\n    { id: 7, title: \'Article 7: The pause between\', sub: \'Rest in the gap\' },\n    { id: 8, title: \'Article 8: Ending well\', sub: \'Close the sit with care\' },\n    { id: 9, title: \'Article 9: Carrying it into the day\', sub: \'Practice after the cushion\' },\n    { id: 10, title: \'Article 10: Review and rest\', sub: \'Look back, then let go\' },\n  ];\n  page = 0;\n  done = false;\n\n  constructor(\n    private route: ActivatedRoute,\n    private router: Router,\n  ) {}\n\n  ngOnInit() {\n    const raw = this.route.snapshot.params.run;\n    this.run = raw ? Number(raw) : 1;\n  }\n\n  loadMore() {\n    this.items = this.items.concat(this.morePages[this.page] || []);\n    this.page = this.page + 1;\n    this.done = this.page >= this.morePages.length;\n  }\n\n  reset() {\n    this.router.navigate([\'/reading-list\', this.run + 1]);\n  }\n\n  goBack() {\n    this.router.navigate([\'/lesson\', 81]);\n  }\n}\n\n// reading-list.component.html\n<section>\n  <appbar pin tone="tint" title="Reading list" back (back)="goBack()"></appbar>\n  <p>Scroll to the end and the next page of articles appends on its own.</p>\n  <p>Showing {{ items.length }} of {{ total }} articles.</p>\n  <list haptic (endReached)="loadMore()">\n    <row *ngFor="let a of items" [title]="a.title" [subtitle]="a.sub"></row>\n  </list>\n  <p *ngIf="done">That is the whole list: {{ items.length }} articles.</p>\n  <button *ngIf="done" (click)="reset()">Start the list again</button>\n</section>',
-      tip: 'Treat (endReached) as the end is near, not as render again. Append one page, and let the last page be a resting state with a clear end line, not an error and not a spinner that never stops.',
+      implementation: '// infinite-scroll.component.ts\nimport { Component } from \'@angular/core\';\nimport { Router } from \'@angular/router\';\n\n@Component({\n  selector: \'app-infinite-scroll-demo\',\n  templateUrl: \'./infinite-scroll.component.html\',\n  styles: [`\n    .launch { gap: 8px; }\n    .launch-row { flex-direction: row; gap: 12px; align-items: center; }\n    .launch-icon { width: 42px; height: 42px; border-radius: 9999px; background-color: #e8f0fe; align-items: center; justify-content: center; }\n    .launch-text { flex: 1; }\n    .launch-title { font-size: 16px; line-height: 22px; font-weight: 700; }\n    .launch-sub { font-size: 14px; line-height: 20px; color: #5f6368; }\n    .launch-pills { flex-direction: row; gap: 8px; }\n    .pill { background-color: #e8f0fe; border-radius: 9999px; padding-left: 8px; padding-right: 8px; padding-top: 4px; padding-bottom: 4px; }\n    .pill-text { font-size: 12px; line-height: 16px; font-weight: 600; color: #0b57d0; }\n  `],\n})\nexport class InfiniteScrollDemoComponent {\n  constructor(private router: Router) {}\n\n  openList() {\n    this.router.navigate([\'/reading-list\', 1]);\n  }\n}\n\n// infinite-scroll.component.html\n<section class="launch" (click)="openList()">\n  <section class="launch-row">\n    <section class="launch-icon">\n      <icon name="file" size="24" color="primary"></icon>\n    </section>\n    <section class="launch-text">\n      <p class="launch-title">Open the reading list</p>\n      <p class="launch-sub">Scroll and the next page appends.</p>\n    </section>\n    <icon name="chevron-right" size="24"></icon>\n  </section>\n  <section class="launch-pills">\n    <section class="pill">\n      <p class="pill-text">60 articles</p>\n    </section>\n    <section class="pill">\n      <p class="pill-text">6 pages</p>\n    </section>\n  </section>\n</section>',
+      tip: 'Treat (endReached) as the end is near, not as render again. Append one page, and let the last page be a resting state with a clear end line, not an error and not a spinner that never stops. Two neighbours live next door: lesson 82 gives the same list numbered pages to hold a place in, and lesson 83 renders a thousand rows through fifteen views.',
     },
     {
       id: 82,
+      title: 'Pagination: numbered pages',
+      subtitle: 'The same list in numbered pages, with a place to return to',
+      minutes: '5 min',
+      intro: 'Infinite scroll suits a stream, but some lists need a place. Pagination cuts a list into fixed pages and gives each page a number: page 1 holds items 1 to 10, page 2 holds 11 to 20, and the reader moves with Previous and Next buttons, or jumps straight to a page. The whole count is known, so the screen can say Page 2 of 6, and a reader who returns tomorrow finds the same items on the same page. The demo runs the same 60 articles as lesson 81, ten to a page. The work is one method: go(n) swaps the items array for page n, by assignment, and updates the counts the screen shows. Nothing renders ahead: page 4 is not built until the reader asks for it.',
+      code: '<row *ngFor="let a of items" [title]="a.title"></row>\n<button (click)="prev()">Previous</button>\n<p>Page {{ page }} of 6</p>\n<button (click)="next()">Next</button>',
+      implementation: '// pagination.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-pagination-demo\',\n  templateUrl: \'./pagination.component.html\',\n  styles: [`\n    .pg-status { font-size: 14px; line-height: 20px; font-weight: 600; color: #5f6368; }\n    .pg-nav { flex-direction: row; justify-content: space-between; align-items: center; margin-top: 12px; }\n    .pg-pages { margin-top: 12px; }\n    .chip { border-width: 1px; border-color: #bdc1c6; border-radius: 9999px; padding: 8px; }\n    .chip-on { background-color: #0b57d0; border-color: #0b57d0; }\n    .chip-text { font-size: 14px; color: #3c4043; text-align: center; }\n    .chip-text-on { color: #ffffff; font-weight: 600; }\n  `],\n})\nexport class PaginationDemoComponent {\n  total = 60;\n  page = 1;\n  first = 1;\n  last = 10;\n  pageNums = [1, 2, 3, 4, 5, 6];\n\n  firstPage = [\n    { id: 1, title: \'Article 1: Begin with the breath\', sub: \'Start where the breath starts\' },\n    { id: 2, title: \'Article 2: The spine, held easy\', sub: \'Posture without force\' },\n    { id: 3, title: \'Article 3: Sitting without force\', sub: \'Let the seat hold you\' },\n    { id: 4, title: \'Article 4: Attention returns\', sub: \'The gentle art of coming back\' },\n    { id: 5, title: \'Article 5: The witness stance\', sub: \'Watch, do not chase\' },\n    { id: 6, title: \'Article 6: Sound and silence\', sub: \'Two sides of listening\' },\n    { id: 7, title: \'Article 7: The pause between\', sub: \'Rest in the gap\' },\n    { id: 8, title: \'Article 8: Ending well\', sub: \'Close the sit with care\' },\n    { id: 9, title: \'Article 9: Carrying it into the day\', sub: \'Practice after the cushion\' },\n    { id: 10, title: \'Article 10: Review and rest\', sub: \'Look back, then let go\' },\n  ];\n\n  morePages: any[] = [\n    [\n      { id: 11, title: \'Article 11: Morning light, first practice\', sub: \'Begin with the day\' },\n      { id: 12, title: \'Article 12: The hands, relaxed\', sub: \'Soft hands, soft mind\' },\n      { id: 13, title: \'Article 13: Counting the breath out\', sub: \'Numbers as an anchor\' },\n      { id: 14, title: \'Article 14: A quieter jaw\', sub: \'Release the small tensions\' },\n      { id: 15, title: \'Article 15: Standing like a mountain\', sub: \'Stillness on your feet\' },\n      { id: 16, title: \'Article 16: The floor holds you\', sub: \'Trust the ground\' },\n      { id: 17, title: \'Article 17: Eyes, soft focus\', sub: \'See without gripping\' },\n      { id: 18, title: \'Article 18: One thing at a time\', sub: \'The single thread\' },\n      { id: 19, title: \'Article 19: The space between thoughts\', sub: \'Widen the gap\' },\n      { id: 20, title: \'Article 20: Listening to the room\', sub: \'Sound as a teacher\' },\n    ],\n    [\n      { id: 21, title: \'Article 21: Shoulders down\', sub: \'Drop what you carry\' },\n      { id: 22, title: \'Article 22: The long exhale\', sub: \'Longer out than in\' },\n      { id: 23, title: \'Article 23: Walking without hurry\', sub: \'Steps that arrive\' },\n      { id: 24, title: \'Article 24: Tea, taken slowly\', sub: \'A practice in a cup\' },\n      { id: 25, title: \'Article 25: The body scans itself\', sub: \'Attention, head to heel\' },\n      { id: 26, title: \'Article 26: Gratitude, briefly\', sub: \'One honest thank you\' },\n      { id: 27, title: \'Article 27: Letting the day land\', sub: \'Evening settling\' },\n      { id: 28, title: \'Article 28: A short sit before sleep\', sub: \'Close the day seated\' },\n      { id: 29, title: \'Article 29: The breath at the nostrils\', sub: \'The smallest anchor\' },\n      { id: 30, title: \'Article 30: Palms together\', sub: \'A gesture of return\' },\n    ],\n    [\n      { id: 31, title: \'Article 31: The spine, one inch taller\', sub: \'Grow the axis gently\' },\n      { id: 32, title: \'Article 32: Silence after sound\', sub: \'What the bell leaves behind\' },\n      { id: 33, title: \'Article 33: Noticing the noticing\', sub: \'Awareness of awareness\' },\n      { id: 34, title: \'Article 34: The weight of the hands\', sub: \'Feel gravity kindly\' },\n      { id: 35, title: \'Article 35: A kinder inner voice\', sub: \'Speak to yourself well\' },\n      { id: 36, title: \'Article 36: The pause before speaking\', sub: \'One breath of room\' },\n      { id: 37, title: \'Article 37: Sitting with discomfort\', sub: \'Stay, without fixing\' },\n      { id: 38, title: \'Article 38: The morning stretches\', sub: \'Wake the body first\' },\n      { id: 39, title: \'Article 39: Breath and heartbeat\', sub: \'Two rhythms, one seat\' },\n      { id: 40, title: \'Article 40: Coming back, again\', sub: \'The practice is the return\' },\n    ],\n    [\n      { id: 41, title: \'Article 41: The cool of the evening\', sub: \'Sit as the light fades\' },\n      { id: 42, title: \'Article 42: One minute of stillness\', sub: \'Small, and complete\' },\n      { id: 43, title: \'Article 43: The gaze rests\', sub: \'Eyes that do not hunt\' },\n      { id: 44, title: \'Article 44: Shoulders, neck, jaw\', sub: \'The tension triangle\' },\n      { id: 45, title: \'Article 45: Counting to ten, slowly\', sub: \'Ten breaths, no rush\' },\n      { id: 46, title: \'Article 46: The room, held in mind\', sub: \'Know where you sit\' },\n      { id: 47, title: \'Article 47: A practice for busy days\', sub: \'Short is not shallow\' },\n      { id: 48, title: \'Article 48: The last page of the day\', sub: \'End on a kind note\' },\n      { id: 49, title: \'Article 49: Rest is also practice\', sub: \'Doing nothing, well\' },\n      { id: 50, title: \'Article 50: Beginning again\', sub: \'Every sit is the first\' },\n    ],\n    [\n      { id: 51, title: \'Article 51: The breath deepens\', sub: \'Let it slow itself\' },\n      { id: 52, title: \'Article 52: Watching the mind settle\', sub: \'Sediment and clear water\' },\n      { id: 53, title: \'Article 53: A steady seat\', sub: \'Build the base\' },\n      { id: 54, title: \'Article 54: The sounds outside\', sub: \'The world, included\' },\n      { id: 55, title: \'Article 55: Kindness toward the body\', sub: \'Thank the instrument\' },\n      { id: 56, title: \'Article 56: The exhale lengthens\', sub: \'Follow it all the way out\' },\n      { id: 57, title: \'Article 57: Stillness between tasks\', sub: \'The hinge of the day\' },\n      { id: 58, title: \'Article 58: The evening review\', sub: \'See the day, release it\' },\n      { id: 59, title: \'Article 59: One slow breath\', sub: \'Enough for now\' },\n      { id: 60, title: \'Article 60: The whole list, held lightly\', sub: \'All of it, loosely\' },\n    ],\n  ];\n\n  items = [\n    { id: 1, title: \'Article 1: Begin with the breath\', sub: \'Start where the breath starts\' },\n    { id: 2, title: \'Article 2: The spine, held easy\', sub: \'Posture without force\' },\n    { id: 3, title: \'Article 3: Sitting without force\', sub: \'Let the seat hold you\' },\n    { id: 4, title: \'Article 4: Attention returns\', sub: \'The gentle art of coming back\' },\n    { id: 5, title: \'Article 5: The witness stance\', sub: \'Watch, do not chase\' },\n    { id: 6, title: \'Article 6: Sound and silence\', sub: \'Two sides of listening\' },\n    { id: 7, title: \'Article 7: The pause between\', sub: \'Rest in the gap\' },\n    { id: 8, title: \'Article 8: Ending well\', sub: \'Close the sit with care\' },\n    { id: 9, title: \'Article 9: Carrying it into the day\', sub: \'Practice after the cushion\' },\n    { id: 10, title: \'Article 10: Review and rest\', sub: \'Look back, then let go\' },\n  ];\n\n  go(n: number) {\n    if (n >= 1 && n <= 6) {\n      this.page = n;\n      this.first = (n - 1) * 10 + 1;\n      this.last = n * 10;\n      if (n === 1) {\n        this.items = this.firstPage;\n      } else {\n        this.items = this.morePages[n - 2];\n      }\n    }\n  }\n\n  prev() {\n    this.go(this.page - 1);\n  }\n\n  next() {\n    this.go(this.page + 1);\n  }\n}\n\n// pagination.component.html\n<p class="pg-status">Page {{ page }} of 6 · Articles {{ first }} to {{ last }} of {{ total }}</p>\n<list>\n  <row *ngFor="let a of items" [title]="a.title" [subtitle]="a.sub"></row>\n</list>\n<section class="pg-nav">\n  <button variant="text" [disabled]="page === 1" (click)="prev()">\n    Previous\n  </button>\n  <button variant="text" [disabled]="page === 6" (click)="next()">\n    Next\n  </button>\n</section>\n<section class="pg-pages">\n  <chips>\n    <section class="chip" *ngFor="let p of pageNums" [class.chip-on]="page === p" (click)="go(p)">\n      <p class="chip-text" [class.chip-text-on]="page === p">{{ p }}</p>\n    </section>\n  </chips>\n</section>',
+      tip: 'Choose pagination when the reader needs a place: search results, documents, settings, anything counted or shared. Choose infinite scroll when the list is a stream to wander. Keep the page size steady, too: a page that changes size mid list moves every item after it.',
+    },
+    {
+      id: 83,
+      title: 'Virtual scrolling: render only what is seen',
+      subtitle: 'A thousand rows behind fifteen views',
+      minutes: '5 min',
+      intro: 'A list can hold all its data and still drown the screen. A thousand rows created at once means a thousand views: slow to build, heavy in memory, and all but a screenful of them invisible. Virtual scrolling creates only the rows the reader can see, plus a few spare, and reuses them: as the window moves, the same row views take new values from further down the data. The count of views stays flat while the data grows. The demo makes the mechanism visible: a thousand messages stand behind fifteen rows, a slider moves the window, the step buttons move it fifteen at a time, and the readout names the rows alive right now. One confusion to clear: when developers say lazy loading, they usually mean loading code, routes above all, only when it is visited. This lesson loads nothing late. The data is all here; only the rendering is rationed. React Native\'s FlatList windows its rows the same way when you hand it data. Here the window is built by hand, so you can watch it move.',
+      code: '<row *ngFor="let s of slots" [title]="rowTitle(s)"></row>\n<slider [value]="start" (change)="pickStart($event)"></slider>',
+      implementation: '// virtual-scroll.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-virtual-scroll-demo\',\n  templateUrl: \'./virtual-scroll.component.html\',\n  styles: [`\n    .vs-readout { font-size: 14px; line-height: 20px; font-weight: 600; color: #5f6368; }\n    .vs-panel { border-width: 1px; border-color: #a06a35; border-radius: 12px; padding: 12px; background-color: #fdf6ec; margin-top: 12px; }\n    .vs-nav { flex-direction: row; justify-content: space-between; margin-top: 12px; }\n  `],\n})\nexport class VirtualScrollDemoComponent {\n  start = 0;\n  firstShown = 1;\n  lastShown = 15;\n  slots = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];\n  senders = [\'Ana\', \'Ben\', \'Cleo\', \'Dev\', \'Eli\', \'Faye\', \'Gus\', \'Hana\'];\n\n  pickStart(v: number) {\n    this.start = v;\n    this.syncShown(v);\n  }\n\n  move(d: number) {\n    let n = this.start + d;\n    if (n < 0) {\n      n = 0;\n    }\n    if (n > 985) {\n      n = 985;\n    }\n    this.start = n;\n    this.syncShown(n);\n  }\n\n  syncShown(n: number) {\n    this.firstShown = n + 1;\n    this.lastShown = n + 15;\n  }\n\n  rowTitle(s: number) {\n    return \'Message \' + (this.start + s + 1);\n  }\n\n  rowSub(s: number) {\n    return this.senders[(this.start + s) % 8] + \' · message \' + (this.start + s + 1) + \' of 1,000\';\n  }\n}\n\n// virtual-scroll.component.html\n<p class="vs-readout">Rendering rows {{ firstShown }} to {{ lastShown }} of 1,000. Only 15 rows exist.</p>\n<slider min="0" max="985" step="1" [value]="start" (change)="pickStart($event)"></slider>\n<section class="vs-panel">\n  <row *ngFor="let s of slots" [title]="rowTitle(s)" [subtitle]="rowSub(s)"></row>\n</section>\n<section class="vs-nav">\n  <button variant="text" (click)="move(-15)">\n    Back 15\n  </button>\n  <button variant="text" (click)="move(15)">\n    Forward 15\n  </button>\n</section>\n<p>Drag the slider, or step the window. The fifteen rows never change; the numbers they wear do.</p>',
+      tip: 'Virtualise when rows are many, alike, and more than a screen can hold: archives, logs, long catalogues. Keep every row the same height, because the window math leans on it. And measure with real data before trusting the gain: for sixty rows, plain rendering is simpler and fast enough.',
+    },
+    {
+      id: 84,
       title: 'Skeleton: standing in for content',
       subtitle: 'Placeholder shapes while the real thing loads',
       minutes: '4 min',
@@ -875,7 +895,7 @@ export class LessonService extends ReactiveService {
       tip: 'Match the skeleton to the layout it replaces: same boxes, same order, same rough sizes. A skeleton that jumps when the content lands is worse than a plain spinner, because it teaches the eye the wrong shape first.',
     },
     {
-      id: 83,
+      id: 85,
       title: 'Swipe row actions',
       subtitle: 'row-action declarations that live inside the row',
       minutes: '5 min',
@@ -885,7 +905,7 @@ export class LessonService extends ReactiveService {
       tip: 'Put the destructive action last and give it the error colour. And make each tap complete its job on its own: an action that only selects the row trains people to distrust every swipe after it.',
     },
     {
-      id: 84,
+      id: 86,
       title: 'File picker: photos and documents',
       subtitle: 'The picker hands back file information, not files',
       minutes: '5 min',
@@ -895,7 +915,7 @@ export class LessonService extends ReactiveService {
       tip: 'Treat a cancel as silence, not an error: check what actually arrived before you report anything. And keep the uri from the pick; it is the only handle you get to the file later.',
     },
     {
-      id: 85,
+      id: 87,
       title: 'Input masks: format while typing',
       subtitle: 'A pattern on an ordinary input, in 9, A, and star',
       minutes: '5 min',
@@ -905,7 +925,7 @@ export class LessonService extends ReactiveService {
       tip: 'If a backend wants digits only, strip the literals in the class at save time and keep the formatted string on screen. Never store both forms of the same value; one day they will disagree, and the screen will be the one that is wrong.',
     },
     {
-      id: 86,
+      id: 88,
       title: 'Rating: stars on the contract',
       subtitle: 'One number in, one number out, no half stars',
       minutes: '4 min',
@@ -915,7 +935,7 @@ export class LessonService extends ReactiveService {
       tip: 'Ask for the rating at the moment the thing ends, not later from a list. A number given in context is honest; a number given from memory is a guess wearing a number\'s clothes.',
     },
     {
-      id: 87,
+      id: 89,
       title: 'The OTP input: one code, digit boxes',
       subtitle: 'One string over a hidden field, complete only at full length',
       minutes: '5 min',
@@ -925,7 +945,7 @@ export class LessonService extends ReactiveService {
       tip: 'Never act on a partial code. Check the length on every change, and let only the full length enable the verify step; a code checked early teaches the server to expect your mistakes.',
     },
     {
-      id: 88,
+      id: 90,
       title: 'Carousel: pages you swipe',
       subtitle: 'Projected children as pages, the stepper index contract',
       minutes: '4 min',
@@ -935,7 +955,7 @@ export class LessonService extends ReactiveService {
       tip: 'Keep carousel pages few, and alike in shape and weight. The moment one page needs its own scrolling or its own form, it wants to be a screen of its own, not a page in a row.',
     },
     {
-      id: 89,
+      id: 91,
       title: 'Timeline: a journey on a rail',
       subtitle: 'timeline-item declarations with a title and a time',
       minutes: '4 min',
@@ -945,7 +965,7 @@ export class LessonService extends ReactiveService {
       tip: 'Write timeline entries in the past tense, and keep the time label short: a day, a date, or a clock time, never a sentence. The rail already supplies the order; the words only name the stops.',
     },
     {
-      id: 90,
+      id: 92,
       title: 'Calendar: a month to look at',
       subtitle: 'A browsing month view, and why it is not a form picker',
       minutes: '5 min',
@@ -955,7 +975,7 @@ export class LessonService extends ReactiveService {
       tip: 'Reach for the calendar when the day itself is the topic: browsing a month, or picking from days spread through it. When a form needs one moment, the wheel picker asks in a single gesture, and the calendar asks in two.',
     },
     {
-      id: 91,
+      id: 93,
       title: 'Avatars and avatar groups',
       subtitle: 'Initials or a photo, and the +N fold',
       minutes: '5 min',
@@ -965,7 +985,7 @@ export class LessonService extends ReactiveService {
       tip: 'Prefer initials when a photo may be missing, stale, or slow. Initials never fail to load, never show the wrong person, and stay readable at the small sizes where faces blur into colour.',
     },
     {
-      id: 92,
+      id: 94,
       title: 'Empty state: the friendly nothing',
       subtitle: 'One named block for the day the list is empty',
       minutes: '4 min',
@@ -975,7 +995,7 @@ export class LessonService extends ReactiveService {
       tip: 'An empty state must answer two questions: what will live here, and what can I do now. If a screen cannot name an action, a plain line of text is more honest than a decorated block standing for nothing.',
     },
     {
-      id: 93,
+      id: 95,
       title: 'Charts: one data shape, three drawings',
       subtitle: 'Bar, line, and pie over label and value pairs',
       minutes: '6 min',
@@ -985,7 +1005,7 @@ export class LessonService extends ReactiveService {
       tip: 'Keep one array as every chart\'s only source, and change it by assignment, as with every list. Three charts fed from three copies of the same numbers will disagree by Friday, and nobody will know which one lied.',
     },
     {
-      id: 94,
+      id: 96,
       title: 'Editor: notes as blocks',
       subtitle: 'Bold with stars and lists with dashes, not a WYSIWYG',
       minutes: '5 min',
@@ -995,7 +1015,7 @@ export class LessonService extends ReactiveService {
       tip: 'Store the marked text exactly as the editor holds it, and let the same marks render wherever the text is shown. Converting to another format on save and back on load is where simple formatting goes to die.',
     },
     {
-      id: 95,
+      id: 97,
       title: 'Images and the lightbox',
       subtitle: 'A declared size, and a photo that opens full screen',
       minutes: '5 min',
@@ -1005,7 +1025,7 @@ export class LessonService extends ReactiveService {
       tip: 'Declare the size the layout should reserve, even when you happen to know the file\'s real size. The reservation, not the file, is what stops the screen from jumping while photos land one by one.',
     },
     {
-      id: 96,
+      id: 98,
       title: 'Colour picker: a hex value with a swatch',
       subtitle: 'The shared data palette, plus one custom hex row',
       minutes: '4 min',
@@ -1015,17 +1035,17 @@ export class LessonService extends ReactiveService {
       tip: 'Store the hex, and show the hex. A colour remembered as the third palette colour breaks the day the palette is reordered; a hex string means the same colour forever, in every theme and every app.',
     },
     {
-      id: 97,
+      id: 99,
       title: 'Breadcrumbs: where you are, as a path',
       subtitle: 'crumb declarations, and the last one is not a link',
       minutes: '4 min',
       intro: 'Breadcrumbs show the path to the current place as a short row of names. A breadcrumbs block holds crumb declarations and nothing else; the crumbs join with chevron icons from the icon set, never with typed characters. Every crumb but the last takes a routerLink or a (click), because those places are still visitable; the last crumb renders as the current page in plain semibold text, and it is never a link. A crumb outside breadcrumbs warns GEN_CONTROL_NESTING. On a phone the path stays short, two or three crumbs: this piece was added last in its stage on purpose, because deep paths are a desktop habit that a small screen punishes. In the demo, the first two crumbs carry clicks that switch a place line, standing in for the navigation they would do in a real app, so the piece can be felt without leaving the lesson.',
       code: '<crumb routerLink="/home">Home</crumb>',
-      implementation: '// breadcrumbs.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-breadcrumbs-demo\',\n  templateUrl: \'./breadcrumbs.component.html\',\n})\nexport class BreadcrumbsDemoComponent {\n  place = \'Lesson 97\';\n\n  goPlace(name: string) {\n    this.place = name;\n  }\n}\n\n// breadcrumbs.component.html\n<breadcrumbs>\n  <crumb (click)="goPlace(\'Home\')">\n    Home\n  </crumb>\n  <crumb (click)="goPlace(\'Beyond Angular\')">\n    Beyond Angular\n  </crumb>\n  <crumb>\n    Lesson 97\n  </crumb>\n</breadcrumbs>\n<p>You are looking at: {{ place }}</p>\n<p>Tap Home or Beyond Angular and the line follows. The last crumb never moves: it is where you already are.</p>',
+      implementation: '// breadcrumbs.component.ts\nimport { Component } from \'@angular/core\';\n\n@Component({\n  selector: \'app-breadcrumbs-demo\',\n  templateUrl: \'./breadcrumbs.component.html\',\n})\nexport class BreadcrumbsDemoComponent {\n  place = \'Lesson 99\';\n\n  goPlace(name: string) {\n    this.place = name;\n  }\n}\n\n// breadcrumbs.component.html\n<breadcrumbs>\n  <crumb (click)="goPlace(\'Home\')">\n    Home\n  </crumb>\n  <crumb (click)="goPlace(\'Beyond Angular\')">\n    Beyond Angular\n  </crumb>\n  <crumb>\n    Lesson 99\n  </crumb>\n</breadcrumbs>\n<p>You are looking at: {{ place }}</p>\n<p>Tap Home or Beyond Angular and the line follows. The last crumb never moves: it is where you already are.</p>',
       tip: 'If the last crumb is a link, it is wrong: the current page linking to itself teaches people that links lie. Keep the last crumb plain text, always, and keep the whole path short enough to read at a glance.',
     },
     {
-      id: 98,
+      id: 100,
       title: 'Observables: streams you make yourself',
       subtitle: 'Subject, BehaviorSubject, scan and the async pipe',
       minutes: '5 min',
@@ -1952,7 +1972,7 @@ export function Home() {
     setFormsMeta(doneIn(26, 47));
     setDataMeta(doneIn(48, 67));
     setPiecesMeta(doneIn(68, 78));
-    setBeyondMeta(doneIn(79, 98));
+    setBeyondMeta(doneIn(79, 100));
   };
   const doneIn = (from: number, to: number) => {
     const group = lessons.lessons.filter((l: Lesson) => l.id >= from && l.id <= to);
@@ -2103,7 +2123,7 @@ export function Home() {
                   ))}
                 </RgList>
               </RgSection>
-              <RgText variant="bodyLarge">98 lessons · Rangular framework 0.7.0</RgText>
+              <RgText variant="bodyLarge">100 lessons · Rangular framework 0.7.0</RgText>
               <RgButton color="danger" onPress={() => askReset()}>Reset all checks</RgButton>
             </RgSection>
           )}
@@ -2219,10 +2239,10 @@ export function History() {
     __shadowDoneCount = done.length;
     setDoneCount(__shadowDoneCount);
     setDoneMinutes(done.reduce((sum: number, l: Lesson) => sum + parseInt(l.minutes, 10), 0));
-    setPercent(Math.round((__shadowDoneCount * 100) / 98));
+    setPercent(Math.round((__shadowDoneCount * 100) / 100));
     setSavedCount(bookmarks.bookmarkIds.length);
     setWeekData([6, 5, 4, 3, 2, 1, 0].map((off: number) => ({ label: dayLabel(off), value: dayMinutes(off) })));
-    setGroups([groupStat('Getting started', 1, 5), groupStat('Components and templates', 6, 25), groupStat('Forms and interaction', 26, 47), groupStat('Services, routing, and data', 48, 67), groupStat('The Material pieces', 68, 78), groupStat('Beyond Angular', 79, 98)]);
+    setGroups([groupStat('Getting started', 1, 5), groupStat('Components and templates', 6, 25), groupStat('Forms and interaction', 26, 47), groupStat('Services, routing, and data', 48, 67), groupStat('The Material pieces', 68, 78), groupStat('Beyond Angular', 79, 100)]);
   };
   const minutesOf = (id: number) => {
     const found = lessons.lessons.find((l: Lesson) => l.id === id);
@@ -2282,7 +2302,7 @@ export function History() {
         <RgSection label="Your progress" plain>
           <RgCard style={styles.historyPathCard}>
             <RgText variant="heading">{percent}%</RgText>
-            <RgText variant="bodyLarge">{doneCount} of 98 lessons · {doneMinutes} minutes in</RgText>
+            <RgText variant="bodyLarge">{doneCount} of 100 lessons · {doneMinutes} minutes in</RgText>
             <RgProgressBar value={percent} />
           </RgCard>
           <RgSection style={styles.historyStatRow}>
@@ -2352,7 +2372,7 @@ export function Lesson() {
       setBarTitle('Lesson ' + __shadowLessonId);
       setHasCode(__shadowLesson.code !== '');
       setDone(bookmarks.isDone(__shadowLessonId));
-      setProgressPct(Math.round((__shadowLessonId * 100) / 98));
+      setProgressPct(Math.round((__shadowLessonId * 100) / 100));
       setSectionName(nameFor(__shadowLessonId));
       setNextLabel(labelFor(__shadowLessonId));
       setImplBlocks(buildImplBlocks(__shadowLesson.implementation || ''));
@@ -2393,7 +2413,7 @@ export function Lesson() {
     return 'BEYOND ANGULAR';
   };
   const labelFor = (id: number) => {
-    if (id >= 98) {
+    if (id >= 100) {
       return (done ? 'Done · Back home' : 'Mark done · Finish');
     }
     return (done ? 'Done · Next lesson' : 'Mark done · Next lesson');
@@ -2942,101 +2962,113 @@ export function Lesson() {
         )}
         {!!((lessonId === 82)) && (
           <RgCard style={styles.lessonDemoCard}>
+            <RgText variant="label">Live demo: the reading list in numbered pages</RgText>
+            <PaginationDemo />
+          </RgCard>
+        )}
+        {!!((lessonId === 83)) && (
+          <RgCard style={styles.lessonDemoCard}>
+            <RgText variant="label">Live demo: a window of fifteen rows over a thousand messages</RgText>
+            <VirtualScrollDemo />
+          </RgCard>
+        )}
+        {!!((lessonId === 84)) && (
+          <RgCard style={styles.lessonDemoCard}>
             <RgText variant="label">Live demo: the skeleton and the card</RgText>
             <SkeletonDemo />
           </RgCard>
         )}
-        {!!((lessonId === 83)) && (
+        {!!((lessonId === 85)) && (
           <RgCard style={styles.lessonDemoCard}>
             <RgText variant="label">Live demo: swipe a row</RgText>
             <RowActionsDemo />
           </RgCard>
         )}
-        {!!((lessonId === 84)) && (
+        {!!((lessonId === 86)) && (
           <RgCard style={styles.lessonDemoCard}>
             <RgText variant="label">Live demo: pick a photo, pick documents</RgText>
             <FilePickerDemo />
           </RgCard>
         )}
-        {!!((lessonId === 85)) && (
+        {!!((lessonId === 87)) && (
           <RgCard style={styles.lessonDemoCard}>
             <RgText variant="label">Live demo: two masked fields</RgText>
             <MaskDemo />
           </RgCard>
         )}
-        {!!((lessonId === 86)) && (
+        {!!((lessonId === 88)) && (
           <RgCard style={styles.lessonDemoCard}>
             <RgText variant="label">Live demo: rate the session</RgText>
             <RatingDemo />
           </RgCard>
         )}
-        {!!((lessonId === 87)) && (
+        {!!((lessonId === 89)) && (
           <RgCard style={styles.lessonDemoCard}>
             <RgText variant="label">Live demo: the six digit code</RgText>
             <OtpDemo />
           </RgCard>
         )}
-        {!!((lessonId === 88)) && (
+        {!!((lessonId === 90)) && (
           <RgCard style={styles.lessonDemoCard}>
             <RgText variant="label">Live demo: three pages</RgText>
             <CarouselDemo />
           </RgCard>
         )}
-        {!!((lessonId === 89)) && (
+        {!!((lessonId === 91)) && (
           <RgCard style={styles.lessonDemoCard}>
             <RgText variant="label">Live demo: one morning on a rail</RgText>
             <TimelineDemo />
           </RgCard>
         )}
-        {!!((lessonId === 90)) && (
+        {!!((lessonId === 92)) && (
           <RgCard style={styles.lessonDemoCard}>
             <RgText variant="label">Live demo: a month to tap</RgText>
             <CalendarDemo />
           </RgCard>
         )}
-        {!!((lessonId === 91)) && (
+        {!!((lessonId === 93)) && (
           <RgCard style={styles.lessonDemoCard}>
             <RgText variant="label">Live demo: people in circles</RgText>
             <AvatarsDemo />
           </RgCard>
         )}
-        {!!((lessonId === 92)) && (
+        {!!((lessonId === 94)) && (
           <RgCard style={styles.lessonDemoCard}>
             <RgText variant="label">Live demo: an inbox that starts empty</RgText>
             <EmptyStateDemo />
           </RgCard>
         )}
-        {!!((lessonId === 93)) && (
+        {!!((lessonId === 95)) && (
           <RgCard style={styles.lessonDemoCard}>
             <RgText variant="label">Live demo: one week, three drawings</RgText>
             <ChartsDemo />
           </RgCard>
         )}
-        {!!((lessonId === 94)) && (
+        {!!((lessonId === 96)) && (
           <RgCard style={styles.lessonDemoCard}>
             <RgText variant="label">Live demo: notes as blocks</RgText>
             <EditorDemo />
           </RgCard>
         )}
-        {!!((lessonId === 95)) && (
+        {!!((lessonId === 97)) && (
           <RgCard style={styles.lessonDemoCard}>
             <RgText variant="label">Live demo: a photo that opens</RgText>
             <ImageDemo />
           </RgCard>
         )}
-        {!!((lessonId === 96)) && (
+        {!!((lessonId === 98)) && (
           <RgCard style={styles.lessonDemoCard}>
             <RgText variant="label">Live demo: pick a colour</RgText>
             <ColorPickerDemo />
           </RgCard>
         )}
-        {!!((lessonId === 97)) && (
+        {!!((lessonId === 99)) && (
           <RgCard style={styles.lessonDemoCard}>
             <RgText variant="label">Live demo: the path to here</RgText>
             <BreadcrumbsDemo />
           </RgCard>
         )}
-        {!!((lessonId === 98)) && (
+        {!!((lessonId === 100)) && (
           <RgCard style={styles.lessonDemoCard}>
             <RgText variant="label">Live demo: streams you make yourself</RgText>
             <StreamsDemo />
@@ -6719,6 +6751,206 @@ export function InfiniteScrollDemo() {
   }
 }
 
+export function PaginationDemo() {
+  const [, __sigBump] = useReducer((n: number) => n + 1, 0);
+  const __sigTracker = useRef(new SignalRenderTracker(__sigBump));
+  useEffect(() => () => { __sigTracker.current.dispose(); }, []);
+  const total = 60;
+  const [page, setPage] = useState(1);
+  const [first, setFirst] = useState(1);
+  const [last, setLast] = useState(10);
+  const pageNums = [1, 2, 3, 4, 5, 6];
+  const firstPage = [
+    { id: 1, title: 'Article 1: Begin with the breath', sub: 'Start where the breath starts' },
+    { id: 2, title: 'Article 2: The spine, held easy', sub: 'Posture without force' },
+    { id: 3, title: 'Article 3: Sitting without force', sub: 'Let the seat hold you' },
+    { id: 4, title: 'Article 4: Attention returns', sub: 'The gentle art of coming back' },
+    { id: 5, title: 'Article 5: The witness stance', sub: 'Watch, do not chase' },
+    { id: 6, title: 'Article 6: Sound and silence', sub: 'Two sides of listening' },
+    { id: 7, title: 'Article 7: The pause between', sub: 'Rest in the gap' },
+    { id: 8, title: 'Article 8: Ending well', sub: 'Close the sit with care' },
+    { id: 9, title: 'Article 9: Carrying it into the day', sub: 'Practice after the cushion' },
+    { id: 10, title: 'Article 10: Review and rest', sub: 'Look back, then let go' },
+  ];
+  const morePages = [
+    [
+      { id: 11, title: 'Article 11: Morning light, first practice', sub: 'Begin with the day' },
+      { id: 12, title: 'Article 12: The hands, relaxed', sub: 'Soft hands, soft mind' },
+      { id: 13, title: 'Article 13: Counting the breath out', sub: 'Numbers as an anchor' },
+      { id: 14, title: 'Article 14: A quieter jaw', sub: 'Release the small tensions' },
+      { id: 15, title: 'Article 15: Standing like a mountain', sub: 'Stillness on your feet' },
+      { id: 16, title: 'Article 16: The floor holds you', sub: 'Trust the ground' },
+      { id: 17, title: 'Article 17: Eyes, soft focus', sub: 'See without gripping' },
+      { id: 18, title: 'Article 18: One thing at a time', sub: 'The single thread' },
+      { id: 19, title: 'Article 19: The space between thoughts', sub: 'Widen the gap' },
+      { id: 20, title: 'Article 20: Listening to the room', sub: 'Sound as a teacher' },
+    ],
+    [
+      { id: 21, title: 'Article 21: Shoulders down', sub: 'Drop what you carry' },
+      { id: 22, title: 'Article 22: The long exhale', sub: 'Longer out than in' },
+      { id: 23, title: 'Article 23: Walking without hurry', sub: 'Steps that arrive' },
+      { id: 24, title: 'Article 24: Tea, taken slowly', sub: 'A practice in a cup' },
+      { id: 25, title: 'Article 25: The body scans itself', sub: 'Attention, head to heel' },
+      { id: 26, title: 'Article 26: Gratitude, briefly', sub: 'One honest thank you' },
+      { id: 27, title: 'Article 27: Letting the day land', sub: 'Evening settling' },
+      { id: 28, title: 'Article 28: A short sit before sleep', sub: 'Close the day seated' },
+      { id: 29, title: 'Article 29: The breath at the nostrils', sub: 'The smallest anchor' },
+      { id: 30, title: 'Article 30: Palms together', sub: 'A gesture of return' },
+    ],
+    [
+      { id: 31, title: 'Article 31: The spine, one inch taller', sub: 'Grow the axis gently' },
+      { id: 32, title: 'Article 32: Silence after sound', sub: 'What the bell leaves behind' },
+      { id: 33, title: 'Article 33: Noticing the noticing', sub: 'Awareness of awareness' },
+      { id: 34, title: 'Article 34: The weight of the hands', sub: 'Feel gravity kindly' },
+      { id: 35, title: 'Article 35: A kinder inner voice', sub: 'Speak to yourself well' },
+      { id: 36, title: 'Article 36: The pause before speaking', sub: 'One breath of room' },
+      { id: 37, title: 'Article 37: Sitting with discomfort', sub: 'Stay, without fixing' },
+      { id: 38, title: 'Article 38: The morning stretches', sub: 'Wake the body first' },
+      { id: 39, title: 'Article 39: Breath and heartbeat', sub: 'Two rhythms, one seat' },
+      { id: 40, title: 'Article 40: Coming back, again', sub: 'The practice is the return' },
+    ],
+    [
+      { id: 41, title: 'Article 41: The cool of the evening', sub: 'Sit as the light fades' },
+      { id: 42, title: 'Article 42: One minute of stillness', sub: 'Small, and complete' },
+      { id: 43, title: 'Article 43: The gaze rests', sub: 'Eyes that do not hunt' },
+      { id: 44, title: 'Article 44: Shoulders, neck, jaw', sub: 'The tension triangle' },
+      { id: 45, title: 'Article 45: Counting to ten, slowly', sub: 'Ten breaths, no rush' },
+      { id: 46, title: 'Article 46: The room, held in mind', sub: 'Know where you sit' },
+      { id: 47, title: 'Article 47: A practice for busy days', sub: 'Short is not shallow' },
+      { id: 48, title: 'Article 48: The last page of the day', sub: 'End on a kind note' },
+      { id: 49, title: 'Article 49: Rest is also practice', sub: 'Doing nothing, well' },
+      { id: 50, title: 'Article 50: Beginning again', sub: 'Every sit is the first' },
+    ],
+    [
+      { id: 51, title: 'Article 51: The breath deepens', sub: 'Let it slow itself' },
+      { id: 52, title: 'Article 52: Watching the mind settle', sub: 'Sediment and clear water' },
+      { id: 53, title: 'Article 53: A steady seat', sub: 'Build the base' },
+      { id: 54, title: 'Article 54: The sounds outside', sub: 'The world, included' },
+      { id: 55, title: 'Article 55: Kindness toward the body', sub: 'Thank the instrument' },
+      { id: 56, title: 'Article 56: The exhale lengthens', sub: 'Follow it all the way out' },
+      { id: 57, title: 'Article 57: Stillness between tasks', sub: 'The hinge of the day' },
+      { id: 58, title: 'Article 58: The evening review', sub: 'See the day, release it' },
+      { id: 59, title: 'Article 59: One slow breath', sub: 'Enough for now' },
+      { id: 60, title: 'Article 60: The whole list, held lightly', sub: 'All of it, loosely' },
+    ],
+  ];
+  const [items, setItems] = useState([
+    { id: 1, title: 'Article 1: Begin with the breath', sub: 'Start where the breath starts' },
+    { id: 2, title: 'Article 2: The spine, held easy', sub: 'Posture without force' },
+    { id: 3, title: 'Article 3: Sitting without force', sub: 'Let the seat hold you' },
+    { id: 4, title: 'Article 4: Attention returns', sub: 'The gentle art of coming back' },
+    { id: 5, title: 'Article 5: The witness stance', sub: 'Watch, do not chase' },
+    { id: 6, title: 'Article 6: Sound and silence', sub: 'Two sides of listening' },
+    { id: 7, title: 'Article 7: The pause between', sub: 'Rest in the gap' },
+    { id: 8, title: 'Article 8: Ending well', sub: 'Close the sit with care' },
+    { id: 9, title: 'Article 9: Carrying it into the day', sub: 'Practice after the cushion' },
+    { id: 10, title: 'Article 10: Review and rest', sub: 'Look back, then let go' },
+  ]);
+  const go = (n: number) => {
+    if (n >= 1 && n <= 6) {
+      setPage(n);
+      setFirst((n - 1) * 10 + 1);
+      setLast(n * 10);
+      if (n === 1) {
+        setItems(firstPage);
+      } else {
+        setItems(morePages[n - 2]);
+      }
+    }
+  };
+  const prev = () => {
+    go(page - 1);
+  };
+  const next = () => {
+    go(page + 1);
+  };
+  __sigTracker.current.begin();
+  try {
+    return (
+      <>
+        <RgText variant="bodyLarge" style={styles.paginationDemoPgStatus}>Page {page} of 6 · Articles {first} to {last} of {total}</RgText>
+        <RgList>
+          {items.map((a, index) => (
+            <RgRow key={a?.id ?? index} title={a.title} subtitle={a.sub} />
+          ))}
+        </RgList>
+        <RgSection style={styles.paginationDemoPgNav}>
+          <RgButton variant="text" disabled={(page === 1)} onPress={() => prev()}>Previous</RgButton>
+          <RgButton variant="text" disabled={(page === 6)} onPress={() => next()}>Next</RgButton>
+        </RgSection>
+        <RgSection style={styles.paginationDemoPgPages}>
+          <RgChips>
+            {pageNums.map((p, index) => (
+              <RgSection key={p?.id ?? index} onPress={() => go(p)} style={[styles.paginationDemoChip, (page === p) ? styles.paginationDemoChipOn : undefined]}>
+                <RgText variant="bodyLarge" style={[styles.paginationDemoChipText, (page === p) ? styles.paginationDemoChipTextOn : undefined]}>{p}</RgText>
+              </RgSection>
+            ))}
+          </RgChips>
+        </RgSection>
+      </>
+    );
+  } finally {
+    __sigTracker.current.end();
+  }
+}
+
+export function VirtualScrollDemo() {
+  const [, __sigBump] = useReducer((n: number) => n + 1, 0);
+  const __sigTracker = useRef(new SignalRenderTracker(__sigBump));
+  useEffect(() => () => { __sigTracker.current.dispose(); }, []);
+  const [start, setStart] = useState(0);
+  const [firstShown, setFirstShown] = useState(1);
+  const [lastShown, setLastShown] = useState(15);
+  const slots = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+  const senders = ['Ana', 'Ben', 'Cleo', 'Dev', 'Eli', 'Faye', 'Gus', 'Hana'];
+  const pickStart = (v: number) => {
+    setStart(v);
+    syncShown(v);
+  };
+  const move = (d: number) => {
+    let n = start + d;
+    if (n < 0) {
+      n = 0;
+    }
+    if (n > 985) {
+      n = 985;
+    }
+    setStart(n);
+    syncShown(n);
+  };
+  const syncShown = (n: number) => {
+    setFirstShown(n + 1);
+    setLastShown(n + 15);
+  };
+  const rowTitle = (s: number) => {
+    return 'Message ' + (start + s + 1);
+  };
+  const rowSub = (s: number) => {
+    return senders[(start + s) % 8] + ' · message ' + (start + s + 1) + ' of 1,000';
+  };
+  __sigTracker.current.begin();
+  try {
+    return (
+      <>
+        <RgText variant="bodyLarge" style={styles.virtualScrollDemoVsReadout}>Rendering rows {firstShown} to {lastShown} of 1,000. Only 15 rows exist.</RgText>
+        <RgSlider min={0} max={985} step={1} value={start} onChange={($event) => pickStart($event)} />
+        <RgSection style={styles.virtualScrollDemoVsPanel}>
+          {slots.map((s, index) => (
+            <RgRow key={s?.id ?? index} title={rowTitle(s)} subtitle={rowSub(s)} />
+          ))}
+        </RgSection>
+        <RgSection style={styles.virtualScrollDemoVsNav}>
+          <RgButton variant="text" onPress={() => move(-15)}>Back 15</RgButton>
+          <RgButton variant="text" onPress={() => move(15)}>Forward 15</RgButton>
+        </RgSection>
+        <RgText variant="bodyLarge">Drag the slider, or step the window. The fifteen rows never change; the numbers they wear do.</RgText>
+      </>
+    );
+  } finally {
+    __sigTracker.current.end();
+  }
+}
+
 export function SkeletonDemo() {
   const [, __sigBump] = useReducer((n: number) => n + 1, 0);
   const __sigTracker = useRef(new SignalRenderTracker(__sigBump));
@@ -7215,7 +7447,7 @@ export function BreadcrumbsDemo() {
   const [, __sigBump] = useReducer((n: number) => n + 1, 0);
   const __sigTracker = useRef(new SignalRenderTracker(__sigBump));
   useEffect(() => () => { __sigTracker.current.dispose(); }, []);
-  const [place, setPlace] = useState('Lesson 97');
+  const [place, setPlace] = useState('Lesson 99');
   const goPlace = (name: string) => {
     setPlace(name);
   };
@@ -7226,7 +7458,7 @@ export function BreadcrumbsDemo() {
         <RgBreadcrumbs>
           <RgCrumb onPress={() => goPlace('Home')}>Home</RgCrumb>
           <RgCrumb onPress={() => goPlace('Beyond Angular')}>Beyond Angular</RgCrumb>
-          <RgCrumb>Lesson 97</RgCrumb>
+          <RgCrumb>Lesson 99</RgCrumb>
         </RgBreadcrumbs>
         <RgText variant="bodyLarge">You are looking at: {place}</RgText>
         <RgText variant="bodyLarge">Tap Home or Beyond Angular and the line follows. The last crumb never moves: it is where you already are.</RgText>
@@ -7416,7 +7648,7 @@ export function About() {
             <RgIcon name="logo" size={48} />
           </RgSection>
           <RgText variant="heading" style={styles.aboutHeroTitle}>Rangular Tutorial</RgText>
-          <RgText variant="bodyLarge" style={styles.aboutHeroText}>Version 1.0.0 · 98 lessons</RgText>
+          <RgText variant="bodyLarge" style={styles.aboutHeroText}>Version 1.0.0 · 100 lessons</RgText>
           <RgText variant="bodyLarge" style={styles.aboutHeroText}>A step by step tutorial that teaches the Rangular framework: writing iOS and Android apps the Angular way. Every screen in this app, including this one, started as Angular code and was compiled by Rangular into React Native.</RgText>
         </RgCard>
         <RgCard>
@@ -7442,7 +7674,7 @@ export function About() {
         </RgCard>
         <RgCard>
           <RgSection icon="star" label="Made for the stores">
-            <RgText variant="bodyLarge">This app is being prepared for release on the App Store and Google Play. All 98 lessons are complete, and the icon, splash artwork, and store listing are prepared. The store accounts and the submission itself are the remaining steps.</RgText>
+            <RgText variant="bodyLarge">This app is being prepared for release on the App Store and Google Play. All 100 lessons are complete, and the icon, splash artwork, and store listing are prepared. The store accounts and the submission itself are the remaining steps.</RgText>
           </RgSection>
         </RgCard>
         <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.3.4</RgText>
@@ -8236,7 +8468,7 @@ export default function App() {
           <RgDrawer open={shell.drawerOpen} onClose={() => closeDrawer()}>
             <RgSection style={styles.drawerHead}>
               <RgText variant="title">Rangular Tutorial</RgText>
-              <RgText variant="bodyLarge" style={styles.drawerSub}>98 lessons · Learn by running code</RgText>
+              <RgText variant="bodyLarge" style={styles.drawerSub}>100 lessons · Learn by running code</RgText>
               <RgGradient style={styles.drawerRule} />
             </RgSection>
             <RgList>
@@ -8428,6 +8660,16 @@ const styles = StyleSheet.create({
   infiniteScrollDemoLaunchPills: {"flexDirection":"row","gap":8},
   infiniteScrollDemoPill: {"backgroundColor":"#e8f0fe","borderRadius":9999,"paddingLeft":8,"paddingRight":8,"paddingTop":4,"paddingBottom":4},
   infiniteScrollDemoPillText: {"fontSize":12,"lineHeight":16,"fontWeight":600,"color":"#0b57d0"},
+  paginationDemoPgStatus: {"fontSize":14,"lineHeight":20,"fontWeight":600,"color":"#5f6368"},
+  paginationDemoPgNav: {"flexDirection":"row","justifyContent":"space-between","alignItems":"center","marginTop":12},
+  paginationDemoPgPages: {"marginTop":12},
+  paginationDemoChip: {"borderWidth":1,"borderColor":"#bdc1c6","borderRadius":9999,"padding":8},
+  paginationDemoChipOn: {"backgroundColor":"#0b57d0","borderColor":"#0b57d0"},
+  paginationDemoChipText: {"fontSize":14,"color":"#3c4043","textAlign":"center"},
+  paginationDemoChipTextOn: {"color":"#ffffff","fontWeight":600},
+  virtualScrollDemoVsReadout: {"fontSize":14,"lineHeight":20,"fontWeight":600,"color":"#5f6368"},
+  virtualScrollDemoVsPanel: {"borderWidth":1,"borderColor":"#a06a35","borderRadius":12,"padding":12,"backgroundColor":"#fdf6ec","marginTop":12},
+  virtualScrollDemoVsNav: {"flexDirection":"row","justifyContent":"space-between","marginTop":12},
   filePickerDemoPicked: {"color":"#34a853","fontWeight":700},
   streamsDemoPanel: {"borderWidth":1,"borderColor":"#a06a35","borderRadius":12,"padding":12,"backgroundColor":"#fdf6ec"},
   streamsDemoCount: {"fontSize":24,"fontWeight":700},
