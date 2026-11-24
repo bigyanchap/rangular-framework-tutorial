@@ -1828,16 +1828,6 @@ export function RgAppbar({ title, search, menu, avatar, onMenu, titleAlign, tone
   // takes the right slot over the avatar. A lesson bar carries its
   // bookmark here, filled or outline by the icon name the app
   // binds, so the state reads at a glance.
-  const actionNode = actionIcon ? (onAction ? (
-    <View key="action" onLayout={(e: any) => console.log('[rangular] WRAPPER layout:', JSON.stringify(e.nativeEvent.layout))} style={{ width: 40, height: 40 }}>
-      <Pressable onPress={fireAction} onPressIn={() => console.log('[rangular] appbar ACTION pressIn')} onLayout={(e: any) => console.log('[rangular] ACTION layout:', JSON.stringify(e.nativeEvent.layout))} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
-        <View pointerEvents="none">
-          <RgIcon name={actionIcon} size={28} color={gradient ? 'onPrimary' : 'primary'} />
-        </View>
-      </Pressable>
-      <Pressable onPressIn={() => console.log('[rangular] BOUNDARY pressIn')} onPress={() => { console.log('[rangular] BOUNDARY press'); fireAction(); }} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 200, 0, 0.35)' }} />
-    </View>
-  ) : <RgIcon key="action" name={actionIcon} size={28} color={gradient ? 'onPrimary' : 'primary'} />) : null;
   // Second action (Option A round, 2026-11-17): `actionIcon2`
   // names a second icon button at the right, wired to (action2),
   // so a bar can carry search and a shortcut side by side. With
@@ -1851,18 +1841,19 @@ export function RgAppbar({ title, search, menu, avatar, onMenu, titleAlign, tone
   // The two actions travel as one array into the bar's right
   // zone, so both carry keys from birth (phone round,
   // 2026-11-18: React's unique key warning named this array).
-  // DEBUG (Save button round, 2026-11-24): a fake button standing
-  // left of the action, at Bigyan's word, to test whether the bar's
-  // right area takes touches at all on device. Temporary; strip it
-  // with the other debug logs when the Save press is fixed.
-  const fakeNode = actionIcon ? (
-    <Pressable key="fake" onPressIn={() => console.log('[rangular] ALT pressIn')} onPress={() => { console.log('[rangular] ALT press'); fireAction(); }} onLayout={(e: any) => console.log('[rangular] ALT layout:', JSON.stringify(e.nativeEvent.layout))} hitSlop={4} style={[styles.appbarButton, { backgroundColor: c.error, borderRadius: 20 }]}>
+  // The action's shape (Save button round, 2026-11-24): a plain
+  // static style and a filled disc, the construction that proved
+  // it takes touches on device while the earlier function-style
+  // node beside it never received one. The ALT and layout logs on
+  // it are temporary and come out once Bigyan confirms the press.
+  const actionNode = actionIcon ? (onAction ? (
+    <Pressable key="action" onPressIn={() => console.log('[rangular] ALT pressIn')} onPress={() => { console.log('[rangular] ALT press'); fireAction(); }} onLayout={(e: any) => console.log('[rangular] ALT layout:', JSON.stringify(e.nativeEvent.layout))} hitSlop={4} style={[styles.appbarButton, { backgroundColor: c.primary, borderRadius: 20 }]}>
       <View pointerEvents="none">
-        <RgIcon name={actionIcon} size={20} color="onError" />
+        <RgIcon name={actionIcon} size={24} color="onPrimary" />
       </View>
     </Pressable>
-  ) : null;
-  const rightBits = [fakeNode, actionNode, action2Node].filter(Boolean);
+  ) : <RgIcon key="action" name={actionIcon} size={24} color="primary" />) : null;
+  const rightBits = [actionNode, action2Node].filter(Boolean);
   const rightNode = rightBits.length ? (
     <View onLayout={(e: any) => console.log('[rangular] ZONE layout:', JSON.stringify(e.nativeEvent.layout))} style={{ flexDirection: 'row', alignItems: 'center', gap: t.spacing.md }}>{rightBits}</View>
   ) : avatarNode;
