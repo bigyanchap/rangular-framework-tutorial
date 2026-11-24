@@ -57,7 +57,14 @@ docs/STORE_LISTING.md.
    the curriculum and the app comforts are complete.)
 2. Add icon and splash artwork. (Done, and the listing is
    drafted.)
-3. Link the EAS project, run a preview build, and test it.
+3. First remove the two unused modules, then link the EAS
+   project, run a preview build, and test it. Removal means:
+   expo-audio and the whole expo-notifications plugin block
+   come out of app.json (the plugin block names a sound file,
+   ./assets/alarm-tone.wav, that no longer exists, and prebuild
+   fails on a missing sound file), and both packages come out
+   of package.json. (Bigyan's decision, 2026-11-24: leave this
+   to publish time; nothing in the app uses either module.)
 4. Prepare listings and screenshots. (Listings drafted;
    screenshots still need a real device.)
 5. Submit production builds to both stores.
