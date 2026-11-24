@@ -1370,9 +1370,13 @@ export function RgScreen({ children, style, theme: mode, refreshing, onRefresh, 
   // status area and the bar, so the gradient is continuous
   // from the top of the phone to the bar's melt into the page.
   const [headerWash, setHeaderWash] = useState(false);
+  // DEBUG (Save button round, 2026-11-24): one line at mount proves
+  // the console channel itself reaches the terminal. Temporary.
+  useEffect(() => { console.log('[rangular] screen mounted'); }, []);
   const headerSlot = useRef({
     register: (key: string, node: React.ReactNode, chromeColor?: string, wash?: boolean) => {
       if (headerKeyRef.current !== key) {
+        console.log('[rangular] header register:', key.slice(0, 48));
         headerKeyRef.current = key;
         setHeaderNode(node);
         setChrome(chromeColor);
@@ -1841,7 +1845,16 @@ export function RgAppbar({ title, search, menu, avatar, onMenu, titleAlign, tone
   // The two actions travel as one array into the bar's right
   // zone, so both carry keys from birth (phone round,
   // 2026-11-18: React's unique key warning named this array).
-  const rightBits = [actionNode, action2Node].filter(Boolean);
+  // DEBUG (Save button round, 2026-11-24): a fake button standing
+  // left of the action, at Bigyan's word, to test whether the bar's
+  // right area takes touches at all on device. Temporary; strip it
+  // with the other debug logs when the Save press is fixed.
+  const fakeNode = actionIcon ? (
+    <Pressable key="fake" onPressIn={() => console.log('[rangular] FAKE pressIn')} onPress={() => console.log('[rangular] FAKE press')} hitSlop={4} style={[styles.appbarButton, { backgroundColor: c.error, borderRadius: 20 }]}>
+      <Text style={{ color: c.onError, fontSize: 10, fontWeight: '700' }}>TEST</Text>
+    </Pressable>
+  ) : null;
+  const rightBits = [fakeNode, actionNode, action2Node].filter(Boolean);
   const rightNode = rightBits.length ? (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.spacing.md }}>{rightBits}</View>
   ) : avatarNode;
