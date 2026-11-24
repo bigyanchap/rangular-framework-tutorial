@@ -1370,13 +1370,9 @@ export function RgScreen({ children, style, theme: mode, refreshing, onRefresh, 
   // status area and the bar, so the gradient is continuous
   // from the top of the phone to the bar's melt into the page.
   const [headerWash, setHeaderWash] = useState(false);
-  // DEBUG (Save button round, 2026-11-24): one line at mount proves
-  // the console channel itself reaches the terminal. Temporary.
-  useEffect(() => { console.log('[rangular] screen mounted'); }, []);
   const headerSlot = useRef({
     register: (key: string, node: React.ReactNode, chromeColor?: string, wash?: boolean) => {
       if (headerKeyRef.current !== key) {
-        console.log('[rangular] header register:', key.slice(0, 48));
         headerKeyRef.current = key;
         setHeaderNode(node);
         setChrome(chromeColor);
@@ -1775,25 +1771,6 @@ export function RgAppbar({ title, search, menu, avatar, onMenu, titleAlign, tone
   const c = t.colors;
   const styles = stylesFor(t);
   const slot = useContext(RgHeaderSlotContext);
-  // DEBUG (Save button round, 2026-11-24): the console.log lines in
-  // fireBack, fireAction and the action Pressable onPressIn are
-  // temporary, added at Bigyan's word to diagnose the dead lesson
-  // Save press on device together; strip them when it is fixed.
-  // Latest callbacks (Save button round, 2026-11-24): a pinned
-  // bar is an element snapshot held by the screen's header slot,
-  // created by whichever render last registered. Its buttons
-  // dispatch through this ref, which every render refreshes, so a
-  // press always reaches the CURRENT handler even when the
-  // snapshot itself predates the state it acts on. On device the
-  // lesson bar's Save press did nothing at all while the same
-  // flow worked in the web build; a snapshot-held closure is the
-  // one link that can die that quietly, so it is removed.
-  const cbRef = useRef<any>({});
-  cbRef.current = { onMenu, onBack, onAction, onAction2 };
-  const fireMenu = () => { const f = cbRef.current.onMenu; if (f) f(); };
-  const fireBack = () => { const f = cbRef.current.onBack; console.log('[rangular] appbar BACK press; handler:', typeof f); if (f) f(); };
-  const fireAction = () => { const f = cbRef.current.onAction; console.log('[rangular] appbar ACTION press; handler:', typeof f); if (f) f(); };
-  const fireAction2 = () => { const f = cbRef.current.onAction2; if (f) f(); };
   const gradient = tone === 'gradient';
   const plain = tone === 'plain';
   const tint = tone === 'tint';
@@ -1804,9 +1781,8 @@ export function RgAppbar({ title, search, menu, avatar, onMenu, titleAlign, tone
   // bar always drew both: a dead menu icon, and a user avatar built
   // from the title's first letter in apps with no users and no sign
   // in at all (found by the Rangular Tutorial app, 2026-11-12).
-  if (actionIcon) console.log('[rangular] appbar render; actionIcon:', actionIcon, '; onAction:', typeof onAction);
   const menuNode = menu ? (onMenu ? (
-    <Pressable onPress={fireMenu} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
+    <Pressable onPress={onMenu} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
       <RgIcon name="menu" size={24} color={iconRole} />
     </Pressable>
   ) : <RgIcon name="menu" size={24} color={iconRole} />) : null;
@@ -1814,7 +1790,7 @@ export function RgAppbar({ title, search, menu, avatar, onMenu, titleAlign, tone
   // attribute puts a chevron at the left, wired to (back); it takes
   // the left slot over the menu, a screen shows one or the other.
   const backNode = back ? (onBack ? (
-    <Pressable onPress={fireBack} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
+    <Pressable onPress={onBack} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
       <RgIcon name="chevron-left" size={24} color={iconRole} />
     </Pressable>
   ) : <RgIcon name="chevron-left" size={24} color={iconRole} />) : null;
@@ -1828,34 +1804,27 @@ export function RgAppbar({ title, search, menu, avatar, onMenu, titleAlign, tone
   // takes the right slot over the avatar. A lesson bar carries its
   // bookmark here, filled or outline by the icon name the app
   // binds, so the state reads at a glance.
+  const actionNode = actionIcon ? (onAction ? (
+    <Pressable key="action" onPress={onAction} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
+      <RgIcon name={actionIcon} size={24} color={gradient ? 'onPrimary' : 'primary'} />
+    </Pressable>
+  ) : <RgIcon key="action" name={actionIcon} size={24} color={gradient ? 'onPrimary' : 'primary'} />) : null;
   // Second action (Option A round, 2026-11-17): `actionIcon2`
   // names a second icon button at the right, wired to (action2),
   // so a bar can carry search and a shortcut side by side. With
   // any action present the avatar steps aside, as before.
   const action2Node = actionIcon2 ? (onAction2 ? (
-    <Pressable key="action2" onPress={fireAction2} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
-      <RgIcon name={actionIcon2} size={28} color={gradient ? 'onPrimary' : 'primary'} />
+    <Pressable key="action2" onPress={onAction2} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
+      <RgIcon name={actionIcon2} size={24} color={gradient ? 'onPrimary' : 'primary'} />
     </Pressable>
-  ) : <RgIcon key="action2" name={actionIcon2} size={28} color={gradient ? 'onPrimary' : 'primary'} />) : null;
+  ) : <RgIcon key="action2" name={actionIcon2} size={24} color={gradient ? 'onPrimary' : 'primary'} />) : null;
   const leftNode = back ? backNode : menuNode;
   // The two actions travel as one array into the bar's right
   // zone, so both carry keys from birth (phone round,
   // 2026-11-18: React's unique key warning named this array).
-  // The action's shape (Save button round, 2026-11-24): a plain
-  // static style and a filled disc, the construction that proved
-  // it takes touches on device while the earlier function-style
-  // node beside it never received one. The ALT and layout logs on
-  // it are temporary and come out once Bigyan confirms the press.
-  const actionNode = actionIcon ? (onAction ? (
-    <Pressable key="action" onPressIn={() => console.log('[rangular] ALT pressIn')} onPress={() => { console.log('[rangular] ALT press'); fireAction(); }} onLayout={(e: any) => console.log('[rangular] ALT layout:', JSON.stringify(e.nativeEvent.layout))} hitSlop={4} style={[styles.appbarButton, { backgroundColor: c.primary, borderRadius: 20 }]}>
-      <View pointerEvents="none">
-        <RgIcon name={actionIcon} size={24} color="onPrimary" />
-      </View>
-    </Pressable>
-  ) : <RgIcon key="action" name={actionIcon} size={24} color="primary" />) : null;
   const rightBits = [actionNode, action2Node].filter(Boolean);
   const rightNode = rightBits.length ? (
-    <View onLayout={(e: any) => console.log('[rangular] ZONE layout:', JSON.stringify(e.nativeEvent.layout))} style={{ flexDirection: 'row', alignItems: 'center', gap: t.spacing.md }}>{rightBits}</View>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.spacing.md }}>{rightBits}</View>
   ) : avatarNode;
   const titleNode = search
     ? <Text style={[styles.searchText, gradient ? { color: c.onPrimary } : null, titleAlign === 'center' ? styles.appbarTitleCenter : null]}>{search}</Text>
@@ -1877,10 +1846,10 @@ export function RgAppbar({ title, search, menu, avatar, onMenu, titleAlign, tone
   const hasRow = !!(title || search || leftNode || rightNode);
   const bar = (
     <>
-    <View onLayout={(e: any) => console.log('[rangular] BAR layout:', JSON.stringify(e.nativeEvent.layout))} style={[styles.appbar, { flexDirection: 'column', alignItems: 'stretch' }, gradient ? styles.appbarGradient : null, plain ? styles.appbarPlain : null, tint ? styles.appbarTint : null, tint && pin ? { backgroundColor: 'transparent' } : null]}>
+    <View style={[styles.appbar, { flexDirection: 'column', alignItems: 'stretch' }, gradient ? styles.appbarGradient : null, plain ? styles.appbarPlain : null, tint ? styles.appbarTint : null, tint && pin ? { backgroundColor: 'transparent' } : null]}>
       {gradient ? <GradientFill /> : null}
       {hasRow ? (
-        <View onLayout={(e: any) => console.log('[rangular] ROW layout:', JSON.stringify(e.nativeEvent.layout))} style={{ flexDirection: 'row', alignItems: 'center', gap: t.spacing.md }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.spacing.md }}>
           {titleAlign === 'center' ? (
             <>
               <View style={styles.appbarSide}>{leftNode}</View>
