@@ -1804,6 +1804,7 @@ export function RgAppbar({ title, search, menu, avatar, onMenu, titleAlign, tone
   // bar always drew both: a dead menu icon, and a user avatar built
   // from the title's first letter in apps with no users and no sign
   // in at all (found by the Rangular Tutorial app, 2026-11-12).
+  if (actionIcon) console.log('[rangular] appbar render; actionIcon:', actionIcon, '; onAction:', typeof onAction);
   const menuNode = menu ? (onMenu ? (
     <Pressable onPress={fireMenu} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
       <RgIcon name="menu" size={24} color={iconRole} />
@@ -1828,9 +1829,14 @@ export function RgAppbar({ title, search, menu, avatar, onMenu, titleAlign, tone
   // bookmark here, filled or outline by the icon name the app
   // binds, so the state reads at a glance.
   const actionNode = actionIcon ? (onAction ? (
-    <Pressable key="action" onPress={fireAction} onPressIn={() => console.log('[rangular] appbar ACTION pressIn')} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
-      <RgIcon name={actionIcon} size={28} color={gradient ? 'onPrimary' : 'primary'} />
-    </Pressable>
+    <View key="action" style={{ width: 40, height: 40 }}>
+      <Pressable onPress={fireAction} onPressIn={() => console.log('[rangular] appbar ACTION pressIn')} onLayout={(e: any) => console.log('[rangular] ACTION layout:', JSON.stringify(e.nativeEvent.layout))} hitSlop={4} style={({ pressed }) => [styles.appbarButton, pressed && styles.buttonPressed]}>
+        <View pointerEvents="none">
+          <RgIcon name={actionIcon} size={28} color={gradient ? 'onPrimary' : 'primary'} />
+        </View>
+      </Pressable>
+      <Pressable onPressIn={() => console.log('[rangular] BOUNDARY pressIn')} onPress={() => { console.log('[rangular] BOUNDARY press'); fireAction(); }} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
+    </View>
   ) : <RgIcon key="action" name={actionIcon} size={28} color={gradient ? 'onPrimary' : 'primary'} />) : null;
   // Second action (Option A round, 2026-11-17): `actionIcon2`
   // names a second icon button at the right, wired to (action2),
@@ -1850,8 +1856,10 @@ export function RgAppbar({ title, search, menu, avatar, onMenu, titleAlign, tone
   // right area takes touches at all on device. Temporary; strip it
   // with the other debug logs when the Save press is fixed.
   const fakeNode = actionIcon ? (
-    <Pressable key="fake" onPressIn={() => console.log('[rangular] FAKE pressIn')} onPress={() => console.log('[rangular] FAKE press')} hitSlop={4} style={[styles.appbarButton, { backgroundColor: c.error, borderRadius: 20 }]}>
-      <Text style={{ color: c.onError, fontSize: 10, fontWeight: '700' }}>TEST</Text>
+    <Pressable key="fake" onPressIn={() => console.log('[rangular] ALT pressIn')} onPress={() => { console.log('[rangular] ALT press'); fireAction(); }} onLayout={(e: any) => console.log('[rangular] ALT layout:', JSON.stringify(e.nativeEvent.layout))} hitSlop={4} style={[styles.appbarButton, { backgroundColor: c.error, borderRadius: 20 }]}>
+      <View pointerEvents="none">
+        <RgIcon name={actionIcon} size={20} color="onError" />
+      </View>
     </Pressable>
   ) : null;
   const rightBits = [fakeNode, actionNode, action2Node].filter(Boolean);
