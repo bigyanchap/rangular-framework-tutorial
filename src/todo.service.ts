@@ -29,7 +29,7 @@ export class TodoService {
         this.items = JSON.parse(raw).map((t: any) => ({ id: t.id, text: t.text, prio: t.prio, done: t.done, desc: t.desc ? t.desc : '', due: t.due ? t.due : '' }));
       } else {
         this.items = [
-          { id: 1, text: 'Design the new landing page', prio: 2, done: false, desc: 'Hero, pricing and the signup section, in the new brand colours.', due: this.keyPlus(2) + 'T00:00:00' },
+          { id: 1, text: 'Design the new landing page', prio: 2, done: false, desc: 'Pricing and the signup section, in the new brand colours.', due: this.keyPlus(2) + 'T00:00:00' },
           { id: 2, text: 'Review the open pull requests', prio: 1, done: false, desc: 'Start with the two oldest ones.', due: '' },
           { id: 3, text: 'Book flights for the team offsite', prio: 0, done: true, desc: '', due: this.keyPlus(-3) + 'T00:00:00' },
         ];

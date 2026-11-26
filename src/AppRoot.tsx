@@ -1757,7 +1757,7 @@ export class TodoService extends ReactiveService {
     this.items = JSON.parse(raw).map((t: any) => ({ id: t.id, text: t.text, prio: t.prio, done: t.done, desc: (t.desc ? t.desc : ''), due: (t.due ? t.due : '') }));
     this.__notify();
   } else {
-    this.items = [{ id: 1, text: 'Design the new landing page', prio: 2, done: false, desc: 'Hero, pricing and the signup section, in the new brand colours.', due: this.keyPlus(2) + 'T00:00:00' }, { id: 2, text: 'Review the open pull requests', prio: 1, done: false, desc: 'Start with the two oldest ones.', due: '' }, { id: 3, text: 'Book flights for the team offsite', prio: 0, done: true, desc: '', due: this.keyPlus(-3) + 'T00:00:00' }];
+    this.items = [{ id: 1, text: 'Design the new landing page', prio: 2, done: false, desc: 'Pricing and the signup section, in the new brand colours.', due: this.keyPlus(2) + 'T00:00:00' }, { id: 2, text: 'Review the open pull requests', prio: 1, done: false, desc: 'Start with the two oldest ones.', due: '' }, { id: 3, text: 'Book flights for the team offsite', prio: 0, done: true, desc: '', due: this.keyPlus(-3) + 'T00:00:00' }];
     this.__notify();
     this.persist();
   }
@@ -7591,7 +7591,7 @@ export function About() {
             <RgText variant="bodyLarge">This app is being prepared for release on the App Store and Google Play. All 100 lessons are complete, and the icon, splash artwork, and store listing are prepared. The store accounts and the submission itself are the remaining steps.</RgText>
           </RgSection>
         </RgCard>
-        <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.3.4</RgText>
+        <RgText variant="bodyLarge">Rangular Tutorial 1.0.0 · Rangular framework 0.7.0</RgText>
       </RgSection>
     );
   } finally {
