@@ -1340,6 +1340,24 @@ function useRgBottom(tree: React.ReactNode): boolean {
 // the smooth form costs nothing.
 
 export function RgScreen({ children, style, theme: mode, refreshing, onRefresh, onEndReached, haptic, fade, scrollKey }: any) {
+  // A screen inside a screen (nested-screen round, 2026-11-27):
+  // two same-direction scrollers on one page fight on Android.
+  // The inner ScrollView and the page ScrollView hand scroll
+  // deltas back and forth, and the page flickers at a steady
+  // cadence once the inner screen nears the top. Lesson 25's
+  // theming demo, the one demo that embeds a full screen in a
+  // lesson page, flickered exactly this way on Android and in no
+  // other lesson. So a screen that finds itself inside another
+  // screen renders embedded: it keeps its theme, the reason a
+  // nested screen exists, and drops its own scroller, safe-area
+  // padding and chrome slots. The outer screen owns the scroll,
+  // the same rule RgList already follows inside a screen.
+  const parentScroll = useContext(RgScrollContext);
+  if (parentScroll) {
+    return (
+      <RgScreenEmbedded children={children} style={style} theme={mode} />
+    );
+  }
   // The safe area (safe-area round, 2026-11-24): the screen owns
   // the provider, so every app gets real insets with no scaffold
   // wiring. The body below reads them through useSafeAreaInsets
@@ -1351,6 +1369,21 @@ export function RgScreen({ children, style, theme: mode, refreshing, onRefresh, 
     <SafeAreaProvider style={{ flex: 1 }}>
       <RgScreenBody children={children} style={style} theme={mode} refreshing={refreshing} onRefresh={onRefresh} onEndReached={onEndReached} haptic={haptic} fade={fade} scrollKey={scrollKey} />
     </SafeAreaProvider>
+  );
+}
+
+function RgScreenEmbedded({ children, style, theme: mode }: any) {
+  const inherited = useRgTheme();
+  const active = mode === 'dark' || mode === 'light' ? makeTheme(mode) : inherited;
+  const styles = stylesFor(active);
+  // No RgScrollContext.Provider here on purpose: descendants
+  // keep the outer screen's scroll control, so a list inside an
+  // embedded screen still lends its refresh and end-reached to
+  // the page that actually scrolls.
+  return (
+    <RgThemeContext.Provider value={active}>
+      <View style={[{ backgroundColor: active.colors.background }, style]}>{children}</View>
+    </RgThemeContext.Provider>
   );
 }
 
